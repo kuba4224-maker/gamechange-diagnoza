@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gamechange System</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root {
   --bg: #f5f2ec;
@@ -222,7 +223,6 @@ body {
 /* ── LOADING ── */
 #screen-loading {
   min-height: 100vh;
-  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -230,6 +230,9 @@ body {
   padding: 40px;
   background: var(--ink);
   color: var(--bg);
+}
+#screen-loading.active {
+  display: flex;
 }
 .loading-word {
   font-family: 'Bebas Neue', sans-serif;
@@ -969,6 +972,12 @@ body {
       <div class="overall-label">Wynik ogólny</div>
       <div class="overall-num" id="overall-num" style="color:var(--ink)">—</div>
       <div id="overall-context" style="margin-top:8px;text-align:right;"></div>
+      <button onclick="downloadPDF()"
+        style="margin-top:16px;background:transparent;border:1px solid #d8d3c8;padding:10px 20px;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:0.1em;cursor:pointer;color:#3a3830;display:flex;align-items:center;gap:8px;transition:all 0.15s;"
+        onmouseover="this.style.borderColor='#0e0d0b';this.style.color='#0e0d0b'"
+        onmouseout="this.style.borderColor='#d8d3c8';this.style.color='#3a3830'">
+        ↓ Pobierz raport PDF
+      </button>
     </div>
   </div>
   <div class="results-body">
@@ -997,7 +1006,7 @@ body {
         </div>
       </div>
 
-      <!-- Email gate overlay -->
+      <!-- Email gate overlay — chowa się po podaniu emaila -->
       <div id="email-gate-box" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;">
         <div style="background:#fff;border:1px solid #d8d3c8;padding:40px;max-width:480px;width:100%;text-align:center;box-shadow:0 8px 48px rgba(0,0,0,0.08);">
           <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Odbierz pełną diagnozę</div>
@@ -1017,6 +1026,17 @@ body {
         </div>
       </div>
 
+    </div>
+
+    <!-- Potwierdzenie emaila — pojawia się poza blur containerem po odblokowaniu -->
+    <div id="email-confirm-box" style="display:none;margin-bottom:24px;background:#fff;border:1px solid #d8d3c8;padding:24px;text-align:center;">
+      <div style="font-size:24px;margin-bottom:8px;">✓</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.02em;margin-bottom:8px;color:#0e0d0b;">Email zapisany</div>
+      <p id="email-confirm-text" style="font-size:13px;color:#3a3830;font-weight:300;line-height:1.7;margin-bottom:16px;"></p>
+      <button onclick="copyResultsLink(this)"
+        style="background:#f5f2ec;border:1px solid #d8d3c8;padding:8px 20px;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:0.1em;cursor:pointer;color:#3a3830;">
+        Kopiuj link do wyników
+      </button>
     </div>
 
     <!-- Unlocked note — poza blur containerem -->
@@ -1492,6 +1512,51 @@ window.addEventListener('load', () => {
 });
 
 // ══════════════════════════════════════
+//  SUPABASE — BAZA DANYCH
+// ══════════════════════════════════════
+const SUPABASE_URL = 'https://kqrbztsvepjtggjmmcdx.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtxcmJ6dHN2ZXBqdGdnam1tY2R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5NTY5OTMsImV4cCI6MjA5NTUzMjk5M30.fnBws1p1b7hM0xPYPfM4F-Vdt1ooXR8j_hP3rmutO_U';
+
+async function saveToSupabase(table, data) {
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(data)
+    });
+  } catch(e) {
+    console.log('Supabase error:', e);
+  }
+}
+
+function buildDiagnosticsRecord(extras = {}) {
+  const sorted = cachedScores ? Object.entries(cachedScores).sort((a,b) => a[1]-b[1]) : [];
+  const deficits = sorted.slice(0,3).filter(([,v]) => v < 70).map(([id, score]) => {
+    const seg = isJunior ? SEGS_JUNIOR.find(s=>s.id===id) : SEGS.find(s=>s.id===id);
+    return `${seg ? seg.name : id} (${score})`;
+  });
+
+  return {
+    created_at: new Date().toISOString(),
+    mode: isJunior ? 'junior' : 'adult',
+    level: ctx.level !== null ? CTX_LABELS.level[ctx.level] : null,
+    position: ctx.pos !== null ? CTX_LABELS.pos[ctx.pos] : null,
+    age_group: ctx.age !== null ? CTX_LABELS.age[ctx.age] : null,
+    scores: cachedScores ? JSON.stringify(cachedScores) : null,
+    top_deficits: deficits.join(', ') || null,
+    overall_score: cachedScores
+      ? Math.round(Object.values(cachedScores).reduce((a,b)=>a+b,0) / Object.values(cachedScores).length)
+      : null,
+    ...extras
+  };
+}
+
+// ══════════════════════════════════════
 //  GENERATE RESULTS → EMAIL GATE
 // ══════════════════════════════════════
 let cachedScores = null;
@@ -1508,13 +1573,17 @@ async function generateResults() {
       w.innerHTML = `<span style="animation:ticker 0.4s ease forwards">${phrases[i]}</span>`;
       document.getElementById('loading-sub').textContent = subs[i];
     }
-  }, 900);
-  await new Promise(r => setTimeout(r, 2800));
+  }, 250);
+  await new Promise(r => setTimeout(r, 800));
   clearInterval(iv);
 
   cachedScores = calcScores();
   renderResults(cachedScores);
   saveResultsToURL(cachedScores);
+
+  // Zapisz anonimowe wyniki do Supabase
+  saveToSupabase('diagnostics', buildDiagnosticsRecord({ event: 'results_generated' }));
+
   showScreen('screen-results');
 
   // Animate bars
@@ -1535,21 +1604,20 @@ function submitEmail() {
   err.style.display = 'none';
   console.log('Email captured:', email);
 
-  // Pokaż potwierdzenie
-  document.getElementById('email-gate-box').innerHTML = `
-    <div style="background:#fff;border:1px solid #d8d3c8;padding:40px;max-width:480px;width:100%;text-align:center;box-shadow:0 8px 48px rgba(0,0,0,0.08);">
-      <div style="font-size:32px;margin-bottom:16px;">✓</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.02em;margin-bottom:12px;color:#0e0d0b;">Email zapisany</div>
-      <p style="font-size:14px;color:#3a3830;font-weight:300;line-height:1.8;margin-bottom:24px;">Wyślemy diagnozę na <strong>${email}</strong>. Możesz też skopiować link i podzielić się wynikami z trenerem.</p>
-      <button onclick="copyResultsLink(this)"
-        style="background:#f5f2ec;border:1px solid #d8d3c8;padding:10px 24px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:0.1em;cursor:pointer;color:#3a3830;">
-        Kopiuj link do wyników
-      </button>
-    </div>
-  `;
+  // Zapisz email do Supabase
+  saveToSupabase('diagnostics', buildDiagnosticsRecord({ event: 'email_submitted', email }));
 
-  // Junior — pomiń pytania otwarte, generuj od razu
+  // Schowaj overlay — całkowicie usuń z przepływu
+  document.getElementById('email-gate-box').style.display = 'none';
+
+  // Pokaż potwierdzenie poza blur containerem
+  document.getElementById('email-confirm-text').textContent = `Wyślemy diagnozę na ${email}. Możesz też skopiować link i podzielić się wynikami z trenerem.`;
+  document.getElementById('email-confirm-box').style.display = 'block';
+
+  // Junior — generuj od razu
   if (isJunior) {
+    document.getElementById('diagnosis-blur-wrap').style.filter = 'none';
+    document.getElementById('diagnosis-blur-wrap').style.pointerEvents = 'auto';
     document.getElementById('diagnosis-unlocked-note').style.display = 'block';
     document.getElementById('ai-diagnosis-text').textContent = 'Generuję Twoją diagnozę...';
     generateAIDiagnosis(cachedScores, '', '');
@@ -1565,8 +1633,9 @@ function submitOpenQuestions(skip = false) {
   const situation = skip ? '' : (document.getElementById('oq-situation').value.trim());
   const limitation = skip ? '' : (document.getElementById('oq-limitation').value.trim());
 
-  // Schowaj pytania, pokaż że generujemy
   document.getElementById('open-questions-wrap').style.display = 'none';
+  document.getElementById('diagnosis-blur-wrap').style.filter = 'none';
+  document.getElementById('diagnosis-blur-wrap').style.pointerEvents = 'auto';
   document.getElementById('diagnosis-unlocked-note').style.display = 'block';
   document.getElementById('ai-diagnosis-text').textContent = 'Generuję Twoją diagnozę...';
 
@@ -2234,6 +2303,209 @@ function renderProduct(scores) {
 }
 
 // ══════════════════════════════════════
+//  PDF EXPORT
+// ══════════════════════════════════════
+function downloadPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  const W = 210; // A4 width
+  const margin = 20;
+  const contentW = W - margin * 2;
+  let y = 20;
+
+  const scores = cachedScores;
+  if (!scores) { alert('Brak wyników do pobrania.'); return; }
+
+  // Zapisz event pobrania PDF
+  saveToSupabase('diagnostics', buildDiagnosticsRecord({ event: 'pdf_downloaded' }));
+
+  const sorted = Object.entries(scores).sort((a,b) => a[1]-b[1]);
+  const overall = Math.round(Object.values(scores).reduce((a,b)=>a+b,0) / Object.values(scores).length);
+
+  // Funkcja pomocnicza — nowa strona gdy potrzeba
+  function checkPage(needed = 10) {
+    if (y + needed > 275) { doc.addPage(); y = 20; }
+  }
+
+  // ── NAGŁÓWEK ──
+  doc.setFillColor(14, 13, 11);
+  doc.rect(0, 0, W, 40, 'F');
+
+  doc.setTextColor(200, 255, 0);
+  doc.setFontSize(22);
+  doc.setFont('helvetica', 'bold');
+  doc.text('GAMECHANGE SYSTEM', margin, 16);
+
+  doc.setTextColor(180, 180, 180);
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Raport diagnostyczny', margin, 24);
+
+  const dateStr = new Date().toLocaleDateString('pl-PL');
+  doc.text(`Data: ${dateStr}`, margin, 30);
+
+  // Kontekst zawodnika
+  if (ctx.level !== null) {
+    const ctxStr = `${CTX_LABELS.level[ctx.level]}  ·  ${CTX_LABELS.pos[ctx.pos]}  ·  ${CTX_LABELS.age[ctx.age]}`;
+    doc.text(ctxStr, margin, 36);
+  }
+
+  // Wynik ogólny
+  doc.setTextColor(200, 255, 0);
+  doc.setFontSize(28);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`${overall}`, W - margin - 20, 28, { align: 'right' });
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.text('/100', W - margin, 28, { align: 'right' });
+
+  y = 52;
+
+  // ── WYNIKI SEGMENTÓW ──
+  doc.setTextColor(14, 13, 11);
+  doc.setFontSize(13);
+  doc.setFont('helvetica', 'bold');
+  doc.text('WYNIKI SEGMENTÓW', margin, y);
+  y += 6;
+
+  doc.setDrawColor(216, 211, 200);
+  doc.line(margin, y, W - margin, y);
+  y += 6;
+
+  sorted.forEach(([id, score]) => {
+    checkPage(8);
+    const seg = isJunior ? SEGS_JUNIOR.find(s=>s.id===id) : SEGS.find(s=>s.id===id);
+    const name = seg ? seg.name : id;
+
+    // Kolor wyniku
+    const color = score < 40 ? [214,60,47] : score < 65 ? [224,128,32] : [42,122,58];
+
+    doc.setTextColor(60, 56, 48);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.text(name, margin, y);
+
+    // Pasek
+    const barX = margin + 60;
+    const barW = contentW - 75;
+    const barH = 4;
+    doc.setFillColor(230, 225, 218);
+    doc.rect(barX, y - 3.5, barW, barH, 'F');
+    doc.setFillColor(...color);
+    doc.rect(barX, y - 3.5, barW * (score/100), barH, 'F');
+
+    // Liczba
+    doc.setTextColor(...color);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`${score}`, W - margin, y, { align: 'right' });
+
+    y += 8;
+  });
+
+  y += 6;
+
+  // ── WĄSKIE GARDŁA ──
+  checkPage(20);
+  doc.setTextColor(14, 13, 11);
+  doc.setFontSize(13);
+  doc.setFont('helvetica', 'bold');
+  doc.text('KLUCZOWE WĄSKIE GARDŁA', margin, y);
+  y += 6;
+
+  doc.setDrawColor(216, 211, 200);
+  doc.line(margin, y, W - margin, y);
+  y += 8;
+
+  const deficits = sorted.slice(0,4).filter(([,v])=>v<70);
+  deficits.forEach(([id, score], i) => {
+    checkPage(24);
+    const seg = isJunior ? SEGS_JUNIOR.find(s=>s.id===id) : SEGS.find(s=>s.id===id);
+    const name = seg ? seg.name : id;
+
+    // Numer
+    doc.setFillColor(214, 60, 47);
+    doc.circle(margin + 4, y - 1, 4, 'F');
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`${i+1}`, margin + 4, y + 0.5, { align: 'center' });
+
+    // Nazwa i wynik
+    doc.setTextColor(14, 13, 11);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text(name, margin + 12, y);
+
+    doc.setTextColor(214, 60, 47);
+    doc.setFontSize(14);
+    doc.text(`${score}/100`, W - margin, y, { align: 'right' });
+    y += 7;
+
+    // Przyczyna
+    const weightedBlockers = (BLOCKERS_W[id]||[])
+      .filter(([b,w])=>w>=0.6 && scores[b]!==undefined && scores[b]<65)
+      .sort((a,b)=>b[1]-a[1]);
+
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 96, 88);
+
+    let causeText = '';
+    if (weightedBlockers.length) {
+      const bNames = weightedBlockers.map(([b])=>SEG_NAMES[b]||b).join(', ');
+      causeText = `Prawdopodobna przyczyna: ${bNames}`;
+    } else {
+      causeText = 'Samodzielny deficyt — wymaga bezpośredniej pracy.';
+    }
+
+    const lines = doc.splitTextToSize(causeText, contentW - 12);
+    doc.text(lines, margin + 12, y);
+    y += lines.length * 5 + 6;
+  });
+
+  // ── DIAGNOZA ──
+  const diagEl = document.getElementById('ai-diagnosis-text');
+  if (diagEl && diagEl.innerText && diagEl.innerText.trim() !== 'Generuję Twoją diagnozę...') {
+    y += 2;
+    checkPage(20);
+    doc.setTextColor(14, 13, 11);
+    doc.setFontSize(13);
+    doc.setFont('helvetica', 'bold');
+    doc.text('TWOJA DIAGNOZA', margin, y);
+    y += 6;
+
+    doc.setDrawColor(216, 211, 200);
+    doc.line(margin, y, W - margin, y);
+    y += 8;
+
+    const diagText = diagEl.innerText.replace(/\n+/g, ' ').trim();
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(58, 56, 48);
+    const diagLines = doc.splitTextToSize(diagText, contentW);
+    diagLines.forEach(line => {
+      checkPage(6);
+      doc.text(line, margin, y);
+      y += 5.5;
+    });
+  }
+
+  // ── STOPKA ──
+  const pageCount = doc.getNumberOfPages();
+  for (let p = 1; p <= pageCount; p++) {
+    doc.setPage(p);
+    doc.setFontSize(7);
+    doc.setTextColor(180, 175, 165);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Gamechange System  ·  gamechange-diagnoza.vercel.app', margin, 290);
+    doc.text(`${p} / ${pageCount}`, W - margin, 290, { align: 'right' });
+  }
+
+  doc.save(`gamechange-diagnoza-${dateStr.replace(/\./g,'-')}.pdf`);
+}
+
+// ══════════════════════════════════════
 //  WAITLIST & CONSULTATION
 // ══════════════════════════════════════
 const leads = { waitlist: [], consultations: [] };
@@ -2259,7 +2531,13 @@ function submitWaitlist(productId, productTitle) {
     timestamp: new Date().toISOString(),
     ctx: { ...ctx },
   });
-  console.log('Waitlist lead:', leads.waitlist[leads.waitlist.length - 1]);
+
+  // Zapisz do Supabase
+  saveToSupabase('diagnostics', buildDiagnosticsRecord({
+    event: 'waitlist_signup',
+    email,
+    product: productTitle
+  }));
 
   // Pokaż potwierdzenie
   formEl.style.display = 'none';
@@ -2289,7 +2567,14 @@ function submitConsultation() {
     ctx: { ...ctx },
     scores: cachedScores,
   });
-  console.log('Consultation lead:', leads.consultations[leads.consultations.length - 1]);
+
+  // Zapisz do Supabase
+  saveToSupabase('diagnostics', buildDiagnosticsRecord({
+    event: 'consultation_request',
+    name,
+    contact,
+    note
+  }));
 
   // Pokaż potwierdzenie, ukryj przycisk
   submitBtn.style.display = 'none';
