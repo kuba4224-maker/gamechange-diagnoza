@@ -6,6 +6,8 @@
 <title>Gamechange System</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>emailjs.init('vGZdYdE5kgTt7b9pV');</script>
 <style>
 :root {
   --bg: #f5f2ec;
@@ -921,10 +923,11 @@ body {
         <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:12px;font-weight:500;">Przedział wiekowy</div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
           <button class="ctx-btn" onclick="ctxPick('age',0,this)">Do 14 lat</button>
-          <button class="ctx-btn" onclick="ctxPick('age',1,this)">15–19 lat</button>
-          <button class="ctx-btn" onclick="ctxPick('age',2,this)">20–25 lat</button>
-          <button class="ctx-btn" onclick="ctxPick('age',3,this)">26–30 lat</button>
-          <button class="ctx-btn" onclick="ctxPick('age',4,this)">30+ lat</button>
+          <button class="ctx-btn" onclick="ctxPick('age',1,this)">Do 14 lat — z rodzicem lub trenerem</button>
+          <button class="ctx-btn" onclick="ctxPick('age',2,this)">15–19 lat</button>
+          <button class="ctx-btn" onclick="ctxPick('age',3,this)">20–25 lat</button>
+          <button class="ctx-btn" onclick="ctxPick('age',4,this)">26–30 lat</button>
+          <button class="ctx-btn" onclick="ctxPick('age',5,this)">30+ lat</button>
         </div>
       </div>
 
@@ -1115,7 +1118,14 @@ const SEGS = [
   {
     id: 'fizycznosc', name: 'FIZYCZNOŚĆ', pillar: 'Filar 1 — Dominacja fizyczna', n: '03',
     qs: [
-      { t: 'Jak często wygrywasz bezpośrednie pojedynki fizyczne z przeciwnikiem (np. bark w bark)?', ctx: 'Kto wygrywa kontakt — Ty czy rywal?', dir: 1 },
+      {
+        t: 'Jak często wygrywasz bezpośrednie pojedynki fizyczne z przeciwnikiem (np. bark w bark)?',
+        ctx: 'Kto wygrywa kontakt — Ty czy rywal?', dir: 1,
+        pos: {
+          0: { t: 'Jak często wygrywasz wyjścia na piłki powietrzne i pojedynki w polu karnym — jesteś pierwszy do piłki i dominujesz fizycznie?', ctx: 'Czy jesteś pierwszy do piłki przy dośrodkowaniach i sytuacjach stałych?' },
+          3: { t: 'Jak często potrafisz przyjąć piłkę tyłem do bramki i utrzymać ją pod fizyczną presją obrońcy?', ctx: 'Czy utrzymujesz piłkę gdy obrońca napiera na Ciebie od tyłu?' },
+        }
+      },
       { t: 'Jak często przeciwnik wypycha Cię z pozycji lub odbiera przestrzeń w bezpośredniej walce fizycznej?', ctx: 'Konkretna sytuacja: tracisz pozycję pod wpływem kontaktu.', dir: -1 },
     ]
   },
@@ -1129,7 +1139,15 @@ const SEGS = [
   {
     id: 'techSpec', name: 'TECHNIKA SPEC.', pillar: 'Filar 2 — Efektywność techniczna', n: '05',
     qs: [
-      { t: 'Jak często po Twoim zagraniu akcja przyspiesza lub partner dostaje piłkę w lepszej sytuacji niż przed chwilą?', ctx: 'Czy Twoje zagranie zmienia sytuację na lepszą dla drużyny?', dir: 1 },
+      {
+        t: 'Jak często po Twoim zagraniu akcja przyspiesza lub partner dostaje piłkę w lepszej sytuacji niż przed chwilą?',
+        ctx: 'Czy Twoje zagranie zmienia sytuację na lepszą dla drużyny?', dir: 1,
+        pos: {
+          0: { t: 'Jak często Twoje zagranie lub wybicie wyprowadza drużynę z pressingu albo uruchamia partnera w lepszej pozycji niż przed chwilą?', ctx: 'Czy Twoje rozegranie daje drużynie przewagę pozycyjną?' },
+          1: { t: 'Jak często Twoje podanie lub drybling wyprowadza drużynę z pressingu albo uruchamia partnera w wolnej przestrzeni?', ctx: 'Czy wyprowadzasz piłkę spod pressingu i tworzysz przewagę?' },
+          3: { t: 'Jak często po Twoim zejściu po piłkę lub ruchu bez piłki partner dostaje więcej przestrzeni lub czasu niż miał przed chwilą?', ctx: 'Czy Twój ruch tworzy przestrzeń dla partnerów?' },
+        }
+      },
       { t: 'Jak często pod presją wybierasz proste, bezpieczne zagranie zamiast tego które mogłoby dać Twojej drużynie realną przewagę?', ctx: 'Chodzi o sytuacje gdy masz opcję ryzykowną ale lepszą — i jej nie wybierasz.', dir: -1 },
     ]
   },
@@ -1178,14 +1196,30 @@ const SEGS = [
   {
     id: 'percepcja', name: 'PERCEPCJA', pillar: 'Filar 5 — Boiskowa mądrość', n: '12',
     qs: [
-      { t: 'Jak często zanim otrzymasz piłkę, wiesz już gdzie możesz ją zagrać — bo wcześniej rozejrzałeś się i zebrałeś informacje?', ctx: 'Czy opcje są znane zanim piłka dotrze do Ciebie?', dir: 1 },
+      {
+        t: 'Jak często zanim otrzymasz piłkę, wiesz już gdzie możesz ją zagrać — bo wcześniej rozejrzałeś się i zebrałeś informacje?',
+        ctx: 'Czy opcje są znane zanim piłka dotrze do Ciebie?', dir: 1,
+        pos: {
+          0: { t: 'Jak często zanim zawodnik odda strzał lub zagranie, wiesz już gdzie piłka poleci i jesteś w odpowiedniej pozycji?', ctx: 'Czy czytasz zamiary rywala zanim wykona akcję?' },
+          1: { t: 'Jak często zanim musisz reagować na ruch rywala, masz już obraz sytuacji za plecami i z boku?', ctx: 'Czy wiesz co dzieje się za Tobą zanim napastnik się obraca?' },
+          3: { t: 'Jak często zanim otrzymasz piłkę, masz już obraz gdzie są luki za linią obrony i który ruch możesz wykonać?', ctx: 'Czy widzisz przestrzeń za obroną zanim dostajesz piłkę?' },
+        }
+      },
       { t: 'Jak często decyzja o zagraniu lub ruchu pojawia się u Ciebie dopiero w momencie, gdy przeciwnik jest już blisko?', ctx: 'Reagujesz na rywala zamiast działać zanim on się zbliży?', dir: -1 },
     ]
   },
   {
     id: 'decyzja', name: 'SZYBK. DECYZJI', pillar: 'Filar 5 — Boiskowa mądrość', n: '13',
     qs: [
-      { t: 'Jak często podejmujesz decyzję zanim przeciwnik zdąży skrócić do Ciebie dystans?', ctx: 'Działasz zanim rywal jest blisko, czy dopiero gdy cię dopada?', dir: 1 },
+      {
+        t: 'Jak często podejmujesz decyzję zanim przeciwnik zdąży skrócić do Ciebie dystans?',
+        ctx: 'Działasz zanim rywal jest blisko, czy dopiero gdy cię dopada?', dir: 1,
+        pos: {
+          0: { t: 'Jak często podejmujesz decyzję o wyjściu, zagraniu lub ustawieniu się zanim sytuacja zmusi Cię do reakcji pod presją?', ctx: 'Czy działasz wyprzedzająco czy reagujesz na to co już się dzieje?' },
+          1: { t: 'Jak często decydujesz — wychodzić do przeciwnika czy cofać się — zanim znajdzie się on w niebezpiecznej pozycji?', ctx: 'Czy decyzja defensywna jest podjęta zanim rywal ma przewagę?' },
+          3: { t: 'Jak często decydujesz o ruchu za plecami obrońcy lub zejściu po piłkę zanim obrońca zdąży zareagować?', ctx: 'Czy Twój ruch jest szybszy niż reakcja obrońcy?' },
+        }
+      },
       { t: 'Jak często dobra opcja zagrania przestaje być dostępna, zanim zdążysz podjąć decyzję?', ctx: 'Partner się odsłonił, ale zanim zagrałeś — okno się zamknęło.', dir: -1 },
     ]
   },
@@ -1313,7 +1347,7 @@ SEGS.forEach(s => SEG_NAMES[s.id] = s.name);
 const CTX_LABELS = {
   level: ['Amator / rekreacyjnie','Juniorski klub','Seniorski klub amatorski','Półprofesjonalny','Profesjonalny'],
   pos:   ['Bramkarz','Obrońca','Pomocnik','Napastnik','Nie dotyczy'],
-  age:   ['Do 14 lat','15–19 lat','20–25 lat','26–30 lat','30+ lat'],
+  age:   ['Do 14 lat','Do 14 lat — z rodzicem/trenerem','15–19 lat','20–25 lat','26–30 lat','30+ lat'],
 };
 let ctx = { level: null, pos: null, age: null };
 let skipWarningEl = null;
@@ -1354,7 +1388,7 @@ function startSurveyFromContext() {
   }
   document.getElementById('ctx-error').style.display = 'none';
 
-  // Tryb junior: wiek "Do 14 lat" (idx 0)
+  // Tryb junior: wiek idx 0 = sam, idx 1 = z rodzicem/trenerem (dorosłe pytania)
   isJunior = ctx.age === 0;
   activeSegs = isJunior ? SEGS_JUNIOR : SEGS;
 
@@ -1377,6 +1411,14 @@ function startSurveyFromContext() {
 
   showScreen('screen-survey');
   renderAllQuestions();
+}
+
+function getQuestion(q) {
+  // Zwraca wariant pytania dopasowany do pozycji zawodnika
+  if (q.pos && ctx.pos !== null && q.pos[ctx.pos]) {
+    return { t: q.pos[ctx.pos].t, ctx: q.pos[ctx.pos].ctx, dir: q.dir };
+  }
+  return q;
 }
 
 function renderAllQuestions() {
@@ -1409,32 +1451,33 @@ function renderAllQuestions() {
       </div>
     `).join('');
   } else {
-    body.innerHTML = activeSegs.map((seg) => `
-      <div class="segment-scroll-block" id="seg-${seg.id}" style="padding:48px 24px 16px;max-width:680px;margin:0 auto;border-bottom:1px solid #e8e4dd;">
-        <div class="segment-label" style="margin-bottom:24px;">
-          <span class="segment-label-num">${esc(seg.n)}</span>
-          <span class="segment-label-name">${esc(seg.name)}</span>
-          <span class="segment-label-pillar">${esc(seg.pillar)}</span>
-        </div>
-        ${seg.qs.map((q, qi) => `
-          <div class="question-block" style="animation:none;opacity:1;transform:none;">
-            <div class="q-text">${esc(q.t)}</div>
-            <div class="q-context">${esc(q.ctx)}</div>
-            <div class="scale-wrap" style="margin-top:20px;">
-              <div class="scale-btns">
-                ${[[1,'Nigdy'],[2,'Rzadko'],[3,'Czasami'],[4,'Często'],[5,'Zawsze']].map(([v,label]) => `
-                  <button class="scale-btn ${ans[seg.id][qi] === v ? 'sel' : ''}"
-                    onclick="pickScroll('${esc(seg.id)}',${qi},${v},this)">
-                    <span class="scale-num">${v}</span>
-                    <span class="scale-label-text">${label}</span>
-                  </button>
-                `).join('')}
-              </div>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    `).join('');
+    let html = '';
+    activeSegs.forEach((seg) => {
+      let questionsHtml = '';
+      seg.qs.forEach((q, qi) => {
+        const qq = getQuestion(q);
+        let btns = '';
+        [[1,'Nigdy'],[2,'Bardzo rzadko'],[3,'Rzadko'],[4,'Czasami'],[5,'Często'],[6,'Bardzo często'],[7,'Zawsze']].forEach(([v,label]) => {
+          const sel = ans[seg.id][qi] === v ? 'sel' : '';
+          btns += `<button class="scale-btn ${sel}" onclick="pickScroll('${esc(seg.id)}',${qi},${v},this)">`;
+          btns += `<span class="scale-num">${v}</span>`;
+          btns += `<span class="scale-label-text">${label}</span>`;
+          btns += `</button>`;
+        });
+        questionsHtml += `<div class="question-block" style="animation:none;opacity:1;transform:none;">`;
+        questionsHtml += `<div class="q-text">${esc(qq.t)}</div>`;
+        questionsHtml += `<div class="q-context">${esc(qq.ctx)}</div>`;
+        questionsHtml += `<div class="scale-wrap" style="margin-top:20px;"><div class="scale-btns">${btns}</div></div>`;
+        questionsHtml += `</div>`;
+      });
+      html += `<div class="segment-scroll-block" id="seg-${seg.id}" style="padding:48px 24px 16px;max-width:680px;margin:0 auto;border-bottom:1px solid #e8e4dd;">`;
+      html += `<div class="segment-label" style="margin-bottom:24px;">`;
+      html += `<span class="segment-label-num">${esc(seg.n)}</span>`;
+      html += `<span class="segment-label-name">${esc(seg.name)}</span>`;
+      html += `<span class="segment-label-pillar">${esc(seg.pillar)}</span>`;
+      html += `</div>${questionsHtml}</div>`;
+    });
+    body.innerHTML = html;
   }
 
   updateProgressScroll();
@@ -1510,6 +1553,28 @@ window.addEventListener('load', () => {
     showScreen('screen-intro');
   }
 });
+
+async function sendEmailNotification(eventType, extras = {}) {
+  try {
+    const record = buildDiagnosticsRecord(extras);
+    await emailjs.send('service_7dxlxuq', 'template_ybc0bsq', {
+      event_type: eventType,
+      email: extras.email || '—',
+      name: extras.name || '—',
+      contact: extras.contact || '—',
+      product: extras.product || '—',
+      note: extras.note || '—',
+      level: record.level || '—',
+      position: record.position || '—',
+      age_group: record.age_group || '—',
+      overall_score: record.overall_score || '—',
+      top_deficits: record.top_deficits || '—',
+      date: new Date().toLocaleString('pl-PL'),
+    });
+  } catch(e) {
+    console.log('EmailJS error:', e);
+  }
+}
 
 // ══════════════════════════════════════
 //  SUPABASE — BAZA DANYCH
@@ -1606,6 +1671,8 @@ function submitEmail() {
 
   // Zapisz email do Supabase
   saveToSupabase('diagnostics', buildDiagnosticsRecord({ event: 'email_submitted', email }));
+  // Powiadomienie email
+  sendEmailNotification('Nowy email z ankiety', { email });
 
   // Schowaj overlay — całkowicie usuń z przepływu
   document.getElementById('email-gate-box').style.display = 'none';
@@ -1963,10 +2030,10 @@ function calcScores() {
       let sum = 0, cnt = 0;
       seg.qs.forEach((q, qi) => {
         const v = (ans[seg.id] || [])[qi];
-        if (v != null) { sum += q.dir === 1 ? v : (6 - v); cnt++; }
+        if (v != null) { sum += q.dir === 1 ? v : (8 - v); cnt++; }
       });
-      const raw = cnt > 0 ? sum / cnt : 3;
-      sc[seg.id] = Math.round(((raw - 1) / 4) * 100);
+      const raw = cnt > 0 ? sum / cnt : 4;
+      sc[seg.id] = Math.round(((raw - 1) / 6) * 100); // skala 1-7 → 0-100
     });
   }
   return sc;
@@ -2187,24 +2254,45 @@ function renderProduct(scores) {
     return { id, ...p };
   }).filter(Boolean);
 
-  const cardsHTML = productCards.map(p => p.ready ? `
-    <div class="product-section" style="margin-bottom:16px;">
-      <div class="product-eyebrow">Rekomendowany program — ${SEGS.find(s=>s.id===p.id)?.name || ''}</div>
-      <div class="product-title">${p.title}</div>
-      <div class="product-desc">${p.desc}</div>
-      <ul class="product-includes">
-        ${p.includes.map(i => `<li>${i}</li>`).join('')}
-      </ul>
-      <button class="btn-buy" onclick="alert('Tu podpinasz Stripe lub link sprzedażowy')">
-        Kup program →
-      </button>
-      <div style="margin-top:12px;font-size:12px;color:rgba(255,255,255,0.35);font-weight:300;">
-        Dostępny od razu po zakupie — zacznij jeszcze dziś.
+  // Mapa PDF-ów dla każdego segmentu
+  const PDF_MAP = {
+    moc:          'moc.pdf',
+    fizycznosc:   'fizycznosc.pdf',
+    wytrzymalosc: 'wytrzymalosc.pdf',
+    tolerancja:   'tolerancja-obciazen.pdf',
+    regeneracja:  'regeneracja.pdf',
+    odzywianie:   'odzywianie.pdf',
+    odpornosc:    'odpornosc.pdf',
+    percepcja:    'percepcja.pdf',
+    decyzja:      'szybkosc-decyzji.pdf',
+    koncentracja: 'koncentracja.pdf',
+    mental:       'stan-mentalny.pdf',
+    techFund:     'technika-fundamentalna.pdf',
+    techSpec:     'technika-specjalistyczna.pdf',
+  };
+
+  const cardsHTML = productCards.map(p => {
+    const pdfFile = PDF_MAP[p.id];
+    const segName = (isJunior ? SEGS_JUNIOR : SEGS).find(s=>s.id===p.id)?.name || '';
+
+    if (pdfFile) return `
+    <div style="border:1px solid #d8d3c8;padding:32px;margin-bottom:16px;background:#fff;">
+      <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Twój priorytet — ${segName}</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.02em;margin-bottom:12px;color:#0e0d0b;">${p.title}</div>
+      <div style="font-size:14px;color:#3a3830;font-weight:300;line-height:1.8;margin-bottom:24px;">${p.desc}</div>
+      <a href="${pdfFile}" download
+        style="display:inline-block;background:#c8ff00;color:#0e0d0b;border:none;padding:16px 32px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;cursor:pointer;text-decoration:none;">
+        Pobierz bezpłatny przewodnik →
+      </a>
+      <div style="margin-top:12px;font-size:12px;color:#9a9488;font-weight:300;">
+        Bezpłatnie w ramach pilotażu Gamechange System.
       </div>
     </div>
-  ` : `
+  `;
+
+    return `
     <div style="border:1px solid #d8d3c8;padding:32px;margin-bottom:16px;background:#fff;" id="waitlist-card-${p.id}">
-      <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Rekomendowany program — ${(isJunior ? SEGS_JUNIOR : SEGS).find(s=>s.id===p.id)?.name || ''}</div>
+      <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Rekomendowany program — ${segName}</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.02em;margin-bottom:12px;color:#0e0d0b;">${p.title}</div>
       <div style="font-size:14px;color:#3a3830;font-weight:300;line-height:1.8;margin-bottom:24px;">${p.desc}</div>
       <div style="background:#f5f2ec;border:1px solid #d8d3c8;padding:20px;">
@@ -2227,7 +2315,8 @@ function renderProduct(scores) {
         <div id="waitlist-confirm-${p.id}" style="display:none;color:#2a7a3a;font-size:13px;font-weight:500;">✓ Zapisano — damy Ci znać jako pierwszemu.</div>
       </div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 
   // Sekcja konsultacji — zawsze pokazywana po produktach
   const consultHTML = `
@@ -2538,6 +2627,8 @@ function submitWaitlist(productId, productTitle) {
     email,
     product: productTitle
   }));
+  // Powiadomienie email
+  sendEmailNotification('Zapis na listę oczekujących', { email, product: productTitle });
 
   // Pokaż potwierdzenie
   formEl.style.display = 'none';
@@ -2575,6 +2666,8 @@ function submitConsultation() {
     contact,
     note
   }));
+  // Powiadomienie email — pilne, high ticket
+  sendEmailNotification('🔴 NOWE ZGŁOSZENIE KONSULTACJI', { name, contact, note });
 
   // Pokaż potwierdzenie, ukryj przycisk
   submitBtn.style.display = 'none';
