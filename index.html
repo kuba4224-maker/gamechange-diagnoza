@@ -159,14 +159,6 @@ body {
   flex-direction: column;
   gap: 8px;
 }
-.scale-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 11px;
-  color: #9a9488;
-  letter-spacing: 0.03em;
-  padding: 0 2px;
-}
 .scale-btns {
   display: flex;
   gap: 6px;
@@ -214,10 +206,6 @@ body {
   color: inherit;
   display: block !important;
 }
-.scale-btn { color: #9a9488; }
-.scale-btn:hover { color: #0e0d0b; }
-.scale-btn.sel { color: #c8ff00; }
-
 @media (max-width: 360px) {
   .scale-btn { height: 52px; }
 }
@@ -488,31 +476,6 @@ body {
   line-height: 1.8;
   margin-bottom: 36px;
 }
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: rgba(255,255,255,0.08);
-  margin-bottom: 40px;
-  max-width: 540px;
-}
-.product-cell {
-  background: var(--ink);
-  padding: 20px 20px;
-}
-.product-cell-label {
-  font-size: 10px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.3);
-  margin-bottom: 6px;
-}
-.product-cell-val {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 15px;
-  letter-spacing: 0.05em;
-  color: var(--accent);
-}
 .product-includes {
   list-style: none;
   margin-bottom: 40px;
@@ -593,42 +556,6 @@ body {
 }
 .ctx-btn:hover { border-color: #0e0d0b; color: #0e0d0b; }
 .ctx-btn.sel { background: #0e0d0b; border-color: #0e0d0b; color: #c8ff00; }
-
-.skip-warning {
-  position: fixed;
-  bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #fff;
-  border: 1px solid #d8d3c8;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.1);
-  padding: 20px 24px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  z-index: 200;
-  max-width: 460px;
-  width: calc(100% - 48px);
-  animation: slideUp 0.2s ease;
-}
-@keyframes slideUp {
-  from { transform: translateX(-50%) translateY(20px); opacity: 0; }
-  to { transform: translateX(-50%) translateY(0); opacity: 1; }
-}
-.skip-warning-text { font-size: 13px; color: #3a3830; line-height: 1.5; flex: 1; }
-.skip-warning-btns { display: flex; gap: 8px; flex-shrink: 0; }
-.skip-back { padding: 8px 16px; border: 1px solid #d8d3c8; background: #fff; font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 0.08em; cursor: pointer; color: #3a3830; }
-.skip-fwd { padding: 8px 16px; border: 1px solid #0e0d0b; background: #0e0d0b; font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 0.08em; cursor: pointer; color: #f5f2ec; }
-
-/* No product state */
-.no-product {
-  border: 1px solid var(--rule);
-  padding: 40px;
-  text-align: center;
-  margin-bottom: 48px;
-}
-.no-product-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 0.05em; margin-bottom: 10px; }
-.no-product-desc { font-size: 14px; color: var(--muted); font-weight: 300; }
 </style>
 </head>
 <body>
@@ -693,6 +620,63 @@ body {
       <div style="margin-top:24px;font-size:12px;color:rgba(255,255,255,0.15);font-weight:300;" id="intro-note">
         Odpowiadaj na podstawie ostatnich 4–6 tygodni gry.
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ PAYWALL ════ -->
+<div id="screen-paywall" class="screen">
+  <div style="min-height:100vh;background:#0e0d0b;display:flex;align-items:center;justify-content:center;padding:40px 24px;">
+    <div style="max-width:520px;width:100%;">
+
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:0.25em;color:rgba(255,255,255,0.3);margin-bottom:32px;text-transform:uppercase;">Gamechange System</div>
+
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,6vw,56px);line-height:0.95;color:#f5f2ec;margin-bottom:24px;">
+        Dowiedz się co<br>naprawdę<br><span style="color:#c8ff00;">hamuje Twój rozwój</span>
+      </div>
+
+      <p style="font-size:15px;color:rgba(255,255,255,0.5);font-weight:300;line-height:1.8;margin-bottom:32px;">
+        Większość zawodników trenuje ciężko i nie widzi efektów. Nie dlatego że źle pracują — dlatego że pracują nad objawem zamiast przyczyną. Ta diagnoza wskazuje dokładnie gdzie jest problem i od czego zacząć żeby efekt był najszybszy.
+      </p>
+
+      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:24px;margin-bottom:24px;">
+        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:16px;">Co dostajesz za 19 zł</div>
+        ${['Pełny profil sportowy w 13 obszarach','Wskazanie wąskiego gardła które blokuje wszystkie inne','Spersonalizowana diagnoza dopasowana do Twojej pozycji i poziomu','Konkretne kroki — co robić żeby zacząć się poprawiać','Raport PDF który możesz pokazać trenerowi'].map(item => `
+          <div style="display:flex;gap:12px;margin-bottom:10px;align-items:flex-start;">
+            <span style="color:#c8ff00;flex-shrink:0;margin-top:2px;">✓</span>
+            <span style="font-size:14px;color:rgba(255,255,255,0.7);font-weight:300;">${item}</span>
+          </div>`).join('')}
+      </div>
+
+      <button onclick="goToStripePayment()"
+        style="width:100%;background:#c8ff00;color:#0e0d0b;border:none;padding:20px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.1em;cursor:pointer;margin-bottom:12px;transition:all 0.15s;"
+        onmouseover="this.style.background='#d4ff00'"
+        onmouseout="this.style.background='#c8ff00'">
+        Kup diagnozę — 19 zł →
+      </button>
+
+      <div style="text-align:center;margin-bottom:24px;">
+        <span style="font-size:12px;color:rgba(255,255,255,0.25);">Płatność przez Stripe · Bezpieczna transakcja</span>
+      </div>
+
+      <!-- Kod dostępu dla klubów -->
+      <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:20px;">
+        <div style="font-size:12px;color:rgba(255,255,255,0.25);margin-bottom:10px;text-align:center;">Masz kod dostępu od trenera lub klubu?</div>
+        <div style="display:flex;gap:8px;">
+          <input id="access-code-input" type="text" placeholder="Wpisz kod dostępu"
+            style="flex:1;padding:12px 16px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;text-transform:uppercase;"
+            onfocus="this.style.borderColor='rgba(255,255,255,0.4)'"
+            onblur="this.style.borderColor='rgba(255,255,255,0.15)'"
+            oninput="this.value=this.value.toUpperCase()"
+            onkeydown="if(event.key==='Enter') submitAccessCode()">
+          <button onclick="submitAccessCode()"
+            style="padding:12px 20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:#f5f2ec;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:0.1em;cursor:pointer;">
+            Użyj →
+          </button>
+        </div>
+        <div id="access-code-error" style="display:none;color:#ff6b6b;font-size:12px;margin-top:8px;text-align:center;">Nieprawidłowy kod. Sprawdź czy przepisałeś go poprawnie.</div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -895,7 +879,16 @@ body {
     <div style="max-width:560px;width:100%;">
       <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:16px;">Trzy kliknięcia</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,5vw,48px);line-height:1;letter-spacing:0.01em;margin-bottom:8px;">Kim jesteś?</div>
-      <p style="font-size:14px;color:#9a9488;font-weight:300;margin-bottom:40px;">Diagnoza będzie dopasowana do Twojego poziomu i realiów gry.</p>
+      <p style="font-size:14px;color:#9a9488;font-weight:300;margin-bottom:32px;">Diagnoza będzie dopasowana do Twojego poziomu i realiów gry.</p>
+
+      <!-- Imię zawodnika -->
+      <div style="margin-bottom:28px;">
+        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:8px;font-weight:500;">Twoje imię i nazwisko</div>
+        <input id="player-name-input" type="text" placeholder="np. Jan Kowalski"
+          style="width:100%;padding:12px 16px;border:1px solid #d8d3c8;background:#fff;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;"
+          onfocus="this.style.borderColor='#0e0d0b'"
+          onblur="this.style.borderColor='#d8d3c8'">
+      </div>
 
       <div style="margin-bottom:32px;">
         <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:12px;font-weight:500;">Poziom rozgrywek</div>
@@ -936,6 +929,17 @@ body {
         Rozpocznij ankietę →
       </button>
       <div id="ctx-error" style="display:none;color:#d63c2f;font-size:13px;text-align:center;margin-top:12px;">Zaznacz odpowiedź w każdym pytaniu.</div>
+
+      <!-- Kod drużyny — opcjonalny -->
+      <div style="margin-top:32px;padding-top:24px;border-top:1px solid #d8d3c8;">
+        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;font-weight:500;">Kod drużyny (opcjonalnie)</div>
+        <p style="font-size:12px;color:#9a9488;font-weight:300;margin-bottom:12px;">Jeśli trener dał Ci kod — wpisz go tutaj. Twoje wyniki trafią do jego raportu.</p>
+        <input id="team-code-input" type="text" placeholder="np. LEGIA2025"
+          style="width:100%;padding:12px 16px;border:1px solid #d8d3c8;background:#fff;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;text-transform:uppercase;letter-spacing:0.05em;"
+          onfocus="this.style.borderColor='#0e0d0b'"
+          onblur="this.style.borderColor='#d8d3c8'"
+          oninput="this.value=this.value.toUpperCase()">
+      </div>
     </div>
   </div>
 </div>
@@ -1240,12 +1244,14 @@ const SEGS_JUNIOR = [
     id: 'wytrzymalosc', name: 'WYTRZYMAŁOŚĆ', n: '02',
     qs: [
       { q: 'Jak często w ostatnich 10 minutach meczu nadal biegasz do piłki i wracasz do obrony tak samo jak na początku?', ctx: 'Porównaj swoje zaangażowanie w końcówce do pierwszych minut.' },
+      { q: 'Jak często po kilku intensywnych akcjach z rzędu jesteś gotowy od razu ruszyć do następnej — bez potrzeby chwili odpoczynku?', ctx: 'Czy możesz biec z powrotem zaraz po sprincie lub walce o piłkę?' },
     ]
   },
   {
     id: 'fizycznosc', name: 'FIZYCZNOŚĆ', n: '03',
     qs: [
       { q: 'Jak często wygrywasz bezpośrednie starcia z przeciwnikiem gdy obaj walczycie o piłkę lub pozycję (np. bark w bark)?', ctx: 'Kto wygrywa kontakt — Ty czy rywal?' },
+      { q: 'Jak często rywal wypycha Cię z pozycji lub odbiera Ci piłkę w bezpośrednim kontakcie?', ctx: 'Czy tracisz piłkę lub pozycję gdy ktoś na Ciebie naciera?' },
     ]
   },
   {
@@ -1259,6 +1265,7 @@ const SEGS_JUNIOR = [
     id: 'techSpec', name: 'TECHNIKA SPECJALISTYCZNA', n: '05',
     qs: [
       { q: 'Jak często po Twoim podaniu lub dryblingu partner dostaje piłkę w lepszej sytuacji — ma więcej czasu lub miejsca niż przed chwilą?', ctx: 'Czy Twoje zagranie poprawia sytuację drużyny?' },
+      { q: 'Jak często pod presją wybierasz proste zagranie zamiast tego które mogłoby dać drużynie większą przewagę?', ctx: 'Czy grasz bezpiecznie gdy masz szansę na coś lepszego?' },
     ]
   },
   {
@@ -1279,12 +1286,14 @@ const SEGS_JUNIOR = [
     id: 'odpornosc', name: 'ODPORNOŚĆ', n: '08',
     qs: [
       { q: 'Jak często kończysz cały miesiąc treningowy bez choroby która zatrzymała Cię od grania?', ctx: 'Policz ile miesięcy w tym sezonie przepadło przez chorobę.' },
+      { q: 'Jak często po chorobie wracasz do pełnej formy w ciągu tygodnia — grasz tak samo dobrze jak przed?', ctx: 'Czy pierwsze treningi po chorobie wyglądają normalnie?' },
     ]
   },
   {
     id: 'odzywianie', name: 'ODŻYWIENIE', n: '09',
     qs: [
       { q: 'Jak często w drugiej połowie meczu masz tyle samo energii co w pierwszej?', ctx: 'Porównaj jak się czujesz w 70. minucie do 20. minuty.' },
+      { q: 'Jak często podczas meczu lub treningu czujesz pragnienie, zawroty głowy lub ból brzucha?', ctx: 'Konkretne fizyczne odczucia które przeszkadzają Ci w grze.' },
     ]
   },
   {
@@ -1305,6 +1314,7 @@ const SEGS_JUNIOR = [
     id: 'percepcja', name: 'PERCEPCJA', n: '12',
     qs: [
       { q: 'Jak często zanim dostaniesz piłkę, wiesz już gdzie możesz ją zagrać?', ctx: 'Czy rozejrzałeś się wcześniej i masz opcje zanim piłka do Ciebie dotrze?' },
+      { q: 'Jak często widzisz wolną przestrzeń lub wolnego partnera zanim jeszcze piłka do Ciebie dotrze?', ctx: 'Czy skaanujesz boisko przed otrzymaniem piłki?' },
     ]
   },
   {
@@ -1350,7 +1360,6 @@ const CTX_LABELS = {
   age:   ['Do 14 lat','Do 14 lat — z rodzicem/trenerem','15–19 lat','20–25 lat','26–30 lat','30+ lat'],
 };
 let ctx = { level: null, pos: null, age: null };
-let skipWarningEl = null;
 
 function ctxPick(field, idx, btn) {
   ctx[field] = idx;
@@ -1361,14 +1370,45 @@ function ctxPick(field, idx, btn) {
 // ══════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════
-let cur = 0; // zachowane dla kompatybilności
 let ans = {};
+let cachedScores = null;
+let playerEmail = null;
+let playerHistory = [];
+let teamCode = null;
+let playerName = null;
+let hasPaidAccess = false; // false = bramka aktywna
+
+// Kody bezpłatnego dostępu dla klubów i trenerów
+const FREE_ACCESS_CODES = ['GAMECHANGE', 'TRENER', 'PILOT', 'GAMECHANGE2025', 'LEGIA2025'];
 
 // ══════════════════════════════════════
 //  SURVEY RENDER
 // ══════════════════════════════════════
 function startSurvey() {
-  showScreen('screen-edu-1');
+  if (hasPaidAccess) {
+    showScreen('screen-edu-1');
+  } else {
+    showScreen('screen-paywall');
+  }
+}
+
+function goToStripePayment() {
+  // TODO: podmień na rzeczywisty link Stripe z parametrem ?paid=1 w return_url
+  // Przykład: https://buy.stripe.com/XXXXX?success_url=https://twojadomena.vercel.app?paid=1
+  alert('Tu podepnij link Stripe. Return URL powinien zawierać ?paid=1');
+}
+
+function submitAccessCode() {
+  const code = document.getElementById('access-code-input').value.trim().toUpperCase();
+  const errEl = document.getElementById('access-code-error');
+  if (FREE_ACCESS_CODES.includes(code)) {
+    hasPaidAccess = true;
+    teamCode = code;
+    errEl.style.display = 'none';
+    showScreen('screen-edu-1');
+  } else {
+    errEl.style.display = 'block';
+  }
 }
 
 function esc(str) {
@@ -1388,6 +1428,9 @@ function startSurveyFromContext() {
   }
   document.getElementById('ctx-error').style.display = 'none';
 
+  teamCode = (document.getElementById('team-code-input').value.trim().toUpperCase()) || null;
+  playerName = document.getElementById('player-name-input').value.trim() || null;
+
   // Tryb junior: wiek idx 0 = sam, idx 1 = z rodzicem/trenerem (dorosłe pytania)
   isJunior = ctx.age === 0;
   activeSegs = isJunior ? SEGS_JUNIOR : SEGS;
@@ -1405,8 +1448,7 @@ function startSurveyFromContext() {
   // Reset answers
   ans = {};
   activeSegs.forEach(s => {
-    const qCount = isJunior ? s.qs.length : s.qs.length;
-    ans[s.id] = Array(qCount).fill(null);
+    ans[s.id] = Array(s.qs.length).fill(null);
   });
 
   showScreen('screen-survey');
@@ -1519,6 +1561,193 @@ function updateProgressScroll() {
 }
 
 // ══════════════════════════════════════
+//  TEAM VIEW — widok trenera
+// ══════════════════════════════════════
+let teamData = [];
+
+async function loadTeamView(code) {
+  document.getElementById('team-title').textContent = `Drużyna: ${code}`;
+  showScreen('screen-team');
+
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/diagnostics?team_code=eq.${encodeURIComponent(code)}&event=eq.email_submitted&order=created_at.desc`,
+      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+    );
+    teamData = await res.json();
+  } catch(e) { teamData = []; }
+
+  document.getElementById('team-loading').style.display = 'none';
+
+  if (!teamData.length) {
+    document.getElementById('team-empty').style.display = 'block';
+    return;
+  }
+
+  renderTeamTable(teamData);
+  renderTeamStats(teamData);
+  renderTeamDeficits(teamData);
+}
+
+function renderTeamTable(data) {
+  document.getElementById('team-count').textContent = `${data.length} zawodników`;
+  const tbody = document.getElementById('team-tbody');
+
+  tbody.innerHTML = data.map(row => {
+    const scores = row.scores ? (() => { try { return JSON.parse(row.scores); } catch(e) { return null; } })() : null;
+    const overall = row.overall_score || '—';
+    const color = overall < 40 ? '#d63c2f' : overall < 65 ? '#e08020' : '#2a7a3a';
+    const deficits = row.top_deficits ? row.top_deficits.split(', ') : [];
+    const mainDeficit = deficits[0] || '—';
+    const restDeficits = deficits.slice(1).join(', ') || '—';
+    const date = row.created_at ? new Date(row.created_at).toLocaleDateString('pl-PL') : '—';
+    const name = row.player_name || row.email || 'Anonimowy';
+    const pos = row.position || '—';
+
+    return `<tr style="border-bottom:1px solid #e8e4dd;">
+      <td style="padding:14px 16px;font-size:13px;font-weight:500;color:#0e0d0b;">${name}</td>
+      <td style="padding:14px 16px;font-size:12px;color:#9a9488;">${pos}</td>
+      <td style="padding:14px 16px;text-align:center;">
+        <span style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:${color};">${overall}</span>
+        <span style="font-size:10px;color:#9a9488;">/100</span>
+      </td>
+      <td style="padding:14px 16px;font-size:12px;color:#d63c2f;font-weight:500;">${mainDeficit}</td>
+      <td style="padding:14px 16px;font-size:12px;color:#9a9488;">${restDeficits}</td>
+      <td style="padding:14px 16px;font-size:12px;color:#9a9488;">${date}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderTeamStats(data) {
+  const scores = data.map(r => r.overall_score).filter(Boolean);
+  const avg = scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : 0;
+  const best = scores.length ? Math.max(...scores) : 0;
+  const worst = scores.length ? Math.min(...scores) : 0;
+  const below50 = scores.filter(s => s < 50).length;
+
+  const statsEl = document.getElementById('team-stats');
+  const stat = (label, val, color) => `
+    <div style="background:#fff;border:1px solid #d8d3c8;padding:20px;text-align:center;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:${color};margin-bottom:4px;">${val}</div>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#9a9488;">${label}</div>
+    </div>`;
+
+  statsEl.innerHTML =
+    stat('Zawodnicy', data.length, '#0e0d0b') +
+    stat('Śr. wynik', avg, avg < 50 ? '#d63c2f' : avg < 65 ? '#e08020' : '#2a7a3a') +
+    stat('Najlepszy', best, '#2a7a3a') +
+    stat('Wymaga uwagi', below50, below50 > 0 ? '#d63c2f' : '#9a9488');
+}
+
+function renderTeamDeficits(data) {
+  const deficitCount = {};
+  data.forEach(row => {
+    if (!row.top_deficits) return;
+    row.top_deficits.split(', ').forEach(d => {
+      const name = d.replace(/\s*\(\d+\)/, '').trim();
+      deficitCount[name] = (deficitCount[name] || 0) + 1;
+    });
+  });
+
+  const sorted = Object.entries(deficitCount).sort((a,b) => b[1]-a[1]).slice(0, 6);
+  const el = document.getElementById('team-deficits');
+
+  if (!sorted.length) { el.innerHTML = '<div style="color:#9a9488;font-size:13px;">Brak danych.</div>'; return; }
+
+  el.innerHTML = sorted.map(([name, count]) => {
+    const pct = Math.round((count / data.length) * 100);
+    return `
+      <div style="border:1px solid #d8d3c8;padding:16px;">
+        <div style="font-size:13px;font-weight:500;color:#0e0d0b;margin-bottom:6px;">${name}</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="flex:1;height:4px;background:#e8e4dd;border-radius:2px;">
+            <div style="height:4px;background:#d63c2f;border-radius:2px;width:${pct}%"></div>
+          </div>
+          <div style="font-size:12px;color:#d63c2f;font-weight:500;min-width:32px;">${count}/${data.length}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function downloadTeamPDF() {
+  if (!teamData.length) return;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  const W = 297; const H = 210; const margin = 16;
+  let y = margin;
+
+  // Nagłówek
+  doc.setFillColor(14,13,11);
+  doc.rect(0,0,W,28,'F');
+  doc.setTextColor(200,255,0);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(18);
+  doc.text('GAMECHANGE SYSTEM', margin, 12);
+  doc.setTextColor(180,180,180);
+  doc.setFontSize(9);
+  doc.setFont('helvetica','normal');
+  doc.text(`Raport drużyny · ${teamData[0]?.team_code || ''} · ${new Date().toLocaleDateString('pl-PL')} · ${teamData.length} zawodników`, margin, 21);
+
+  y = 38;
+
+  // Nagłówki tabeli
+  const cols = [50, 28, 20, 55, 60, 24];
+  const headers = ['Zawodnik', 'Pozycja', 'Wynik', 'Główny deficyt', 'Pozostałe deficyty', 'Data'];
+  let x = margin;
+
+  doc.setFillColor(245,242,236);
+  doc.rect(margin, y-5, W-margin*2, 8, 'F');
+  doc.setTextColor(154,148,136);
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica','bold');
+  headers.forEach((h, i) => {
+    doc.text(h.toUpperCase(), x, y);
+    x += cols[i];
+  });
+  y += 6;
+
+  doc.setDrawColor(216,211,200);
+  doc.line(margin, y-1, W-margin, y-1);
+
+  // Wiersze
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(8);
+  teamData.forEach((row, ri) => {
+    if (y > H - 20) { doc.addPage(); y = 20; }
+    const overall = row.overall_score || 0;
+    const color = overall < 40 ? [214,60,47] : overall < 65 ? [224,128,32] : [42,122,58];
+    const deficits = row.top_deficits ? row.top_deficits.split(', ') : [];
+    const date = row.created_at ? new Date(row.created_at).toLocaleDateString('pl-PL') : '—';
+
+    if (ri % 2 === 0) { doc.setFillColor(250,248,245); doc.rect(margin, y-4, W-margin*2, 8, 'F'); }
+
+    x = margin;
+    doc.setTextColor(14,13,11);
+    doc.text((row.player_name || row.email || 'Anonimowy').slice(0,22), x, y); x += cols[0];
+    doc.setTextColor(100,96,88);
+    doc.text((row.position || '—').slice(0,12), x, y); x += cols[1];
+    doc.setTextColor(...color);
+    doc.setFont('helvetica','bold');
+    doc.text(`${overall}`, x, y); x += cols[2];
+    doc.setTextColor(214,60,47);
+    doc.setFont('helvetica','normal');
+    doc.text((deficits[0] || '—').slice(0,28), x, y); x += cols[3];
+    doc.setTextColor(100,96,88);
+    doc.text(deficits.slice(1).join(', ').slice(0,32) || '—', x, y); x += cols[4];
+    doc.text(date, x, y);
+
+    y += 8;
+  });
+
+  // Stopka
+  doc.setFontSize(7);
+  doc.setTextColor(180,175,165);
+  doc.text('Gamechange System · gamechange-diagnoza.vercel.app', margin, H-6);
+
+  doc.save(`gamechange-druzyna-${teamData[0]?.team_code || 'raport'}-${new Date().toLocaleDateString('pl-PL').replace(/\./g,'-')}.pdf`);
+}
+
+// ══════════════════════════════════════
 //  URL — ZAPIS I ODCZYT WYNIKÓW
 // ══════════════════════════════════════
 function saveResultsToURL(scores) {
@@ -1547,8 +1776,29 @@ function loadResultsFromURL() {
   } catch(e) { return false; }
 }
 
-// Sprawdź URL przy ładowaniu strony
 window.addEventListener('load', () => {
+  const urlParams = new URLSearchParams(window.location.search);
+
+  // Widok trenera
+  const teamParam = urlParams.get('team');
+  if (teamParam) {
+    loadTeamView(teamParam.toUpperCase());
+    return;
+  }
+
+  // Sprawdź kod dostępu w URL — darmowy dostęp dla klubów
+  const accessParam = urlParams.get('access');
+  if (accessParam && FREE_ACCESS_CODES.includes(accessParam.toUpperCase())) {
+    hasPaidAccess = true;
+    teamCode = accessParam.toUpperCase();
+  }
+
+  // Sprawdź czy opłacono (Stripe redirect)
+  if (urlParams.get('paid') === '1') {
+    hasPaidAccess = true;
+  }
+
+  // Sprawdź czy są wyniki w hashu
   if (!loadResultsFromURL()) {
     showScreen('screen-intro');
   }
@@ -1617,14 +1867,71 @@ function buildDiagnosticsRecord(extras = {}) {
     overall_score: cachedScores
       ? Math.round(Object.values(cachedScores).reduce((a,b)=>a+b,0) / Object.values(cachedScores).length)
       : null,
+    email: playerEmail || extras.email || null,
+    team_code: teamCode || null,
+    player_name: playerName || null,
     ...extras
   };
 }
 
 // ══════════════════════════════════════
+//  HISTORIA ZAWODNIKA
+// ══════════════════════════════════════
+async function loadPlayerHistory(email) {
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/diagnostics?email=eq.${encodeURIComponent(email)}&event=eq.email_submitted&order=created_at.desc&limit=5`,
+      { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } }
+    );
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch(e) { return []; }
+}
+
+function renderHistoryComparison(history, currentScores) {
+  if (!history.length) return '';
+  const prev = history[0];
+  if (!prev.scores) return '';
+  let prevScores;
+  try { prevScores = JSON.parse(prev.scores); } catch(e) { return ''; }
+
+  const prevDate = new Date(prev.created_at).toLocaleDateString('pl-PL');
+  const segsToShow = Object.entries(currentScores)
+    .map(([id, score]) => {
+      const diff = score - (prevScores[id] || score);
+      const seg = isJunior ? SEGS_JUNIOR.find(s=>s.id===id) : SEGS.find(s=>s.id===id);
+      return { id, name: seg ? seg.name : id, score, diff };
+    })
+    .filter(s => Math.abs(s.diff) >= 5)
+    .sort((a,b) => Math.abs(b.diff) - Math.abs(a.diff))
+    .slice(0, 4);
+
+  if (!segsToShow.length) return `
+    <div style="background:#f0f7f0;border:1px solid #b8d8b8;padding:16px 20px;margin-bottom:24px;">
+      <div style="font-size:12px;color:#2a7a3a;font-weight:500;margin-bottom:4px;">✓ Poprzednia diagnoza: ${prevDate}</div>
+      <div style="font-size:13px;color:#3a3830;font-weight:300;">Twoje wyniki są podobne do poprzedniego wypełnienia — brak wyraźnych zmian.</div>
+    </div>`;
+
+  const changes = segsToShow.map(s => {
+    const arrow = s.diff > 0 ? '↑' : '↓';
+    const color = s.diff > 0 ? '#2a7a3a' : '#d63c2f';
+    const sign = s.diff > 0 ? '+' : '';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #e8e4dd;">
+      <span style="font-size:13px;color:#3a3830;">${s.name}</span>
+      <span style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:${color};">${arrow} ${sign}${s.diff}</span>
+    </div>`;
+  }).join('');
+
+  return `
+    <div style="border:1px solid #d8d3c8;padding:20px;margin-bottom:24px;background:#fff;">
+      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Twój postęp od ${prevDate}</div>
+      ${changes}
+    </div>`;
+}
+
+// ══════════════════════════════════════
 //  GENERATE RESULTS → EMAIL GATE
 // ══════════════════════════════════════
-let cachedScores = null;
 
 async function generateResults() {
   showScreen('screen-loading');
@@ -1667,19 +1974,31 @@ function submitEmail() {
     return;
   }
   err.style.display = 'none';
-  console.log('Email captured:', email);
+  playerEmail = email;
 
   // Zapisz email do Supabase
   saveToSupabase('diagnostics', buildDiagnosticsRecord({ event: 'email_submitted', email }));
   // Powiadomienie email
   sendEmailNotification('Nowy email z ankiety', { email });
 
-  // Schowaj overlay — całkowicie usuń z przepływu
+  // Schowaj overlay
   document.getElementById('email-gate-box').style.display = 'none';
 
-  // Pokaż potwierdzenie poza blur containerem
+  // Pokaż potwierdzenie
   document.getElementById('email-confirm-text').textContent = `Wyślemy diagnozę na ${email}. Możesz też skopiować link i podzielić się wynikami z trenerem.`;
   document.getElementById('email-confirm-box').style.display = 'block';
+
+  // Załaduj historię i pokaż porównanie jeśli jest
+  loadPlayerHistory(email).then(history => {
+    playerHistory = history;
+    if (history.length > 0 && cachedScores) {
+      const historyHtml = renderHistoryComparison(history, cachedScores);
+      if (historyHtml) {
+        const confirmBox = document.getElementById('email-confirm-box');
+        confirmBox.insertAdjacentHTML('afterend', historyHtml);
+      }
+    }
+  });
 
   // Junior — generuj od razu
   if (isJunior) {
@@ -2318,62 +2637,115 @@ function renderProduct(scores) {
   `;
   }).join('');
 
-  // Sekcja konsultacji — zawsze pokazywana po produktach
+  // Sekcja konsultacji i współpracy
   const consultHTML = `
-    <div style="border:1px solid #0e0d0b;padding:40px;margin-bottom:48px;position:relative;overflow:hidden;">
-      <div style="position:absolute;top:0;right:0;background:#0e0d0b;color:#c8ff00;font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:0.15em;padding:6px 16px;">PRACA ZE SPECJALISTĄ</div>
-      <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Chcesz szybszych efektów?</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(24px,3vw,36px);line-height:1.1;margin-bottom:16px;color:#0e0d0b;">Pracuj ze specjalistą<br>bezpośrednio nad Twoim deficytem</div>
-      <div style="font-size:14px;color:#3a3830;font-weight:300;line-height:1.8;margin-bottom:28px;max-width:520px;">
-        Program samodzielny działa — ale jeśli chcesz mieć pewność że robisz to dobrze, szybciej eliminujesz błędy i masz plan dopasowany dokładnie do Ciebie, konsultacja ze specjalistą to najkrótsza droga.
+    <div style="margin-bottom:16px;">
+
+      <!-- Konsultacja jednorazowa -->
+      <div style="border:1px solid #d8d3c8;padding:40px;margin-bottom:16px;background:#fff;position:relative;">
+        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Konsultacja jednorazowa</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(24px,3vw,36px);line-height:1.1;margin-bottom:16px;color:#0e0d0b;">Po tej sesji będziesz wiedział dokładnie<br>co robić przez najbliższe 8 tygodni</div>
+        <div style="font-size:14px;color:#3a3830;font-weight:300;line-height:1.8;margin-bottom:24px;max-width:520px;">
+          Diagnoza wskazuje problem. Konsultacja daje plan. Nie ogólny — konkretny, zapisany, dopasowany do Twojego kalendarza treningowego, poziomu i celu.
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px;max-width:520px;">
+          ${[
+            ['Co dostajesz','Analizę Twoich wyników przeze mnie przed sesją + 50 minut rozmowy + indywidualny plan działania na 8 tygodni w PDF'],
+            ['Dobór programów','Wskazanie konkretnych ćwiczeń i programów dopasowanych do Twojego profilu'],
+            ['Follow-up','Po 4 tygodniach wypełniasz diagnozę ponownie — porównuję wyniki i piszę co się zmieniło i co korygujemy'],
+            ['Dla kogo','Dla zawodnika który chce mieć pewność że idzie w dobrym kierunku i nie marnuje czasu'],
+          ].map(([label, val]) => `
+            <div style="padding:16px;border:1px solid #d8d3c8;">
+              <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#9a9488;margin-bottom:6px;">${label}</div>
+              <div style="font-size:13px;color:#0e0d0b;font-weight:300;line-height:1.6;">${val}</div>
+            </div>`).join('')}
+        </div>
+        <div id="consult-btn-wrap-single" style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+          <button onclick="document.getElementById('consult-form').style.display='block';document.getElementById('consult-btn-wrap-single').style.display='none';"
+            style="background:#0e0d0b;color:#f5f2ec;border:none;padding:16px 40px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;cursor:pointer;">
+            Umów konsultację →
+          </button>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#0e0d0b;letter-spacing:0.05em;">497 zł</div>
+        </div>
+        <div id="consult-form" style="display:none;margin-top:24px;border-top:1px solid #d8d3c8;padding-top:24px;">
+          <div style="font-size:13px;color:#3a3830;font-weight:300;margin-bottom:16px;">Zostaw kontakt — odezwę się w ciągu 24 godzin żeby ustalić termin.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+            <input id="consult-name" placeholder="Imię i nazwisko"
+              style="padding:12px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;width:100%;"
+              onfocus="this.style.borderColor='#0e0d0b'" onblur="this.style.borderColor='#d8d3c8'">
+            <input id="consult-contact" placeholder="Numer telefonu lub email"
+              style="padding:12px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;width:100%;"
+              onfocus="this.style.borderColor='#0e0d0b'" onblur="this.style.borderColor='#d8d3c8'">
+          </div>
+          <textarea id="consult-note" placeholder="Opcjonalnie: pozycja, poziom rozgrywek, główny cel" rows="2"
+            style="width:100%;padding:12px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;resize:none;margin-bottom:12px;display:block;"
+            onfocus="this.style.borderColor='#0e0d0b'" onblur="this.style.borderColor='#d8d3c8'"></textarea>
+          <div id="consult-error" style="display:none;color:#d63c2f;font-size:13px;margin-bottom:10px;">Podaj imię i kontakt.</div>
+          <div id="consult-confirm" style="display:none;background:#f0f7f0;border:1px solid #b8d8b8;padding:16px 20px;margin-bottom:12px;">
+            <div style="font-size:13px;font-weight:500;color:#2a7a3a;margin-bottom:4px;">✓ Zgłoszenie wysłane</div>
+            <div style="font-size:12px;color:#3a3830;font-weight:300;">Odezwę się w ciągu 24 godzin.</div>
+          </div>
+          <button id="consult-submit-btn" onclick="submitConsultation()"
+            style="background:#0e0d0b;color:#f5f2ec;border:none;padding:14px 32px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:0.1em;cursor:pointer;">
+            Wyślij zgłoszenie →
+          </button>
+        </div>
       </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;max-width:520px;">
-        <div style="padding:16px;border:1px solid #d8d3c8;">
-          <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#9a9488;margin-bottom:6px;">Otrzymasz</div>
-          <div style="font-size:13px;color:#0e0d0b;font-weight:300;line-height:1.7;">Indywidualną analizę Twoich wyników i plan działania dopasowany do Twojego poziomu i celu</div>
+
+      <!-- Współpraca miesięczna -->
+      <div style="border:1px solid #0e0d0b;padding:40px;margin-bottom:48px;position:relative;overflow:hidden;background:#0e0d0b;">
+        <div style="position:absolute;top:0;right:0;background:#c8ff00;color:#0e0d0b;font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:0.15em;padding:6px 16px;">NAJWYŻSZY POZIOM</div>
+        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:12px;">Współpraca miesięczna</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(24px,3vw,36px);line-height:1.1;margin-bottom:16px;color:#f5f2ec;">Twój rozwój pod stałą opieką —<br>każdy tydzień we właściwym kierunku</div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.6);font-weight:300;line-height:1.8;margin-bottom:28px;max-width:520px;">
+          To nie jest program który kupujesz i wdrażasz sam. To relacja w której razem prowadzimy Twój rozwój — widzę co działa, co nie działa i korygujemy zanim stracisz tygodnie na coś co nie przynosi efektów.
         </div>
-        <div style="padding:16px;border:1px solid #d8d3c8;">
-          <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#9a9488;margin-bottom:6px;">Format</div>
-          <div style="font-size:13px;color:#0e0d0b;font-weight:300;line-height:1.7;">Sesja online 60 min + pisemne podsumowanie z planem na najbliższe tygodnie</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px;max-width:520px;">
+          ${[
+            ['Diagnoza','Wstępna i aktualizacja co 4 tygodnie — widzisz konkretny postęp w liczbach'],
+            ['Plan treningowy','Indywidualny, aktualizowany co miesiąc do tego jak reagujesz na obciążenia'],
+            ['Cotygodniowy kontakt','15 minut na omówienie jak idzie i co korygujemy — online lub wiadomość głosowa'],
+            ['Dostęp do mnie','WhatsApp w dni robocze — odpowiedź do 24h gdy masz pytanie lub coś nie gra'],
+            ['Wszystkie programy','Pełen dostęp do wszystkich programów cyfrowych w cenie'],
+            ['Dla kogo','Dla zawodnika który traktuje swój rozwój poważnie i chce maksymalnych efektów w minimalnym czasie'],
+          ].map(([label, val]) => `
+            <div style="padding:16px;border:1px solid rgba(255,255,255,0.1);">
+              <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.3);margin-bottom:6px;">${label}</div>
+              <div style="font-size:13px;color:rgba(255,255,255,0.7);font-weight:300;line-height:1.6;">${val}</div>
+            </div>`).join('')}
         </div>
-        <div style="padding:16px;border:1px solid #d8d3c8;">
-          <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#9a9488;margin-bottom:6px;">Czas odpowiedzi</div>
-          <div style="font-size:13px;color:#0e0d0b;font-weight:300;line-height:1.7;">Odezwiemy się w ciągu <strong>24 godzin</strong> od zgłoszenia</div>
+        <div id="monthly-btn-wrap" style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+          <button onclick="document.getElementById('monthly-form').style.display='block';document.getElementById('monthly-btn-wrap').style.display='none';"
+            style="background:#c8ff00;color:#0e0d0b;border:none;padding:16px 40px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;cursor:pointer;">
+            Rozpocznij współpracę →
+          </button>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#c8ff00;letter-spacing:0.05em;">1497 zł <span style="font-size:14px;color:rgba(255,255,255,0.4);font-weight:300;font-family:'DM Sans',sans-serif;">/ miesiąc</span></div>
         </div>
-        <div style="padding:16px;border:1px solid #d8d3c8;">
-          <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#9a9488;margin-bottom:6px;">Wycena</div>
-          <div style="font-size:13px;color:#0e0d0b;font-weight:300;line-height:1.7;">Indywidualnie — po kontakcie i omówieniu Twoich potrzeb</div>
+        <div id="monthly-form" style="display:none;margin-top:24px;border-top:1px solid rgba(255,255,255,0.1);padding-top:24px;">
+          <div style="font-size:13px;color:rgba(255,255,255,0.5);font-weight:300;margin-bottom:16px;">Zostaw kontakt — odezwę się w ciągu 24 godzin.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+            <input id="monthly-name" placeholder="Imię i nazwisko"
+              style="padding:12px 16px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);font-family:'DM Sans',sans-serif;font-size:14px;color:#f5f2ec;outline:none;width:100%;"
+              onfocus="this.style.borderColor='rgba(255,255,255,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.2)'">
+            <input id="monthly-contact" placeholder="Numer telefonu lub email"
+              style="padding:12px 16px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);font-family:'DM Sans',sans-serif;font-size:14px;color:#f5f2ec;outline:none;width:100%;"
+              onfocus="this.style.borderColor='rgba(255,255,255,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.2)'">
+          </div>
+          <textarea id="monthly-note" placeholder="Opcjonalnie: co chcesz osiągnąć, aktualny poziom, pozycja" rows="2"
+            style="width:100%;padding:12px 16px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);font-family:'DM Sans',sans-serif;font-size:14px;color:#f5f2ec;outline:none;resize:none;margin-bottom:12px;display:block;"
+            onfocus="this.style.borderColor='rgba(255,255,255,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.2)'"></textarea>
+          <div id="monthly-error" style="display:none;color:#ff6b6b;font-size:13px;margin-bottom:10px;">Podaj imię i kontakt.</div>
+          <div id="monthly-confirm" style="display:none;background:rgba(200,255,0,0.1);border:1px solid rgba(200,255,0,0.3);padding:16px 20px;margin-bottom:12px;">
+            <div style="font-size:13px;font-weight:500;color:#c8ff00;margin-bottom:4px;">✓ Zgłoszenie wysłane</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.5);font-weight:300;">Odezwę się w ciągu 24 godzin.</div>
+          </div>
+          <button id="monthly-submit-btn" onclick="submitMonthly()"
+            style="background:#c8ff00;color:#0e0d0b;border:none;padding:14px 32px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:0.1em;cursor:pointer;">
+            Wyślij zgłoszenie →
+          </button>
         </div>
       </div>
-      <div id="consult-btn-wrap">
-        <button onclick="document.getElementById('consult-form').style.display='block';document.getElementById('consult-btn-wrap').style.display='none';"
-          style="background:#0e0d0b;color:#f5f2ec;border:none;padding:16px 40px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;cursor:pointer;">
-          Umów konsultację →
-        </button>
-      </div>
-      <div id="consult-form" style="display:none;margin-top:24px;border-top:1px solid #d8d3c8;padding-top:24px;">
-        <div style="font-size:13px;color:#3a3830;font-weight:300;margin-bottom:16px;">Zostaw kontakt — specjalista odezwie się w ciągu 24 godzin.</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-          <input id="consult-name" placeholder="Imię i nazwisko"
-            style="padding:12px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;width:100%;"
-            onfocus="this.style.borderColor='#0e0d0b'" onblur="this.style.borderColor='#d8d3c8'">
-          <input id="consult-contact" placeholder="Numer telefonu lub email"
-            style="padding:12px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;width:100%;"
-            onfocus="this.style.borderColor='#0e0d0b'" onblur="this.style.borderColor='#d8d3c8'">
-        </div>
-        <textarea id="consult-note" placeholder="Opcjonalnie: pozycja, poziom rozgrywek, główny cel" rows="3"
-          style="width:100%;padding:12px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;resize:none;margin-bottom:12px;display:block;"
-          onfocus="this.style.borderColor='#0e0d0b'" onblur="this.style.borderColor='#d8d3c8'"></textarea>
-        <div id="consult-error" style="display:none;color:#d63c2f;font-size:13px;margin-bottom:10px;">Podaj imię i kontakt (email lub telefon).</div>
-        <div id="consult-confirm" style="display:none;background:#f0f7f0;border:1px solid #b8d8b8;padding:16px 20px;margin-bottom:12px;">
-          <div style="font-size:13px;font-weight:500;color:#2a7a3a;margin-bottom:4px;">✓ Zgłoszenie wysłane</div>
-          <div style="font-size:12px;color:#3a3830;font-weight:300;">Odezwiemy się w ciągu 24 godzin. Sprawdź swoją skrzynkę lub telefon.</div>
-        </div>
-        <button id="consult-submit-btn" onclick="submitConsultation()"
-          style="background:#0e0d0b;color:#f5f2ec;border:none;padding:14px 32px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:0.1em;cursor:pointer;">
-          Wyślij zgłoszenie →
-        </button>
-      </div>
+
     </div>
   `;
 
@@ -2674,6 +3046,22 @@ function submitConsultation() {
   confirmEl.style.display = 'block';
 }
 
+function submitMonthly() {
+  const name = document.getElementById('monthly-name').value.trim();
+  const contact = document.getElementById('monthly-contact').value.trim();
+  const note = document.getElementById('monthly-note').value.trim();
+  const errorEl = document.getElementById('monthly-error');
+  const confirmEl = document.getElementById('monthly-confirm');
+  const submitBtn = document.getElementById('monthly-submit-btn');
+  if (!name || !contact) { errorEl.style.display = 'block'; return; }
+  errorEl.style.display = 'none';
+  leads.consultations.push({ type: 'monthly', name, contact, note, timestamp: new Date().toISOString() });
+  saveToSupabase('diagnostics', buildDiagnosticsRecord({ event: 'monthly_request', name, contact, note }));
+  sendEmailNotification('🟡 NOWE ZGŁOSZENIE — WSPÓŁPRACA MIESIĘCZNA', { name, contact, note });
+  submitBtn.style.display = 'none';
+  confirmEl.style.display = 'block';
+}
+
 // ══════════════════════════════════════
 //  UTILS
 // ══════════════════════════════════════
@@ -2683,13 +3071,69 @@ function showScreen(id) {
   window.scrollTo(0, 0);
 }
 function restart() {
-  ans = {}; cur = 0;
+  ans = {}; cachedScores = null;
   isJunior = false; activeSegs = [];
   ctx = { level: null, pos: null, age: null };
+  playerEmail = null; playerHistory = [];
+  teamCode = null; playerName = null;
   document.querySelectorAll('.ctx-btn').forEach(b => b.classList.remove('sel'));
   history.replaceState(null, '', window.location.pathname);
   showScreen('screen-intro');
 }
 </script>
-</body>
-</html>
+<!-- ════ TEAM VIEW — widok trenera ════ -->
+<div id="screen-team" class="screen">
+  <div style="min-height:100vh;background:#f5f2ec;">
+    <div style="background:#0e0d0b;padding:24px 32px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:0.2em;color:rgba(255,255,255,0.4);margin-bottom:4px;">Gamechange System — Panel Trenera</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#f5f2ec;letter-spacing:0.05em;" id="team-title">Drużyna</div>
+      </div>
+      <button onclick="downloadTeamPDF()"
+        style="background:#c8ff00;color:#0e0d0b;border:none;padding:12px 24px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:0.1em;cursor:pointer;">
+        ↓ Pobierz PDF drużyny
+      </button>
+    </div>
+
+    <div style="max-width:900px;margin:0 auto;padding:32px 24px;">
+
+      <!-- Statystyki drużyny -->
+      <div id="team-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;"></div>
+
+      <!-- Tabela zawodników -->
+      <div style="background:#fff;border:1px solid #d8d3c8;overflow:hidden;">
+        <div style="padding:20px 24px;border-bottom:1px solid #d8d3c8;display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.05em;">Wyniki zawodników</div>
+          <div style="font-size:12px;color:#9a9488;" id="team-count"></div>
+        </div>
+        <div id="team-table-wrap" style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;" id="team-table">
+            <thead>
+              <tr style="background:#f5f2ec;">
+                <th style="padding:12px 16px;text-align:left;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#9a9488;font-weight:500;border-bottom:1px solid #d8d3c8;">Zawodnik</th>
+                <th style="padding:12px 16px;text-align:left;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#9a9488;font-weight:500;border-bottom:1px solid #d8d3c8;">Pozycja</th>
+                <th style="padding:12px 16px;text-align:center;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#9a9488;font-weight:500;border-bottom:1px solid #d8d3c8;">Wynik</th>
+                <th style="padding:12px 16px;text-align:left;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#9a9488;font-weight:500;border-bottom:1px solid #d8d3c8;">Główny deficyt</th>
+                <th style="padding:12px 16px;text-align:left;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#9a9488;font-weight:500;border-bottom:1px solid #d8d3c8;">Top 3 wąskie gardła</th>
+                <th style="padding:12px 16px;text-align:left;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#9a9488;font-weight:500;border-bottom:1px solid #d8d3c8;">Data</th>
+              </tr>
+            </thead>
+            <tbody id="team-tbody"></tbody>
+          </table>
+        </div>
+        <div id="team-loading" style="padding:48px;text-align:center;color:#9a9488;font-size:14px;font-weight:300;">Ładowanie danych drużyny...</div>
+        <div id="team-empty" style="display:none;padding:48px;text-align:center;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:#9a9488;margin-bottom:8px;">Brak wyników</div>
+          <div style="font-size:13px;color:#9a9488;font-weight:300;">Żaden zawodnik nie wypełnił jeszcze ankiety z tym kodem drużyny.</div>
+        </div>
+      </div>
+
+      <!-- Najczęstsze deficyty drużyny -->
+      <div style="margin-top:24px;background:#fff;border:1px solid #d8d3c8;padding:24px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.05em;margin-bottom:16px;">Najczęstsze wąskie gardła drużyny</div>
+        <div id="team-deficits" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
