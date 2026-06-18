@@ -2507,59 +2507,59 @@ function renderProduct(scores) {
       includes: ['Schemat treningowy stabilizacja + moc + siła','Praca nad siłą w kontakcie fizycznym','Plan progresji od łatwego do trudnego','Zasady monitorowania postępów na boisku'],
     },
     wytrzymalosc: {
-      ready: false,
+      ready: true,
       title: 'Program Wytrzymałości Meczowej',
       desc: 'Budowanie zdolności do utrzymywania intensywności przez pełne 90 minut — bez spadku jakości technicznej i decyzyjnej.',
     },
     tolerancja: {
-      ready: false,
+      ready: true,
       title: 'Protokół Tolerancji Obciążeń',
       desc: 'Jak stopniowo zwiększać obciążenia treningowe bez przeciążeń i kontuzji — i jak wrócić do pełnej gotowości szybciej niż inni.',
     },
     regeneracja: {
-      ready: false,
+      ready: true,
       title: 'Protokół Regeneracji',
       desc: 'Sen, zarządzanie zmęczeniem i rutyny odbudowy — gotowy system który sprawia że każdy trening zaczyna się od pełnej gotowości.',
     },
     odzywianie: {
-      ready: false,
+      ready: true,
       title: 'Protokół Odżywienia Sportowca',
       desc: 'Energia na pełne 90 minut, szybka odbudowa między wysiłkami i eliminacja spadków energii — oparte na konkretnych protokołach żywieniowych.',
     },
     odpornosc: {
-      ready: false,
+      ready: true,
       title: 'Protokół Odporności Sezonowej',
       desc: 'Jak zakończyć pełny sezon bez przerw spowodowanych chorobą — konkretne działania które wzmacniają odporność przy wysokich obciążeniach.',
     },
     percepcja: {
-      ready: false,
+      ready: true,
       title: 'Trening Czytania Gry',
       desc: 'Jak skanować boisko szybciej, rozpoznawać sytuacje wcześniej i podejmować decyzje zanim przeciwnik zdąży zareagować.',
     },
     decyzja: {
-      ready: false,
+      ready: true,
       title: 'Trening Czytania Gry',
       desc: 'Skrócenie czasu między percepcją a decyzją — konkretne ćwiczenia kognitywne i boiskowe które przyspieszają wybór działania.',
     },
     koncentracja: {
-      ready: false,
+      ready: true,
       title: 'Protokół Mentalny',
       desc: 'Jak wracać do skupienia po błędzie, utrzymywać jakość decyzji w końcówkach meczu i eliminować rozproszenia.',
     },
     mental: {
-      ready: false,
+      ready: true,
       title: 'Protokół Mentalny',
       desc: 'Budowanie odwagi decyzyjnej, stabilności emocjonalnej i odpowiedzialności w kluczowych momentach meczu.',
     },
     techFund: {
-      ready: false,
-      title: 'Program Techniki Fundamentalnej',
-      desc: 'Stabilny pierwszy kontakt, dokładne podania i utrzymywanie jakości technicznej pod presją — budowane od podstaw.',
+      ready: true,
+      title: 'Technika Fundamentalna i Specjalistyczna',
+      desc: 'Stabilny pierwszy kontakt, dokładne podania i utrzymywanie jakości technicznej pod presją — oraz jak tworzyć przewagę działaniami technicznymi i zmieniać tempo akcji.',
     },
     techSpec: {
-      ready: false,
-      title: 'Program Techniki Specjalistycznej',
-      desc: 'Jak tworzyć przewagę działaniami technicznymi, zmieniać tempo akcji i wykorzystywać momenty nieuwagi przeciwnika.',
+      ready: true,
+      title: 'Technika Fundamentalna i Specjalistyczna',
+      desc: 'Stabilny pierwszy kontakt, dokładne podania i utrzymywanie jakości technicznej pod presją — oraz jak tworzyć przewagę działaniami technicznymi i zmieniać tempo akcji.',
     },
   };
 
@@ -2578,19 +2578,19 @@ function renderProduct(scores) {
 
   // Mapa PDF-ów dla każdego segmentu
   const PDF_MAP = {
-    moc:          'moc.pdf',
-    fizycznosc:   'fizycznosc.pdf',
-    wytrzymalosc: 'wytrzymalosc.pdf',
-    tolerancja:   'tolerancja-obciazen.pdf',
-    regeneracja:  'regeneracja.pdf',
-    odzywianie:   'odzywianie.pdf',
-    odpornosc:    'odpornosc.pdf',
-    percepcja:    'percepcja.pdf',
-    decyzja:      'szybkosc-decyzji.pdf',
-    koncentracja: 'koncentracja.pdf',
-    mental:       'stan-mentalny.pdf',
-    techFund:     'technika-fundamentalna.pdf',
-    techSpec:     'technika-specjalistyczna.pdf',
+    moc:          'Moc - System Gamechange.pdf',
+    fizycznosc:   'Fizycznosc - System Gamechange.pdf',
+    wytrzymalosc: 'Wytrzymalosc - System Gamechange.pdf',
+    tolerancja:   'Tolerancja obciazen - System Gamechange.pdf',
+    regeneracja:  'Regeneracja - System Gamechange.pdf',
+    odzywianie:   'Odzywienie organizmu - System Gamechange.pdf',
+    odpornosc:    'Odpornosc organizmu - System Gamechange.pdf',
+    percepcja:    'Percepcja i szybkosc decyzji - System Gamechange.pdf',
+    decyzja:      'Percepcja i szybkosc decyzji - System Gamechange.pdf',
+    koncentracja: 'Koncentracja - System Gamechange.pdf',
+    mental:       'Stan mentalny - System Gamechange.pdf',
+    techFund:     'Technika fundamentalna - System Gamechange.pdf',
+    techSpec:     'Technika fundamentalna - System Gamechange.pdf',
   };
 
   const cardsHTML = productCards.map(p => {
