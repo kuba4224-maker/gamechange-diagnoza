@@ -1398,6 +1398,34 @@ function goToStripePayment() {
   alert('Tu podepnij link Stripe. Return URL powinien zawierać ?paid=1');
 }
 
+function updateCartTotal() {
+  const boxes = Array.from(document.querySelectorAll('.product-pick'));
+  const checked = boxes.filter(b => b.checked);
+  const totalEl = document.getElementById('cart-total');
+  if (!totalEl) return;
+  let total;
+  if (checked.length >= 2) {
+    total = 147;
+  } else if (checked.length === 1) {
+    total = 97;
+  } else {
+    total = 0;
+  }
+  totalEl.textContent = `${total} zł`;
+}
+
+function goToProductPayment() {
+  // TODO: podepnij rzeczywisty(e) link(i) Stripe — jeden produkt 97 zł, dwa produkty 147 zł.
+  // Return URL powinien zawierać ?paid=1 i identyfikator wybranych produktów.
+  const boxes = Array.from(document.querySelectorAll('.product-pick'));
+  const checked = boxes.filter(b => b.checked).map(b => b.dataset.id);
+  if (!checked.length) {
+    alert('Wybierz przynajmniej jeden program.');
+    return;
+  }
+  alert(`Tu podepnij link Stripe dla: ${checked.join(', ')}. Return URL powinien zawierać ?paid=1`);
+}
+
 function submitAccessCode() {
   const code = document.getElementById('access-code-input').value.trim().toUpperCase();
   const errEl = document.getElementById('access-code-error');
@@ -2496,69 +2524,67 @@ function renderProduct(scores) {
   const PRODUCTS = {
     moc: {
       ready: true,
-      title: 'Prawdziwa Eksplozywność',
+      title: 'Moc',
       desc: 'Większość zawodników trenuje siłę i skoki — ale bez zrozumienia mechanizmu. Ten program uczy jak generować moc, kontrolować ją i odzyskiwać w kolejnych ruchach. Efekt: realna przewaga na pierwszych metrach — widoczna na boisku, nie tylko w testach.',
-      includes: ['Schemat treningowy stabilizacja + moc + siła','3 scenariusze dopasowane do Twojego priorytetu (P, W lub R)','Plan progresji od łatwego do trudnego','Zasady monitorowania postępów na boisku'],
     },
     fizycznosc: {
       ready: true,
-      title: 'Prawdziwa Eksplozywność',
+      title: 'Fizyczność',
       desc: 'Przewaga w kontakcie fizycznym wynika z mocy i stabilności — nie z samej masy ciała. Ten program buduje dokładnie te fundamenty: siłę w kontakcie, kontrolę pozycji i odporność na nacisk rywala.',
-      includes: ['Schemat treningowy stabilizacja + moc + siła','Praca nad siłą w kontakcie fizycznym','Plan progresji od łatwego do trudnego','Zasady monitorowania postępów na boisku'],
     },
     wytrzymalosc: {
       ready: true,
-      title: 'Program Wytrzymałości Meczowej',
+      title: 'Wytrzymałość',
       desc: 'Budowanie zdolności do utrzymywania intensywności przez pełne 90 minut — bez spadku jakości technicznej i decyzyjnej.',
     },
     tolerancja: {
       ready: true,
-      title: 'Protokół Tolerancji Obciążeń',
+      title: 'Tolerancja Obciążeń',
       desc: 'Jak stopniowo zwiększać obciążenia treningowe bez przeciążeń i kontuzji — i jak wrócić do pełnej gotowości szybciej niż inni.',
     },
     regeneracja: {
       ready: true,
-      title: 'Protokół Regeneracji',
+      title: 'Regeneracja',
       desc: 'Sen, zarządzanie zmęczeniem i rutyny odbudowy — gotowy system który sprawia że każdy trening zaczyna się od pełnej gotowości.',
     },
     odzywianie: {
       ready: true,
-      title: 'Protokół Odżywienia Sportowca',
+      title: 'Odżywienie',
       desc: 'Energia na pełne 90 minut, szybka odbudowa między wysiłkami i eliminacja spadków energii — oparte na konkretnych protokołach żywieniowych.',
     },
     odpornosc: {
       ready: true,
-      title: 'Protokół Odporności Sezonowej',
+      title: 'Odporność',
       desc: 'Jak zakończyć pełny sezon bez przerw spowodowanych chorobą — konkretne działania które wzmacniają odporność przy wysokich obciążeniach.',
     },
     percepcja: {
       ready: true,
-      title: 'Trening Czytania Gry',
+      title: 'Percepcja i Szybkość Decyzji',
       desc: 'Jak skanować boisko szybciej, rozpoznawać sytuacje wcześniej i podejmować decyzje zanim przeciwnik zdąży zareagować.',
     },
     decyzja: {
       ready: true,
-      title: 'Trening Czytania Gry',
+      title: 'Percepcja i Szybkość Decyzji',
       desc: 'Skrócenie czasu między percepcją a decyzją — konkretne ćwiczenia kognitywne i boiskowe które przyspieszają wybór działania.',
     },
     koncentracja: {
       ready: true,
-      title: 'Protokół Mentalny',
+      title: 'Koncentracja',
       desc: 'Jak wracać do skupienia po błędzie, utrzymywać jakość decyzji w końcówkach meczu i eliminować rozproszenia.',
     },
     mental: {
       ready: true,
-      title: 'Protokół Mentalny',
+      title: 'Stan Mentalny',
       desc: 'Budowanie odwagi decyzyjnej, stabilności emocjonalnej i odpowiedzialności w kluczowych momentach meczu.',
     },
     techFund: {
       ready: true,
-      title: 'Technika Fundamentalna i Specjalistyczna',
+      title: 'Technika',
       desc: 'Stabilny pierwszy kontakt, dokładne podania i utrzymywanie jakości technicznej pod presją — oraz jak tworzyć przewagę działaniami technicznymi i zmieniać tempo akcji.',
     },
     techSpec: {
       ready: true,
-      title: 'Technika Fundamentalna i Specjalistyczna',
+      title: 'Technika',
       desc: 'Stabilny pierwszy kontakt, dokładne podania i utrzymywanie jakości technicznej pod presją — oraz jak tworzyć przewagę działaniami technicznymi i zmieniać tempo akcji.',
     },
   };
@@ -2593,52 +2619,45 @@ function renderProduct(scores) {
     techSpec:     'Technika fundamentalna - System Gamechange.pdf',
   };
 
-  const cardsHTML = productCards.map(p => {
-    const pdfFile = PDF_MAP[p.id];
-    const segName = (isJunior ? SEGS_JUNIOR : SEGS).find(s=>s.id===p.id)?.name || '';
-
-    if (pdfFile) return `
-    <div style="border:1px solid #d8d3c8;padding:32px;margin-bottom:16px;background:#fff;">
-      <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Twój priorytet — ${segName}</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.02em;margin-bottom:12px;color:#0e0d0b;">${p.title}</div>
-      <div style="font-size:14px;color:#3a3830;font-weight:300;line-height:1.8;margin-bottom:24px;">${p.desc}</div>
-      <a href="${pdfFile}" download
-        style="display:inline-block;background:#c8ff00;color:#0e0d0b;border:none;padding:16px 32px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;cursor:pointer;text-decoration:none;">
-        Pobierz bezpłatny przewodnik →
-      </a>
-      <div style="margin-top:12px;font-size:12px;color:#9a9488;font-weight:300;">
-        Bezpłatnie w ramach pilotażu Gamechange System.
-      </div>
-    </div>
-  `;
-
-    return `
-    <div style="border:1px solid #d8d3c8;padding:32px;margin-bottom:16px;background:#fff;" id="waitlist-card-${p.id}">
-      <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Rekomendowany program — ${segName}</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.02em;margin-bottom:12px;color:#0e0d0b;">${p.title}</div>
-      <div style="font-size:14px;color:#3a3830;font-weight:300;line-height:1.8;margin-bottom:24px;">${p.desc}</div>
-      <div style="background:#f5f2ec;border:1px solid #d8d3c8;padding:20px;">
-        <div style="font-size:13px;font-weight:500;color:#0e0d0b;margin-bottom:4px;">Program w przygotowaniu</div>
-        <div style="font-size:12px;color:#9a9488;font-weight:300;margin-bottom:16px;">Zapisz się — dostaniesz powiadomienie jako pierwszy i specjalną cenę na premierę.</div>
-        <div id="waitlist-form-${p.id}">
-          <div style="display:flex;gap:8px;">
-            <input id="waitlist-email-${p.id}" type="email" placeholder="Twój email"
-              style="flex:1;padding:10px 14px;border:1px solid #d8d3c8;background:#fff;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;"
-              onfocus="this.style.borderColor='#0e0d0b'"
-              onblur="this.style.borderColor='#d8d3c8'"
-              onkeydown="if(event.key==='Enter') submitWaitlist('${p.id}','${p.title}')">
-            <button onclick="submitWaitlist('${p.id}','${p.title}')"
-              style="white-space:nowrap;background:#0e0d0b;color:#f5f2ec;border:none;padding:10px 20px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:0.1em;cursor:pointer;">
-              Zapisz mnie →
-            </button>
-          </div>
-          <div id="waitlist-error-${p.id}" style="display:none;color:#d63c2f;font-size:12px;margin-top:6px;">Podaj poprawny adres email.</div>
+  const cardsHTML = `
+    <div style="border:1px solid #d8d3c8;background:#fff;margin-bottom:48px;">
+      ${productCards.map((p, i) => {
+        const segName = (isJunior ? SEGS_JUNIOR : SEGS).find(s=>s.id===p.id)?.name || '';
+        return `
+        <div style="padding:32px;${i < productCards.length - 1 ? 'border-bottom:1px solid #e8e4dd;' : ''}">
+          <label style="display:flex;gap:20px;cursor:pointer;align-items:flex-start;">
+            <input type="checkbox" class="product-pick" data-id="${p.id}" data-price="97"
+              ${i === 0 ? 'checked' : ''} onchange="updateCartTotal()"
+              style="width:20px;height:20px;margin-top:4px;flex-shrink:0;accent-color:#0e0d0b;cursor:pointer;">
+            <div style="flex:1;">
+              <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:10px;">Twój priorytet — ${segName}</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:0.02em;margin-bottom:10px;color:#0e0d0b;">${p.title}</div>
+              <div style="font-size:14px;color:#3a3830;font-weight:300;line-height:1.8;">${p.desc}</div>
+            </div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:#0e0d0b;letter-spacing:0.02em;flex-shrink:0;white-space:nowrap;">97 zł</div>
+          </label>
         </div>
-        <div id="waitlist-confirm-${p.id}" style="display:none;color:#2a7a3a;font-size:13px;font-weight:500;">✓ Zapisano — damy Ci znać jako pierwszemu.</div>
+      `}).join('')}
+
+      <div style="padding:28px 32px;background:#f5f2ec;border-top:1px solid #d8d3c8;">
+        ${productCards.length > 1 ? `
+        <div style="font-size:12px;color:#2a7a3a;font-weight:500;margin-bottom:16px;">Wybierz oba programy i zapłać 147 zł zamiast 194 zł.</div>
+        ` : ''}
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:4px;">Do zapłaty</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#0e0d0b;letter-spacing:0.02em;" id="cart-total">97 zł</div>
+          </div>
+          <button onclick="goToProductPayment()"
+            style="background:#c8ff00;color:#0e0d0b;border:none;padding:18px 40px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;cursor:pointer;"
+            onmouseover="this.style.background='#d4ff00'"
+            onmouseout="this.style.background='#c8ff00'">
+            Kup teraz →
+          </button>
+        </div>
       </div>
     </div>
   `;
-  }).join('');
 
   // Sekcja konsultacji i współpracy
   const consultHTML = `
