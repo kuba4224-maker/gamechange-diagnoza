@@ -1392,38 +1392,36 @@ function startSurvey() {
   }
 }
 
+// Linki Stripe — jeden produkt = jeden link, 97 zł każdy.
+const STRIPE_LINKS = {
+  moc:          'https://buy.stripe.com/cNibJ14U6bBc62M2Fndby09',
+  fizycznosc:   'https://buy.stripe.com/dRm5kDfyK20C76Qgwddby0b',
+  wytrzymalosc: 'https://buy.stripe.com/eVq3cv86icFg4YI1Bjdby01',
+  tolerancja:   'https://buy.stripe.com/9B68wP86iax81Mwfs9dby02',
+  regeneracja:  'https://buy.stripe.com/7sY3cv86ifRsbn693Ldby05',
+  odzywianie:   'https://buy.stripe.com/28E9ATcmy20C4YI1Bjdby07',
+  odpornosc:    'https://buy.stripe.com/bJebJ1fyKcFgezigwddby08',
+  percepcja:    'https://buy.stripe.com/fZu4gzgCOgVw3UEfs9dby06',
+  decyzja:      'https://buy.stripe.com/fZu4gzgCOgVw3UEfs9dby06',
+  koncentracja: 'https://buy.stripe.com/9B628r86i48K1Mw5Rzdby0a',
+  mental:       'https://buy.stripe.com/6oU4gz5Ya20C2QAgwddby04',
+  techFund:     'https://buy.stripe.com/7sY8wP9am20Caj26VDdby03',
+  techSpec:     'https://buy.stripe.com/7sY8wP9am20Caj26VDdby03',
+};
+
+const DIAGNOSIS_STRIPE_LINK = 'https://buy.stripe.com/8x228reuG9t4bn66VDdby0c';
+
 function goToStripePayment() {
-  // TODO: podmień na rzeczywisty link Stripe z parametrem ?paid=1 w return_url
-  // Przykład: https://buy.stripe.com/XXXXX?success_url=https://twojadomena.vercel.app?paid=1
-  alert('Tu podepnij link Stripe. Return URL powinien zawierać ?paid=1');
+  window.location.href = DIAGNOSIS_STRIPE_LINK;
 }
 
-function updateCartTotal() {
-  const boxes = Array.from(document.querySelectorAll('.product-pick'));
-  const checked = boxes.filter(b => b.checked);
-  const totalEl = document.getElementById('cart-total');
-  if (!totalEl) return;
-  let total;
-  if (checked.length >= 2) {
-    total = 147;
-  } else if (checked.length === 1) {
-    total = 97;
-  } else {
-    total = 0;
-  }
-  totalEl.textContent = `${total} zł`;
-}
-
-function goToProductPayment() {
-  // TODO: podepnij rzeczywisty(e) link(i) Stripe — jeden produkt 97 zł, dwa produkty 147 zł.
-  // Return URL powinien zawierać ?paid=1 i identyfikator wybranych produktów.
-  const boxes = Array.from(document.querySelectorAll('.product-pick'));
-  const checked = boxes.filter(b => b.checked).map(b => b.dataset.id);
-  if (!checked.length) {
-    alert('Wybierz przynajmniej jeden program.');
+function goToProductPayment(productId) {
+  const link = STRIPE_LINKS[productId];
+  if (!link) {
+    alert('Nie znaleziono linku płatności dla tego programu. Skontaktuj się z nami.');
     return;
   }
-  alert(`Tu podepnij link Stripe dla: ${checked.join(', ')}. Return URL powinien zawierać ?paid=1`);
+  window.location.href = link;
 }
 
 function submitAccessCode() {
@@ -2619,45 +2617,24 @@ function renderProduct(scores) {
     techSpec:     'Technika fundamentalna - System Gamechange.pdf',
   };
 
-  const cardsHTML = `
-    <div style="border:1px solid #d8d3c8;background:#fff;margin-bottom:48px;">
-      ${productCards.map((p, i) => {
-        const segName = (isJunior ? SEGS_JUNIOR : SEGS).find(s=>s.id===p.id)?.name || '';
-        return `
-        <div style="padding:32px;${i < productCards.length - 1 ? 'border-bottom:1px solid #e8e4dd;' : ''}">
-          <label style="display:flex;gap:20px;cursor:pointer;align-items:flex-start;">
-            <input type="checkbox" class="product-pick" data-id="${p.id}" data-price="97"
-              ${i === 0 ? 'checked' : ''} onchange="updateCartTotal()"
-              style="width:20px;height:20px;margin-top:4px;flex-shrink:0;accent-color:#0e0d0b;cursor:pointer;">
-            <div style="flex:1;">
-              <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:10px;">Twój priorytet — ${segName}</div>
-              <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:0.02em;margin-bottom:10px;color:#0e0d0b;">${p.title}</div>
-              <div style="font-size:14px;color:#3a3830;font-weight:300;line-height:1.8;">${p.desc}</div>
-            </div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:#0e0d0b;letter-spacing:0.02em;flex-shrink:0;white-space:nowrap;">97 zł</div>
-          </label>
-        </div>
-      `}).join('')}
-
-      <div style="padding:28px 32px;background:#f5f2ec;border-top:1px solid #d8d3c8;">
-        ${productCards.length > 1 ? `
-        <div style="font-size:12px;color:#2a7a3a;font-weight:500;margin-bottom:16px;">Wybierz oba programy i zapłać 147 zł zamiast 194 zł.</div>
-        ` : ''}
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;">
-          <div>
-            <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:4px;">Do zapłaty</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#0e0d0b;letter-spacing:0.02em;" id="cart-total">97 zł</div>
-          </div>
-          <button onclick="goToProductPayment()"
-            style="background:#c8ff00;color:#0e0d0b;border:none;padding:18px 40px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;cursor:pointer;"
-            onmouseover="this.style.background='#d4ff00'"
-            onmouseout="this.style.background='#c8ff00'">
-            Kup teraz →
-          </button>
-        </div>
+  const cardsHTML = productCards.map(p => {
+    const segName = (isJunior ? SEGS_JUNIOR : SEGS).find(s=>s.id===p.id)?.name || '';
+    return `
+    <div style="border:1px solid #d8d3c8;padding:32px;margin-bottom:16px;background:#fff;">
+      <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Twój priorytet — ${segName}</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.02em;margin-bottom:12px;color:#0e0d0b;">${p.title}</div>
+      <div style="font-size:14px;color:#3a3830;font-weight:300;line-height:1.8;margin-bottom:24px;">${p.desc}</div>
+      <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
+        <button onclick="goToProductPayment('${p.id}')"
+          style="background:#c8ff00;color:#0e0d0b;border:none;padding:16px 32px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;cursor:pointer;"
+          onmouseover="this.style.background='#d4ff00'"
+          onmouseout="this.style.background='#c8ff00'">
+          Kup za 97 zł →
+        </button>
       </div>
     </div>
   `;
+  }).join('');
 
   // Sekcja konsultacji i współpracy
   const consultHTML = `
