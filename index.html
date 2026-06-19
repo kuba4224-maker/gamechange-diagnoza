@@ -1022,10 +1022,6 @@ body {
           <p>Tu powinieneś zacząć pracę</p>
         </div>
         <div id="deficits-list"></div>
-        <div style="margin-top:32px;border:1px solid #d8d3c8;padding:32px;background:#fff;">
-          <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Twoja diagnoza</div>
-          <div id="ai-diagnosis-text" style="font-size:15px;color:#3a3830;line-height:1.9;font-weight:300;">Generowanie diagnozy...</div>
-        </div>
       </div>
 
       <!-- Email gate overlay — chowa się po podaniu emaila -->
@@ -1073,6 +1069,14 @@ body {
         <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.02em;margin-bottom:8px;color:#0e0d0b;">Powiedz nam więcej o sobie</div>
         <p style="font-size:13px;color:#9a9488;font-weight:300;margin-bottom:28px;">Te dwa pytania sprawią że Twoja diagnoza będzie znacznie bardziej precyzyjna. Pisz swobodnie — nie ma złych odpowiedzi.</p>
 
+        <div id="oq-email-block" style="display:none;margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid #e8e4dd;">
+          <label style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#3a3830;display:block;margin-bottom:10px;font-weight:500;">
+            Email (opcjonalnie) — wyślemy Ci wynik także na skrzynkę
+          </label>
+          <input id="oq-email" type="email" placeholder="twoj@email.com"
+            style="width:100%;padding:14px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;display:block;">
+        </div>
+
         <div style="margin-bottom:24px;">
           <label style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#3a3830;display:block;margin-bottom:10px;font-weight:500;">
             Opisz jedną sytuację z ostatniego meczu lub treningu gdzie czułeś że coś nie zadziałało tak jak powinno.
@@ -1104,6 +1108,12 @@ body {
           </button>
         </div>
       </div>
+    </div>
+
+    <!-- Karta diagnozy AI — pojawia się po wypełnieniu pytań otwartych (logicznie po, nie przed) -->
+    <div id="ai-diagnosis-card" style="display:none;margin-bottom:48px;border:1px solid #d8d3c8;padding:32px;background:#fff;">
+      <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Twoja diagnoza</div>
+      <div id="ai-diagnosis-text" style="font-size:15px;color:#3a3830;line-height:1.9;font-weight:300;">Generowanie diagnozy...</div>
     </div>
 
     <div id="product-wrap"></div>
@@ -1520,7 +1530,7 @@ function renderAllQuestions() {
             <div class="q-context">${esc(q.ctx)}</div>
             <div class="scale-wrap" style="margin-top:20px;">
               <div class="scale-btns">
-                ${[[1,'Nigdy'],[2,'Rzadko'],[3,'Czasami'],[4,'Często'],[5,'Zawsze']].map(([v,label]) => `
+                ${[[1,'Prawie nigdy'],[2,'Bardzo rzadko'],[3,'Rzadko'],[4,'Często'],[5,'Bardzo często'],[6,'Prawie zawsze']].map(([v,label]) => `
                   <button class="scale-btn ${(ans[seg.id] || [])[qi] === v ? 'sel' : ''}"
                     onclick="pickScroll('${esc(seg.id)}',${qi},${v},this)">
                     <span class="scale-num">${v}</span>
@@ -1540,7 +1550,7 @@ function renderAllQuestions() {
       seg.qs.forEach((q, qi) => {
         const qq = getQuestion(q);
         let btns = '';
-        [[1,'Nigdy'],[2,'Bardzo rzadko'],[3,'Rzadko'],[4,'Czasami'],[5,'Często'],[6,'Bardzo często'],[7,'Zawsze']].forEach(([v,label]) => {
+        [[1,'Prawie nigdy'],[2,'Bardzo rzadko'],[3,'Rzadko'],[4,'Często'],[5,'Bardzo często'],[6,'Prawie zawsze']].forEach(([v,label]) => {
           const sel = ans[seg.id][qi] === v ? 'sel' : '';
           btns += `<button class="scale-btn ${sel}" onclick="pickScroll('${esc(seg.id)}',${qi},${v},this)">`;
           btns += `<span class="scale-num">${v}</span>`;
@@ -2008,6 +2018,23 @@ async function generateResults() {
       b.style.width = b.dataset.w + '%';
     });
   }, 100);
+
+  // Użytkownik już zapłacił za diagnozę — bez blura i bez wymuszania emaila.
+  // Pokazujemy od razu pytania otwarte (z opcjonalnym polem email w tle) i generujemy diagnozę.
+  if (hasPaidAccess) {
+    document.getElementById('email-gate-box').style.display = 'none';
+    document.getElementById('diagnosis-blur-wrap').style.filter = 'none';
+    document.getElementById('diagnosis-blur-wrap').style.pointerEvents = 'auto';
+    document.getElementById('diagnosis-unlocked-note').style.display = 'block';
+
+    if (isJunior) {
+      document.getElementById('ai-diagnosis-card').style.display = 'block';
+      generateAIDiagnosis(cachedScores, '', '');
+    } else {
+      document.getElementById('oq-email-block').style.display = 'block';
+      document.getElementById('open-questions-wrap').style.display = 'block';
+    }
+  }
 }
 
 function submitEmail() {
@@ -2049,6 +2076,7 @@ function submitEmail() {
     document.getElementById('diagnosis-blur-wrap').style.filter = 'none';
     document.getElementById('diagnosis-blur-wrap').style.pointerEvents = 'auto';
     document.getElementById('diagnosis-unlocked-note').style.display = 'block';
+    document.getElementById('ai-diagnosis-card').style.display = 'block';
     document.getElementById('ai-diagnosis-text').textContent = 'Generuję Twoją diagnozę...';
     generateAIDiagnosis(cachedScores, '', '');
     return;
@@ -2063,10 +2091,23 @@ function submitOpenQuestions(skip = false) {
   const situation = skip ? '' : (document.getElementById('oq-situation').value.trim());
   const limitation = skip ? '' : (document.getElementById('oq-limitation').value.trim());
 
+  // Opcjonalny email — widoczny tylko dla użytkowników z opłaconym dostępem (hasPaidAccess).
+  // Nie blokuje generowania diagnozy, zapisujemy w tle jeśli podany.
+  const oqEmailEl = document.getElementById('oq-email');
+  if (oqEmailEl) {
+    const oqEmail = oqEmailEl.value.trim();
+    if (oqEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(oqEmail)) {
+      playerEmail = oqEmail;
+      saveToSupabase('diagnostics', buildDiagnosticsRecord({ event: 'email_submitted', email: oqEmail }));
+      sendEmailNotification('Nowy email z ankiety (opłacony dostęp)', { email: oqEmail });
+    }
+  }
+
   document.getElementById('open-questions-wrap').style.display = 'none';
   document.getElementById('diagnosis-blur-wrap').style.filter = 'none';
   document.getElementById('diagnosis-blur-wrap').style.pointerEvents = 'auto';
   document.getElementById('diagnosis-unlocked-note').style.display = 'block';
+  document.getElementById('ai-diagnosis-card').style.display = 'block';
   document.getElementById('ai-diagnosis-text').textContent = 'Generuję Twoją diagnozę...';
 
   generateAIDiagnosis(cachedScores, situation, limitation);
@@ -2124,7 +2165,7 @@ async function generateAIDiagnosis(scores, situation = '', limitation = '') {
   const allMiddle = allAnswers.every(v => v === 3 || v === 4);
   const patternNote = allMiddle
     ? 'Zawodnik odpowiadał głównie środkowymi wartościami — możliwa niepewność w ocenie siebie, weź to pod uwagę przy pewności diagnozy.'
-    : `Średnia odpowiedź: ${avgAnswer}/5.`;
+    : `Średnia odpowiedź: ${avgAnswer}/6.`;
 
   const situationContext = situation
     ? `\nZawodnik opisał konkretną sytuację z boiska: "${situation}"`
@@ -2214,12 +2255,13 @@ Teraz napisz diagnozę dla tego konkretnego zawodnika. Format:
   document.getElementById('diagnosis-blur-wrap').style.filter = 'none';
   document.getElementById('diagnosis-blur-wrap').style.pointerEvents = 'auto';
   document.getElementById('diagnosis-unlocked-note').style.display = 'block';
+  document.getElementById('ai-diagnosis-card').style.display = 'block';
 
   // Pokaż produkt
   renderProduct(scores);
 
   // Scroll do diagnozy
-  document.getElementById('diagnosis-blur-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.getElementById('ai-diagnosis-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function renderFallback(scores, deficits) {
@@ -2385,18 +2427,18 @@ function calcScores() {
   if (isJunior) {
     SEGS_JUNIOR.forEach(seg => {
       const vals = (ans[seg.id] || []).filter(v => v != null);
-      const raw = vals.length ? vals.reduce((a,b) => a+b, 0) / vals.length : 3;
-      sc[seg.id] = Math.round(((raw - 1) / 4) * 100);
+      const raw = vals.length ? vals.reduce((a,b) => a+b, 0) / vals.length : 3.5;
+      sc[seg.id] = Math.round(((raw - 1) / 5) * 100); // skala 1-6 → 0-100
     });
   } else {
     SEGS.forEach(seg => {
       let sum = 0, cnt = 0;
       seg.qs.forEach((q, qi) => {
         const v = (ans[seg.id] || [])[qi];
-        if (v != null) { sum += q.dir === 1 ? v : (8 - v); cnt++; }
+        if (v != null) { sum += q.dir === 1 ? v : (7 - v); cnt++; }
       });
-      const raw = cnt > 0 ? sum / cnt : 4;
-      sc[seg.id] = Math.round(((raw - 1) / 6) * 100); // skala 1-7 → 0-100
+      const raw = cnt > 0 ? sum / cnt : 3.5;
+      sc[seg.id] = Math.round(((raw - 1) / 5) * 100); // skala 1-6 → 0-100
     });
   }
   return sc;
