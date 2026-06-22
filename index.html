@@ -1125,6 +1125,29 @@ body {
   </div>
 </div>
 
+<!-- ════ PURCHASE CONFIRM — powrót ze Stripe po zakupie programu (97 zł) ════ -->
+<div id="screen-purchase-confirm" class="screen">
+  <div style="min-height:100vh;background:#f5f2ec;display:flex;align-items:center;justify-content:center;padding:40px 24px;">
+    <div style="max-width:560px;width:100%;text-align:center;">
+      <div style="font-size:40px;margin-bottom:16px;">✓</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,5vw,48px);line-height:1.05;letter-spacing:0.01em;margin-bottom:16px;color:#0e0d0b;">Dziękujemy za zakup!</div>
+      <p id="purchase-confirm-text" style="font-size:15px;color:#3a3830;font-weight:300;line-height:1.8;margin-bottom:32px;">Twój program jest gotowy.</p>
+
+      <div style="border:1px solid #d8d3c8;background:#fff;padding:32px;margin-bottom:24px;text-align:left;">
+        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Twój program</div>
+        <div id="purchase-confirm-title" style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:0.02em;margin-bottom:20px;color:#0e0d0b;"></div>
+        <a id="purchase-confirm-pdf-link" href="#" target="_blank"
+          style="display:inline-block;background:#c8ff00;color:#0e0d0b;border:none;padding:16px 32px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;cursor:pointer;text-decoration:none;">
+          Pobierz program teraz →
+        </a>
+        <div id="purchase-confirm-email-note" style="margin-top:16px;font-size:13px;color:#9a9488;font-weight:300;"></div>
+      </div>
+
+      <button class="btn-restart" onclick="restart()">Wróć do strony głównej</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ══════════════════════════════════════
 //  DATA — 26 pytań, 2 na segment
@@ -1446,7 +1469,31 @@ function goToProductPayment(productId) {
     alert('Nie znaleziono linku płatności dla tego programu. Skontaktuj się z nami.');
     return;
   }
-  window.location.href = link;
+
+  const emailEl = document.getElementById(`buy-email-${productId}`);
+  const errorEl = document.getElementById(`buy-email-error-${productId}`);
+  const email = emailEl ? emailEl.value.trim() : '';
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (errorEl) errorEl.style.display = 'block';
+    if (emailEl) emailEl.style.borderColor = '#d63c2f';
+    return;
+  }
+  if (errorEl) errorEl.style.display = 'none';
+
+  // Zapisujemy email i ID produktu lokalnie w przeglądarce — odczytamy je po powrocie
+  // ze Stripe (return URL zawiera ?paid=1&product=ID, ale nie email, więc trzymamy
+  // go po stronie klienta, bo nie mamy backendu do odpytania Stripe o sesję).
+  try {
+    localStorage.setItem('gc_pending_email', email);
+    localStorage.setItem('gc_pending_product', productId);
+  } catch(e) {}
+
+  saveToSupabase('diagnostics', buildDiagnosticsRecord({ event: 'product_checkout_started', email, product: productId }));
+
+  const url = new URL(link);
+  url.searchParams.set('prefilled_email', email);
+  window.location.href = url.toString();
 }
 
 function submitAccessCode() {
@@ -1720,10 +1767,30 @@ function renderTeamDeficits(data) {
   }).join('');
 }
 
+// jsPDF (czcionka helvetica) nie wspiera polskich znaków diakrytycznych — bez wbudowanej
+// czcionki Unicode renderuje je jako krzaki. Zamiast ryzykować błąd przy osadzaniu
+// niezweryfikowanej czcionki binarnej, usuwamy ogonki tylko w eksportowanym PDF (strona
+// internetowa wyświetla polskie znaki normalnie — to dotyczy wyłącznie pliku do pobrania).
+function stripPolishChars(text) {
+  if (text == null) return text;
+  const map = {
+    'ą':'a', 'ć':'c', 'ę':'e', 'ł':'l', 'ń':'n', 'ó':'o', 'ś':'s', 'ź':'z', 'ż':'z',
+    'Ą':'A', 'Ć':'C', 'Ę':'E', 'Ł':'L', 'Ń':'N', 'Ó':'O', 'Ś':'S', 'Ź':'Z', 'Ż':'Z',
+  };
+  return String(text).replace(/[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/g, ch => map[ch] || ch);
+}
+
 function downloadTeamPDF() {
   if (!teamData.length) return;
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  // Owijamy doc.text tak, żeby każdy przekazany tekst (string lub tablica linii)
+  // miał automatycznie usunięte polskie znaki diakrytyczne — helvetica ich nie wspiera.
+  const _origText = doc.text.bind(doc);
+  doc.text = function(text, ...rest) {
+    const cleaned = Array.isArray(text) ? text.map(stripPolishChars) : stripPolishChars(text);
+    return _origText(cleaned, ...rest);
+  };
   const W = 297; const H = 210; const margin = 16;
   let y = margin;
 
@@ -1844,9 +1911,36 @@ window.addEventListener('load', () => {
     teamCode = accessParam.toUpperCase();
   }
 
-  // Sprawdź czy opłacono (Stripe redirect)
+  // Powrót ze Stripe po zakupie programu (97 zł) — rozpoznawane przez product=ID w URL,
+  // osobno od powrotu z zakupu diagnozy (paid=1 bez product).
+  const productParam = urlParams.get('product');
+  if (urlParams.get('paid') === '1' && productParam) {
+    handleProductPurchaseReturn(productParam);
+    return;
+  }
+
+  // Sprawdź czy opłacono (Stripe redirect — diagnoza)
   if (urlParams.get('paid') === '1') {
     hasPaidAccess = true;
+
+    // Jeśli return URL zawiera session_id (Stripe podstawia tu prawdziwe ID sesji
+    // w miejsce placeholdera {CHECKOUT_SESSION_ID}), próbujemy bezpiecznie odczytać
+    // email klienta przez backend /api/stripe-session — żeby nie pytać go o mail
+    // drugi raz, mimo że już go podał płacąc kartą. Działa tylko jeśli backend
+    // ma skonfigurowany STRIPE_SECRET_KEY (patrz komentarz w /api/stripe-session.js).
+    // Jeśli się nie uda (brak konfiguracji, błąd sieci) — ankieta i tak działa
+    // normalnie, tylko mail trzeba będzie podać ręcznie tak jak dotychczas.
+    const sessionId = urlParams.get('session_id');
+    if (sessionId) {
+      fetch(`/api/stripe-session?session_id=${encodeURIComponent(sessionId)}`)
+        .then(r => r.json())
+        .then(data => {
+          if (data && data.email) {
+            playerEmail = data.email;
+          }
+        })
+        .catch(() => {});
+    }
   }
 
   // Sprawdź czy są wyniki w hashu
@@ -1854,6 +1948,47 @@ window.addEventListener('load', () => {
     showScreen('screen-intro');
   }
 });
+
+async function handleProductPurchaseReturn(productId) {
+  let email = '';
+  try {
+    const storedProduct = localStorage.getItem('gc_pending_product');
+    email = localStorage.getItem('gc_pending_email') || '';
+    // Jeśli localStorage nie zgadza się z parametrem URL (np. inna karta/urządzenie),
+    // i tak pokazujemy PDF — tylko mail może wtedy nie zostać wysłany automatycznie.
+    if (storedProduct && storedProduct !== productId) {
+      console.log('Uwaga: product w URL różni się od zapisanego lokalnie.');
+    }
+  } catch(e) {}
+
+  const productInfo = PRODUCTS_INFO[productId];
+  const pdfFile = PDF_MAP[productId];
+  const pdfLink = pdfFile ? `/${encodeURIComponent(pdfFile)}` : '#';
+
+  document.getElementById('purchase-confirm-title').textContent = productInfo ? productInfo.title : 'Twój program';
+  document.getElementById('purchase-confirm-pdf-link').href = pdfLink;
+
+  if (email) {
+    document.getElementById('purchase-confirm-text').textContent = `Twój program jest gotowy. Wysłaliśmy go też na adres ${email} — sprawdź skrzynkę (także folder spam).`;
+    const sent = await sendProductDeliveryEmail(email, productId);
+    document.getElementById('purchase-confirm-email-note').textContent = sent
+      ? `Mail wysłany na ${email}.`
+      : `Nie udało się wysłać maila automatycznie — pobierz program przyciskiem powyżej.`;
+    saveToSupabase('diagnostics', buildDiagnosticsRecord({ event: 'product_purchased', email, product: productId }));
+    sendEmailNotification('🟢 NOWY ZAKUP PROGRAMU', { email, product: productInfo ? productInfo.title : productId });
+  } else {
+    document.getElementById('purchase-confirm-text').textContent = 'Twój program jest gotowy do pobrania.';
+    document.getElementById('purchase-confirm-email-note').textContent = '';
+    saveToSupabase('diagnostics', buildDiagnosticsRecord({ event: 'product_purchased', product: productId }));
+  }
+
+  try {
+    localStorage.removeItem('gc_pending_email');
+    localStorage.removeItem('gc_pending_product');
+  } catch(e) {}
+
+  showScreen('screen-purchase-confirm');
+}
 
 async function sendEmailNotification(eventType, extras = {}) {
   try {
@@ -1874,6 +2009,31 @@ async function sendEmailNotification(eventType, extras = {}) {
     });
   } catch(e) {
     console.log('EmailJS error:', e);
+  }
+}
+
+// TODO: podmień 'template_PRODUCT_DELIVERY' na ID nowego, dedykowanego szablonu EmailJS
+// stworzonego dla klientów (oddzielnego od template_ybc0bsq, który służy do powiadomień dla Kuby).
+// Szablon powinien zawierać zmienne: product_title, pdf_link, email, date — i ciepły,
+// krótki tekst z podziękowaniem za zakup (np. "Dziękujemy za zakup programu {{product_title}}!
+// W załączeniu / pod tym linkiem znajdziesz swój materiał: {{pdf_link}}. Powodzenia w treningu!").
+const PRODUCT_DELIVERY_TEMPLATE_ID = 'template_PRODUCT_DELIVERY';
+
+async function sendProductDeliveryEmail(email, productId) {
+  const pdfFile = PDF_MAP[productId];
+  const productTitle = (PRODUCTS_INFO[productId] && PRODUCTS_INFO[productId].title) || productId;
+  if (!pdfFile || !email) return false;
+  try {
+    await emailjs.send('service_7dxlxuq', PRODUCT_DELIVERY_TEMPLATE_ID, {
+      email: email,
+      product_title: productTitle,
+      pdf_link: `${window.location.origin}/${encodeURIComponent(pdfFile)}`,
+      date: new Date().toLocaleString('pl-PL'),
+    });
+    return true;
+  } catch(e) {
+    console.log('EmailJS product delivery error:', e);
+    return false;
   }
 }
 
@@ -2227,17 +2387,18 @@ Teraz napisz diagnozę dla tego konkretnego zawodnika. Format:
 - (opcjonalnie krok 4)`;
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    // Wywołanie idzie teraz przez własny backend (/api/diagnose), który bezpiecznie
+    // dokleja klucz API Anthropic po stronie serwera — klucz nigdy nie trafia do
+    // kodu w przeglądarce. Backend wymaga skonfigurowanej zmiennej środowiskowej
+    // ANTHROPIC_API_KEY w Vercelu (patrz komentarz w /api/diagnose.js).
+    const response = await fetch('/api/diagnose', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1200,
-        messages: [{ role: 'user', content: prompt }]
+        prompt: prompt,
+        maxTokens: 1200,
       })
     });
     const data = await response.json();
@@ -2569,18 +2730,31 @@ function renderResults(scores) {
   document.getElementById('product-wrap').innerHTML = '';
 }
 
-function renderProduct(scores) {
-  const sorted = Object.entries(scores).sort((a,b) => a[1]-b[1]);
-  const deficits = sorted.slice(0, 3).filter(([,v]) => v < 70);
-  const pw = document.getElementById('product-wrap');
-  if (!deficits.length) { pw.innerHTML = ''; return; }
+// Mapa PDF-ów dla każdego segmentu — globalna, używana przy renderowaniu kart produktów
+// oraz przy automatycznej dostawie po zakupie (powrót ze Stripe z ?paid=1&product=ID).
+const PDF_MAP = {
+  moc:          'Moc - System Gamechange.pdf',
+  fizycznosc:   'Fizycznosc - System Gamechange.pdf',
+  wytrzymalosc: 'Wytrzymalosc - System Gamechange.pdf',
+  tolerancja:   'Tolerancja obciazen - System Gamechange.pdf',
+  regeneracja:  'Regeneracja - System Gamechange.pdf',
+  odzywianie:   'Odzywienie organizmu - System Gamechange.pdf',
+  odpornosc:    'Odpornosc organizmu - System Gamechange.pdf',
+  percepcja:    'Percepcja i szybkosc decyzji - System Gamechange.pdf',
+  decyzja:      'Percepcja i szybkosc decyzji - System Gamechange.pdf',
+  koncentracja: 'Koncentracja - System Gamechange.pdf',
+  mental:       'Stan mentalny - System Gamechange.pdf',
+  techFund:     'Technika fundamentalna - System Gamechange.pdf',
+  techSpec:     'Technika fundamentalna - System Gamechange.pdf',
+};
 
-  // Mapa produktów dla każdego segmentu
-  const PRODUCTS = {
-    moc: {
-      ready: true,
-      title: 'Moc',
-      desc: 'Większość zawodników trenuje siłę i skoki — ale bez zrozumienia mechanizmu. Ten program uczy jak generować moc, kontrolować ją i odzyskiwać w kolejnych ruchach. Efekt: realna przewaga na pierwszych metrach — widoczna na boisku, nie tylko w testach.',
+// Mapa produktów (tytuły, opisy) — globalna, używana przy renderowaniu kart produktów
+// oraz przy automatycznej dostawie po zakupie (powrót ze Stripe z ?paid=1&product=ID).
+const PRODUCTS_INFO = {
+  moc: {
+    ready: true,
+    title: 'Moc',
+    desc: 'Większość zawodników trenuje siłę i skoki — ale bez zrozumienia mechanizmu. Ten program uczy jak generować moc, kontrolować ją i odzyskiwać w kolejnych ruchach. Efekt: realna przewaga na pierwszych metrach — widoczna na boisku, nie tylko w testach.',
     },
     fizycznosc: {
       ready: true,
@@ -2644,12 +2818,18 @@ function renderProduct(scores) {
     },
   };
 
+function renderProduct(scores) {
+  const sorted = Object.entries(scores).sort((a,b) => a[1]-b[1]);
+  const deficits = sorted.slice(0, 3).filter(([,v]) => v < 70);
+  const pw = document.getElementById('product-wrap');
+  if (!deficits.length) { pw.innerHTML = ''; return; }
+
   // Bierzemy top 1-2 deficyty
   const topDeficits = deficits.slice(0, 2);
   // Deduplikuj produkty (moc i fizycznosc mogą mieć ten sam)
   const seen = new Set();
   const productCards = topDeficits.map(([id]) => {
-    const p = PRODUCTS[id] || null;
+    const p = PRODUCTS_INFO[id] || null;
     if (!p) return null;
     const key = p.title;
     if (seen.has(key)) return null;
@@ -2658,22 +2838,6 @@ function renderProduct(scores) {
   }).filter(Boolean);
 
   // Mapa PDF-ów dla każdego segmentu
-  const PDF_MAP = {
-    moc:          'Moc - System Gamechange.pdf',
-    fizycznosc:   'Fizycznosc - System Gamechange.pdf',
-    wytrzymalosc: 'Wytrzymalosc - System Gamechange.pdf',
-    tolerancja:   'Tolerancja obciazen - System Gamechange.pdf',
-    regeneracja:  'Regeneracja - System Gamechange.pdf',
-    odzywianie:   'Odzywienie organizmu - System Gamechange.pdf',
-    odpornosc:    'Odpornosc organizmu - System Gamechange.pdf',
-    percepcja:    'Percepcja i szybkosc decyzji - System Gamechange.pdf',
-    decyzja:      'Percepcja i szybkosc decyzji - System Gamechange.pdf',
-    koncentracja: 'Koncentracja - System Gamechange.pdf',
-    mental:       'Stan mentalny - System Gamechange.pdf',
-    techFund:     'Technika fundamentalna - System Gamechange.pdf',
-    techSpec:     'Technika fundamentalna - System Gamechange.pdf',
-  };
-
   const cardsHTML = productCards.map(p => {
     const segName = (isJunior ? SEGS_JUNIOR : SEGS).find(s=>s.id===p.id)?.name || '';
     return `
@@ -2681,6 +2845,16 @@ function renderProduct(scores) {
       <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Twój priorytet — ${segName}</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.02em;margin-bottom:12px;color:#0e0d0b;">${p.title}</div>
       <div style="font-size:14px;color:#3a3830;font-weight:300;line-height:1.8;margin-bottom:24px;">${p.desc}</div>
+      <div style="margin-bottom:16px;">
+        <label style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#3a3830;display:block;margin-bottom:8px;font-weight:500;">
+          Twój email — wyślemy na niego program po zakupie
+        </label>
+        <input id="buy-email-${p.id}" type="email" placeholder="twoj@email.com"
+          style="width:100%;max-width:340px;padding:12px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;display:block;"
+          onfocus="this.style.borderColor='#0e0d0b'"
+          onblur="this.style.borderColor='#d8d3c8'">
+        <div id="buy-email-error-${p.id}" style="display:none;color:#d63c2f;font-size:12px;margin-top:6px;">Podaj poprawny adres email — wyślemy na niego Twój program.</div>
+      </div>
       <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
         <button onclick="goToProductPayment('${p.id}')"
           style="background:#c8ff00;color:#0e0d0b;border:none;padding:16px 32px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;cursor:pointer;"
@@ -2825,6 +2999,14 @@ function renderProduct(scores) {
 function downloadPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  // Owijamy doc.text tak, żeby każdy przekazany tekst (string lub tablica linii,
+  // np. wynik splitTextToSize) miał automatycznie usunięte polskie znaki diakrytyczne —
+  // helvetica ich nie wspiera, bez tego renderują się jako krzaki.
+  const _origText = doc.text.bind(doc);
+  doc.text = function(text, ...rest) {
+    const cleaned = Array.isArray(text) ? text.map(stripPolishChars) : stripPolishChars(text);
+    return _origText(cleaned, ...rest);
+  };
 
   const W = 210; // A4 width
   const margin = 20;
