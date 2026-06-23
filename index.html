@@ -1110,6 +1110,30 @@ body {
       </div>
     </div>
 
+    <!-- Dynamiczne pytanie od systemu — generowane po analizie wyników, przed finalną diagnozą -->
+    <div id="dynamic-question-wrap" style="display:none;margin-bottom:48px;">
+      <div style="border:1px solid #0e0d0b;padding:32px;background:#fff;">
+        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;">Ostatnie pytanie</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.02em;margin-bottom:8px;color:#0e0d0b;">System potrzebuje jeszcze jednej informacji</div>
+        <p style="font-size:13px;color:#9a9488;font-weight:300;margin-bottom:24px;">Na podstawie Twoich wyników diagnoza wskazuje na konkretny obszar. Żeby była precyzyjna, potrzebuję Twojej odpowiedzi na jedno pytanie.</p>
+        <div id="dynamic-question-text" style="font-size:16px;font-weight:500;color:#0e0d0b;line-height:1.6;margin-bottom:24px;padding:20px;background:#f5f2ec;border-left:3px solid #0e0d0b;"></div>
+        <textarea id="dynamic-answer" rows="3" placeholder="Twoja odpowiedź..."
+          style="width:100%;padding:14px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;resize:none;line-height:1.6;display:block;margin-bottom:16px;"
+          onfocus="this.style.borderColor='#0e0d0b'"
+          onblur="this.style.borderColor='#d8d3c8'"></textarea>
+        <div style="display:flex;gap:12px;align-items:center;">
+          <button onclick="submitDynamicAnswer()"
+            style="background:#0e0d0b;color:#f5f2ec;border:none;padding:14px 32px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:0.1em;cursor:pointer;">
+            Generuj moją diagnozę →
+          </button>
+          <button onclick="submitDynamicAnswer(true)"
+            style="background:transparent;border:none;font-size:13px;color:#9a9488;cursor:pointer;text-decoration:underline;text-underline-offset:3px;">
+            Pomiń pytanie
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Karta diagnozy AI — pojawia się po wypełnieniu pytań otwartych (logicznie po, nie przed) -->
     <div id="ai-diagnosis-card" style="display:none;margin-bottom:48px;border:1px solid #d8d3c8;padding:32px;background:#fff;">
       <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Twoja diagnoza</div>
@@ -2252,7 +2276,6 @@ function submitOpenQuestions(skip = false) {
   const limitation = skip ? '' : (document.getElementById('oq-limitation').value.trim());
 
   // Opcjonalny email — widoczny tylko dla użytkowników z opłaconym dostępem (hasPaidAccess).
-  // Nie blokuje generowania diagnozy, zapisujemy w tle jeśli podany.
   const oqEmailEl = document.getElementById('oq-email');
   if (oqEmailEl) {
     const oqEmail = oqEmailEl.value.trim();
@@ -2267,10 +2290,12 @@ function submitOpenQuestions(skip = false) {
   document.getElementById('diagnosis-blur-wrap').style.filter = 'none';
   document.getElementById('diagnosis-blur-wrap').style.pointerEvents = 'auto';
   document.getElementById('diagnosis-unlocked-note').style.display = 'block';
-  document.getElementById('ai-diagnosis-card').style.display = 'block';
-  document.getElementById('ai-diagnosis-text').textContent = 'Generuję Twoją diagnozę...';
 
-  generateAIDiagnosis(cachedScores, situation, limitation);
+  // Zapisujemy dane z pytań otwartych globalnie, żeby były dostępne po odpowiedzi na dynamiczne pytanie
+  window._oqSituation = situation;
+  window._oqLimitation = limitation;
+
+  generateDynamicQuestion(cachedScores, situation, limitation);
 }
 
 function copyResultsLink(btn) {
@@ -2287,6 +2312,103 @@ function copyResultsLink(btn) {
   }).catch(() => {
     btn.textContent = url.length > 40 ? url.slice(0, 40) + '...' : url;
   });
+}
+
+async function generateDynamicQuestion(scores, situation, limitation) {
+  // Call 1 — system analizuje wyniki i generuje JEDNO precyzyjne pytanie
+  // które usunie największą "białą plamę" w diagnozie tego konkretnego zawodnika.
+  const sorted = Object.entries(scores).sort((a,b) => a[1]-b[1]);
+  const deficits = sorted.slice(0, 3).filter(([,v]) => v < 70);
+  const strengths = sorted.slice(-2).filter(([,v]) => v >= 65);
+
+  const deficitsText = deficits.map(([id, score]) => {
+    const seg = isJunior ? SEGS_JUNIOR.find(s => s.id === id) : SEGS.find(s => s.id === id);
+    return `${seg ? seg.name : id} (${score}/100)`;
+  }).join(', ');
+
+  const strengthsText = strengths.map(([id, score]) => {
+    const seg = isJunior ? SEGS_JUNIOR.find(s => s.id === id) : SEGS.find(s => s.id === id);
+    return `${seg ? seg.name : id} (${score}/100)`;
+  }).join(', ');
+
+  const ctxText = ctx.level !== null
+    ? `${CTX_LABELS.level[ctx.level]}, ${CTX_LABELS.pos[ctx.pos]}, ${CTX_LABELS.age[ctx.age]}.`
+    : '';
+
+  const situationCtx = situation ? `Zawodnik opisał sytuację: "${situation}"` : '';
+  const limitationCtx = limitation ? `Zawodnik opisał ograniczenie: "${limitation}"` : '';
+
+  const questionPrompt = `Analizujesz wyniki diagnostyczne zawodnika i zaraz wygenerujesz dla niego spersonalizowaną diagnozę. Zanim to zrobisz, masz szansę zadać mu JEDNO pytanie, które usunie kluczową białą plamę w danych.
+
+DANE:
+${ctxText}
+Deficyty: ${deficitsText}
+Mocne strony: ${strengthsText}
+${situationCtx}
+${limitationCtx}
+
+Twoje zadanie: napisz JEDNO, bardzo konkretne pytanie które:
+1. Bezpośrednio dotyczy najważniejszego deficytu
+2. Da Ci informację której NIE możesz wywnioskować z wyników ankiety
+3. Zmieni diagnozę jeśli odpowiedź będzie nieoczekiwana
+4. Jest krótkie, zrozumiałe i jednoznaczne
+5. Dotyczy konkretnej sytuacji boiskowej, nie ogólnego samopoczucia
+
+Przykłady DOBRYCH pytań:
+- "Czy tracisz piłkę głównie przy przyjęciach, przy prowadzeniu, czy przy podaniach pod presją?"
+- "Kiedy ostatnio czułeś się naprawdę zregenerowany przed treningiem — czy to zdarza się regularnie, czy wyjątkowo rzadko?"
+- "Po której stronie meczu częściej tracisz skupienie — po własnym błędzie, czy gdy drużyna przegrywa?"
+
+Napisz TYLKO samo pytanie, bez żadnego wstępu ani komentarza. Jedno zdanie.`;
+
+  // Pokazujemy loading zanim pytanie się załaduje
+  const dynWrap = document.getElementById('dynamic-question-wrap');
+  const dynText = document.getElementById('dynamic-question-text');
+  dynText.textContent = 'Analizuję Twoje wyniki...';
+  dynWrap.style.display = 'block';
+  dynWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  try {
+    const response = await fetch('/api/diagnose', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: questionPrompt, maxTokens: 200 })
+    });
+    const data = await response.json();
+    const question = data.content?.map(c => c.text || '').join('').trim() || '';
+
+    if (question && question.length > 10) {
+      dynText.textContent = question;
+    } else {
+      // Fallback — jeśli nie udało się wygenerować pytania, idź od razu do diagnozy
+      skipDynamicQuestion();
+    }
+  } catch(e) {
+    skipDynamicQuestion();
+  }
+}
+
+function skipDynamicQuestion() {
+  document.getElementById('dynamic-question-wrap').style.display = 'none';
+  document.getElementById('ai-diagnosis-card').style.display = 'block';
+  document.getElementById('ai-diagnosis-text').textContent = 'Generuję Twoją diagnozę...';
+  generateAIDiagnosis(cachedScores, window._oqSituation || '', window._oqLimitation || '');
+}
+
+function submitDynamicAnswer(skip = false) {
+  const answer = skip ? '' : (document.getElementById('dynamic-answer').value.trim());
+  document.getElementById('dynamic-question-wrap').style.display = 'none';
+  document.getElementById('ai-diagnosis-card').style.display = 'block';
+  document.getElementById('ai-diagnosis-text').textContent = 'Generuję Twoją diagnozę...';
+
+  // Łączymy odpowiedź na dynamiczne pytanie z wcześniejszymi odpowiedziami otwartymi
+  const question = document.getElementById('dynamic-question-text').textContent;
+  const fullLimitation = [
+    window._oqLimitation || '',
+    answer ? `Na pytanie "${question}" zawodnik odpowiedział: "${answer}"` : ''
+  ].filter(Boolean).join(' | ');
+
+  generateAIDiagnosis(cachedScores, window._oqSituation || '', fullLimitation);
 }
 
 async function generateAIDiagnosis(scores, situation = '', limitation = '') {
@@ -2334,57 +2456,72 @@ async function generateAIDiagnosis(scores, situation = '', limitation = '') {
     ? `\nZawodnik opisał co go ogranicza: "${limitation}"`
     : '';
 
-  const prompt = `Jesteś doświadczonym trenerem piłkarskim który właśnie przejrzał wyniki diagnostyczne zawodnika i teraz rozmawia z nim bezpośrednio. Twój styl: konkretny, bez owijania w bawełnę, używasz języka boiskowego a nie naukowego. Piszesz do zawodnika jak do człowieka, nie jak do klienta systemu.
+  const prompt = `Jesteś trenerem który pracuje z systemem Gamechange i właśnie analizujesz wyniki diagnostyczne zawodnika. Piszesz do niego bezpośrednio. Masz do dyspozycji pełną bazę wiedzy z systemu — skorzystaj z niej żeby diagnoza była konkretna i oparta na realiach boiska, nie na ogólnikach.
 
+DANE ZAWODNIKA:
 ${ctxText}
 Główne deficyty: ${deficitsText}
-Mocne strony zawodnika: ${strengthsText}
+Mocne strony: ${strengthsText}
 ${patternNote}${situationContext}${limitationContext}
 
-Napisz diagnozę w dwóch częściach. Zasady których MUSISZ przestrzegać:
-— Pisz bezpośrednio do zawodnika, forma "Ty", po polsku
-— ZAKAZ używania liczb, procent i nazw segmentów z systemu (nie pisz "Twoja percepcja wynosi 34" ani "segment tolerancji obciążeń")
-— Zamiast tego opisuj zachowania i sytuacje boiskowe
-— Jeśli zawodnik opisał konkretną sytuację — odnieś się do niej w diagnozie
-— KLUCZOWY ELEMENT: wspomnij mocną stronę zawodnika — ale nie jako pochwałę, tylko jako punkt wyjścia. Pokaż że mocna strona istnieje, ale nie może być w pełni wykorzystana przez słabość gdzie indziej. Np. "Masz szybkość — ale ona pracuje na połowę możliwości bo decyzja przychodzi za późno" albo "Technicznie jesteś solidny — ale ta technika się sypie bo organizm nie nadąża z regeneracją". Mocna strona to argument za naprawieniem słabości, nie komplement.
-— DRUGI KLUCZOWY ELEMENT: musi znaleźć się jedno zdanie które mówi wprost że robienie więcej tego samego nic nie zmieni, bo to nie jest właściwy problem — rozwiązaniem jest praca nad zdolnością do wykorzystania potencjału który już jest
-— Ton: rzeczowy, bezpośredni, bez frazesów motywacyjnych
+===
+BAZA WIEDZY — jak każdy deficyt naprawdę działa i co z nim zrobić:
 
-Poniżej trzy przykłady DOKŁADNEGO stylu i tonu jakiego oczekuję. Pisz tak jak w tych przykładach — nie inaczej.
+MOC:
+Na boisku: rywale dobiegają do piłki przed zawodnikiem, przegrywa pojedynki bark w bark, uderzenia za słabe. Moc startowa to zdolność do gwałtownego wygenerowania siły w ułamku sekundy — nie szybkość biegu ani siła sama w sobie. Wzór: E = P × W × R. Potencjał (ile mocy ciało może wygenerować — buduje trening siłowy), Wykorzystanie (ile tej mocy trafia do ruchu — buduje stabilizacja i jakościowy trening siłowy), Recykling (ile energii z poprzedniego ruchu wraca — buduje plyometria). Wszystkie trzy są potrzebne jednocześnie. Trening: stabilizacja (antyprzeprost, deska boczna, pallof press) → moc (skoki dosiężne, skoki w dal, skoki boczne, rzuty piłką lekarską) → siła (przysiad, martwy ciąg, pompki, podciąganie).
 
-PRZYKŁAD 1 — mocna strona: technika / deficyt: regeneracja i odżywienie:
+FIZYCZNOŚĆ:
+Na boisku: zawodnik wypychany z pozycji bark w bark, traci piłkę pod presją przy przyjęciach tyłem do bramki, przegrywa ustawienie przy stałych fragmentach. Wygrywanie kontaktów zależy od: siły całego ciała (fundament), mechaniki pozycji (możesz wygrywać więcej od najbliższego treningu nawet przy obecnej sile) i scalenia obu pod presją. Zawodnicy "sztywni" są szybsi — każdy ruch startuje natychmiast bez fazy amortyzacji.
+
+WYTRZYMAŁOŚĆ:
+Na boisku: w drugiej połowie decyzje spóźniają się, nogi nie niosą. Wytrzymałość meczowa to zdolność do utrzymania jakości działań fizycznych I mentalnych mimo zmęczenia — nie tylko bieganie. Organizm działa jak konto bankowe — każdy sprint i zmiana kierunku pobiera energię. NAJLEPSZA METODA: małe gry 3v3 lub 4v4 (4 minuty gry, 2 minuty odpoczynku) — budują wytrzymałość jednocześnie z techniką i rozumieniem gry, to najlepsze co możesz zrobić. Bez partnerów: EuroFit 15/15 (15 sekund biegu ~80-90% maks., 15 sekund marszu, bez przerwy). Pierwsza odpowiedź na słabą wytrzymałość: więcej intensywności na treningach które już robisz, nie osobne sesje biegowe.
+
+TOLERANCJA OBCIĄŻEŃ:
+Na boisku: po intensywnym tygodniu ból kolana, pięty lub przeciążenie pachwiny, ciągłe balansowanie na granicy kontuzji. Tkanki nie znoszą aktualnego poziomu obciążeń. Tolerancję buduje stopniowe zwiększanie obciążeń + trening siłowy — silniejsze ciało znosi te same wymagania przy mniejszym ryzyku. Ciało sportowca znosi siły przekraczające 10-krotność masy ciała przy lądowaniach — silniejsze tkanki = mniejszy stres przy każdym ruchu.
+
+REGENERACJA:
+Na boisku: zmęczenie kumuluje się zamiast znikać, każdy trening zaczyna się od niższego poziomu. Superkompensacja (odbudowa z nadwyżką) to jedyny mechanizm postępu — bez niej trening tylko niszczy. Fundamenty: (1) Sen minimum 8 godzin, w intensywnym cyklu 9 godzin to norma. Stała godzina zasypiania — zmienność to jak ciągła zmiana strefy czasowej. Ekrany na godzinę przed snem hamują melatoninę i płycą sen. Kofeina najpóźniej 6 godzin przed snem. (2) Jedzenie w ciągu 30-60 minut po treningu — okno anaboliczne, najszybsze wchłanianie. (3) Błędy do unikania: sauna bezpośrednio po ciężkim treningu (ciało nie zdążyło się zregenerować), agresywne rozciąganie obolałych mięśni (mikrourazy mogą się pogłębić).
+
+ODŻYWIENIE:
+Na boisku: spadek energii w drugiej połowie, więcej błędów decyzyjnych w końcówce. Mózg jako pierwszy traci zasilanie przy braku glikogenu — mięśnie mogą korzystać z alternatywnych źródeł, mózg nie. Dlatego w końcówkach meczu zawodnicy popełniają więcej błędów decyzyjnych — ciało jeszcze biega, głowa już nie działa sprawnie. Zawodnik 70 kg zużywa ponad 300g glikogenu podczas intensywnego meczu. Ładowanie ZACZYNA SIĘ DZIEŃ PRZED — węglowodany w każdym posiłku (ryż, makaron, ziemniaki, owoce). W dniu meczu: posiłek 3-4 godziny przed (ryż z kurczakiem, bez ciężkich tłuszczów), dojrzały banan 30-60 minut przed rozgrzewką. Po meczu: 70-85g węglowodanów w ciągu 30-60 minut + białko.
+
+ODPORNOŚĆ:
+Na boisku: choroby w kluczowych momentach sezonu, wzorzec który wygląda jak pech ale ma przyczyny. Przez 1-3 godziny po ciężkim wysiłku podatność na infekcje wzrasta — to okno podatności. Odporność buduje się przez eliminację czynników które ją obniżają: sen (fundament), zarządzanie oknem po wysiłku (nie wychodź zmoczony na zimno), odżywienie (niedobory żywieniowe bezpośrednio obniżają odporność). Nie suplementy jako pierwsze — fundamenty jako pierwsze.
+
+PERCEPCJA I SZYBKOŚĆ DECYZJI:
+Na boisku: piłka trafia do nogi i dopiero wtedy zaczyna się szukanie opcji — ale kolega zdążył się przemieścić, rywal zamknął przestrzeń. Zawodnicy grający o krok przed innymi nie reagują szybciej — oni wiedzą co zrobią zanim piłka do nich dotrze. Dwa fundamenty: (1) SKANOWANIE — zbieranie informacji o boisku zanim piłka dotrze do nogi. Praktyczny krok: na najbliższym treningu przed każdym odbiorem piłki spróbuj wiedzieć cokolwiek o tym co jest dookoła — choćby jedną rzecz (gdzie jest najbliższy rywal, co jest po lewej). Efekt widoczny od pierwszego treningu. (2) BIBLIOTEKA WZORCÓW — doświadczony zawodnik rozpoznaje sytuację zamiast analizować od zera. Buduje się przez: oglądanie meczów z JEDNYM konkretnym celem (jedno zachowanie do wprowadzenia, szukaj poziomu tylko trochę wyżej niż swój), analizę własnych meczów (szukasz swojego najczęstszego kosztownego błędu decyzyjnego), powtarzanie mentalne (wieczorem wyobraź sobie trudną sytuację i swoją reakcję — mózg tego nie odróżnia od prawdziwego wykonania). Granie meczów i małe gry treningowe to NAJLEPSZE środowisko do budowania biblioteki wzorców — wszystkie trzy kroki (zauważenie, wybór, wykonanie) dzieją się jednocześnie w prawdziwym kontekście taktycznym.
+
+KONCENTRACJA:
+Na boisku: jeden moment wybija z rytmu i przez kilka kolejnych akcji zawodnik gra o krok z tyłu. Dwa fundamenty: (1) WEJŚCIE W SKUPIENIE — skupienie nie zaczyna się na boisku, zaczyna się w dniu meczowym. Rutyna przedmeczowa to mechanizm który pomaga zostawić to co zewnętrzne za linią boczną. Forma nie ma znaczenia (cisza, muzyka, konkretna sekwencja rozgrzewki) — znaczenie ma że wychodzisz z uwagą na to co zaraz. (2) RESET — konkretna technika skracająca czas powrotu do pełnej obecności. Można wytrenować żeby działała automatycznie. Stres przed meczem to sygnał gotowości, nie słabość — problem w tym co z nim robisz. Stres jako mobilizacja = przewaga. Stres jako spięcie = przeszkoda. To kwestia interpretacji: "boję się" vs "jestem gotowy" — fizycznie ten sam stan, mentalnie dwa różne punkty startowe.
+
+STAN MENTALNY:
+Na boisku: po błędzie lub pod presją zawodnik przestaje szukać akcji, zaczyna unikać kolejnego błędu — oddaje sytuacje, czeka żeby ktoś inny podjął decyzję. Umiejętności są te same co pięć minut temu, ale gra wygląda zupełnie inaczej. Błąd, krzyk trenera, zły wynik — sygnały zagrożenia. Mózg reaguje: chroń, ograniczaj ryzyko. Na boisku działa to przeciwko. Dwa fundamenty: (1) RELACJA Z BŁĘDEM — zawodnik który traktuje błąd jako informację (nie dowód słabości) szuka kolejnej akcji zamiast się cofać. (2) ŹRÓDŁO PRESJI — własna wewnętrzna presja wyzwala od zewnętrznej. Kiedy własne wymagania są wyższe niż czyjekolwiek oczekiwania, opinia trybuny przestaje przestawiać w tryb ochronny. Praktyczna zasada: traktuj każdy trening jak mecz — jeśli na treningu chowasz głowę w piach po nieudanej akcji, ten nawyk zabierzesz na mecz.
+
+TECHNIKA:
+Na boisku: na treningu przyjęcia wychodzą, w meczu przy rywalu wszystko się sypie. Albo odwrotnie — technicznie daje radę, ale nic z tego nie wynika, gra bezpiecznie. Trenowanie techniki i posiadanie techniki to dwie różne rzeczy. Zawodnik przez miesiąc ćwiczy przyjęcie z lewej — nauczył się dokładnie jednej rzeczy: przyjęcia z lewej. W meczu piłka przychodzi z prawej, za mocno, za słabo, z rywalem na plecach — każdy wariant to inna umiejętność. Wzór: automatyzacja (technika działa bez myślenia) → praca pod presją → zamiana automatyzmu w narzędzie przewagi. Mecze i małe gry to naturalne środowisko budowania techniki pod presją — tam wszystkie warunki działają jednocześnie.
+===
+
+ZASADY DIAGNOZY:
+— Pisz bezpośrednio do zawodnika, forma "Ty", po polsku, jak trener który mówi wprost co widzi
+— Opieraj się na opisach z bazy wiedzy powyżej — nie wymyślaj własnych mechanizmów
+— Mocna strona zawodnika to punkt wyjścia: pokaż że istnieje ale nie może być w pełni wykorzystana przez deficyt
+— ZAKAZ numerów, procent i nazw segmentów systemowych
+— ZAKAZ generycznych rad bez konkretów
+— Granie meczów i małe gry to NAJLEPSZE środowisko treningowe — nigdy nie pisz że gra meczowa nie pomaga
+— Ton: rzeczowy i bezpośredni, nie motywacyjny
+
+Format:
 [DIAGNOZA]
-Masz umiejętności — i to widać w pierwszej połowie kiedy jesteś świeży. Problem w tym że ta technika znika dokładnie wtedy gdy jest najbardziej potrzebna, bo Twój organizm nie jest w stanie jej utrzymać. Możesz trenować technikę przez kolejne miesiące i nic się nie zmieni, bo to nie jest problem techniczny. To jest problem energii — i dopóki tego nie naprawisz, technika którą masz będzie pracować na połowę możliwości.
-[KROKI]
-- Zacznij od jedzenia i snu — nie jako dodatek do treningu, ale jako fundament bez którego wszystko inne jest bez sensu. Przez dwa tygodnie skup się tylko na tym i sprawdź czy drugie połowy wyglądają inaczej.
-- Nie dodawaj więcej treningów technicznych — to nie jest Twój problem. Zamiast tego naucz się rozpoznawać moment kiedy jesteś zmęczony i co wtedy robisz inaczej niż normalnie.
-- Jeśli nie wiesz od czego zacząć z odżywianiem, porozmawiaj z kimś kto rozumie żywienie w sporcie — jedna rozmowa może zmienić więcej niż miesiąc dodatkowych treningów.
-
-PRZYKŁAD 2 — mocna strona: fizyczność / deficyt: percepcja i decyzja:
-[DIAGNOZA]
-Masz szybkość i siłę fizyczną — to widać i to jest realne. Ale to potencjał który w tej chwili pracuje na połowę, bo głowa nie nadąża za ciałem. Dostajesz piłkę i dopiero wtedy zaczynasz myśleć — a to jest za późno. Dalsze rozwijanie szybkości i siły nic tu nie zmieni. Musisz zacząć rozwijać zdolność do korzystania z tego co już masz — a to oznacza pracę nad tym co dzieje się w głowie zanim dostaniesz piłkę.
-[KROKI]
-- Na każdym treningu ćwicz jedno konkretne zachowanie: rozejrzyj się dwa razy zanim dostaniesz piłkę. Nie po — przed. Rób to świadomie przez kilka tygodni aż stanie się odruchem.
-- Oglądaj mecze — swoje lub innych zawodników na Twojej pozycji — i patrz tylko na to co robią bez piłki. Kiedy się rozglądają, kiedy decydują. To trening percepcji który możesz robić z kanapy.
-- Poproś trenera o więcej sytuacji gdzie musisz decydować szybko pod presją — małe gry, ograniczony czas. Twoje ciało poradzi sobie. Teraz czas żeby głowa za nim nadążyła.
-
-PRZYKŁAD 3 — mocna strona: umiejętności ogólne / deficyt: stan mentalny:
-[DIAGNOZA]
-Rozumiesz grę i masz umiejętności — i to jest właśnie powód do pracy, nie do niepokoju. Problem jest w tym że po błędzie przełączasz się w tryb przetrwania i przestajesz korzystać z tego co masz. Twój potencjał jest na miejscu, ale nie możesz do niego sięgnąć w kluczowych momentach. Więcej treningu technicznego ani fizycznego nic tu nie zmieni — to nie jest problem techniczny ani fizyczny. To jest nawyk który działa przeciwko Tobie i który można zmienić.
-[KROKI]
-- Zacznij obserwować siebie w meczach — nie co robisz technicznie, ale jak decydujesz po błędzie. Sama świadomość mechanizmu to już połowa roboty.
-- Porozmawiaj z kimś kto zajmuje się psychologią sportu. Reakcja na błąd to konkretna umiejętność którą można wytrenować — nie kwestia charakteru. Nawyków można się oduczyć.
-- Na treningach świadomie wybieraj trudniejsze rozwiązanie kiedy masz czas. Nie brawurę — ryzyko z głową. Trenuj odwagę decyzyjną w bezpiecznych warunkach żeby mieć do niej dostęp gdy jest presja.
-
-Teraz napisz diagnozę dla tego konkretnego zawodnika. Format:
-[DIAGNOZA]
-(tekst — 2-3 zdania, musi zawierać mocną stronę jako kontekst)
+(2-3 zdania: mocna strona jako kontekst, konkretny problem i jego mechanizm boiskowy)
 
 [KROKI]
-- (krok)
-- (krok)
-- (krok)
-- (opcjonalnie krok 4)`;
+- (konkretne zachowanie, oparte na wiedzy z bazy)
+- (krok 2)
+- (krok 3)
+- (opcjonalnie krok 4)
+
+STOP. Zakończ po ostatnim kroku.`;
+
 
   try {
     // Wywołanie idzie teraz przez własny backend (/api/diagnose), który bezpiecznie
@@ -2398,7 +2535,7 @@ Teraz napisz diagnozę dla tego konkretnego zawodnika. Format:
       },
       body: JSON.stringify({
         prompt: prompt,
-        maxTokens: 1200,
+        maxTokens: 2000,
       })
     });
     const data = await response.json();
