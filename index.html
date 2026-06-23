@@ -2535,11 +2535,22 @@ STOP. Zakończ po ostatnim kroku.`;
       },
       body: JSON.stringify({
         prompt: prompt,
-        maxTokens: 2000,
+        maxTokens: 5000,
       })
     });
     const data = await response.json();
-    const raw = data.content?.map(c => c.text || '').join('') || '';
+
+    // Extended thinking zwraca bloki typu 'thinking' + 'text'.
+    // Wyciągamy tylko bloki 'text' — to jest faktyczna diagnoza.
+    // Bloki 'thinking' to wewnętrzne rozumowanie modelu, nie pokazujemy ich zawodnikowi.
+    let raw = '';
+    if (Array.isArray(data.content)) {
+      raw = data.content
+        .filter(c => c.type === 'text')
+        .map(c => c.text || '')
+        .join('');
+    }
+
     if (raw && raw.includes('[DIAGNOZA]')) {
       renderDiagnosisText(raw, scores, deficits);
     } else {
