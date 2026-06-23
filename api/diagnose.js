@@ -52,16 +52,13 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-opus-4-8',
-        max_tokens: maxTokens || 4000,
-        // effort: xhigh — maksymalny poziom rozumowania dla Opus 4.8.
-        // Model poświęca więcej czasu na analizę złożonych zależności przyczynowych
-        // (np. percepcja → decyzja → technika) zanim sformułuje diagnozę.
-        // Koszt: ~2-3x więcej tokenów niż high, ale dla diagnozy za 19 zł
-        // to wciąż poniżej 1% przychodu. Jakość diagnozy wyraźnie wyższa.
-        thinking: {
-          type: 'enabled',
-          budget_tokens: 3000,
-        },
+        max_tokens: maxTokens || 5000,
+        // thinking: adaptive — jedyny obsługiwany tryb dla Opus 4.8.
+        // Model sam decyduje kiedy i ile myśleć w zależności od złożoności zadania.
+        // Przy diagnozie piłkarskiej z wieloma zależnościami przyczynowymi,
+        // model niemal zawsze uruchamia rozumowanie (domyślny effort: high).
+        // Uwaga: thinking.type: "enabled" z budget_tokens zwraca błąd 400 na Opus 4.8.
+        thinking: { type: 'adaptive' },
         messages: [{ role: 'user', content: prompt }],
       }),
     });
