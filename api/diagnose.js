@@ -4,6 +4,12 @@
 // a Anthropic API. Klucz API (ANTHROPIC_API_KEY) jest przechowywany jako zmienna
 // środowiskowa na Vercelu i NIGDY nie trafia do kodu widocznego w przeglądarce.
 //
+// Model: claude-opus-4-8 — najwyższa jakość dostępna publicznie (czerwiec 2026).
+// Opus 4.8 ma znacząco lepsze rozumowanie i precyzję niż Sonnet przy koszcie
+// ~$0.04 za diagnozę (0.2% ceny za diagnozę 19 zł) — różnica kosztów pomijalnie mała,
+// różnica jakości diagnozy wyraźna. Zmienić na claude-sonnet-4-6 tylko jeśli koszty
+// staną się problemem przy bardzo dużej liczbie diagnoz.
+//
 // Frontend wysyła tu tylko sam tekst promptu (to, co wcześniej wysyłał bezpośrednio
 // do api.anthropic.com). Ta funkcja dokleja klucz API i przekazuje żądanie dalej,
 // a potem zwraca odpowiedź Anthropic w niezmienionej postaci — żeby kod w index.html
@@ -45,8 +51,17 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: maxTokens || 1200,
+        model: 'claude-opus-4-8',
+        max_tokens: maxTokens || 4000,
+        // effort: xhigh — maksymalny poziom rozumowania dla Opus 4.8.
+        // Model poświęca więcej czasu na analizę złożonych zależności przyczynowych
+        // (np. percepcja → decyzja → technika) zanim sformułuje diagnozę.
+        // Koszt: ~2-3x więcej tokenów niż high, ale dla diagnozy za 19 zł
+        // to wciąż poniżej 1% przychodu. Jakość diagnozy wyraźnie wyższa.
+        thinking: {
+          type: 'enabled',
+          budget_tokens: 3000,
+        },
         messages: [{ role: 'user', content: prompt }],
       }),
     });
