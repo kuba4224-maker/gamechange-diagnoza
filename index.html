@@ -677,6 +677,29 @@ body {
         <div id="access-code-error" style="display:none;color:#ff6b6b;font-size:12px;margin-top:8px;text-align:center;">Nieprawidłowy kod. Sprawdź czy przepisałeś go poprawnie.</div>
       </div>
 
+      <!-- DEV: szybki test — usuń przed produkcją lub zostaw, nie widać dla normalnych użytkowników -->
+      <div style="border-top:1px solid rgba(255,255,255,0.05);padding-top:16px;margin-top:8px;">
+        <div style="font-size:10px;color:rgba(255,255,255,0.15);margin-bottom:8px;text-align:center;letter-spacing:0.1em;text-transform:uppercase;">dev — szybki test</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">
+          <button onclick="quickTest('percepcja')"
+            style="padding:6px 12px;background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.3);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;border-radius:2px;">
+            percepcja↓
+          </button>
+          <button onclick="quickTest('regeneracja')"
+            style="padding:6px 12px;background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.3);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;border-radius:2px;">
+            regeneracja↓
+          </button>
+          <button onclick="quickTest('mental')"
+            style="padding:6px 12px;background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.3);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;border-radius:2px;">
+            mental↓
+          </button>
+          <button onclick="quickTest('random')"
+            style="padding:6px 12px;background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.3);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;border-radius:2px;">
+            losowy
+          </button>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -3515,6 +3538,58 @@ function showScreen(id) {
   document.getElementById(id).classList.add('active');
   window.scrollTo(0, 0);
 }
+// ══════════════════════════════════════
+//  DEV — szybki test bez klikania przez ankietę
+//  Usuń ten blok przed produkcją lub zostaw — nie wpływa na działanie
+// ══════════════════════════════════════
+function quickTest(preset) {
+  // Kontekst: pomocnik, seniorski klub amatorski, 20-25 lat
+  ctx = { level: 2, pos: 2, age: 3 };
+  isJunior = false;
+  activeSegs = SEGS;
+  hasPaidAccess = true;
+  playerEmail = 'test@gamechange.pl';
+
+  // Predefiniowane profile testowe
+  const profiles = {
+    // Wyraźny deficyt: percepcja + decyzja słabe, fizyczność dobra
+    percepcja: { moc:72, wytrzymalosc:68, fizycznosc:80, techFund:65, techSpec:55,
+                 tolerancja:70, regeneracja:66, odpornosc:74, odzywianie:62,
+                 koncentracja:60, mental:58, percepcja:32, decyzja:28 },
+    // Wyraźny deficyt: regeneracja + tolerancja słabe, technika dobra
+    regeneracja: { moc:60, wytrzymalosc:55, fizycznosc:62, techFund:78, techSpec:72,
+                   tolerancja:30, regeneracja:28, odpornosc:58, odzywianie:40,
+                   koncentracja:68, mental:65, percepcja:62, decyzja:60 },
+    // Wyraźny deficyt: stan mentalny + koncentracja, reszta OK
+    mental: { moc:65, wytrzymalosc:70, fizycznosc:68, techFund:72, techSpec:65,
+              tolerancja:74, regeneracja:68, odpornosc:72, odzywianie:66,
+              koncentracja:29, mental:25, percepcja:68, decyzja:62 },
+    // Losowy — różne wartości
+    random: null,
+  };
+
+  let scores;
+  if (preset === 'random' || !profiles[preset]) {
+    scores = {};
+    SEGS.forEach(s => { scores[s.id] = Math.floor(Math.random() * 60) + 20; });
+  } else {
+    scores = profiles[preset];
+  }
+
+  // Wypełnij ans na podstawie scores (przybliżone — odwrotność normalizacji)
+  SEGS.forEach(s => {
+    const target = scores[s.id] || 50;
+    ans[s.id] = s.qs.map(() => Math.max(1, Math.min(6, Math.round(target / 20 + 0.5))));
+  });
+
+  cachedScores = scores;
+  renderResults(scores);
+  showScreen('screen-results');
+  setTimeout(() => {
+    document.querySelectorAll('.bar-fill').forEach(b => { b.style.width = b.dataset.w + '%'; });
+  }, 100);
+}
+
 function restart() {
   ans = {}; cachedScores = null;
   isJunior = false; activeSegs = [];
