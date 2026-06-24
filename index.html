@@ -3552,19 +3552,15 @@ function quickTest(preset) {
 
   // Predefiniowane profile testowe
   const profiles = {
-    // Wyraźny deficyt: percepcja + decyzja słabe, fizyczność dobra
     percepcja: { moc:72, wytrzymalosc:68, fizycznosc:80, techFund:65, techSpec:55,
                  tolerancja:70, regeneracja:66, odpornosc:74, odzywianie:62,
                  koncentracja:60, mental:58, percepcja:32, decyzja:28 },
-    // Wyraźny deficyt: regeneracja + tolerancja słabe, technika dobra
     regeneracja: { moc:60, wytrzymalosc:55, fizycznosc:62, techFund:78, techSpec:72,
                    tolerancja:30, regeneracja:28, odpornosc:58, odzywianie:40,
                    koncentracja:68, mental:65, percepcja:62, decyzja:60 },
-    // Wyraźny deficyt: stan mentalny + koncentracja, reszta OK
     mental: { moc:65, wytrzymalosc:70, fizycznosc:68, techFund:72, techSpec:65,
               tolerancja:74, regeneracja:68, odpornosc:72, odzywianie:66,
               koncentracja:29, mental:25, percepcja:68, decyzja:62 },
-    // Losowy — różne wartości
     random: null,
   };
 
@@ -3576,7 +3572,6 @@ function quickTest(preset) {
     scores = profiles[preset];
   }
 
-  // Wypełnij ans na podstawie scores (przybliżone — odwrotność normalizacji)
   SEGS.forEach(s => {
     const target = scores[s.id] || 50;
     ans[s.id] = s.qs.map(() => Math.max(1, Math.min(6, Math.round(target / 20 + 0.5))));
@@ -3585,9 +3580,25 @@ function quickTest(preset) {
   cachedScores = scores;
   renderResults(scores);
   showScreen('screen-results');
+
+  // Zdejmij blur i bramkę emailową
+  const blurWrap = document.getElementById('diagnosis-blur-wrap');
+  if (blurWrap) {
+    blurWrap.style.filter = 'none';
+    blurWrap.style.pointerEvents = 'auto';
+  }
+  const emailGate = document.getElementById('email-gate-box');
+  if (emailGate) emailGate.style.display = 'none';
+
+  const unlockedNote = document.getElementById('diagnosis-unlocked-note');
+  if (unlockedNote) unlockedNote.style.display = 'block';
+
+  // Wypełnij pytania otwarte testowo i uruchom diagnozę
   setTimeout(() => {
     document.querySelectorAll('.bar-fill').forEach(b => { b.style.width = b.dataset.w + '%'; });
-  }, 100);
+    document.getElementById('ai-diagnosis-text').textContent = 'Generuję Twoją diagnozę...';
+    generateAIDiagnosis(scores, 'W drugiej połowie tracę tempo i rywale mnie wyprzedzają do piłek.', 'Czuję że mam potencjał ale nie mogę go wykorzystać w kluczowych momentach.');
+  }, 150);
 }
 
 function restart() {
