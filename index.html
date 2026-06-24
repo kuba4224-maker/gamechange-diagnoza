@@ -2313,19 +2313,10 @@ FORMAT ODPOWIEDZI (zachowaj dokładnie te znaczniki):
 (1 konkretne pytanie zakotwiczające — patrz zasada 9)`;
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('/api/diagnose', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true',
-      },
-      body: JSON.stringify({
-        model: 'claude-opus-4-8',
-        max_tokens: 1800,
-        thinking: { type: 'adaptive' },
-        messages: [{ role: 'user', content: prompt }]
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, maxTokens: 1800 })
     });
     const data = await response.json();
     const raw = data.content?.filter(c => c.type === 'text').map(c => c.text || '').join('') || '';
@@ -2333,6 +2324,7 @@ FORMAT ODPOWIEDZI (zachowaj dokładnie te znaczniki):
       _diagState.diagnosisText = raw;
       renderDiagnosisV2(raw, scores, deficitsData);
     } else {
+      console.warn('Call 2: brak [SYTUACJA] w odpowiedzi. Raw:', raw.slice(0, 200));
       renderFallback(scores, deficitsData);
     }
   } catch (e) {
@@ -2507,19 +2499,10 @@ ZASADY:
 5. Pisz po polsku, forma "Ty", ton spokojny i pewny — nie sprzedażowy.`;
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('/api/diagnose', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true',
-      },
-      body: JSON.stringify({
-        model: 'claude-opus-4-8',
-        max_tokens: 400,
-        thinking: { type: 'adaptive' },
-        messages: [{ role: 'user', content: prompt }]
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, maxTokens: 400 })
     });
     const data = await response.json();
     const bridgeText = data.content?.filter(c => c.type === 'text').map(c => c.text || '').join('').trim() || '';
