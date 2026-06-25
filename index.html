@@ -528,17 +528,6 @@ body {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
-/* EDU SCREENS MOBILE */
-@media (max-width: 720px) {
-  #screen-edu-1 > div,
-  #screen-edu-2 > div {
-    grid-template-columns: 1fr !important;
-  }
-  #screen-edu-1 > div > div:last-child,
-  #screen-edu-2 > div > div:last-child {
-    display: none !important;
-  }
-}
 
 .btn-restart:hover { color: var(--ink); }
 
@@ -556,6 +545,19 @@ body {
 }
 .ctx-btn:hover { border-color: #0e0d0b; color: #0e0d0b; }
 .ctx-btn.sel { background: #0e0d0b; border-color: #0e0d0b; color: #c8ff00; }
+.multi-btn {
+  padding: 10px 14px;
+  border: 1px solid #d8d3c8;
+  background: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: #3a3830;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.1s;
+}
+.multi-btn:hover { border-color: #0e0d0b; }
+.multi-btn.sel { background: #0e0d0b; border-color: #0e0d0b; color: #c8ff00; }
 </style>
 </head>
 <body>
@@ -704,203 +706,11 @@ body {
   </div>
 </div>
 
-<!-- ════ EDU 1 — WĄSKIE GARDŁO ════ -->
-<div id="screen-edu-1" class="screen">
-  <div style="min-height:100vh;background:#0e0d0b;color:#f5f2ec;display:grid;grid-template-columns:1fr 1fr;">
 
-    <div style="padding:64px 56px;display:flex;flex-direction:column;justify-content:space-between;border-right:1px solid rgba(255,255,255,0.07);">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:0.2em;color:rgba(255,255,255,0.3);">Gamechange System — 1/2</div>
-      <div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,5vw,64px);line-height:0.95;letter-spacing:0.01em;margin-bottom:32px;">
-          Dlaczego nie poprawiasz się<br><span style="color:#c8ff00;">tak szybko jak powinieneś</span>
-        </div>
-        <p style="font-size:16px;color:rgba(255,255,255,0.6);font-weight:300;line-height:1.85;margin-bottom:24px;">
-          Trenujesz, starasz się — a pewne rzeczy w grze nie idą do przodu. Najczęściej nie dlatego że czegoś nie umiesz, ale dlatego że <strong style="color:#f5f2ec;font-weight:400;">pracujesz nad objawem zamiast nad przyczyną.</strong>
-        </p>
-        <p style="font-size:16px;color:rgba(255,255,255,0.6);font-weight:300;line-height:1.85;margin-bottom:24px;">
-          Wolna decyzja rzadko jest problemem decyzji. Słaba technika pod presją rzadko jest problemem techniki. Gra to system — jedna słabość blokuje wszystko co jest nad nią.
-        </p>
-        <div style="border-left:2px solid #c8ff00;padding-left:20px;margin-bottom:48px;">
-          <p style="font-size:17px;color:#f5f2ec;font-weight:400;line-height:1.7;">
-            Nazywamy to <strong>wąskim gardłem</strong> — elementem który najbardziej ogranicza Twój wynik i który, jeśli go poprawisz, podniesie wszystko nad nim.
-          </p>
-        </div>
-        <button onclick="showScreen('screen-edu-2')"
-          style="display:inline-flex;align-items:center;gap:16px;background:#c8ff00;color:#0e0d0b;border:none;padding:18px 40px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.1em;cursor:pointer;transition:all 0.15s;"
-          onmouseover="this.style.background='#d4ff00'"
-          onmouseout="this.style.background='#c8ff00'">
-          Dalej <span style="font-size:22px;">→</span>
-        </button>
-      </div>
-      <div style="font-size:12px;color:rgba(255,255,255,0.2);font-weight:300;">
-        1 z 2
-      </div>
-    </div>
-
-    <!-- Prawa strona — łańcuch przyczynowy -->
-    <div style="padding:64px 56px;display:flex;flex-direction:column;justify-content:center;gap:0;">
-      <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:40px;">Jak działa gra — łańcuch zależności</div>
-
-      <div style="display:flex;align-items:stretch;gap:16px;">
-        <div style="display:flex;flex-direction:column;align-items:center;">
-          <div style="width:12px;height:12px;border-radius:50%;background:#c8ff00;flex-shrink:0;margin-top:4px;"></div>
-          <div style="width:1px;flex:1;background:rgba(255,255,255,0.08);margin:4px 0;min-height:32px;"></div>
-        </div>
-        <div style="padding-bottom:24px;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.08em;color:#c8ff00;margin-bottom:4px;">BIOLOGIA</div>
-          <div style="font-size:12px;color:rgba(255,255,255,0.5);font-weight:300;margin-bottom:3px;">Odżywienie, sen, regeneracja, odporność</div>
-          <div style="font-size:12px;color:rgba(255,255,255,0.3);font-style:italic;font-weight:300;">To fundament. Bez niego wszystko inne jest niestabilne.</div>
-        </div>
-      </div>
-
-      <div style="display:flex;align-items:stretch;gap:16px;">
-        <div style="display:flex;flex-direction:column;align-items:center;">
-          <div style="width:12px;height:12px;border-radius:50%;background:rgba(200,255,0,0.6);flex-shrink:0;margin-top:4px;"></div>
-          <div style="width:1px;flex:1;background:rgba(255,255,255,0.08);margin:4px 0;min-height:32px;"></div>
-        </div>
-        <div style="padding-bottom:24px;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.08em;color:rgba(200,255,0,0.6);margin-bottom:4px;">FIZYCZNOŚĆ</div>
-          <div style="font-size:12px;color:rgba(255,255,255,0.5);font-weight:300;margin-bottom:3px;">Moc, wytrzymałość, siła w kontakcie</div>
-          <div style="font-size:12px;color:rgba(255,255,255,0.3);font-style:italic;font-weight:300;">Czy jesteś w stanie fizycznie wykonać to co chcesz?</div>
-        </div>
-      </div>
-
-      <div style="display:flex;align-items:stretch;gap:16px;">
-        <div style="display:flex;flex-direction:column;align-items:center;">
-          <div style="width:12px;height:12px;border-radius:50%;background:rgba(200,255,0,0.4);flex-shrink:0;margin-top:4px;"></div>
-          <div style="width:1px;flex:1;background:rgba(255,255,255,0.08);margin:4px 0;min-height:32px;"></div>
-        </div>
-        <div style="padding-bottom:24px;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.08em;color:rgba(200,255,0,0.4);margin-bottom:4px;">PERCEPCJA</div>
-          <div style="font-size:12px;color:rgba(255,255,255,0.5);font-weight:300;margin-bottom:3px;">Skanowanie, czytanie gry, rozpoznawanie sytuacji</div>
-          <div style="font-size:12px;color:rgba(255,255,255,0.3);font-style:italic;font-weight:300;">Czy widzisz co się dzieje i co zaraz się stanie?</div>
-        </div>
-      </div>
-
-      <div style="display:flex;align-items:stretch;gap:16px;">
-        <div style="display:flex;flex-direction:column;align-items:center;">
-          <div style="width:12px;height:12px;border-radius:50%;background:rgba(200,255,0,0.25);flex-shrink:0;margin-top:4px;"></div>
-          <div style="width:1px;flex:1;background:rgba(255,255,255,0.08);margin:4px 0;min-height:32px;"></div>
-        </div>
-        <div style="padding-bottom:24px;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.08em;color:rgba(200,255,0,0.25);margin-bottom:4px;">DECYZJA</div>
-          <div style="font-size:12px;color:rgba(255,255,255,0.5);font-weight:300;margin-bottom:3px;">Szybkość i jakość wyboru działania</div>
-          <div style="font-size:12px;color:rgba(255,255,255,0.3);font-style:italic;font-weight:300;">Czy wybierasz właściwe rozwiązanie wystarczająco szybko?</div>
-        </div>
-      </div>
-
-      <div style="display:flex;align-items:stretch;gap:16px;">
-        <div style="display:flex;flex-direction:column;align-items:center;">
-          <div style="width:12px;height:12px;border-radius:50%;background:rgba(200,255,0,0.15);flex-shrink:0;margin-top:4px;"></div>
-        </div>
-        <div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.08em;color:rgba(200,255,0,0.15);margin-bottom:4px;">TECHNIKA</div>
-          <div style="font-size:12px;color:rgba(255,255,255,0.5);font-weight:300;margin-bottom:3px;">Wykonanie — fundamentalna i specjalistyczna</div>
-          <div style="font-size:12px;color:rgba(255,255,255,0.3);font-style:italic;font-weight:300;">Czy potrafisz to wykonać dokładnie tak jak chcesz?</div>
-        </div>
-      </div>
-
-      <div style="margin-top:32px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:16px 20px;">
-        <div style="font-size:12px;color:rgba(255,255,255,0.35);font-weight:300;line-height:1.7;">
-          <strong style="color:rgba(255,255,255,0.6);font-weight:400;">Przykład:</strong> Zawodnik pracuje miesiącami nad techniką — bez efektu. Powód? Słaba percepcja sprawia że zawsze gra pod presją czasu, gdzie technika się załamuje. Technika nie jest problemem.
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- ════ EDU 2 — SYSTEM ════ -->
-<div id="screen-edu-2" class="screen">
-  <div style="min-height:100vh;background:#f5f2ec;display:grid;grid-template-columns:1fr 1fr;">
-
-    <div style="padding:64px 56px;display:flex;flex-direction:column;justify-content:space-between;border-right:1px solid #d8d3c8;">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:0.2em;color:#9a9488;">Gamechange System — 2/2</div>
-      <div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,5vw,64px);line-height:0.95;letter-spacing:0.01em;margin-bottom:32px;color:#0e0d0b;">
-          Co z tym<br><span style="color:#d63c2f;">robimy</span>
-        </div>
-        <p style="font-size:16px;color:#3a3830;font-weight:300;line-height:1.85;margin-bottom:24px;">
-          Mamy szczelny system który patrzy na zawodnika całościowo — <strong style="color:#0e0d0b;font-weight:400;">5 filarów, 13 obszarów, wzajemne zależności.</strong> Każdy element jest powiązany z innymi i wiemy co blokuje co.
-        </p>
-        <p style="font-size:16px;color:#3a3830;font-weight:300;line-height:1.85;margin-bottom:32px;">
-          Ankieta którą zaraz wypełnisz nie jest testem wiedzy ani sprawdzianem kondycji. To narzędzie które wykrywa gdzie w Twoim systemie jest największy opór — i co zrobić żeby go usunąć.
-        </p>
-        <div style="border-left:2px solid #0e0d0b;padding-left:20px;margin-bottom:48px;">
-          <p style="font-size:17px;color:#0e0d0b;font-weight:400;line-height:1.7;">
-            Zajmie Ci 4 minuty. Wynik może zmienić kierunek Twojej pracy na tygodnie.
-          </p>
-        </div>
-        <button onclick="showScreen('screen-context')"
-          style="display:inline-flex;align-items:center;gap:16px;background:#0e0d0b;color:#f5f2ec;border:none;padding:18px 40px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.1em;cursor:pointer;transition:all 0.15s;"
-          onmouseover="this.style.background='#1a1916'"
-          onmouseout="this.style.background='#0e0d0b'">
-          Powiedz nam kim jesteś <span style="font-size:22px;">→</span>
-        </button>
-      </div>
-      <div style="font-size:12px;color:#9a9488;font-weight:300;">
-        Zaznacz po jednej odpowiedzi na każde pytanie — bez zastanawiania się zbyt długo.
-      </div>
-    </div>
-
-    <!-- Prawa strona — 5 filarów -->
-    <div style="padding:64px 56px;display:flex;flex-direction:column;justify-content:center;">
-      <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:40px;">Co analizujemy — 5 filarów</div>
-
-      <div style="display:flex;gap:20px;padding:20px 0;border-bottom:1px solid #e8e4dd;">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:0.15em;color:#9a9488;min-width:28px;padding-top:2px;">01</div>
-        <div style="flex:1;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.05em;color:#0e0d0b;margin-bottom:4px;">Dominacja fizyczna</div>
-          <div style="font-size:11px;color:#9a9488;margin-bottom:6px;font-weight:300;">Moc · Wytrzymałość · Fizyczność</div>
-          <div style="font-size:12px;color:#3a3830;font-weight:300;font-style:italic;line-height:1.5;">Czy Twoje ciało jest narzędziem które możesz w pełni kontrolować?</div>
-        </div>
-      </div>
-
-      <div style="display:flex;gap:20px;padding:20px 0;border-bottom:1px solid #e8e4dd;">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:0.15em;color:#9a9488;min-width:28px;padding-top:2px;">02</div>
-        <div style="flex:1;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.05em;color:#0e0d0b;margin-bottom:4px;">Efektywność techniczna</div>
-          <div style="font-size:11px;color:#9a9488;margin-bottom:6px;font-weight:300;">Technika fundamentalna · Technika specjalistyczna</div>
-          <div style="font-size:12px;color:#3a3830;font-weight:300;font-style:italic;line-height:1.5;">Czy wykonanie odpowiada intencji — i czy tworzy przewagę?</div>
-        </div>
-      </div>
-
-      <div style="display:flex;gap:20px;padding:20px 0;border-bottom:1px solid #e8e4dd;">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:0.15em;color:#9a9488;min-width:28px;padding-top:2px;">03</div>
-        <div style="flex:1;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.05em;color:#0e0d0b;margin-bottom:4px;">Trwałość organizmu</div>
-          <div style="font-size:11px;color:#9a9488;margin-bottom:6px;font-weight:300;">Tolerancja obciążeń · Regeneracja · Odporność · Odżywienie</div>
-          <div style="font-size:12px;color:#3a3830;font-weight:300;font-style:italic;line-height:1.5;">Czy organizm utrzymuje gotowość mimo narastających obciążeń?</div>
-        </div>
-      </div>
-
-      <div style="display:flex;gap:20px;padding:20px 0;border-bottom:1px solid #e8e4dd;">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:0.15em;color:#9a9488;min-width:28px;padding-top:2px;">04</div>
-        <div style="flex:1;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.05em;color:#0e0d0b;margin-bottom:4px;">Mentalność</div>
-          <div style="font-size:11px;color:#9a9488;margin-bottom:6px;font-weight:300;">Koncentracja · Stan mentalny</div>
-          <div style="font-size:12px;color:#3a3830;font-weight:300;font-style:italic;line-height:1.5;">Czy poziom który posiadasz — rzeczywiście pokazujesz w grze?</div>
-        </div>
-      </div>
-
-      <div style="display:flex;gap:20px;padding:20px 0;">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:0.15em;color:#9a9488;min-width:28px;padding-top:2px;">05</div>
-        <div style="flex:1;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.05em;color:#0e0d0b;margin-bottom:4px;">Boiskowa mądrość</div>
-          <div style="font-size:11px;color:#9a9488;margin-bottom:6px;font-weight:300;">Percepcja · Szybkość decyzji</div>
-          <div style="font-size:12px;color:#3a3830;font-weight:300;font-style:italic;line-height:1.5;">Czy widzisz grę i reagujesz zanim inni zdążą pomyśleć?</div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- ════ CONTEXT ════ -->
 <div id="screen-context" class="screen">
   <div style="min-height:100vh;background:#f5f2ec;display:flex;align-items:center;justify-content:center;padding:40px 24px;">
     <div style="max-width:560px;width:100%;">
-      <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:16px;">Trzy kliknięcia</div>
+      <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:16px;">Krok 1 z 2 — podstawowe dane</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,5vw,48px);line-height:1;letter-spacing:0.01em;margin-bottom:8px;">Kim jesteś?</div>
       <p style="font-size:14px;color:#9a9488;font-weight:300;margin-bottom:32px;">Diagnoza będzie dopasowana do Twojego poziomu i realiów gry.</p>
 
@@ -935,7 +745,7 @@ body {
         </div>
       </div>
 
-      <div style="margin-bottom:40px;">
+      <div style="margin-bottom:32px;">
         <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:12px;font-weight:500;">Przedział wiekowy</div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
           <button class="ctx-btn" onclick="ctxPick('age',0,this)">Do 14 lat</button>
@@ -947,9 +757,30 @@ body {
         </div>
       </div>
 
+      <!-- NOWE: Treningi — warstwa 1 danych treningowych -->
+      <div style="margin-bottom:32px;">
+        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:12px;font-weight:500;">Treningi z drużyną w tygodniu</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+          <button class="ctx-btn" onclick="ctxPick('clubTrainings',0,this)">1</button>
+          <button class="ctx-btn" onclick="ctxPick('clubTrainings',1,this)">2</button>
+          <button class="ctx-btn" onclick="ctxPick('clubTrainings',2,this)">3</button>
+          <button class="ctx-btn" onclick="ctxPick('clubTrainings',3,this)">4+</button>
+        </div>
+      </div>
+
+      <div style="margin-bottom:40px;">
+        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:12px;font-weight:500;">Treningi własne w tygodniu <span style="font-weight:300;text-transform:none;letter-spacing:0;">(poza drużyną)</span></div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+          <button class="ctx-btn" onclick="ctxPick('ownTrainings',0,this)">0</button>
+          <button class="ctx-btn" onclick="ctxPick('ownTrainings',1,this)">1</button>
+          <button class="ctx-btn" onclick="ctxPick('ownTrainings',2,this)">2</button>
+          <button class="ctx-btn" onclick="ctxPick('ownTrainings',3,this)">3+</button>
+        </div>
+      </div>
+
       <button onclick="startSurveyFromContext()"
         style="background:#0e0d0b;color:#f5f2ec;border:none;padding:18px 48px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.1em;cursor:pointer;width:100%;">
-        Rozpocznij ankietę →
+        Dalej →
       </button>
       <div id="ctx-error" style="display:none;color:#d63c2f;font-size:13px;text-align:center;margin-top:12px;">Zaznacz odpowiedź w każdym pytaniu.</div>
 
@@ -967,12 +798,77 @@ body {
   </div>
 </div>
 
+<!-- ════ PRE-SURVEY "DLA CHĘTNYCH" ════ -->
+<div id="screen-presurvey" class="screen">
+  <div style="min-height:100vh;background:#f5f2ec;display:flex;align-items:center;justify-content:center;padding:40px 24px;">
+    <div style="max-width:560px;width:100%;">
+      <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:16px;">Krok 2 z 2 — dla chętnych</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,4vw,40px);line-height:1.1;letter-spacing:0.01em;margin-bottom:8px;">Powiedz nam więcej</div>
+      <p style="font-size:14px;color:#9a9488;font-weight:300;margin-bottom:8px;">Te informacje trafiają do silnika diagnozy <em>zanim</em> zobaczysz wyniki ankiety — dzięki temu diagnoza może porównać to co mówisz o sobie z tym co ankieta rzeczywiście mierzy.</p>
+      <p style="font-size:13px;color:#9a9488;font-weight:300;margin-bottom:28px;">Zajmuje około 60 sekund. Możesz pominąć.</p>
+
+      <!-- Cel na sezon -->
+      <div style="margin-bottom:28px;">
+        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:12px;font-weight:500;">Twój główny cel na ten sezon</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="goal-buttons">
+          <button class="ctx-btn" onclick="presurveyPick('goal',0,this)">Grać więcej minut</button>
+          <button class="ctx-btn" onclick="presurveyPick('goal',1,this)">Przejść na wyższy poziom</button>
+          <button class="ctx-btn" onclick="presurveyPick('goal',2,this)">Poprawić konkretny element</button>
+          <button class="ctx-btn" onclick="presurveyPick('goal',3,this)">Nie odpaść z drużyny</button>
+          <button class="ctx-btn" onclick="presurveyPick('goal',4,this)" style="grid-column:span 2;">Inny cel</button>
+        </div>
+      </div>
+
+      <!-- Co robi na własną rękę — pojawia się tylko gdy ownTrainings > 0 -->
+      <div id="own-training-types-wrap" style="display:none;margin-bottom:28px;">
+        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:6px;font-weight:500;">Co robisz na tych treningach własnych?</div>
+        <p style="font-size:12px;color:#9a9488;margin-bottom:12px;font-weight:300;">Zaznacz wszystko co pasuje.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="own-training-type-buttons">
+          <button class="multi-btn" onclick="multiToggle('ownTypes','technika',this)">Technika z piłką</button>
+          <button class="multi-btn" onclick="multiToggle('ownTypes','silownia',this)">Siłownia</button>
+          <button class="multi-btn" onclick="multiToggle('ownTypes','bieganie',this)">Bieganie / kondycja</button>
+          <button class="multi-btn" onclick="multiToggle('ownTypes','mental',this)">Praca mentalna</button>
+          <button class="multi-btn" onclick="multiToggle('ownTypes','stretching',this)">Rozciąganie / mobilność</button>
+          <button class="multi-btn" onclick="multiToggle('ownTypes','inne',this)">Inne</button>
+        </div>
+      </div>
+
+      <!-- Samoopis — przed wynikami ankiety, nieskażony -->
+      <div style="margin-bottom:28px;">
+        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:8px;font-weight:500;">Opisz siebie jako zawodnika</div>
+        <p style="font-size:12px;color:#9a9488;margin-bottom:10px;font-weight:300;">Co już działa w Twojej grze? Co chcesz poprawić? Kilka zdań wystarczy.</p>
+        <textarea id="ps-selfDesc" rows="4"
+          placeholder="Np. Jestem szybki i dobrze czuję się w pressingu, ale w końcówkach brakuje mi energii i często popełniam proste błędy których nie robię na początku meczu. Chciałbym grać pewniej pod presją..."
+          style="width:100%;padding:14px 16px;border:1px solid #d8d3c8;background:#fff;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;resize:none;line-height:1.6;display:block;"
+          onfocus="this.style.borderColor='#0e0d0b'"
+          onblur="this.style.borderColor='#d8d3c8'"></textarea>
+      </div>
+
+      <div style="display:flex;gap:12px;align-items:center;">
+        <button onclick="startSurveyFromPresurvey()"
+          style="flex:1;background:#0e0d0b;color:#f5f2ec;border:none;padding:18px 24px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;cursor:pointer;">
+          Przejdź do ankiety →
+        </button>
+        <button onclick="startSurveyFromPresurvey(true)"
+          style="background:transparent;border:none;font-size:13px;color:#9a9488;cursor:pointer;text-decoration:underline;text-underline-offset:3px;white-space:nowrap;">
+          Pomiń
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ════ SURVEY ════ -->
 <div id="screen-survey" class="screen">
   <div class="survey-top">
     <div class="survey-top-logo" id="survey-mode-label">Gamechange System</div>
     <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
     <div class="progress-info" id="prog-info">0%</div>
+  </div>
+  <div style="max-width:680px;margin:0 auto;padding:24px 24px 0;border-bottom:1px solid #d8d3c8;margin-bottom:0;">
+    <p style="font-size:13px;color:#9a9488;font-weight:300;line-height:1.7;padding-bottom:20px;">
+      Odpowiadaj na podstawie ostatnich 4–6 tygodni. Nie ma dobrych ani złych odpowiedzi — liczy się to co faktycznie robisz i czujesz na boisku, nie to co chciałbyś robić.
+    </p>
   </div>
   <div class="survey-body" id="survey-body"></div>
   <div style="max-width:680px;margin:0 auto;padding:0 24px 80px;text-align:center;">
@@ -1074,28 +970,19 @@ body {
       <span style="font-size:12px;color:#2a7a3a;letter-spacing:0.1em;text-transform:uppercase;">✓ Diagnoza odblokowana</span>
     </div>
 
-    <!-- Open questions — poza blur containerem, pełen dostęp -->
+    <!-- Open questions — JEDNO pytanie po wynikach, przed diagnozą -->
     <div id="open-questions-wrap" style="display:none;margin-bottom:48px;">
       <div style="border:1px solid #d8d3c8;padding:32px;background:#fff;">
-        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;">Dwie minuty które robią różnicę</div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.02em;margin-bottom:8px;color:#0e0d0b;">Opisz swoją grę własnymi słowami</div>
-        <p style="font-size:13px;color:#9a9488;font-weight:300;margin-bottom:28px;">Twoje odpowiedzi pozwalają powiązać wyniki ankiety z tym co faktycznie widzisz na boisku. Pisz swobodnie — nie ma złych odpowiedzi.</p>
-
-        <div style="margin-bottom:24px;">
-          <label style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#3a3830;display:block;margin-bottom:10px;font-weight:500;">
-            Opisz jedną sytuację z ostatniego meczu gdzie poczułeś że coś Cię zatrzymuje.
-          </label>
-          <textarea id="oq-situation" rows="3" placeholder="Np. W drugiej połowie nie mogłem utrzymać tempa i zaczynałem odpuszczać powroty..."
-            style="width:100%;padding:14px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;resize:none;line-height:1.6;display:block;"
-            onfocus="this.style.borderColor='#0e0d0b'"
-            onblur="this.style.borderColor='#d8d3c8'"></textarea>
-        </div>
+        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;">Ostatni krok przed diagnozą</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.02em;margin-bottom:8px;color:#0e0d0b;">Jeden konkret z boiska</div>
+        <p style="font-size:13px;color:#9a9488;font-weight:300;margin-bottom:24px;">Diagnoza jest precyzyjniejsza gdy możemy powiązać wyniki z tym co faktycznie widzisz w meczu.</p>
 
         <div style="margin-bottom:28px;">
           <label style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#3a3830;display:block;margin-bottom:10px;font-weight:500;">
-            Co Twoim zdaniem najbardziej ogranicza Cię w tej chwili?
+            Opisz jedną konkretną sytuację z ostatniego meczu gdzie poczułeś że coś nie zadziałało jak powinno.
           </label>
-          <textarea id="oq-limitation" rows="3" placeholder="Np. Technicznie daję radę, ale pod koniec meczu nie ma już jakości w moich działaniach..."
+          <textarea id="oq-situation" rows="4"
+            placeholder="Np. W 70. minucie dostałem piłkę w środku pola, rywal skrócił i nie wiedziałem co z nią zrobić. Straciłem ją i drużyna straciła bramkę..."
             style="width:100%;padding:14px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;resize:none;line-height:1.6;display:block;"
             onfocus="this.style.borderColor='#0e0d0b'"
             onblur="this.style.borderColor='#d8d3c8'"></textarea>
@@ -1452,13 +1339,91 @@ const CTX_LABELS = {
   level: ['Amator / rekreacyjnie','Juniorski klub','Seniorski klub amatorski','Półprofesjonalny','Profesjonalny'],
   pos:   ['Bramkarz','Obrońca','Pomocnik','Napastnik','Nie dotyczy'],
   age:   ['Do 14 lat','Do 14 lat — z rodzicem/trenerem','15–19 lat','20–25 lat','26–30 lat','30+ lat'],
+  clubTrainings: ['1x w tygodniu','2x w tygodniu','3x w tygodniu','4+ razy w tygodniu'],
+  ownTrainings:  ['0 — tylko drużynowe','1x w tygodniu','2x w tygodniu','3+ razy w tygodniu'],
+  goal: ['Grać więcej minut','Przejść na wyższy poziom','Poprawić konkretny element','Nie odpaść z drużyny','Inny cel'],
 };
-let ctx = { level: null, pos: null, age: null };
+
+// Stan pre-survey (warstwa 2)
+let presurvey = {
+  goal: null,          // indeks wybranego celu
+  ownTypes: new Set(), // multiselect — rodzaje treningu własnego
+  selfDesc: '',        // samoopis zawodnika
+};
+let ctx = { level: null, pos: null, age: null, clubTrainings: null, ownTrainings: null };
 
 function ctxPick(field, idx, btn) {
   ctx[field] = idx;
   btn.parentElement.querySelectorAll('.ctx-btn').forEach(b => b.classList.remove('sel'));
   btn.classList.add('sel');
+  document.getElementById('ctx-error').style.display = 'none';
+
+  // Jeśli zmieniono treningi własne — pokaż/ukryj sekcję typów na presurvey
+  if (field === 'ownTrainings') {
+    const wrap = document.getElementById('own-training-types-wrap');
+    if (wrap) wrap.style.display = idx > 0 ? 'block' : 'none';
+    if (idx === 0) presurvey.ownTypes.clear();
+  }
+}
+
+function presurveyPick(field, idx, btn) {
+  presurvey[field] = idx;
+  btn.parentElement.querySelectorAll('.ctx-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+
+function multiToggle(group, value, btn) {
+  if (presurvey[group].has(value)) {
+    presurvey[group].delete(value);
+    btn.classList.remove('sel');
+  } else {
+    presurvey[group].add(value);
+    btn.classList.add('sel');
+  }
+}
+
+function startSurveyFromContext() {
+  if (ctx.level === null || ctx.pos === null || ctx.age === null ||
+      ctx.clubTrainings === null || ctx.ownTrainings === null) {
+    document.getElementById('ctx-error').style.display = 'block';
+    document.getElementById('ctx-error').textContent = 'Zaznacz odpowiedź w każdym pytaniu.';
+    return;
+  }
+  document.getElementById('ctx-error').style.display = 'none';
+  teamCode = (document.getElementById('team-code-input').value.trim().toUpperCase()) || null;
+  playerName = document.getElementById('player-name-input').value.trim() || null;
+
+  // Przejdź do ekranu "dla chętnych" — PRZED ankietą
+  showScreen('screen-presurvey');
+}
+
+function startSurveyFromPresurvey(skip = false) {
+  if (!skip) {
+    presurvey.selfDesc = (document.getElementById('ps-selfDesc').value || '').trim();
+  } else {
+    presurvey.goal = null;
+    presurvey.ownTypes = new Set();
+    presurvey.selfDesc = '';
+  }
+
+  // Inicjalizuj ankietę
+  isJunior = ctx.age === 0;
+  activeSegs = isJunior ? SEGS_JUNIOR : SEGS;
+
+  document.getElementById('survey-mode-label').textContent = isJunior ? 'Diagnoza Junior' : 'Diagnoza';
+
+  const introNote = document.getElementById('intro-note');
+  if (introNote) {
+    introNote.textContent = isJunior
+      ? 'Odpowiadaj na podstawie ostatnich kilku tygodni treningów i meczów.'
+      : 'Odpowiadaj na podstawie ostatnich 4–6 tygodni gry.';
+  }
+
+  ans = {};
+  activeSegs.forEach(s => { ans[s.id] = Array(s.qs.length).fill(null); });
+
+  renderAllQuestions();
+  showScreen('screen-survey');
 }
 
 // ══════════════════════════════════════
@@ -1480,16 +1445,14 @@ const FREE_ACCESS_CODES = ['GAMECHANGE', 'TRENER', 'PILOT', 'GAMECHANGE2025', 'L
 // ══════════════════════════════════════
 function startSurvey() {
   if (hasPaidAccess) {
-    showScreen('screen-edu-1');
+    showScreen('screen-context');
   } else {
     showScreen('screen-paywall');
   }
 }
 
 function goToStripePayment() {
-  // TODO: podmień na rzeczywisty link Stripe z parametrem ?paid=1 w return_url
-  // Przykład: https://buy.stripe.com/XXXXX?success_url=https://twojadomena.vercel.app?paid=1
-  alert('Tu podepnij link Stripe. Return URL powinien zawierać ?paid=1');
+  window.location.href = 'https://buy.stripe.com/8x228reuG9t4bn66VDdby0c';
 }
 
 function submitAccessCode() {
@@ -1499,7 +1462,7 @@ function submitAccessCode() {
     hasPaidAccess = true;
     teamCode = code;
     errEl.style.display = 'none';
-    showScreen('screen-edu-1');
+    showScreen('screen-context');
   } else {
     errEl.style.display = 'block';
   }
@@ -1514,40 +1477,6 @@ function esc(str) {
 // ══════════════════════════════════════
 let isJunior = false;
 let activeSegs = [];
-
-function startSurveyFromContext() {
-  if (ctx.level === null || ctx.pos === null || ctx.age === null) {
-    document.getElementById('ctx-error').style.display = 'block';
-    return;
-  }
-  document.getElementById('ctx-error').style.display = 'none';
-
-  teamCode = (document.getElementById('team-code-input').value.trim().toUpperCase()) || null;
-  playerName = document.getElementById('player-name-input').value.trim() || null;
-
-  // Tryb junior: wiek idx 0 = sam, idx 1 = z rodzicem/trenerem (dorosłe pytania)
-  isJunior = ctx.age === 0;
-  activeSegs = isJunior ? SEGS_JUNIOR : SEGS;
-
-  document.getElementById('survey-mode-label').textContent = isJunior ? 'Diagnoza Junior' : 'Diagnoza';
-
-  // Zaktualizuj instrukcję na ekranie intro
-  const introNote = document.getElementById('intro-note');
-  if (introNote) {
-    introNote.textContent = isJunior
-      ? 'Odpowiadaj na podstawie ostatnich kilku tygodni treningów i meczów.'
-      : 'Odpowiadaj na podstawie ostatnich 4–6 tygodni gry.';
-  }
-
-  // Reset answers
-  ans = {};
-  activeSegs.forEach(s => {
-    ans[s.id] = Array(s.qs.length).fill(null);
-  });
-
-  showScreen('screen-survey');
-  renderAllQuestions();
-}
 
 function getQuestion(q) {
   // Zwraca wariant pytania dopasowany do pozycji zawodnika
@@ -1870,6 +1799,78 @@ function loadResultsFromURL() {
   } catch(e) { return false; }
 }
 
+function buyProduct(productId, stripeLink) {
+  const emailInput = document.getElementById(`product-email-${productId}`);
+  const email = emailInput ? emailInput.value.trim() : (playerEmail || '');
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (emailInput) { emailInput.style.borderColor = '#d63c2f'; emailInput.focus(); }
+    return;
+  }
+  playerEmail = email;
+  localStorage.setItem('gc_product_email', email);
+  localStorage.setItem('gc_product_id', productId);
+  window.location.href = stripeLink;
+}
+
+function handleProductPurchaseReturn(productId) {
+  const email = localStorage.getItem('gc_product_email') || playerEmail || '';
+  const PDF_DELIVERY = {
+    moc:          { title: 'Prawdziwa Eksplozywność',        file: 'Moc - System Gamechange.pdf' },
+    fizycznosc:   { title: 'Prawdziwa Eksplozywność',        file: 'Fizycznosc - System Gamechange.pdf' },
+    wytrzymalosc: { title: 'Program Wytrzymałości Meczowej', file: 'Wytrzymalosc - System Gamechange.pdf' },
+    tolerancja:   { title: 'Protokół Tolerancji Obciążeń',  file: 'Tolerancja obciazen - System Gamechange.pdf' },
+    regeneracja:  { title: 'Protokół Regeneracji',           file: 'Regeneracja - System Gamechange.pdf' },
+    odzywianie:   { title: 'Protokół Odżywienia Sportowca',  file: 'Odzywienie organizmu - System Gamechange.pdf' },
+    odpornosc:    { title: 'Protokół Odporności Sezonowej',  file: 'Odpornosc organizmu - System Gamechange.pdf' },
+    percepcja:    { title: 'Percepcja i Szybkość Decyzji',   file: 'Percepcja i szybkosc decyzji - System Gamechange.pdf' },
+    decyzja:      { title: 'Percepcja i Szybkość Decyzji',   file: 'Percepcja i szybkosc decyzji - System Gamechange.pdf' },
+    koncentracja: { title: 'Protokół Mentalny — Koncentracja', file: 'Koncentracja - System Gamechange.pdf' },
+    mental:       { title: 'Protokół Mentalny — Stan Mentalny', file: 'Stan mentalny - System Gamechange.pdf' },
+    techFund:     { title: 'Program Techniki',               file: 'Technika fundamentalna - System Gamechange.pdf' },
+    techSpec:     { title: 'Program Techniki',               file: 'Technika fundamentalna - System Gamechange.pdf' },
+  };
+
+  const product = PDF_DELIVERY[productId];
+  if (!product) return;
+
+  // Pokaż ekran potwierdzenia
+  const pw = document.getElementById('product-wrap');
+  pw.innerHTML = `
+    <div style="border:1px solid #2a7a3a;padding:32px;background:#f0f7f0;margin-bottom:16px;">
+      <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#2a7a3a;margin-bottom:12px;">✓ Zakup potwierdzony</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;margin-bottom:12px;color:#0e0d0b;">${product.title}</div>
+      <p style="font-size:14px;color:#3a3830;font-weight:300;line-height:1.8;margin-bottom:24px;">
+        Program jest gotowy do pobrania poniżej. Wysyłamy też kopię na ${email || 'Twój email'}.
+      </p>
+      <a href="${product.file}" download
+        style="display:inline-block;background:#0e0d0b;color:#f5f2ec;padding:16px 32px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;text-decoration:none;">
+        Pobierz program →
+      </a>
+    </div>
+  `;
+
+  // Wyślij email przez EmailJS jeśli mamy email
+  if (email) {
+    emailjs.send('service_7dxlxuq', 'template_ybc0bsq', {
+      to_email: email,
+      product_title: product.title,
+      pdf_link: window.location.origin + '/' + product.file,
+      date: new Date().toLocaleDateString('pl-PL'),
+    }).catch(e => console.warn('EmailJS delivery failed', e));
+  }
+
+  // Zapisz do Supabase
+  saveToSupabase('diagnostics', buildDiagnosticsRecord({
+    event: 'product_purchased',
+    email,
+    product_id: productId,
+    product_title: product.title,
+  }));
+
+  localStorage.removeItem('gc_product_email');
+  localStorage.removeItem('gc_product_id');
+}
+
 window.addEventListener('load', () => {
   const urlParams = new URLSearchParams(window.location.search);
 
@@ -1890,6 +1891,18 @@ window.addEventListener('load', () => {
   // Sprawdź czy opłacono (Stripe redirect)
   if (urlParams.get('paid') === '1') {
     hasPaidAccess = true;
+    // Sprawdź czy to powrót po zakupie programu (97 zł)
+    const productParam = urlParams.get('product');
+    if (productParam) {
+      // Powrót po zakupie programu — pokaż ekran wyników i dostarcz program
+      const savedEmail = localStorage.getItem('gc_product_email');
+      if (savedEmail) playerEmail = savedEmail;
+      // Pokaż ekran wyników (bez diagnozy) lub intro z informacją o dostawie
+      showScreen('screen-intro');
+      // Dostarcz program po chwili (ekran musi być widoczny)
+      setTimeout(() => handleProductPurchaseReturn(productParam), 300);
+      return;
+    }
   }
 
   // Sprawdź czy są wyniki w hashu
@@ -1959,6 +1972,11 @@ function buildDiagnosticsRecord(extras = {}) {
     level: ctx.level !== null ? CTX_LABELS.level[ctx.level] : null,
     position: ctx.pos !== null ? CTX_LABELS.pos[ctx.pos] : null,
     age_group: ctx.age !== null ? CTX_LABELS.age[ctx.age] : null,
+    club_trainings: ctx.clubTrainings !== null ? CTX_LABELS.clubTrainings[ctx.clubTrainings] : null,
+    own_trainings: ctx.ownTrainings !== null ? CTX_LABELS.ownTrainings[ctx.ownTrainings] : null,
+    own_training_types: presurvey.ownTypes.size > 0 ? [...presurvey.ownTypes].join(',') : null,
+    player_goal: presurvey.goal !== null ? CTX_LABELS.goal[presurvey.goal] : null,
+    self_description: presurvey.selfDesc || null,
     scores: cachedScores ? JSON.stringify(cachedScores) : null,
     top_deficits: deficits.join(', ') || null,
     overall_score: cachedScores
@@ -2103,7 +2121,7 @@ function submitEmail() {
     document.getElementById('diagnosis-blur-wrap').style.pointerEvents = 'auto';
     document.getElementById('diagnosis-unlocked-note').style.display = 'block';
     document.getElementById('ai-diagnosis-text').textContent = 'Generuję Twoją diagnozę...';
-    generateAIDiagnosis(cachedScores, '', '');
+    generateAIDiagnosis(cachedScores, '');
     return;
   }
 
@@ -2114,7 +2132,6 @@ function submitEmail() {
 
 function submitOpenQuestions(skip = false) {
   const situation = skip ? '' : (document.getElementById('oq-situation').value.trim());
-  const limitation = skip ? '' : (document.getElementById('oq-limitation').value.trim());
 
   document.getElementById('open-questions-wrap').style.display = 'none';
   document.getElementById('diagnosis-blur-wrap').style.filter = 'none';
@@ -2122,7 +2139,7 @@ function submitOpenQuestions(skip = false) {
   document.getElementById('diagnosis-unlocked-note').style.display = 'block';
   document.getElementById('ai-diagnosis-text').textContent = 'Generuję Twoją diagnozę...';
 
-  generateAIDiagnosis(cachedScores, situation, limitation);
+  generateAIDiagnosis(cachedScores, situation);
 }
 
 function copyResultsLink(btn) {
@@ -2231,7 +2248,7 @@ function _buildDiagData(scores) {
 // ══════════════════════════════════════
 //  CALL 2 — DIAGNOZA GŁÓWNA
 // ══════════════════════════════════════
-async function generateAIDiagnosis(scores, situation = '', limitation = '') {
+async function generateAIDiagnosis(scores, situation = '') {
 
   const { deficitsData, strengthsData, ctxText, patternNote } = _buildDiagData(scores);
 
@@ -2241,7 +2258,7 @@ async function generateAIDiagnosis(scores, situation = '', limitation = '') {
   _diagState.strengths = strengthsData;
   _diagState.ctxText = ctxText;
   _diagState.situation = situation;
-  _diagState.limitation = limitation;
+  _diagState.limitation = '';
   _diagState.patternNote = patternNote;
   _diagState.topDeficitIds = deficitsData.map(d => d.id);
 
@@ -2253,8 +2270,22 @@ async function generateAIDiagnosis(scores, situation = '', limitation = '') {
     ? strengthsData.map(d => `${d.name} (wynik ${d.score}/100) — ${d.lang}`).join(', ')
     : 'brak wyraźnych mocnych stron powyżej progu';
 
-  const situationCtx = situation ? `\nZawodnik opisał konkretną sytuację z boiska: "${situation}"` : '';
-  const limitationCtx = limitation ? `\nZawodnik opisał swoje ograniczenie: "${limitation}"` : '';
+  // Kontekst treningowy z warstwy 1
+  const trainingCtx = (ctx.clubTrainings !== null || ctx.ownTrainings !== null) ? `
+PROFIL TRENINGOWY:
+Treningi z drużyną: ${ctx.clubTrainings !== null ? CTX_LABELS.clubTrainings[ctx.clubTrainings] : 'nie podano'}
+Treningi własne: ${ctx.ownTrainings !== null ? CTX_LABELS.ownTrainings[ctx.ownTrainings] : 'nie podano'}` : '';
+
+  // Kontekst z pre-survey (warstwa 2 — samoopis PRZED ankietą)
+  const goalCtx = presurvey.goal !== null
+    ? `\nDeklarowany cel zawodnika: ${CTX_LABELS.goal[presurvey.goal]}` : '';
+  const ownTypesCtx = presurvey.ownTypes.size > 0
+    ? `\nCo robi na treningach własnych: ${[...presurvey.ownTypes].join(', ')}` : '';
+  const selfDescCtx = presurvey.selfDesc
+    ? `\nSamoopis zawodnika (napisany PRZED zobaczeniem wyników ankiety — wartościowe źródło): "${presurvey.selfDesc}"` : '';
+
+  const situationCtx = situation
+    ? `\nKonkretna sytuacja z meczu opisana przez zawodnika (po zobaczeniu wyników): "${situation}"` : '';
   const patternCtx = patternNote ? `\n${patternNote}` : '';
 
   // ── POZYCYJNE INSTRUKCJE ──────────────────────────────────────────────
@@ -2271,46 +2302,56 @@ async function generateAIDiagnosis(scores, situation = '', limitation = '') {
   const prompt = `Jesteś systemem diagnostycznym Gamechange — analizujesz wyniki ankiety piłkarskiej i piszesz diagnozę bezpośrednio do zawodnika. Piszesz po polsku, forma "Ty", język boiskowy a nie naukowy. Jesteś precyzyjny i konkretny — zero frazesów motywacyjnych, zero ogólników.
 
 DANE ZAWODNIKA:
-${ctxText}
+${ctxText}${trainingCtx}${goalCtx}${ownTypesCtx}
 ${patternCtx}
 
+SAMOOPIS ZAWODNIKA (napisany PRZED ankietą — niezależna ocena siebie):${selfDescCtx || ' brak'}
+
+WYNIKI ANKIETY:
 DEFICYTY (od najsłabszego):
 ${deficitsText}
 
 MOCNE STRONY:
 ${strengthsText}
-${situationCtx}${limitationCtx}${posCtx}
+${situationCtx}${posCtx}
+
+INSTRUKCJA KLUCZOWA — PORÓWNANIE WARSTW:
+Masz dwa niezależne źródła: samoopis zawodnika (co myśli o sobie) i wyniki ankiety (co zmierzono). Porównaj je:
+- Jeśli samoopis zgadza się z wynikami → diagnoza to potwierdza i pogłębia mechanizm
+- Jeśli samoopis się ROZMIJA z wynikami (np. mówi że ma dobrą technikę a ankieta wskazuje technikę jako deficyt) → diagnoza musi to adresować wprost: "Masz wrażenie że problem leży w X, ale wyniki pokazują że prawdziwe wąskie gardło jest w Y — i to właśnie dlatego X nie działa tak jak powinno"
+- Kontekst treningowy (ile treningów, co robi własnego) interpretuj diagnostycznie: zawodnik który trenuje 5x w tygodniu a ma niską regenerację to inny problem niż ten który trenuje 2x
 
 ZASADY KTÓRYCH MUSISZ PRZESTRZEGAĆ:
 1. ZAKAZ używania nazw segmentów systemu ani liczb wynikowych — nie pisz "Twoja percepcja wynosi 34" ani "segment tolerancji". Opisuj zachowania i sytuacje boiskowe.
-2. Pozycja jest filtrem — każda obserwacja musi być zakorzeniona w realiach pozycji zawodnika (patrz instrukcja pozycyjna powyżej).
-3. Mocna strona NIE jest komplementem — to punkt wyjścia który pokazuje że potencjał jest, ale jest zablokowany. "Masz X, ale X pracuje na połowę bo brakuje Y."
-4. Jeden mechanizm łączący kilka deficytów jest silniejszy niż lista problemów. Jeśli jednak deficyty są niezależne i równorzędne — opisz je jako dwa osobne obszary, nie szukaj sztucznego połączenia.
-5. ZAKAZ ćwiczeń, protokołów treningowych, konkretnych metod. Diagnoza wskazuje obszar i mechanizm — nigdy metodę. Metoda jest w produkcie który zawodnik może kupić.
-6. Jeśli zawodnik opisał konkretną sytuację — zidentyfikuj ją w diagnozie i pokaż że wyniki to wyjaśniają.
-7. Sekcja [GDZIE MOZESZ BYC] musi być boiskowa i konkretna — nie "będziesz lepszy" ale "przestaniesz grać pod ciągłą presją czasu, będziesz miał opcje zanim rywal zdąży się ustawić".
-8. Sekcja [KIERUNEK] — jedno zdanie, obszar bez metody. To jest most do produktu. Nie pisz co robić — pisz w jakim obszarze leży rozwiązanie.
-9. [PYTANIE] — sformułuj JEDNO konkretne pytanie które zakotwiczy diagnozę w historii zawodnika. Pytanie musi brzmieć jak naturalna kontynuacja diagnozy, zakładać że diagnoza jest trafna i prosić o potwierdzenie przez historię, nie przez ocenę. Przykład: "Kiedy ostatnio poczułeś że masz czas i przestrzeń zanim rywal zdążył dobiec — i co wtedy zrobiłeś?" albo "Przypomnij sobie mecz gdzie końcówka była inna niż pierwsza połowa — co konkretnie się zmieniło w Twoim ciele albo w głowie?"
+2. Pozycja jest filtrem — każda obserwacja musi być zakorzeniona w realiach pozycji zawodnika.
+3. Mocna strona NIE jest komplementem — to zablokowany potencjał. "Masz X — ale X pracuje na połowę bo nie możesz go w pełni wykorzystać, dopóki Y jest słabe." NIGDY nie pisz że mocna strona "gaśnie" — pisz że nie może być w pełni wykorzystana.
+4. Jeden mechanizm łączący kilka deficytów jest silniejszy niż lista problemów. Jeśli deficyty są niezależne — opisz dwa obszary, nie szukaj sztucznego połączenia.
+5. ZAKAZ ćwiczeń, protokołów treningowych, konkretnych metod. Diagnoza wskazuje obszar i mechanizm — nigdy metodę.
+6. Używaj "prawdopodobnie" tam gdzie wnioskujesz o przyczynie której nie możesz być pewien z samych wyników ankiety. Pewność tylko tam gdzie wyniki to bezpośrednio potwierdzają.
+7. Jeśli zawodnik opisał konkretną sytuację z meczu — zidentyfikuj ją w sekcji [JAK TO WIDAC] i pokaż że wyniki to wyjaśniają.
+8. Sekcja [GDZIE MOZESZ BYC] — konkretna, boiskowa, bez obietnic których nie da się zmierzyć.
+9. Sekcja [KIERUNEK] — jedno zdanie, obszar bez metody. Most do produktu.
+10. [PYTANIE] — sformułuj JEDNO pytanie zakotwiczające. Musi być inne niż pytanie o sytuację z meczu (zawodnik już ją opisał). Zapytaj o coś głębszego: jak długo ten problem trwa, czy ktoś z otoczenia to zauważył, co konkretnie zmieniłoby się w jego grze gdyby to naprawił.
 
 FORMAT ODPOWIEDZI (zachowaj dokładnie te znaczniki):
 
 [SYTUACJA]
-(2-5 zdań opisujących gdzie jest zawodnik dziś — język boiskowy, specyficzny dla pozycji, odwołanie do mocnej strony jako zablokowanego potencjału. Elastyczna długość — tyle ile potrzeba żeby opis był wyczerpujący i precyzyjny.)
+(2-5 zdań opisujących gdzie jest zawodnik dziś — język boiskowy, specyficzny dla pozycji, odwołanie do mocnej strony jako zablokowanego potencjału. Jeśli samoopis się rozmija z wynikami — adresuj tę rozbieżność tutaj.)
 
 [MECHANIZM]
-(2-3 zdania — dlaczego tak jest. Przyczyna, nie objaw. Bez żargonu technicznego.)
+(2-3 zdania — dlaczego tak jest. Przyczyna, nie objaw. Bez żargonu technicznego. Używaj "prawdopodobnie" przy wnioskowaniu.)
 
 [JAK TO WIDAC]
-(2-3 konkretne sytuacje boiskowe które zawodnik rozpozna ze swojej gry. Każda sytuacja to jedno zdanie.)
+(2-3 konkretne sytuacje boiskowe które zawodnik rozpozna ze swojej gry. Jeśli opisał sytuację z meczu — ta sytuacja musi tu być jako pierwsza.)
 
 [GDZIE MOZESZ BYC]
-(2-3 zdania — obraz gry po naprawieniu. Konkretny, boiskowy, bez obietnic których nie da się zmierzyć.)
+(2-3 zdania — obraz gry po naprawieniu. Konkretny, boiskowy.)
 
 [KIERUNEK]
-(1 zdanie — obszar rozwiązania bez metody. Most do produktu.)
+(1 zdanie — obszar rozwiązania bez metody.)
 
 [PYTANIE]
-(1 konkretne pytanie zakotwiczające — patrz zasada 9)`;
+(1 pytanie zakotwiczające — inne niż pytanie o sytuację z meczu. Patrz zasada 10.)`;
 
   try {
     const response = await fetch('/api/diagnose', {
@@ -2572,17 +2613,17 @@ function skipFeedbackComment() {
 async function _saveAnchorToSupabase(anchorStory) {
   if (!playerEmail) return;
   try {
-    await fetch('https://kqrbztsvepjtggjmmcdx.supabase.co/rest/v1/diagnostics', {
+    await fetch(`${SUPABASE_URL}/rest/v1/diagnostics`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'apikey': 'sb_publishable_EoYRIZpDhUSdNSJDXWl4Ew_SG8aJABP',
-        'Authorization': 'Bearer sb_publishable_EoYRIZpDhUSdNSJDXWl4Ew_SG8aJABP',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
         'Prefer': 'return=minimal',
       },
       body: JSON.stringify({
         email: playerEmail,
-        event_type: 'anchor_story',
+        event: 'anchor_story',
         anchor_question: _diagState.anchorQuestion,
         anchor_story: anchorStory,
         position: ctx.pos !== null ? CTX_LABELS.pos[ctx.pos] : null,
@@ -2597,17 +2638,17 @@ async function _saveAnchorToSupabase(anchorStory) {
 async function _saveFeedbackToSupabase(rating, comment) {
   if (!playerEmail) return;
   try {
-    await fetch('https://kqrbztsvepjtggjmmcdx.supabase.co/rest/v1/diagnostics', {
+    await fetch(`${SUPABASE_URL}/rest/v1/diagnostics`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'apikey': 'sb_publishable_EoYRIZpDhUSdNSJDXWl4Ew_SG8aJABP',
-        'Authorization': 'Bearer sb_publishable_EoYRIZpDhUSdNSJDXWl4Ew_SG8aJABP',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
         'Prefer': 'return=minimal',
       },
       body: JSON.stringify({
         email: playerEmail,
-        event_type: 'feedback',
+        event: 'feedback',
         feedback_accuracy: rating,
         feedback_comment: comment,
         position: ctx.pos !== null ? CTX_LABELS.pos[ctx.pos] : null,
@@ -2659,28 +2700,20 @@ function renderFallback(scores, deficitsData) {
   _showProductSection(scores);
 }
 
-// Stare funkcje — zachowane dla kompatybilności wstecznej z fallback
-function renderDiagnosisText(raw, scores, deficits) {
-  // W nowej architekturze nieużywana bezpośrednio — fallback idzie przez renderFallback
-  renderFallback(scores, deficits);
-}
+// renderDiagnosisText i renderDiagnosisHTML usunięte — zastąpione przez renderDiagnosisV2
 
-function renderDiagnosisHTML(diagnosis, steps) {
-  // Legacy — nieużywana w nowej architekturze
-  const el = document.getElementById('ai-diagnosis-text');
-  el.innerHTML = `<p style="font-size:15px;color:#3a3830;line-height:1.9;font-weight:300;">${diagnosis}</p>`;
-}
-
-function _buildFallbackRaw(scores, deficits) {
+// ══════════════════════════════════════
+//  FALLBACK DIAGNOSIS — gdy API nie odpowie
+// ══════════════════════════════════════
+function buildFallbackDiagnosis(scores, deficits) {
   const sorted = Object.entries(scores).sort((a,b) => b[1]-a[1]);
   const topStrength = sorted[0];
   const strengthSeg = isJunior
     ? SEGS_JUNIOR.find(s => s.id === topStrength[0])
     : SEGS.find(s => s.id === topStrength[0]);
 
-  // Mapowanie segmentów na język boiskowy
   const SEGMENT_LANGUAGE = {
-    moc: 'szybkość i eksplozywność ruchu',
+    moc: 'szybkość i eksplozywność',
     wytrzymalosc: 'zdolność do utrzymania intensywności przez cały mecz',
     fizycznosc: 'siłę w kontakcie i walce o pozycję',
     techFund: 'stabilność techniczną',
@@ -2696,9 +2729,9 @@ function _buildFallbackRaw(scores, deficits) {
   };
 
   const BLOCKERS_LANGUAGE = {
-    moc: 'Zacznij od fundamentalnego treningu siłowego 2-3 razy w tygodniu — to odblokuje Twoje przyspieszenie.',
-    wytrzymalosc: 'Popraw regenerację i odżywienie między treningami — bez tego żaden trening wytrzymałościowy nie zadziała.',
-    fizycznosc: 'Zbuduj bazę siłową — przysiady i martwy ciąg to fundament który da Ci przewagę w kontakcie.',
+    moc: 'Zbuduj bazę siłową — przysiady i martwy ciąg to fundament który odblokuje Twoje przyspieszenie.',
+    wytrzymalosc: 'Popraw regenerację i odżywienie — bez tego żaden trening wytrzymałościowy nie zadziała.',
+    fizycznosc: 'Zbuduj bazę siłową — fundamentalny trening siłowy 2-3 razy w tygodniu da Ci przewagę w kontakcie.',
     techFund: 'Wróć do podstaw w spokojnych warunkach — technika musi być stabilna bez presji zanim zadziała pod presją.',
     techSpec: 'Skup się najpierw na szybkości decyzji — bez tego technika specjalistyczna nie ma kiedy zadziałać.',
     tolerancja: 'Zadbaj o sen i odżywienie — to one decydują o tym czy organizm adaptuje się do obciążeń czy się pod nimi łamie.',
@@ -2707,26 +2740,29 @@ function _buildFallbackRaw(scores, deficits) {
     odzywianie: 'Zacznij od jedzenia przed i po treningu — to najprostsza zmiana która da natychmiastowy efekt.',
     koncentracja: 'Po każdym błędzie powiedz sobie jedno zdanie i wróć do gry — trenuj ten mechanizm świadomie na każdym treningu.',
     mental: 'Porozmawiaj z kimś kto zajmuje się psychologią sportu — reakcja na presję to umiejętność, nie charakter.',
-    percepcja: 'Na każdym treningu ćwicz jedno zachowanie: rozejrzyj się dwa razy zanim dostaniesz piłkę. Rób to świadomie aż stanie się odruchem.',
+    percepcja: 'Na każdym treningu ćwicz jedno zachowanie: rozejrzyj się dwa razy zanim dostaniesz piłkę.',
     decyzja: 'Poproś trenera o małe gry z ograniczonym czasem — to najszybszy sposób żeby skrócić czas między myślą a działaniem.',
   };
 
   if (!deficits.length) {
-    return `[DIAGNOZA]\nTwój profil jest wyrównany — nie ma jednego wyraźnego miejsca które Cię blokuje. ${strengthSeg ? `Szczególnie widać to w ${SEGMENT_LANGUAGE[strengthSeg.id] || strengthSeg.name} — to jest Twoja realna przewaga.` : ''} Skup się na równomiernym podnoszeniu wszystkich obszarów, nie szukaj jednego cudownego rozwiązania.\n\n[KROKI]\n- Utrzymuj regularność treningów — przy wyrównanym profilu to konsekwencja a nie intensywność robi różnicę.\n- Co 4-6 tygodni wróć do tej ankiety i sprawdź czy wyniki się zmieniają — postęp jest najlepszym motywatorem.\n- Wybierz jeden obszar który chcesz podnieść jako pierwszy i przez miesiąc skup na nim trochę więcej uwagi.`;
+    return {
+      diagnosis: `Twój profil jest wyrównany — nie ma jednego wyraźnego miejsca które Cię blokuje. ${strengthSeg ? `Szczególnie widać to w ${SEGMENT_LANGUAGE[strengthSeg.id] || strengthSeg.name} — to jest Twoja realna przewaga.` : ''} Skup się na równomiernym podnoszeniu wszystkich obszarów.`,
+      steps: [
+        'Utrzymuj regularność treningów — przy wyrównanym profilu to konsekwencja robi różnicę.',
+        'Co 4-6 tygodni wróć do ankiety i sprawdź czy wyniki się zmieniają.',
+        'Wybierz jeden obszar który chcesz podnieść jako pierwszy i przez miesiąc skup na nim uwagę.',
+      ]
+    };
   }
 
   const top = deficits[0];
-  const topSeg = isJunior
-    ? SEGS_JUNIOR.find(s => s.id === top[0])
-    : SEGS.find(s => s.id === top[0]);
-
+  const topSeg = isJunior ? SEGS_JUNIOR.find(s => s.id === top[0]) : SEGS.find(s => s.id === top[0]);
   const weightedBlockers = (BLOCKERS_W[top[0]] || [])
     .filter(([b, w]) => w >= 0.6 && scores[b] !== undefined && scores[b] < 65)
     .sort((a, b) => b[1] - a[1]);
 
   const strengthDesc = strengthSeg && topStrength[1] >= 60
-    ? `${SEGMENT_LANGUAGE[strengthSeg.id] || strengthSeg.name}`
-    : null;
+    ? `${SEGMENT_LANGUAGE[strengthSeg.id] || strengthSeg.name}` : null;
 
   let diagnosis = '';
   let steps = [];
@@ -2736,52 +2772,32 @@ function _buildFallbackRaw(scores, deficits) {
     const blockerLang = SEGMENT_LANGUAGE[primaryBlocker] || SEG_NAMES[primaryBlocker];
     const deficitLang = SEGMENT_LANGUAGE[top[0]] || (topSeg ? topSeg.name : top[0]);
 
-    if (strengthDesc) {
-      diagnosis = `Masz ${strengthDesc} — to jest coś na czym możesz budować. Problem jest gdzie indziej: ${deficitLang} się sypie, ale to nie jest główna przyczyna — to objaw słabej ${blockerLang}. Możesz pracować bezpośrednio nad tym co widzisz na boisku i nic się nie zmieni, dopóki nie zaczniesz od właściwego miejsca.`;
-    } else {
-      diagnosis = `Twój główny problem to nie to co widać na boisku — to co się dzieje głębiej. ${deficitLang.charAt(0).toUpperCase() + deficitLang.slice(1)} się sypie, ale przyczyną jest słaba ${blockerLang}. Możesz trenować objaw latami i nie będzie efektów — zacznij od przyczyny.`;
-    }
+    diagnosis = strengthDesc
+      ? `Masz ${strengthDesc} — to jest coś na czym możesz budować. Problem jest gdzie indziej: ${deficitLang} się sypie, ale to objaw słabej ${blockerLang}. Możesz pracować bezpośrednio nad tym co widzisz na boisku i nic się nie zmieni, dopóki nie zaczniesz od właściwego miejsca.`
+      : `Twój główny problem to nie to co widać na boisku. ${deficitLang.charAt(0).toUpperCase() + deficitLang.slice(1)} się sypie, ale przyczyną jest słaba ${blockerLang}. Zacznij od przyczyny, nie od objawu.`;
 
     steps = [
       BLOCKERS_LANGUAGE[primaryBlocker] || `Zacznij od poprawy: ${blockerLang}.`,
       weightedBlockers.length > 1
         ? `Drugim krokiem jest ${SEGMENT_LANGUAGE[weightedBlockers[1][0]] || SEG_NAMES[weightedBlockers[1][0]]} — to też ogranicza Twój wynik, choć w mniejszym stopniu.`
-        : `Gdy poczujesz poprawę w ${blockerLang} — wróć do ankiety i sprawdź jak zmieniły się wyniki.`,
-      `Daj sobie 3-4 tygodnie zanim ocenisz efekty — adaptacja nie jest natychmiastowa, ale będzie widoczna.`,
+        : `Gdy poczujesz poprawę — wróć do ankiety i sprawdź jak zmieniły się wyniki.`,
+      'Daj sobie 3-4 tygodnie zanim ocenisz efekty — adaptacja nie jest natychmiastowa, ale będzie widoczna.',
     ];
   } else {
     const deficitLang = SEGMENT_LANGUAGE[top[0]] || (topSeg ? topSeg.name : top[0]);
 
-    if (strengthDesc) {
-      diagnosis = `Masz ${strengthDesc} — i to jest realna podstawa. Główne wąskie gardło to ${deficitLang} — i to jest obszar który wymaga bezpośredniej pracy, bo nie wynika z niczego innego. Tu nie ma skrótów, ale jest konkretny kierunek.`;
-    } else {
-      diagnosis = `Twoje główne wąskie gardło to ${deficitLang} — i to jest miejsce od którego powinieneś zacząć. To samodzielny deficyt który nie wynika z innych problemów — wymaga bezpośredniej, systematycznej pracy.`;
-    }
+    diagnosis = strengthDesc
+      ? `Masz ${strengthDesc} — i to jest realna podstawa. Główne wąskie gardło to ${deficitLang}. To samodzielny deficyt który wymaga bezpośredniej pracy, ale kierunek jest konkretny.`
+      : `Twoje główne wąskie gardło to ${deficitLang}. To samodzielny deficyt który nie wynika z innych problemów — wymaga bezpośredniej, systematycznej pracy.`;
 
     steps = [
       BLOCKERS_LANGUAGE[top[0]] || `Skup się bezpośrednio na: ${deficitLang}.`,
-      `Zadbaj o regularność — przy samodzielnym deficycie to konsekwencja pracy robi różnicę, nie intensywność.`,
-      `Za 4-6 tygodni wróć do ankiety i sprawdź jak się zmienił wynik w tym obszarze.`,
+      'Zadbaj o regularność — przy samodzielnym deficycie konsekwencja robi różnicę, nie intensywność.',
+      'Za 4-6 tygodni wróć do ankiety i sprawdź jak się zmienił wynik w tym obszarze.',
     ];
   }
 
-  return `[DIAGNOZA]\n${diagnosis}\n\n[KROKI]\n${steps.map(s => `- ${s}`).join('\n')}`;
-}
-
-// Alias dla nowej architektury — zwraca {diagnosis, steps}
-function buildFallbackDiagnosis(scores, deficits) {
-  const raw = _buildFallbackRaw(scores, deficits);
-  if (raw.startsWith('[DIAGNOZA]')) {
-    const diagMatch = raw.match(/\[DIAGNOZA\]([\s\S]*?)(?=\[KROKI\]|$)/);
-    const stepsMatch = raw.match(/\[KROKI\]([\s\S]*?)$/);
-    const diagnosis = diagMatch ? diagMatch[1].trim() : raw;
-    const stepsRaw = stepsMatch ? stepsMatch[1].trim() : '';
-    const steps = stepsRaw
-      ? stepsRaw.split('\n').map(l => l.trim()).filter(l => l.startsWith('-')).map(l => l.slice(1).trim()).filter(Boolean)
-      : [];
-    return { diagnosis, steps };
-  }
-  return { diagnosis: raw, steps: [] };
+  return { diagnosis, steps };
 }
 
 // ══════════════════════════════════════
@@ -2940,278 +2956,85 @@ function renderProduct(scores) {
   const pw = document.getElementById('product-wrap');
   if (!deficits.length) { pw.innerHTML = ''; return; }
 
-  // Mapa produktów dla każdego segmentu
-  const PRODUCTS = {
-    moc: {
-      ready: true,
-      title: 'Prawdziwa Eksplozywność',
-      desc: 'Większość zawodników trenuje siłę i skoki — ale bez zrozumienia mechanizmu. Ten program uczy jak generować moc, kontrolować ją i odzyskiwać w kolejnych ruchach. Efekt: realna przewaga na pierwszych metrach — widoczna na boisku, nie tylko w testach.',
-      includes: ['Schemat treningowy stabilizacja + moc + siła','3 scenariusze dopasowane do Twojego priorytetu (P, W lub R)','Plan progresji od łatwego do trudnego','Zasady monitorowania postępów na boisku'],
-    },
-    fizycznosc: {
-      ready: true,
-      title: 'Prawdziwa Eksplozywność',
-      desc: 'Przewaga w kontakcie fizycznym wynika z mocy i stabilności — nie z samej masy ciała. Ten program buduje dokładnie te fundamenty: siłę w kontakcie, kontrolę pozycji i odporność na nacisk rywala.',
-      includes: ['Schemat treningowy stabilizacja + moc + siła','Praca nad siłą w kontakcie fizycznym','Plan progresji od łatwego do trudnego','Zasady monitorowania postępów na boisku'],
-    },
-    wytrzymalosc: {
-      ready: false,
-      title: 'Program Wytrzymałości Meczowej',
-      desc: 'Budowanie zdolności do utrzymywania intensywności przez pełne 90 minut — bez spadku jakości technicznej i decyzyjnej.',
-    },
-    tolerancja: {
-      ready: false,
-      title: 'Protokół Tolerancji Obciążeń',
-      desc: 'Jak stopniowo zwiększać obciążenia treningowe bez przeciążeń i kontuzji — i jak wrócić do pełnej gotowości szybciej niż inni.',
-    },
-    regeneracja: {
-      ready: false,
-      title: 'Protokół Regeneracji',
-      desc: 'Sen, zarządzanie zmęczeniem i rutyny odbudowy — gotowy system który sprawia że każdy trening zaczyna się od pełnej gotowości.',
-    },
-    odzywianie: {
-      ready: false,
-      title: 'Protokół Odżywienia Sportowca',
-      desc: 'Energia na pełne 90 minut, szybka odbudowa między wysiłkami i eliminacja spadków energii — oparte na konkretnych protokołach żywieniowych.',
-    },
-    odpornosc: {
-      ready: false,
-      title: 'Protokół Odporności Sezonowej',
-      desc: 'Jak zakończyć pełny sezon bez przerw spowodowanych chorobą — konkretne działania które wzmacniają odporność przy wysokich obciążeniach.',
-    },
-    percepcja: {
-      ready: false,
-      title: 'Trening Czytania Gry',
-      desc: 'Jak skanować boisko szybciej, rozpoznawać sytuacje wcześniej i podejmować decyzje zanim przeciwnik zdąży zareagować.',
-    },
-    decyzja: {
-      ready: false,
-      title: 'Trening Czytania Gry',
-      desc: 'Skrócenie czasu między percepcją a decyzją — konkretne ćwiczenia kognitywne i boiskowe które przyspieszają wybór działania.',
-    },
-    koncentracja: {
-      ready: false,
-      title: 'Protokół Mentalny',
-      desc: 'Jak wracać do skupienia po błędzie, utrzymywać jakość decyzji w końcówkach meczu i eliminować rozproszenia.',
-    },
-    mental: {
-      ready: false,
-      title: 'Protokół Mentalny',
-      desc: 'Budowanie odwagi decyzyjnej, stabilności emocjonalnej i odpowiedzialności w kluczowych momentach meczu.',
-    },
-    techFund: {
-      ready: false,
-      title: 'Program Techniki Fundamentalnej',
-      desc: 'Stabilny pierwszy kontakt, dokładne podania i utrzymywanie jakości technicznej pod presją — budowane od podstaw.',
-    },
-    techSpec: {
-      ready: false,
-      title: 'Program Techniki Specjalistycznej',
-      desc: 'Jak tworzyć przewagę działaniami technicznymi, zmieniać tempo akcji i wykorzystywać momenty nieuwagi przeciwnika.',
-    },
+  const STRIPE_LINKS = {
+    moc:          'https://buy.stripe.com/cNibJ14U6bBc62M2Fndby09',
+    fizycznosc:   'https://buy.stripe.com/dRm5kDfyK20C76Qgwddby0b',
+    wytrzymalosc: 'https://buy.stripe.com/eVq3cv86icFg4YI1Bjdby01',
+    tolerancja:   'https://buy.stripe.com/9B68wP86iax81Mwfs9dby02',
+    regeneracja:  'https://buy.stripe.com/7sY3cv86ifRsbn693Ldby05',
+    odzywianie:   'https://buy.stripe.com/28E9ATcmy20C4YI1Bjdby07',
+    odpornosc:    'https://buy.stripe.com/bJebJ1fyKcFgezigwddby08',
+    percepcja:    'https://buy.stripe.com/fZu4gzgCOgVw3UEfs9dby06',
+    decyzja:      'https://buy.stripe.com/fZu4gzgCOgVw3UEfs9dby06',
+    koncentracja: 'https://buy.stripe.com/9B628r86i48K1Mw5Rzdby0a',
+    mental:       'https://buy.stripe.com/6oU4gz5Ya20C2QAgwddby04',
+    techFund:     'https://buy.stripe.com/7sY8wP9am20Caj26VDdby03',
+    techSpec:     'https://buy.stripe.com/7sY8wP9am20Caj26VDdby03',
   };
 
-  // Bierzemy top 1-2 deficyty
-  const topDeficits = deficits.slice(0, 2);
-  // Deduplikuj produkty (moc i fizycznosc mogą mieć ten sam)
+  const PRODUCTS = {
+    moc:          { title: 'Prawdziwa Eksplozywność',        desc: 'Większość zawodników trenuje siłę i skoki — ale bez zrozumienia mechanizmu. Ten program uczy jak generować moc, kontrolować ją i odzyskiwać w kolejnych ruchach. Efekt: realna przewaga na pierwszych metrach — widoczna na boisku, nie tylko w testach.' },
+    fizycznosc:   { title: 'Prawdziwa Eksplozywność',        desc: 'Przewaga w kontakcie fizycznym wynika z mocy i stabilności — nie z samej masy ciała. Ten program buduje dokładnie te fundamenty: siłę w kontakcie, kontrolę pozycji i odporność na nacisk rywala.' },
+    wytrzymalosc: { title: 'Program Wytrzymałości Meczowej', desc: 'Budowanie zdolności do utrzymywania intensywności przez pełne 90 minut — bez spadku jakości technicznej i decyzyjnej w końcówkach.' },
+    tolerancja:   { title: 'Protokół Tolerancji Obciążeń',  desc: 'Jak stopniowo zwiększać obciążenia treningowe bez przeciążeń i kontuzji — i jak wrócić do pełnej gotowości szybciej niż inni.' },
+    regeneracja:  { title: 'Protokół Regeneracji',           desc: 'Sen, zarządzanie zmęczeniem i rutyny odbudowy — gotowy system który sprawia że każdy trening zaczyna się od pełnej gotowości.' },
+    odzywianie:   { title: 'Protokół Odżywienia Sportowca',  desc: 'Energia na pełne 90 minut, szybka odbudowa między wysiłkami i eliminacja spadków energii — oparte na konkretnych protokołach żywieniowych.' },
+    odpornosc:    { title: 'Protokół Odporności Sezonowej',  desc: 'Jak zakończyć pełny sezon bez przerw spowodowanych chorobą — konkretne działania które wzmacniają odporność przy wysokich obciążeniach.' },
+    percepcja:    { title: 'Percepcja i Szybkość Decyzji',   desc: 'Jak skanować boisko szybciej, rozpoznawać sytuacje wcześniej i podejmować decyzje zanim przeciwnik zdąży zareagować.' },
+    decyzja:      { title: 'Percepcja i Szybkość Decyzji',   desc: 'Skrócenie czasu między percepcją a decyzją — konkretne ćwiczenia kognitywne i boiskowe które przyspieszają wybór działania.' },
+    koncentracja: { title: 'Protokół Mentalny',              desc: 'Jak wracać do skupienia po błędzie, utrzymywać jakość decyzji w końcówkach meczu i eliminować rozproszenia.' },
+    mental:       { title: 'Protokół Mentalny',              desc: 'Budowanie odwagi decyzyjnej, stabilności emocjonalnej i odpowiedzialności w kluczowych momentach meczu.' },
+    techFund:     { title: 'Program Techniki',               desc: 'Stabilny pierwszy kontakt, dokładne podania i utrzymywanie jakości technicznej pod presją — od fundamentów do przewagi technicznej.' },
+    techSpec:     { title: 'Program Techniki',               desc: 'Jak tworzyć przewagę działaniami technicznymi, zmieniać tempo akcji i wykorzystywać momenty nieuwagi przeciwnika.' },
+  };
+
+  // Bierzemy top 1-2 deficyty, deduplikujemy po tytule
   const seen = new Set();
-  const productCards = topDeficits.map(([id]) => {
-    const p = PRODUCTS[id] || null;
-    if (!p) return null;
-    const key = p.title;
-    if (seen.has(key)) return null;
-    seen.add(key);
+  const productCards = deficits.slice(0, 2).map(([id]) => {
+    const p = PRODUCTS[id];
+    if (!p || seen.has(p.title)) return null;
+    seen.add(p.title);
     return { id, ...p };
   }).filter(Boolean);
 
-  // Mapa PDF-ów dla każdego segmentu
-  const PDF_MAP = {
-    moc:          'moc.pdf',
-    fizycznosc:   'fizycznosc.pdf',
-    wytrzymalosc: 'wytrzymalosc.pdf',
-    tolerancja:   'tolerancja-obciazen.pdf',
-    regeneracja:  'regeneracja.pdf',
-    odzywianie:   'odzywianie.pdf',
-    odpornosc:    'odpornosc.pdf',
-    percepcja:    'percepcja.pdf',
-    decyzja:      'szybkosc-decyzji.pdf',
-    koncentracja: 'koncentracja.pdf',
-    mental:       'stan-mentalny.pdf',
-    techFund:     'technika-fundamentalna.pdf',
-    techSpec:     'technika-specjalistyczna.pdf',
-  };
-
   const cardsHTML = productCards.map(p => {
-    const pdfFile = PDF_MAP[p.id];
+    const stripeLink = STRIPE_LINKS[p.id];
     const segName = (isJunior ? SEGS_JUNIOR : SEGS).find(s=>s.id===p.id)?.name || '';
 
-    if (pdfFile) return `
-    <div style="border:1px solid #d8d3c8;padding:32px;margin-bottom:16px;background:#fff;">
-      <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Twój priorytet — ${segName}</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.02em;margin-bottom:12px;color:#0e0d0b;">${p.title}</div>
-      <div style="font-size:14px;color:#3a3830;font-weight:300;line-height:1.8;margin-bottom:24px;">${p.desc}</div>
-      <a href="${pdfFile}" download
-        style="display:inline-block;background:#c8ff00;color:#0e0d0b;border:none;padding:16px 32px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;cursor:pointer;text-decoration:none;">
-        Pobierz bezpłatny przewodnik →
-      </a>
-      <div style="margin-top:12px;font-size:12px;color:#9a9488;font-weight:300;">
-        Bezpłatnie w ramach pilotażu Gamechange System.
-      </div>
-    </div>
-  `;
-
     return `
-    <div style="border:1px solid #d8d3c8;padding:32px;margin-bottom:16px;background:#fff;" id="waitlist-card-${p.id}">
+    <div style="border:1px solid #d8d3c8;padding:32px;margin-bottom:16px;background:#fff;">
       <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Rekomendowany program — ${segName}</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.02em;margin-bottom:12px;color:#0e0d0b;">${p.title}</div>
       <div style="font-size:14px;color:#3a3830;font-weight:300;line-height:1.8;margin-bottom:24px;">${p.desc}</div>
-      <div style="background:#f5f2ec;border:1px solid #d8d3c8;padding:20px;">
-        <div style="font-size:13px;font-weight:500;color:#0e0d0b;margin-bottom:4px;">Program w przygotowaniu</div>
-        <div style="font-size:12px;color:#9a9488;font-weight:300;margin-bottom:16px;">Zapisz się — dostaniesz powiadomienie jako pierwszy i specjalną cenę na premierę.</div>
-        <div id="waitlist-form-${p.id}">
-          <div style="display:flex;gap:8px;">
-            <input id="waitlist-email-${p.id}" type="email" placeholder="Twój email"
-              style="flex:1;padding:10px 14px;border:1px solid #d8d3c8;background:#fff;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;"
-              onfocus="this.style.borderColor='#0e0d0b'"
-              onblur="this.style.borderColor='#d8d3c8'"
-              onkeydown="if(event.key==='Enter') submitWaitlist('${p.id}','${p.title}')">
-            <button onclick="submitWaitlist('${p.id}','${p.title}')"
-              style="white-space:nowrap;background:#0e0d0b;color:#f5f2ec;border:none;padding:10px 20px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:0.1em;cursor:pointer;">
-              Zapisz mnie →
-            </button>
-          </div>
-          <div id="waitlist-error-${p.id}" style="display:none;color:#d63c2f;font-size:12px;margin-top:6px;">Podaj poprawny adres email.</div>
-        </div>
-        <div id="waitlist-confirm-${p.id}" style="display:none;color:#2a7a3a;font-size:13px;font-weight:500;">✓ Zapisano — damy Ci znać jako pierwszemu.</div>
+
+      <div style="margin-bottom:20px;">
+        <label style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#9a9488;display:block;margin-bottom:8px;">Twój email — wyślemy program na tę skrzynkę</label>
+        <input id="product-email-${p.id}" type="email"
+          value="${playerEmail || ''}"
+          placeholder="twoj@email.pl"
+          style="width:100%;padding:12px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;"
+          onfocus="this.style.borderColor='#0e0d0b'"
+          onblur="this.style.borderColor='#d8d3c8'">
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <button onclick="buyProduct('${p.id}', '${stripeLink}')"
+          style="background:#0e0d0b;color:#f5f2ec;border:none;padding:16px 32px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.1em;cursor:pointer;">
+          Kup za 97 zł →
+        </button>
+        <div style="font-size:12px;color:#9a9488;font-weight:300;">Płatność przez Stripe · Bezpieczna transakcja</div>
       </div>
     </div>
   `;
   }).join('');
 
-  // Sekcja konsultacji i współpracy
-  const consultHTML = `
-    <div style="margin-bottom:16px;">
-
-      <!-- Konsultacja jednorazowa -->
-      <div style="border:1px solid #d8d3c8;padding:40px;margin-bottom:16px;background:#fff;position:relative;">
-        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Konsultacja jednorazowa</div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(24px,3vw,36px);line-height:1.1;margin-bottom:16px;color:#0e0d0b;">Po tej sesji będziesz wiedział dokładnie<br>co robić przez najbliższe 8 tygodni</div>
-        <div style="font-size:14px;color:#3a3830;font-weight:300;line-height:1.8;margin-bottom:24px;max-width:520px;">
-          Diagnoza wskazuje problem. Konsultacja daje plan. Nie ogólny — konkretny, zapisany, dopasowany do Twojego kalendarza treningowego, poziomu i celu.
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px;max-width:520px;">
-          ${[
-            ['Co dostajesz','Analizę Twoich wyników przeze mnie przed sesją + 50 minut rozmowy + indywidualny plan działania na 8 tygodni w PDF'],
-            ['Dobór programów','Wskazanie konkretnych ćwiczeń i programów dopasowanych do Twojego profilu'],
-            ['Follow-up','Po 4 tygodniach wypełniasz diagnozę ponownie — porównuję wyniki i piszę co się zmieniło i co korygujemy'],
-            ['Dla kogo','Dla zawodnika który chce mieć pewność że idzie w dobrym kierunku i nie marnuje czasu'],
-          ].map(([label, val]) => `
-            <div style="padding:16px;border:1px solid #d8d3c8;">
-              <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#9a9488;margin-bottom:6px;">${label}</div>
-              <div style="font-size:13px;color:#0e0d0b;font-weight:300;line-height:1.6;">${val}</div>
-            </div>`).join('')}
-        </div>
-        <div id="consult-btn-wrap-single" style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
-          <button onclick="document.getElementById('consult-form').style.display='block';document.getElementById('consult-btn-wrap-single').style.display='none';"
-            style="background:#0e0d0b;color:#f5f2ec;border:none;padding:16px 40px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;cursor:pointer;">
-            Umów konsultację →
-          </button>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#0e0d0b;letter-spacing:0.05em;">497 zł</div>
-        </div>
-        <div id="consult-form" style="display:none;margin-top:24px;border-top:1px solid #d8d3c8;padding-top:24px;">
-          <div style="font-size:13px;color:#3a3830;font-weight:300;margin-bottom:16px;">Zostaw kontakt — odezwę się w ciągu 24 godzin żeby ustalić termin.</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-            <input id="consult-name" placeholder="Imię i nazwisko"
-              style="padding:12px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;width:100%;"
-              onfocus="this.style.borderColor='#0e0d0b'" onblur="this.style.borderColor='#d8d3c8'">
-            <input id="consult-contact" placeholder="Numer telefonu lub email"
-              style="padding:12px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;width:100%;"
-              onfocus="this.style.borderColor='#0e0d0b'" onblur="this.style.borderColor='#d8d3c8'">
-          </div>
-          <textarea id="consult-note" placeholder="Opcjonalnie: pozycja, poziom rozgrywek, główny cel" rows="2"
-            style="width:100%;padding:12px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;resize:none;margin-bottom:12px;display:block;"
-            onfocus="this.style.borderColor='#0e0d0b'" onblur="this.style.borderColor='#d8d3c8'"></textarea>
-          <div id="consult-error" style="display:none;color:#d63c2f;font-size:13px;margin-bottom:10px;">Podaj imię i kontakt.</div>
-          <div id="consult-confirm" style="display:none;background:#f0f7f0;border:1px solid #b8d8b8;padding:16px 20px;margin-bottom:12px;">
-            <div style="font-size:13px;font-weight:500;color:#2a7a3a;margin-bottom:4px;">✓ Zgłoszenie wysłane</div>
-            <div style="font-size:12px;color:#3a3830;font-weight:300;">Odezwę się w ciągu 24 godzin.</div>
-          </div>
-          <button id="consult-submit-btn" onclick="submitConsultation()"
-            style="background:#0e0d0b;color:#f5f2ec;border:none;padding:14px 32px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:0.1em;cursor:pointer;">
-            Wyślij zgłoszenie →
-          </button>
-        </div>
-      </div>
-
-      <!-- Współpraca miesięczna -->
-      <div style="border:1px solid #0e0d0b;padding:40px;margin-bottom:48px;position:relative;overflow:hidden;background:#0e0d0b;">
-        <div style="position:absolute;top:0;right:0;background:#c8ff00;color:#0e0d0b;font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:0.15em;padding:6px 16px;">NAJWYŻSZY POZIOM</div>
-        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:12px;">Współpraca miesięczna</div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(24px,3vw,36px);line-height:1.1;margin-bottom:16px;color:#f5f2ec;">Twój rozwój pod stałą opieką —<br>każdy tydzień we właściwym kierunku</div>
-        <div style="font-size:14px;color:rgba(255,255,255,0.6);font-weight:300;line-height:1.8;margin-bottom:28px;max-width:520px;">
-          To nie jest program który kupujesz i wdrażasz sam. To relacja w której razem prowadzimy Twój rozwój — widzę co działa, co nie działa i korygujemy zanim stracisz tygodnie na coś co nie przynosi efektów.
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px;max-width:520px;">
-          ${[
-            ['Diagnoza','Wstępna i aktualizacja co 4 tygodnie — widzisz konkretny postęp w liczbach'],
-            ['Plan treningowy','Indywidualny, aktualizowany co miesiąc do tego jak reagujesz na obciążenia'],
-            ['Cotygodniowy kontakt','15 minut na omówienie jak idzie i co korygujemy — online lub wiadomość głosowa'],
-            ['Dostęp do mnie','WhatsApp w dni robocze — odpowiedź do 24h gdy masz pytanie lub coś nie gra'],
-            ['Wszystkie programy','Pełen dostęp do wszystkich programów cyfrowych w cenie'],
-            ['Dla kogo','Dla zawodnika który traktuje swój rozwój poważnie i chce maksymalnych efektów w minimalnym czasie'],
-          ].map(([label, val]) => `
-            <div style="padding:16px;border:1px solid rgba(255,255,255,0.1);">
-              <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.3);margin-bottom:6px;">${label}</div>
-              <div style="font-size:13px;color:rgba(255,255,255,0.7);font-weight:300;line-height:1.6;">${val}</div>
-            </div>`).join('')}
-        </div>
-        <div id="monthly-btn-wrap" style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
-          <button onclick="document.getElementById('monthly-form').style.display='block';document.getElementById('monthly-btn-wrap').style.display='none';"
-            style="background:#c8ff00;color:#0e0d0b;border:none;padding:16px 40px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;cursor:pointer;">
-            Rozpocznij współpracę →
-          </button>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#c8ff00;letter-spacing:0.05em;">1497 zł <span style="font-size:14px;color:rgba(255,255,255,0.4);font-weight:300;font-family:'DM Sans',sans-serif;">/ miesiąc</span></div>
-        </div>
-        <div id="monthly-form" style="display:none;margin-top:24px;border-top:1px solid rgba(255,255,255,0.1);padding-top:24px;">
-          <div style="font-size:13px;color:rgba(255,255,255,0.5);font-weight:300;margin-bottom:16px;">Zostaw kontakt — odezwę się w ciągu 24 godzin.</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-            <input id="monthly-name" placeholder="Imię i nazwisko"
-              style="padding:12px 16px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);font-family:'DM Sans',sans-serif;font-size:14px;color:#f5f2ec;outline:none;width:100%;"
-              onfocus="this.style.borderColor='rgba(255,255,255,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.2)'">
-            <input id="monthly-contact" placeholder="Numer telefonu lub email"
-              style="padding:12px 16px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);font-family:'DM Sans',sans-serif;font-size:14px;color:#f5f2ec;outline:none;width:100%;"
-              onfocus="this.style.borderColor='rgba(255,255,255,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.2)'">
-          </div>
-          <textarea id="monthly-note" placeholder="Opcjonalnie: co chcesz osiągnąć, aktualny poziom, pozycja" rows="2"
-            style="width:100%;padding:12px 16px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);font-family:'DM Sans',sans-serif;font-size:14px;color:#f5f2ec;outline:none;resize:none;margin-bottom:12px;display:block;"
-            onfocus="this.style.borderColor='rgba(255,255,255,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.2)'"></textarea>
-          <div id="monthly-error" style="display:none;color:#ff6b6b;font-size:13px;margin-bottom:10px;">Podaj imię i kontakt.</div>
-          <div id="monthly-confirm" style="display:none;background:rgba(200,255,0,0.1);border:1px solid rgba(200,255,0,0.3);padding:16px 20px;margin-bottom:12px;">
-            <div style="font-size:13px;font-weight:500;color:#c8ff00;margin-bottom:4px;">✓ Zgłoszenie wysłane</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.5);font-weight:300;">Odezwę się w ciągu 24 godzin.</div>
-          </div>
-          <button id="monthly-submit-btn" onclick="submitMonthly()"
-            style="background:#c8ff00;color:#0e0d0b;border:none;padding:14px 32px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:0.1em;cursor:pointer;">
-            Wyślij zgłoszenie →
-          </button>
-        </div>
-      </div>
-
-    </div>
-  `;
-
   pw.innerHTML = `
-    <div id="product-anchor" style="scroll-margin-top:24px;">
     <div style="margin-bottom:8px;">
       <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.05em;margin-bottom:4px;">Program dopasowany do Twoich wyników</div>
       <div style="font-size:13px;color:#9a9488;font-weight:300;margin-bottom:24px;">Bezpośrednia odpowiedź na to co zidentyfikowała diagnoza</div>
     </div>
     ${cardsHTML}
-    ${consultHTML}
-    </div>
   `;
-
-  setTimeout(() => pw.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 400);
 }
 
 // ══════════════════════════════════════
@@ -3560,34 +3383,36 @@ function quickTest(preset) {
     ans[s.id] = s.qs.map(() => Math.max(1, Math.min(6, Math.round(target / 20 + 0.5))));
   });
 
+  // Wypełnij presurvey testowo
+  presurvey = {
+    goal: 1,
+    ownTypes: new Set(['technika', 'silownia']),
+    selfDesc: 'Jestem szybki fizycznie i wygrywam kontakty, ale pod koniec meczu tracę jakość. Chcę grać na wyższym poziomie.',
+  };
+
   cachedScores = scores;
   renderResults(scores);
   showScreen('screen-results');
 
-  // Zdejmij blur i bramkę emailową
   const blurWrap = document.getElementById('diagnosis-blur-wrap');
-  if (blurWrap) {
-    blurWrap.style.filter = 'none';
-    blurWrap.style.pointerEvents = 'auto';
-  }
+  if (blurWrap) { blurWrap.style.filter = 'none'; blurWrap.style.pointerEvents = 'auto'; }
   const emailGate = document.getElementById('email-gate-box');
   if (emailGate) emailGate.style.display = 'none';
-
   const unlockedNote = document.getElementById('diagnosis-unlocked-note');
   if (unlockedNote) unlockedNote.style.display = 'block';
 
-  // Wypełnij pytania otwarte testowo i uruchom diagnozę
   setTimeout(() => {
     document.querySelectorAll('.bar-fill').forEach(b => { b.style.width = b.dataset.w + '%'; });
     document.getElementById('ai-diagnosis-text').textContent = 'Generuję Twoją diagnozę...';
-    generateAIDiagnosis(scores, 'W drugiej połowie tracę tempo i rywale mnie wyprzedzają do piłek.', 'Czuję że mam potencjał ale nie mogę go wykorzystać w kluczowych momentach.');
+    generateAIDiagnosis(scores, 'W 70. minucie dostałem piłkę w środku pola i nie wiedziałem co z nią zrobić — rywal mnie nakrył.');
   }, 150);
 }
 
 function restart() {
   ans = {}; cachedScores = null;
   isJunior = false; activeSegs = [];
-  ctx = { level: null, pos: null, age: null };
+  ctx = { level: null, pos: null, age: null, clubTrainings: null, ownTrainings: null };
+  presurvey = { goal: null, ownTypes: new Set(), selfDesc: '' };
   playerEmail = null; playerHistory = [];
   teamCode = null; playerName = null;
 
