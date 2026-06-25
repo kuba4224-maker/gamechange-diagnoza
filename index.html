@@ -898,12 +898,7 @@ body {
       <div class="overall-label">Wynik ogólny</div>
       <div class="overall-num" id="overall-num" style="color:var(--ink)">—</div>
       <div id="overall-context" style="margin-top:8px;text-align:right;"></div>
-      <button onclick="downloadPDF()"
-        style="margin-top:16px;background:transparent;border:1px solid #d8d3c8;padding:10px 20px;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:0.1em;cursor:pointer;color:#3a3830;display:flex;align-items:center;gap:8px;transition:all 0.15s;"
-        onmouseover="this.style.borderColor='#0e0d0b';this.style.color='#0e0d0b'"
-        onmouseout="this.style.borderColor='#d8d3c8';this.style.color='#3a3830'">
-        ↓ Pobierz raport PDF
-      </button>
+
     </div>
   </div>
   <div class="results-body">
@@ -1073,6 +1068,38 @@ body {
     </div>
 
     <div id="product-wrap"></div>
+
+    <!-- PDF — pojawia się po diagnozie i produkcie -->
+    <div id="pdf-section-wrap" style="display:none;margin-top:32px;border-top:1px solid #d8d3c8;padding-top:32px;">
+      <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;">Raport diagnostyczny</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.02em;margin-bottom:8px;color:#0e0d0b;">Pobierz swój raport PDF</div>
+      <p style="font-size:13px;color:#9a9488;font-weight:300;line-height:1.7;margin-bottom:20px;">
+        Pełny raport z wynikami, diagnozą i kierunkiem pracy — możesz pokazać go trenerowi lub zachować dla siebie.
+      </p>
+      <!-- Bramka emailowa jeśli email nie jest jeszcze podany -->
+      <div id="pdf-email-gate" style="display:none;margin-bottom:16px;">
+        <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#3a3830;margin-bottom:8px;font-weight:500;">Podaj email — wyślemy też kopię na Twoją skrzynkę</div>
+        <div style="display:flex;gap:8px;">
+          <input id="pdf-email-input" type="email" placeholder="twoj@email.com"
+            style="flex:1;padding:12px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;"
+            onfocus="this.style.borderColor='#0e0d0b'"
+            onblur="this.style.borderColor='#d8d3c8'"
+            onkeydown="if(event.key==='Enter') downloadPDFWithEmail()">
+          <button onclick="downloadPDFWithEmail()"
+            style="background:#0e0d0b;color:#f5f2ec;border:none;padding:12px 24px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:0.1em;cursor:pointer;">
+            Pobierz →
+          </button>
+        </div>
+        <div id="pdf-email-error" style="display:none;color:#d63c2f;font-size:12px;margin-top:6px;">Podaj poprawny adres email.</div>
+      </div>
+      <!-- Przycisk jeśli email już jest -->
+      <div id="pdf-download-btn-wrap">
+        <button onclick="downloadPDF()"
+          style="background:#0e0d0b;color:#f5f2ec;border:none;padding:14px 32px;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:0.1em;cursor:pointer;display:inline-flex;align-items:center;gap:10px;">
+          ↓ Pobierz raport PDF
+        </button>
+      </div>
+    </div>
 
     <div class="restart-wrap">
       <button class="btn-restart" onclick="restart()">Wypełnij ankietę ponownie</button>
@@ -2323,32 +2350,33 @@ Masz dwa niezależne źródła: samoopis zawodnika (co myśli o sobie) i wyniki 
 
 ZASADY KTÓRYCH MUSISZ PRZESTRZEGAĆ:
 1. ZAKAZ używania nazw segmentów systemu ani liczb wynikowych — nie pisz "Twoja percepcja wynosi 34" ani "segment tolerancji". Opisuj zachowania i sytuacje boiskowe.
+1b. JĘZYK PIŁKARSKI — używaj terminologii boiskowej. Zamiast "dopadł Cię rywal" → "rywal doskoczył / skrócił dystans / zamknął Ci opcję". Zamiast "nie wiedziałeś co robić" → "nie miałeś gotowej decyzji przed odbiorem". Zamiast "masz problem z koncentracją" → "po błędzie potrzebujesz kilku akcji żeby wrócić do swojego rytmu gry". Każda sytuacja powinna brzmieć jak opis z boiska, nie z poradnika psychologicznego.
 2. Pozycja jest filtrem — każda obserwacja musi być zakorzeniona w realiach pozycji zawodnika.
 3. Mocna strona NIE jest komplementem — to zablokowany potencjał. "Masz X — ale X pracuje na połowę bo nie możesz go w pełni wykorzystać, dopóki Y jest słabe." NIGDY nie pisz że mocna strona "gaśnie" — pisz że nie może być w pełni wykorzystana.
 4. Jeden mechanizm łączący kilka deficytów jest silniejszy niż lista problemów. Jeśli deficyty są niezależne — opisz dwa obszary, nie szukaj sztucznego połączenia.
 5. ZAKAZ ćwiczeń, protokołów treningowych, konkretnych metod. Diagnoza wskazuje obszar i mechanizm — nigdy metodę.
 6. Używaj "prawdopodobnie" tam gdzie wnioskujesz o przyczynie której nie możesz być pewien z samych wyników ankiety. Pewność tylko tam gdzie wyniki to bezpośrednio potwierdzają.
 7. Jeśli zawodnik opisał konkretną sytuację z meczu — zidentyfikuj ją w sekcji [JAK TO WIDAC] i pokaż że wyniki to wyjaśniają.
-8. Sekcja [GDZIE MOZESZ BYC] — konkretna, boiskowa, bez obietnic których nie da się zmierzyć.
+8. Sekcja [JAK SIE ZMIENI GRA] — konkretna, boiskowa, bez obietnic których nie da się zmierzyć.
 9. Sekcja [KIERUNEK] — jedno zdanie, obszar bez metody. Most do produktu.
 10. [PYTANIE] — sformułuj JEDNO pytanie zakotwiczające. Musi być inne niż pytanie o sytuację z meczu (zawodnik już ją opisał). Zapytaj o coś głębszego: jak długo ten problem trwa, czy ktoś z otoczenia to zauważył, co konkretnie zmieniłoby się w jego grze gdyby to naprawił.
 
 FORMAT ODPOWIEDZI (zachowaj dokładnie te znaczniki):
 
 [SYTUACJA]
-(2-5 zdań opisujących gdzie jest zawodnik dziś — język boiskowy, specyficzny dla pozycji, odwołanie do mocnej strony jako zablokowanego potencjału. Jeśli samoopis się rozmija z wynikami — adresuj tę rozbieżność tutaj.)
+(2-5 zdań opisujących gdzie jest zawodnik dziś. Język musi być piłkarski i boiskowy: używaj konkretnych określeń jak "doskakuje", "skraca dystans", "wchodzi w pressing", "zamknął opcję podania", "wychodzi na wolne pole", "kryje przy stałych fragmentach", "schodzi po piłkę" — nie "dopadł", "złapał", "dogonił". Odwołanie do mocnej strony jako zablokowanego potencjału. Jeśli samoopis się rozmija z wynikami — adresuj tę rozbieżność tutaj.)
 
 [MECHANIZM]
 (2-3 zdania — dlaczego tak jest. Przyczyna, nie objaw. Bez żargonu technicznego. Używaj "prawdopodobnie" przy wnioskowaniu.)
 
 [JAK TO WIDAC]
-(2-3 konkretne sytuacje boiskowe które zawodnik rozpozna ze swojej gry. Jeśli opisał sytuację z meczu — ta sytuacja musi tu być jako pierwsza.)
+(2-3 konkretne sytuacje boiskowe które zawodnik rozpozna ze swojej gry. Każda sytuacja to jedno zdanie opisujące konkretny moment w meczu — jak zawodnik reaguje, co robi, co się dzieje. Język piłkarski: "rywal doskakuje z prawej strony i zamknął Ci opcję środka", nie "rywal dopadł Cię". Jeśli zawodnik opisał sytuację z meczu — ta sytuacja musi tu być jako pierwsza.)
 
-[GDZIE MOZESZ BYC]
-(2-3 zdania — obraz gry po naprawieniu. Konkretny, boiskowy.)
+[JAK SIE ZMIENI GRA]
+(2-3 zdania — konkretny obraz gry po naprawieniu. Piłkarski i mierzalny: "będziesz wiedział co zrobić zanim rywal doskakuje", "wejdziesz na wolne pole w odpowiednim momencie", "Twój pressing będzie skuteczny przez pełne 90 minut". Nie: "będziesz lepszy", "poprawisz się".)
 
 [KIERUNEK]
-(1 zdanie — obszar rozwiązania bez metody.)
+(1 zdanie — obszar pracy bez metody. Nawiąż do tego co opisałeś wcześniej: "To znaczy że powinieneś pracować nad [obszar] — bo właśnie tam leży klucz do tego żeby [efekt który opisałeś w JAK SIE ZMIENI GRA].")
 
 [PYTANIE]
 (1 pytanie zakotwiczające — inne niż pytanie o sytuację z meczu. Patrz zasada 10.)`;
@@ -2394,7 +2422,7 @@ function renderDiagnosisV2(raw, scores, deficitsData) {
   const sytuacja  = get('SYTUACJA');
   const mechanizm = get('MECHANIZM');
   const jakWidac  = get('JAK TO WIDAC');
-  const gdyBedzie = get('GDZIE MOZESZ BYC');
+  const gdyBedzie = get('JAK SIE ZMIENI GRA');
   const kierunek  = get('KIERUNEK');
   const pytanie   = get('PYTANIE');
 
@@ -2422,7 +2450,7 @@ function renderDiagnosisV2(raw, scores, deficitsData) {
     if (sytuacje.length) {
       html += `
         <div style="margin-bottom:24px;">
-          <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Jak to wygląda w Twojej grze</div>
+          <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Jak może wyglądać w Twojej grze</div>
           ${sytuacje.map(s => `
             <div style="display:flex;gap:12px;margin-bottom:10px;align-items:flex-start;">
               <div style="width:4px;height:4px;border-radius:50%;background:#d8d3c8;flex-shrink:0;margin-top:9px;"></div>
@@ -2435,25 +2463,40 @@ function renderDiagnosisV2(raw, scores, deficitsData) {
   if (gdyBedzie) {
     html += `
       <div style="margin-bottom:24px;padding:20px 24px;background:#f5f2ec;border-left:3px solid #0e0d0b;">
-        <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:10px;">Gdzie możesz być</div>
+        <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:10px;">Jak może się zmienić Twoja gra, jeśli to poprawisz</div>
         <p style="font-size:14px;color:#0e0d0b;line-height:1.85;font-weight:400;margin:0;">${gdyBedzie}</p>
       </div>`;
   }
 
   if (kierunek) {
+    // Budujemy nazwę produktu dla wprowadzenia
+    const topId = _diagState.topDeficitIds[0] || '';
+    const PRODUCT_SHORT = {
+      moc: 'Prawdziwą Eksplozywność', fizycznosc: 'Prawdziwą Eksplozywność',
+      wytrzymalosc: 'Program Wytrzymałości Meczowej',
+      tolerancja: 'Protokół Tolerancji Obciążeń', regeneracja: 'Protokół Regeneracji',
+      odzywianie: 'Protokół Odżywienia Sportowca', odpornosc: 'Protokół Odporności Sezonowej',
+      percepcja: 'Program Percepcji i Szybkości Decyzji', decyzja: 'Program Percepcji i Szybkości Decyzji',
+      koncentracja: 'Protokół Mentalny', mental: 'Protokół Mentalny',
+      techFund: 'Program Techniki', techSpec: 'Program Techniki',
+    };
+    const productIntro = PRODUCT_SHORT[topId]
+      ? ` Przygotowałem <strong>${PRODUCT_SHORT[topId]}</strong> — program który przeprowadza dokładnie przez ten obszar krok po kroku.`
+      : '';
+
     html += `
       <div style="margin-bottom:8px;">
-        <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;">Twój kierunek pracy</div>
-        <p style="font-size:14px;color:#3a3830;line-height:1.8;font-weight:300;margin:0;">${kierunek}</p>
+        <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;">Nad czym powinieneś pracować</div>
+        <p style="font-size:14px;color:#3a3830;line-height:1.8;font-weight:300;margin:0;">${kierunek}${productIntro}</p>
       </div>`;
   }
 
   el.innerHTML = html;
 
-  // Pokaż feedback od razu po diagnozie
+  // Feedback od razu po diagnozie
   document.getElementById('feedback-wrap').style.display = 'block';
 
-  // Pokaż pytanie zakotwiczające (z lekkim opóźnieniem dla UX)
+  // Pytanie zakotwiczające — zawsze z opóźnieniem
   if (pytanie) {
     setTimeout(() => {
       document.getElementById('anchor-question-text').textContent = pytanie;
@@ -2461,8 +2504,8 @@ function renderDiagnosisV2(raw, scores, deficitsData) {
       document.getElementById('anchor-question-wrap').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, 800);
   } else {
-    // Bez pytania — pokaż produkt od razu
-    _showProductSection(scores);
+    // Bez pytania — Call 3 bez historii
+    generateBridge('');
   }
 }
 
@@ -2472,84 +2515,91 @@ function renderDiagnosisV2(raw, scores, deficitsData) {
 function submitAnchorAnswer() {
   const answer = (document.getElementById('anchor-answer').value || '').trim();
   _diagState.anchorStory = answer;
-
-  // Zapisz do Supabase
   _saveAnchorToSupabase(answer);
-
   document.getElementById('anchor-question-wrap').style.display = 'none';
-
-  if (answer.length > 10) {
-    // Mamy historię — generuj Call 3
-    generateBridge(answer);
-  } else {
-    // Brak treści — pokaż produkt bez mostu
-    _showProductSection(_diagState.scores);
-  }
+  // Call 3 zawsze — z historią lub bez
+  generateBridge(answer);
 }
 
 function skipAnchorAnswer() {
   _diagState.anchorStory = '';
   _saveAnchorToSupabase('');
   document.getElementById('anchor-question-wrap').style.display = 'none';
-  _showProductSection(_diagState.scores);
+  // Call 3 bez historii — ogólny mostek
+  generateBridge('');
 }
 
 // ══════════════════════════════════════
-//  CALL 3 — MOSTEK DO PRODUKTU
+//  CALL 3 — MOSTEK DO PRODUKTU (zawsze)
 // ══════════════════════════════════════
 async function generateBridge(anchorStory) {
   const bridgeWrap = document.getElementById('bridge-wrap');
   bridgeWrap.style.display = 'block';
-  document.getElementById('bridge-text').innerHTML = '<span style="color:#9a9488;font-size:13px;">...</span>';
-  bridgeWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  document.getElementById('bridge-text').innerHTML = '<span style="color:#9a9488;font-size:13px;letter-spacing:0.05em;">...</span>';
 
-  // Buduj kontekst produktu do rekomendacji
   const topDeficit = _diagState.topDeficitIds[0] || '';
   const PRODUCT_NAMES = {
-    moc: 'Prawdziwa Eksplozywność',
-    fizycznosc: 'Prawdziwa Eksplozywność',
+    moc: 'Prawdziwa Eksplozywność', fizycznosc: 'Prawdziwa Eksplozywność',
     wytrzymalosc: 'Program Wytrzymałości Meczowej',
-    tolerancja: 'Protokół Tolerancji Obciążeń',
-    regeneracja: 'Protokół Regeneracji',
-    odzywianie: 'Protokół Odżywienia Sportowca',
-    odpornosc: 'Protokół Odporności Sezonowej',
-    percepcja: 'Trening Czytania Gry',
-    decyzja: 'Trening Czytania Gry',
-    koncentracja: 'Protokół Mentalny',
-    mental: 'Protokół Mentalny',
-    techFund: 'Program Techniki Fundamentalnej',
-    techSpec: 'Program Techniki Specjalistycznej',
+    tolerancja: 'Protokół Tolerancji Obciążeń', regeneracja: 'Protokół Regeneracji',
+    odzywianie: 'Protokół Odżywienia Sportowca', odpornosc: 'Protokół Odporności Sezonowej',
+    percepcja: 'Percepcja i Szybkość Decyzji', decyzja: 'Percepcja i Szybkość Decyzji',
+    koncentracja: 'Protokół Mentalny', mental: 'Protokół Mentalny',
+    techFund: 'Program Techniki', techSpec: 'Program Techniki',
   };
-  const productName = PRODUCT_NAMES[topDeficit] || '';
+  const productName = PRODUCT_NAMES[topDeficit] || 'program dopasowany do Twoich wyników';
+  const hasStory = anchorStory && anchorStory.length > 10;
 
-  const prompt = `Jesteś systemem diagnostycznym Gamechange. Zawodnik właśnie przeczytał swoją diagnozę i odpowiedział na pytanie zakotwiczające. Teraz piszesz krótki mostek który potwierdza jego historię i naturalnie prowadzi do programu treningowego — bez sprzedawania, bez namawiania.
+  // Wyciągnij kierunek z diagnozy — ostatnia sekcja przed pytaniem
+  const kierunekMatch = _diagState.diagnosisText.match(/\[KIERUNEK\]([\s\S]*?)(?=\[PYTANIE\]|$)/);
+  const kierunek = kierunekMatch ? kierunekMatch[1].trim() : '';
 
-DIAGNOZA KTÓRĄ ZAWODNIK PRZECZYTAŁ:
-${_diagState.diagnosisText.replace(/\[PYTANIE\][\s\S]*$/,'')}
+  const promptWithStory = `Jesteś systemem diagnostycznym Gamechange. Zawodnik właśnie przeczytał diagnozę i opisał konkretną sytuację z własnej gry. Piszesz mostek — 3-4 zdania które potwierdzają jego doświadczenie i naturalnie pokazują że istnieje program który przeprowadza przez dokładnie ten obszar. Ton: spokojny, pewny, jak trener który widział to już wiele razy. Nie sprzedajesz — konstatujesz.
 
-HISTORIA ZAWODNIKA (jego własne słowa):
+DIAGNOZA (kierunek pracy):
+${kierunek}
+
+WŁASNE SŁOWA ZAWODNIKA:
 "${anchorStory}"
 
-PROGRAM KTÓRY JEST ODPOWIEDZIĄ: ${productName || 'program dopasowany do głównego deficytu'}
+PROGRAM: ${productName}
 
 ZASADY:
-1. Zacznij od potwierdzenia historii zawodnika — jego słowami, nie swoimi. Pokaż że to co opisał jest dokładnie tym co diagnoza zidentyfikowała.
-2. Jedno zdanie które łączy jego historię z mechanizmem zidentyfikowanym w diagnozie.
-3. Jedno zdanie które mówi że istnieje konkretny sposób pracy nad tym — bez mówienia co to jest. Ostatnie zdanie musi brzmieć jak naturalne zaproszenie, nie jak reklama. Przykład: "Przygotowałem program który przeprowadza przez dokładnie ten obszar krok po kroku." albo "Poniżej znajdziesz program który jest bezpośrednią odpowiedzią na to co opisujesz."
-4. Maksymalnie 3-4 zdania łącznie. Żadnych nagłówków, żadnych list.
-5. Pisz po polsku, forma "Ty", ton spokojny i pewny — nie sprzedażowy.`;
+1. Pierwsze zdanie: zacznij od jego słów — nie interpretacji, ale dosłownego powtórzenia sensu tego co napisał. "To co opisujesz..." albo "Ta sytuacja którą opisujesz..."
+2. Drugie zdanie: jedno zdanie które pokazuje że to co czuje na boisku ma konkretną przyczynę — i że ta przyczyna jest do naprawienia.
+3. Trzecie zdanie: "Właśnie dla tej sytuacji przygotowałem [${productName}] — przeprowadza dokładnie przez ten obszar, krok po kroku." Nazwę programu wstaw naturalnie, nie wyróżniaj.
+4. Opcjonalne czwarte zdanie jeśli pasuje: krótkie, konkretne, budujące pewność że to się da zmienić.
+5. Zero nagłówków. Zero list. Zero sprzedażowego tonu. Pisz po polsku, forma "Ty".`;
+
+  const promptWithoutStory = `Jesteś systemem diagnostycznym Gamechange. Zawodnik właśnie przeczytał diagnozę. Piszesz mostek — 2-3 zdania które podsumowują wniosek z diagnozy i naturalnie pokazują że istnieje program który przeprowadza przez ten obszar. Ton: pewny, konkretny, jak trener który stawia diagnozę i od razu wskazuje kierunek.
+
+DIAGNOZA (kierunek pracy):
+${kierunek}
+
+DEFICYT GŁÓWNY: ${topDeficit}
+PROGRAM: ${productName}
+
+ZASADY:
+1. Pierwsze zdanie: jedno konkretne zdanie które podsumowuje gdzie leży problem — nie cytuj diagnozy, sformułuj od nowa jednym ostrym zdaniem.
+2. Drugie zdanie: "Przygotowałem [${productName}] który przeprowadza dokładnie przez ten obszar." Nazwę wstaw naturalnie.
+3. Opcjonalne trzecie zdanie: krótkie, budujące pewność że to się da zmienić i że zmiana jest konkretna, nie abstrakcyjna.
+4. Zero nagłówków. Zero list. Pisz po polsku, forma "Ty".`;
 
   try {
     const response = await fetch('/api/diagnose', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, maxTokens: 400 })
+      body: JSON.stringify({
+        prompt: hasStory ? promptWithStory : promptWithoutStory,
+        maxTokens: 300
+      })
     });
     const data = await response.json();
     const bridgeText = data.content?.filter(c => c.type === 'text').map(c => c.text || '').join('').trim() || '';
 
     if (bridgeText) {
-      document.getElementById('bridge-text').textContent = bridgeText;
+      document.getElementById('bridge-text').innerHTML =
+        `<p style="font-size:15px;color:#0e0d0b;line-height:1.85;font-weight:300;margin:0;">${bridgeText}</p>`;
     } else {
       bridgeWrap.style.display = 'none';
     }
@@ -2663,12 +2713,45 @@ async function _saveFeedbackToSupabase(rating, comment) {
 // ══════════════════════════════════════
 function _showProductSection(scores) {
   renderProduct(scores);
+  // Pokaż sekcję PDF po produkcie
   setTimeout(() => {
+    const pdfSection = document.getElementById('pdf-section-wrap');
+    if (pdfSection) {
+      pdfSection.style.display = 'block';
+      // Jeśli email już podany — pokaż tylko przycisk
+      // Jeśli nie — pokaż bramkę emailową
+      const hasEmail = !!(playerEmail);
+      document.getElementById('pdf-email-gate').style.display = hasEmail ? 'none' : 'block';
+      document.getElementById('pdf-download-btn-wrap').style.display = hasEmail ? 'block' : 'none';
+      if (hasEmail && document.getElementById('pdf-email-input')) {
+        document.getElementById('pdf-email-input').value = playerEmail;
+      }
+    }
     const pw = document.getElementById('product-wrap');
     if (pw && pw.innerHTML.trim()) {
       pw.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, 300);
+}
+
+function downloadPDFWithEmail() {
+  const input = document.getElementById('pdf-email-input');
+  const email = input ? input.value.trim() : '';
+  const errEl = document.getElementById('pdf-email-error');
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (errEl) errEl.style.display = 'block';
+    return;
+  }
+  if (errEl) errEl.style.display = 'none';
+  playerEmail = email;
+  // Zapisz email
+  saveToSupabase('diagnostics', buildDiagnosticsRecord({ event: 'pdf_email_submitted', email }));
+  sendEmailNotification('Email przy pobraniu PDF', { email });
+  // Zamień bramkę na przycisk
+  document.getElementById('pdf-email-gate').style.display = 'none';
+  document.getElementById('pdf-download-btn-wrap').style.display = 'block';
+  // Pobierz PDF
+  downloadPDF();
 }
 
 function renderFallback(scores, deficitsData) {
@@ -2683,7 +2766,7 @@ function renderFallback(scores, deficitsData) {
   if (steps.length) {
     html += `
       <div style="border-top:1px solid #d8d3c8;padding-top:24px;">
-        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:16px;">Twój kierunek pracy</div>
+        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:16px;">Nad czym powinieneś pracować</div>
         ${steps.map((step, i) => `
           <div style="display:flex;gap:16px;margin-bottom:16px;align-items:flex-start;">
             <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#d8d3c8;line-height:1;flex-shrink:0;min-width:24px;">${i+1}</div>
@@ -2972,43 +3055,83 @@ function renderProduct(scores) {
     techSpec:     'https://buy.stripe.com/7sY8wP9am20Caj26VDdby03',
   };
 
-  const PRODUCTS = {
-    moc:          { title: 'Prawdziwa Eksplozywność',        desc: 'Większość zawodników trenuje siłę i skoki — ale bez zrozumienia mechanizmu. Ten program uczy jak generować moc, kontrolować ją i odzyskiwać w kolejnych ruchach. Efekt: realna przewaga na pierwszych metrach — widoczna na boisku, nie tylko w testach.' },
-    fizycznosc:   { title: 'Prawdziwa Eksplozywność',        desc: 'Przewaga w kontakcie fizycznym wynika z mocy i stabilności — nie z samej masy ciała. Ten program buduje dokładnie te fundamenty: siłę w kontakcie, kontrolę pozycji i odporność na nacisk rywala.' },
-    wytrzymalosc: { title: 'Program Wytrzymałości Meczowej', desc: 'Budowanie zdolności do utrzymywania intensywności przez pełne 90 minut — bez spadku jakości technicznej i decyzyjnej w końcówkach.' },
-    tolerancja:   { title: 'Protokół Tolerancji Obciążeń',  desc: 'Jak stopniowo zwiększać obciążenia treningowe bez przeciążeń i kontuzji — i jak wrócić do pełnej gotowości szybciej niż inni.' },
-    regeneracja:  { title: 'Protokół Regeneracji',           desc: 'Sen, zarządzanie zmęczeniem i rutyny odbudowy — gotowy system który sprawia że każdy trening zaczyna się od pełnej gotowości.' },
-    odzywianie:   { title: 'Protokół Odżywienia Sportowca',  desc: 'Energia na pełne 90 minut, szybka odbudowa między wysiłkami i eliminacja spadków energii — oparte na konkretnych protokołach żywieniowych.' },
-    odpornosc:    { title: 'Protokół Odporności Sezonowej',  desc: 'Jak zakończyć pełny sezon bez przerw spowodowanych chorobą — konkretne działania które wzmacniają odporność przy wysokich obciążeniach.' },
-    percepcja:    { title: 'Percepcja i Szybkość Decyzji',   desc: 'Jak skanować boisko szybciej, rozpoznawać sytuacje wcześniej i podejmować decyzje zanim przeciwnik zdąży zareagować.' },
-    decyzja:      { title: 'Percepcja i Szybkość Decyzji',   desc: 'Skrócenie czasu między percepcją a decyzją — konkretne ćwiczenia kognitywne i boiskowe które przyspieszają wybór działania.' },
-    koncentracja: { title: 'Protokół Mentalny',              desc: 'Jak wracać do skupienia po błędzie, utrzymywać jakość decyzji w końcówkach meczu i eliminować rozproszenia.' },
-    mental:       { title: 'Protokół Mentalny',              desc: 'Budowanie odwagi decyzyjnej, stabilności emocjonalnej i odpowiedzialności w kluczowych momentach meczu.' },
-    techFund:     { title: 'Program Techniki',               desc: 'Stabilny pierwszy kontakt, dokładne podania i utrzymywanie jakości technicznej pod presją — od fundamentów do przewagi technicznej.' },
-    techSpec:     { title: 'Program Techniki',               desc: 'Jak tworzyć przewagę działaniami technicznymi, zmieniać tempo akcji i wykorzystywać momenty nieuwagi przeciwnika.' },
+  // Problem zawodnika — sformułowany jego językiem (nie tytuł programu)
+  const PROBLEM_STATEMENT = {
+    moc:          'Tracisz pierwsze metry do piłki i przegrywasz kontakty z rywalami których powinieneś wygrywać.',
+    fizycznosc:   'Rywale wypychają Cię z pozycji i nie możesz utrzymać piłki pod presją fizyczną.',
+    wytrzymalosc: 'W drugiej połowie tracisz intensywność — tempo spada, powroty są wolniejsze, błędy się mnożą.',
+    tolerancja:   'Regularnie tracisz tygodnie treningowe przez przeciążenia które wracają w kółko.',
+    regeneracja:  'Każdy trening zaczyna się od niższego poziomu niż poprzedni — zmęczenie nie znika.',
+    odzywianie:   'W 60-70. minucie energia spada — nie z wytrzymałości, ale dlatego że paliwo się kończy.',
+    odpornosc:    'Chorujesz regularnie w kluczowych momentach sezonu i tracisz tygodnie treningowe.',
+    percepcja:    'Dostajesz piłkę i dopiero wtedy zaczynaś szukać opcji — rywal ma już czas żeby Cię nakryć.',
+    decyzja:      'Widzisz okazję ale zanim podejmujesz decyzję, okno już się zamknęło.',
+    koncentracja: 'Po błędzie tracisz kilka minut efektywnej gry — ciało jest na boisku, ale głowa gdzie indziej.',
+    mental:       'Na treningach grasz dobrze, na meczach coś blokuje — wycofujesz się tam gdzie powinieneś atakować.',
+    techFund:     'Technika która działa na treningu rozpada się pod presją — w meczu zawodzi dokładnie wtedy kiedy jest potrzebna.',
+    techSpec:     'Grasz bezpiecznie ale przewidywalnie — rywal wie co zrobisz zanim to zrobisz.',
+  };
+
+  const PRODUCT_TITLES = {
+    moc: 'Prawdziwa Eksplozywność', fizycznosc: 'Prawdziwa Eksplozywność',
+    wytrzymalosc: 'Program Wytrzymałości Meczowej',
+    tolerancja: 'Protokół Tolerancji Obciążeń', regeneracja: 'Protokół Regeneracji',
+    odzywianie: 'Protokół Odżywienia Sportowca', odpornosc: 'Protokół Odporności Sezonowej',
+    percepcja: 'Percepcja i Szybkość Decyzji', decyzja: 'Percepcja i Szybkość Decyzji',
+    koncentracja: 'Protokół Mentalny', mental: 'Protokół Mentalny',
+    techFund: 'Program Techniki', techSpec: 'Program Techniki',
+  };
+
+  const PRODUCT_DESC = {
+    moc:          'Buduje moc w sposób który bezpośrednio przekłada się na boisko — szybszy start, mocniejszy kontakt, wyższy wyskok. Nie teoria — konkretny schemat treningowy z progresją tygodniową.',
+    fizycznosc:   'Uczy jak generować i utrzymywać przewagę fizyczną w kontakcie — przez siłę, pozycję ciała i mechanikę ruchu. Efekt widoczny już po 3-4 tygodniach regularnej pracy.',
+    wytrzymalosc: 'Buduje zdolność do utrzymywania intensywności i jakości przez pełne 90 minut. Trening dopasowany do wymagań piłki — nie bieganie, ale praca w rytmie meczu.',
+    tolerancja:   'Protokół który stopniowo podnosi próg tego co organizm znosi bez przeciążeń — i uczy jak wracać szybciej po każdej przerwie.',
+    regeneracja:  'System zarządzania zmęczeniem który sprawia że każdy trening zaczyna się od pełnej gotowości. Sen, odżywienie, rutyny — wszystko w jednym protokole.',
+    odzywianie:   'Konkretny plan żywieniowy dopasowany do rytmu treningów i meczów. Eliminuje spadki energii i przyspiesza odbudowę między wysiłkami.',
+    odpornosc:    'Protokół który pozwala przejść cały sezon bez przerw spowodowanych chorobami — nawet przy wysokich obciążeniach treningowych.',
+    percepcja:    'Uczy skanowania boiska i zbierania informacji zanim piłka dotrze — tak żeby decyzja była gotowa przed odbiorem, nie po nim.',
+    decyzja:      'Skraca czas między zobaczeniem sytuacji a podjęciem decyzji. Konkretne wzorce decyzyjne które działają automatycznie pod presją czasu.',
+    koncentracja: 'Buduje mechanizm resetu po błędzie i rutynę wejścia w skupienie — tak żeby każda akcja zaczynała się od pełnej obecności, nie od myślenia o poprzedniej.',
+    mental:       'Przeprowadza przez pracę nad relacją z błędem i presją — tak żeby forma z treningów przekładała się na mecze.',
+    techFund:     'Przeprowadza przez trzy etapy budowania techniki do automatyzmu — tak żeby działała pod presją, w końcówkach, na obcej murawie.',
+    techSpec:     'Uczy jak używać techniki żeby tworzyć przewagę, nie tylko żeby utrzymać piłkę. Konkretne wzorce decyzyjne dla Twojej pozycji.',
   };
 
   // Bierzemy top 1-2 deficyty, deduplikujemy po tytule
   const seen = new Set();
   const productCards = deficits.slice(0, 2).map(([id]) => {
-    const p = PRODUCTS[id];
-    if (!p || seen.has(p.title)) return null;
-    seen.add(p.title);
-    return { id, ...p };
+    const title = PRODUCT_TITLES[id];
+    if (!title || seen.has(title)) return null;
+    seen.add(title);
+    return { id, title };
   }).filter(Boolean);
 
-  const cardsHTML = productCards.map(p => {
+  const cardsHTML = productCards.map((p, cardIndex) => {
     const stripeLink = STRIPE_LINKS[p.id];
-    const segName = (isJunior ? SEGS_JUNIOR : SEGS).find(s=>s.id===p.id)?.name || '';
+    const problem = PROBLEM_STATEMENT[p.id] || '';
+    const desc = PRODUCT_DESC[p.id] || '';
+    const isPrimary = cardIndex === 0;
 
     return `
-    <div style="border:1px solid #d8d3c8;padding:32px;margin-bottom:16px;background:#fff;">
-      <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Rekomendowany program — ${segName}</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.02em;margin-bottom:12px;color:#0e0d0b;">${p.title}</div>
-      <div style="font-size:14px;color:#3a3830;font-weight:300;line-height:1.8;margin-bottom:24px;">${p.desc}</div>
+    <div style="border:${isPrimary ? '2px solid #0e0d0b' : '1px solid #d8d3c8'};padding:32px;margin-bottom:16px;background:#fff;position:relative;">
+      ${isPrimary ? `<div style="position:absolute;top:-1px;left:32px;background:#0e0d0b;color:#c8ff00;font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:0.15em;padding:4px 12px;">GŁÓWNY PRIORYTET</div>` : ''}
 
-      <div style="margin-bottom:20px;">
-        <label style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#9a9488;display:block;margin-bottom:8px;">Twój email — wyślemy program na tę skrzynkę</label>
+      <!-- Problem zawodnika — jego język -->
+      <div style="margin-top:${isPrimary ? '12px' : '0'};margin-bottom:20px;padding:16px 20px;background:#f5f2ec;border-left:3px solid ${isPrimary ? '#0e0d0b' : '#d8d3c8'};">
+        <p style="font-size:14px;color:#0e0d0b;line-height:1.75;font-weight:400;margin:0;">${problem}</p>
+      </div>
+
+      <!-- Tytuł programu -->
+      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:6px;">Program który to zmienia</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:0.02em;margin-bottom:12px;color:#0e0d0b;">${p.title}</div>
+
+      <!-- Opis -->
+      <div style="font-size:14px;color:#3a3830;font-weight:300;line-height:1.8;margin-bottom:24px;">${desc}</div>
+
+      <!-- Email -->
+      <div style="margin-bottom:16px;">
+        <label style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#9a9488;display:block;margin-bottom:8px;">Wyślemy program na ten email</label>
         <input id="product-email-${p.id}" type="email"
           value="${playerEmail || ''}"
           placeholder="twoj@email.pl"
@@ -3017,23 +3140,30 @@ function renderProduct(scores) {
           onblur="this.style.borderColor='#d8d3c8'">
       </div>
 
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <!-- CTA -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
         <button onclick="buyProduct('${p.id}', '${stripeLink}')"
-          style="background:#0e0d0b;color:#f5f2ec;border:none;padding:16px 32px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.1em;cursor:pointer;">
+          style="width:100%;background:${isPrimary ? '#0e0d0b' : '#3a3830'};color:#f5f2ec;border:none;padding:18px 32px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.1em;cursor:pointer;transition:opacity 0.15s;"
+          onmouseover="this.style.opacity='0.85'"
+          onmouseout="this.style.opacity='1'">
           Kup za 97 zł →
         </button>
-        <div style="font-size:12px;color:#9a9488;font-weight:300;">Płatność przez Stripe · Bezpieczna transakcja</div>
+        <div style="text-align:center;font-size:12px;color:#9a9488;font-weight:300;">
+          Jednorazowy zakup · Pobierasz raz · Program zostaje z Tobą
+        </div>
       </div>
     </div>
   `;
   }).join('');
 
   pw.innerHTML = `
-    <div style="margin-bottom:8px;">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.05em;margin-bottom:4px;">Program dopasowany do Twoich wyników</div>
-      <div style="font-size:13px;color:#9a9488;font-weight:300;margin-bottom:24px;">Bezpośrednia odpowiedź na to co zidentyfikowała diagnoza</div>
+    <div id="product-anchor" style="scroll-margin-top:24px;">
+      <div style="margin-bottom:24px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.05em;margin-bottom:4px;">Co z tym zrobić</div>
+        <div style="font-size:13px;color:#9a9488;font-weight:300;">Program dopasowany bezpośrednio do Twojego wąskiego gardła</div>
+      </div>
+      ${cardsHTML}
     </div>
-    ${cardsHTML}
   `;
 }
 
