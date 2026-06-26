@@ -148,10 +148,25 @@ body {
 }
 .q-context {
   font-size: 12px;
-  color: #9a9488;
-  font-style: italic;
+  color: #5a5750;
+  font-style: normal;
+  margin-top: 6px;
   margin-bottom: 20px;
-  font-weight: 300;
+  font-weight: 400;
+  padding: 8px 12px;
+  background: #edeae3;
+  border-left: 2px solid #b8b3a8;
+  display: flex;
+  gap: 7px;
+  align-items: flex-start;
+  line-height: 1.5;
+}
+.q-context::before {
+  content: '→';
+  font-size: 11px;
+  color: #9a9488;
+  flex-shrink: 0;
+  margin-top: 1px;
 }
 
 .scale-wrap {
@@ -270,6 +285,56 @@ body {
 }
 @keyframes loadslide {
   to { left: 100%; }
+}
+
+/* ── INLINE AI LOADER ── */
+.ai-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  gap: 20px;
+}
+.ai-loader-dots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.ai-loader-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d8d3c8;
+  animation: dotPulse 1.4s ease-in-out infinite;
+}
+.ai-loader-dot:nth-child(2) { animation-delay: 0.2s; }
+.ai-loader-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dotPulse {
+  0%, 80%, 100% { transform: scale(0.7); opacity: 0.4; }
+  40% { transform: scale(1.1); opacity: 1; background: #0e0d0b; }
+}
+.ai-loader-label {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #9a9488;
+  font-weight: 400;
+}
+.ai-loader-progress {
+  width: 120px;
+  height: 1px;
+  background: #d8d3c8;
+  position: relative;
+  overflow: hidden;
+}
+.ai-loader-progress::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: #0e0d0b;
+  animation: loadslide 1.8s ease-in-out infinite;
 }
 
 /* ── RESULTS ── */
@@ -643,11 +708,26 @@ body {
 
       <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:24px;margin-bottom:24px;">
         <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:16px;">Co dostajesz za 19 zł</div>
-        ${['Pełny profil sportowy w 13 obszarach','Wskazanie wąskiego gardła które blokuje wszystkie inne','Spersonalizowana diagnoza dopasowana do Twojej pozycji i poziomu','Konkretne kroki — co robić żeby zacząć się poprawiać','Raport PDF który możesz pokazać trenerowi'].map(item => `
-          <div style="display:flex;gap:12px;margin-bottom:10px;align-items:flex-start;">
-            <span style="color:#c8ff00;flex-shrink:0;margin-top:2px;">✓</span>
-            <span style="font-size:14px;color:rgba(255,255,255,0.7);font-weight:300;">${item}</span>
-          </div>`).join('')}
+        <div style="display:flex;gap:12px;margin-bottom:10px;align-items:flex-start;">
+          <span style="color:#c8ff00;flex-shrink:0;margin-top:2px;">✓</span>
+          <span style="font-size:14px;color:rgba(255,255,255,0.7);font-weight:300;">Pełny profil sportowy w 13 obszarach</span>
+        </div>
+        <div style="display:flex;gap:12px;margin-bottom:10px;align-items:flex-start;">
+          <span style="color:#c8ff00;flex-shrink:0;margin-top:2px;">✓</span>
+          <span style="font-size:14px;color:rgba(255,255,255,0.7);font-weight:300;">Wskazanie wąskiego gardła które blokuje wszystkie inne</span>
+        </div>
+        <div style="display:flex;gap:12px;margin-bottom:10px;align-items:flex-start;">
+          <span style="color:#c8ff00;flex-shrink:0;margin-top:2px;">✓</span>
+          <span style="font-size:14px;color:rgba(255,255,255,0.7);font-weight:300;">Spersonalizowana diagnoza dopasowana do Twojej pozycji i poziomu</span>
+        </div>
+        <div style="display:flex;gap:12px;margin-bottom:10px;align-items:flex-start;">
+          <span style="color:#c8ff00;flex-shrink:0;margin-top:2px;">✓</span>
+          <span style="font-size:14px;color:rgba(255,255,255,0.7);font-weight:300;">Kierunek pracy — co poprawić żeby efekt był najszybszy</span>
+        </div>
+        <div style="display:flex;gap:12px;margin-bottom:0;align-items:flex-start;">
+          <span style="color:#c8ff00;flex-shrink:0;margin-top:2px;">✓</span>
+          <span style="font-size:14px;color:rgba(255,255,255,0.7);font-weight:300;">Raport PDF który możesz pokazać trenerowi</span>
+        </div>
       </div>
 
       <button onclick="goToStripePayment()"
@@ -1116,8 +1196,26 @@ const SEGS = [
   {
     id: 'moc', name: 'MOC', pillar: 'Filar 1 — Dominacja fizyczna', n: '01',
     qs: [
-      { t: 'Jak często wygrywasz pierwsze metry biegu w sytuacjach walki o piłkę?', ctx: 'Porównaj się do rywala — kto jest szybszy na starcie?', dir: 1 },
-      { t: 'Jak często po zmianie kierunku rozpędzasz się z powrotem szybciej niż przeciwnik?', ctx: 'Kto wraca do pełnej szybkości pierwszy — Ty czy rywal?', dir: 1 },
+      {
+        t: 'Jak często wygrywasz pierwsze metry biegu w sytuacjach walki o piłkę?',
+        ctx: 'Porównaj się do rywala — kto jest szybszy na starcie?', dir: 1,
+        pos: {
+          0: { t: 'Jak często przy wyjściu na piłkę — dośrodkowanie, wolny lub podanie za linię — docierasz do niej pierwszy, zanim rywal zdąży zamknąć Ci drogę?', ctx: 'Czy wygrywasz wyścig do piłki w powietrzu i na ziemi, czy ktoś Cię uprzedza?' },
+          1: { t: 'Jak często po zmianie kierunku — gdy napastnik zmienia kierunek lub zrywa się do biegu — odrabiasz stratę i wracasz na właściwą pozycję, zanim on ruszy na bramkę?', ctx: 'Czy jesteś w stanie odrobić metr straty zanim napastnik zdąży odskoczyć?' },
+          2: { t: 'Jak często w pressingu dobiegasz do rywala zanim on zdąży zagrać — zamykasz mu opcję zanim partner może go odciążyć?', ctx: 'Czy pierwsze trzy metry w pressingu są wystarczająco szybkie, żeby opcja zniknęła zanim się otworzy?' },
+          3: { t: 'Jak często wygrywasz wyścig do piłki zagranej za linię obrony — docierasz do niej zanim obrońca zdąży się obrócić i Cię odciąć?', ctx: 'Pierwsze trzy do pięciu metrów decydują. Czy je wygrywasz?' },
+        }
+      },
+      {
+        t: 'Jak często po zmianie kierunku rozpędzasz się z powrotem szybciej niż przeciwnik?',
+        ctx: 'Kto wraca do pełnej szybkości pierwszy — Ty czy rywal?', dir: 1,
+        pos: {
+          0: { t: 'Jak często po wybiciu, chwycie lub interwencji jesteś od razu ustawiony na kolejną sytuację — bez zatrzymania i resetowania pozycji?', ctx: 'Czy po każdej interwencji jesteś gotowy do kolejnej akcji od razu, czy potrzebujesz chwili żeby się zebrać?' },
+          1: { t: 'Jak często po wejściu w kontakt z napastnikiem lub wybiciu piłki natychmiast wracasz w ustawienie obronne — bez chwili, w której tracisz sytuację za sobą?', ctx: 'Czy po akcji obronnej wracasz na miejsce tak szybko jak napastnik rusza do kolejnego zagrania?' },
+          2: { t: 'Jak często po stracie piłki natychmiast ruszasz do odbioru — bez chwili zawahania — i dobiegasz do rywala zanim ten zdąży rozegrać?', ctx: 'Czy powrót do pressingu po stracie jest natychmiastowy, czy potrzebujesz sekundy żeby ruszyć?' },
+          3: { t: 'Jak często po strzale lub stracie piłki w polu karnym natychmiast ruszasz do dobitki lub wracasz na pozycję — bez chwili zatrzymania?', ctx: 'Czy Twoje ciało jest w stanie wykonać kolejny wysiłek zaraz po poprzednim, bez odpoczynku?' },
+        }
+      },
     ]
   },
   {
@@ -1134,11 +1232,22 @@ const SEGS = [
         t: 'Jak często wygrywasz bezpośrednie pojedynki fizyczne z przeciwnikiem (np. bark w bark)?',
         ctx: 'Kto wygrywa kontakt — Ty czy rywal?', dir: 1,
         pos: {
-          0: { t: 'Jak często wygrywasz wyjścia na piłki powietrzne i pojedynki w polu karnym — jesteś pierwszy do piłki i dominujesz fizycznie?', ctx: 'Czy jesteś pierwszy do piłki przy dośrodkowaniach i sytuacjach stałych?' },
-          3: { t: 'Jak często potrafisz przyjąć piłkę tyłem do bramki i utrzymać ją pod fizyczną presją obrońcy?', ctx: 'Czy utrzymujesz piłkę gdy obrońca napiera na Ciebie od tyłu?' },
+          0: { t: 'Jak często przy wyjściu na piłkę w powietrzu — dośrodkowanie, rożny, wolny — jesteś pierwszy do piłki, mimo że atakujący zawodnicy skaczą razem z Tobą?', ctx: 'Czy wygrywasz wyskoki w polu karnym, mimo walki o przestrzeń?' },
+          1: { t: 'Jak często w bezpośrednim wyścigu ramię w ramię utrzymujesz się przy napastniku — on próbuje użyć ciała żeby odskoczyć, a Ty i tak zostajesz przy nim?', ctx: 'Czy potrafisz "przykleić się" do napastnika w kontakcie, czy on się od Ciebie odrywa?' },
+          2: { t: 'Jak często w środku pola — przy odbiorze lub utrzymaniu piłki — wytrzymujesz nacisk rywala na tyle długo, żeby rozegrać lub ochronić piłkę?', ctx: 'Czy utrzymujesz piłkę pod fizyczną presją w środku pola, czy tracisz ją przy pierwszym kontakcie?' },
+          3: { t: 'Jak często przyjmując piłkę tyłem do bramki wytrzymujesz nacisk obrońcy na tyle długo, żeby wykonać obrót lub rozegrać do partnera?', ctx: 'Czy utrzymujesz piłkę gdy obrońca napiera od tyłu, czy podajesz z powrotem bo nie masz innego wyjścia?' },
         }
       },
-      { t: 'Jak często przeciwnik wypycha Cię z pozycji lub odbiera przestrzeń w bezpośredniej walce fizycznej?', ctx: 'Konkretna sytuacja: tracisz pozycję pod wpływem kontaktu.', dir: -1 },
+      {
+        t: 'Jak często przeciwnik wypycha Cię z pozycji lub odbiera przestrzeń w bezpośredniej walce fizycznej?',
+        ctx: 'Konkretna sytuacja: tracisz pozycję pod wpływem kontaktu.', dir: -1,
+        pos: {
+          0: { t: 'Jak często przy stałych fragmentach rywal wypycha Cię z miejsca które zajmowałeś — tracisz pozycję lub nie możesz wykonać zagrania które planowałeś?', ctx: 'Przy rożnych i wolnych — czy trzymasz swoje miejsce, czy jesteś przesuwany?' },
+          1: { t: 'Jak często rywal barkiem lub całym ciałem wybija Cię z równowagi w trakcie biegu — i przez to wyprzedza Cię do piłki lub zmusza do faulu?', ctx: 'Czy kontakt w biegu narusza Twoje ustawienie, czy pozostajesz stabilny mimo nacisku?' },
+          2: { t: 'Jak często przy odbiorze lub utrzymaniu piłki rywal usuwa Cię ze swojej drogi — a Ty jesteś za słaby fizycznie żeby utrzymać pozycję?', ctx: 'Czy ustawiasz ciało między rywalem a piłką, czy on łatwo Cię od niej odsuwa?' },
+          3: { t: 'Jak często przy próbie przyjęcia lub obrotu pod bramką obrońca kontroluje Cię fizycznie tak, że nie możesz się swobodnie poruszyć?', ctx: 'Czy obrońca potrafi "przykryć" Cię ciałem i odebrać Ci możliwość ruchu?' },
+        }
+      },
     ]
   },
   {
@@ -1155,12 +1264,22 @@ const SEGS = [
         t: 'Jak często po Twoim zagraniu akcja przyspiesza lub partner dostaje piłkę w lepszej sytuacji niż przed chwilą?',
         ctx: 'Czy Twoje zagranie zmienia sytuację na lepszą dla drużyny?', dir: 1,
         pos: {
-          0: { t: 'Jak często Twoje zagranie lub wybicie wyprowadza drużynę z pressingu albo uruchamia partnera w lepszej pozycji niż przed chwilą?', ctx: 'Czy Twoje rozegranie daje drużynie przewagę pozycyjną?' },
-          1: { t: 'Jak często Twoje podanie lub drybling wyprowadza drużynę z pressingu albo uruchamia partnera w wolnej przestrzeni?', ctx: 'Czy wyprowadzasz piłkę spod pressingu i tworzysz przewagę?' },
-          3: { t: 'Jak często po Twoim zejściu po piłkę lub ruchu bez piłki partner dostaje więcej przestrzeni lub czasu niż miał przed chwilą?', ctx: 'Czy Twój ruch tworzy przestrzeń dla partnerów?' },
+          0: { t: 'Jak często Twoje podanie do obrońcy lub długa piłka do pomocnika daje partnerowi czas i przestrzeń — zamiast od razu narażać go na pressing?', ctx: 'Czy Twoje rozegranie zmienia sytuację drużyny na lepszą, czy partner od razu znowu jest pod presją?' },
+          1: { t: 'Jak często Twoje podanie przy wyprowadzaniu przeskakuje linię pressingu — trafia do partnera który jest za nią, zamiast grać wzdłuż tej linii lub z powrotem?', ctx: 'Czy Twoje zagrania rzeczywiście wyprowadzają drużynę za pressing, czy tylko przemieszczają piłkę?' },
+          2: { t: 'Jak często po Twoim zagraniu partner dostaje piłkę z większą przestrzenią lub czasem niż Ty miałeś — czyli Twój ruch faktycznie stworzył dla niego przewagę?', ctx: 'Czy po Twoim zagraniu sytuacja drużyny się poprawia, czy tylko piłka zmienia właściciela?' },
+          3: { t: 'Jak często Twoje zejście po piłkę lub ruch bez piłki sprawia, że partner nagle zyskuje wolną przestrzeń — bo obrońca poszedł za Tobą?', ctx: 'Czy Twój ruch bez piłki tworzy przestrzeń dla partnerów, czy ruszasz się tylko żeby dostać piłkę?' },
         }
       },
-      { t: 'Jak często pod presją wybierasz proste, bezpieczne zagranie zamiast tego które mogłoby dać Twojej drużynie realną przewagę?', ctx: 'Chodzi o sytuacje gdy masz opcję ryzykowną ale lepszą — i jej nie wybierasz.', dir: -1 },
+      {
+        t: 'Jak często pod presją wybierasz proste, bezpieczne zagranie zamiast tego które mogłoby dać Twojej drużynie realną przewagę?',
+        ctx: 'Chodzi o sytuacje gdy masz opcję ryzykowną ale lepszą — i jej nie wybierasz.', dir: -1,
+        pos: {
+          0: { t: 'Jak często gdy masz wolnego partnera i czas na zagranie — decydujesz się na dokładne, szybkie podanie które uruchamia akcję, zamiast bezpiecznie wybijać daleko?', ctx: 'Czy korzystasz z chwil gdy masz czas, żeby zagrać mądrze, czy domyślnie wybijasz gdy nie musisz?' },
+          1: { t: 'Jak często gdy nikt na Ciebie nie doskakuje — decydujesz się na podanie w głąb pola lub przez środek, zamiast grać bezpiecznie wzdłuż linii lub z powrotem do bramkarza?', ctx: 'Czy korzystasz z chwil gdy masz przestrzeń żeby grać w przód, czy grasz bezpiecznie niezależnie od sytuacji?' },
+          2: { t: 'Jak często gdy widzisz partnera który właśnie się odsłonił w przestrzeni — za linią pressingu lub za plecami obrońcy — decydujesz się zagrać tam, mimo że to trudniejsze technicznie?', ctx: 'Czy trudniejsze ale lepsze zagranie jest dla Ciebie naturalnym wyborem, czy zawsze wybierasz łatwiejsze?' },
+          3: { t: 'Jak często gdy jesteś twarzą do bramki z piłką i obrońca jest daleko — decydujesz się na strzał lub drybling zamiast oddać piłkę do pomocnika?', ctx: 'Czy korzystasz z chwil gdy masz przestrzeń i czas, czy szukasz bezpieczniejszego wyjścia zamiast atakować?' },
+        }
+      },
     ]
   },
   {
@@ -1194,45 +1313,101 @@ const SEGS = [
   {
     id: 'koncentracja', name: 'KONCENTRACJA', pillar: 'Filar 4 — Mentalność', n: '10',
     qs: [
-      { t: 'Jak często po popełnionym błędzie następna akcja wychodzi Ci na normalnym poziomie — jakby błędu nie było?', ctx: 'Czy błąd "zaraża" kolejną akcję czy wracasz od razu do swojego poziomu?', dir: 1 },
-      { t: 'Jak często w końcówkach meczu reagujesz wolniej na zmiany sytuacji niż na początku?', ctx: 'Porównaj swoją szybkość reakcji w 80. minucie do 10. minuty.', dir: -1 },
+      {
+        t: 'Jak często po popełnionym błędzie następna akcja wychodzi Ci na normalnym poziomie — jakby błędu nie było?',
+        ctx: 'Czy błąd "zaraża" kolejną akcję, czy wracasz od razu do swojego poziomu?', dir: 1,
+        pos: {
+          0: { t: 'Jak często po straconej bramce — nawet jeśli przez chwilę poczujesz frustrację — w kolejnych akcjach jesteś tak samo gotowy i zdecydowany jak przed stratą?', ctx: 'Czy stracona bramka zmienia Twoje działanie przez kolejne minuty, czy wracasz do pełnej gotowości natychmiast?' },
+          1: { t: 'Jak często po złym wybiciu, błędnym ustawieniu lub stracie w pressingu wracasz do normalnego krycia i pozycjonowania w następnej akcji — bez zbędnej ostrożności?', ctx: 'Czy błąd defensywny zmienia jak traktujesz kolejne sytuacje, czy od razu restartujesz się i grasz tak samo?' },
+          2: { t: 'Jak często po stracie piłki w środku pola — szczególnie gdy kosztowała kontrę — jesteś w następnej akcji tak samo aktywny i szukasz piłki, zamiast się chować?', ctx: 'Czy strata piłki wyłącza Cię na kilka akcji, czy od razu wracasz do gry?' },
+          3: { t: 'Jak często po chybieniu lub zmarnowanej okazji bramkowej jesteś w stanie w następnej sytuacji podjąć podobne ryzyko — nie grasz zachowawczo z obawy przed kolejnym chybieniem?', ctx: 'Czy chybienie zmienia jak szukasz kolejnych sytuacji, czy działasz tak samo śmiało?' },
+        }
+      },
+      {
+        t: 'Jak często w końcówkach meczu reagujesz wolniej na zmiany sytuacji niż na początku?',
+        ctx: 'Porównaj swoją szybkość reakcji w 80. minucie do 10. minuty.', dir: -1,
+        pos: {
+          0: { t: 'Jak często w ostatnich 15 minutach meczu — szczególnie przy trudnym wyniku — Twoje wyjścia do piłki i ustawienie są tak samo zdecydowane jak na początku?', ctx: 'Czy w końcówce jesteś tak samo gotowy przy interwencjach jak w 10. minucie, czy coś Cię zwalnia?' },
+          1: { t: 'Jak często w końcówce meczu Twoje krycie jest tak samo szczelne jak na początku — nie dajesz luzu napastnikowi przy dośrodkowaniach ani stałych fragmentach?', ctx: 'Czy ustawienie defensywne trzyma się przez pełne 90 minut, czy pod koniec zaczyna się "rozluźniać"?' },
+          2: { t: 'Jak często w 75-90. minucie Twoje podania i decyzje są tak samo trafne jak w pierwszej połowie — nie robisz błędów których nie robisz gdy jesteś świeży?', ctx: 'Czy zmęczenie mentalne objawia się u Ciebie w technicznym "rozsypywaniu się" pod koniec meczu?' },
+          3: { t: 'Jak często w końcówce meczu — szczególnie gdy wynik jest niekorzystny — dalej aktywnie szukasz sytuacji i wchodzisz za obrońców, zamiast schodzić po piłkę poza pole karne?', ctx: 'Czy pod presją wyniku dalej ryzykujesz wejścia za linię obrony, czy "odpuszczasz" głębokie ruchy?' },
+        }
+      },
     ]
   },
   {
     id: 'mental', name: 'STAN MENTALNY', pillar: 'Filar 4 — Mentalność', n: '11',
     qs: [
-      { t: 'Jak często w trudnych momentach meczu bierzesz odpowiedzialność za decyzje i działania — pokazujesz się do gry, inicjujesz akcję?', ctx: 'Szukasz piłki gdy jest trudno, czy unikasz kontaktu z grą?', dir: 1 },
-      { t: 'Jak często po popełnionym błędzie lub nieudanej akcji Twoje kolejne decyzje stają się bardziej zachowawcze?', ctx: 'Grasz ostrożniej niż zwykle przez kilka kolejnych akcji?', dir: -1 },
+      {
+        t: 'Jak często w trudnych momentach meczu bierzesz odpowiedzialność za decyzje i działania — pokazujesz się do gry, inicjujesz akcję?',
+        ctx: 'Szukasz piłki gdy jest trudno, czy unikasz kontaktu z grą?', dir: 1,
+        pos: {
+          0: { t: 'Jak często po trudnej sytuacji — stracona bramka, błąd przy wyjściu — dalej wychodzisz odważnie do kolejnych piłek poza pole karne, zamiast zostawać bliżej linii?', ctx: 'Czy po błędzie wychodzisz tak samo zdecydowanie do piłek za polem karnym, czy zaczynasz "kurczyć się" do linii?' },
+          1: { t: 'Jak często decydujesz się na ryzykowne rozegranie — podanie między zawodnikami, gra nogą pod presją — gdy sytuacja na to pozwala, zamiast automatycznie wybijać do autu?', ctx: 'Czy grasz to co jest najlepsze dla drużyny, czy to co jest najbezpieczniejsze dla Ciebie?' },
+          2: { t: 'Jak często w trudnym momencie meczu — niekorzystny wynik, presja rywala — aktywnie prosisz o piłkę i bierzesz odpowiedzialność za rozegranie, zamiast pozwalać żeby gra toczyła się obok Ciebie?', ctx: 'Czy w trudnych momentach jesteś aktywny i szukasz kontaktu z piłką, czy schowany i czekający?' },
+          3: { t: 'Jak często po nieudanej sytuacji bramkowej — chybienie, strata przy obronie — natychmiast szukasz kolejnej okazji, zamiast przez chwilę schodzić głębiej i unikać odpowiedzialności?', ctx: 'Czy po nieudanej próbie od razu szukasz kolejnej, czy przez chwilę "znikasz" z gry?' },
+        }
+      },
+      {
+        t: 'Jak często po popełnionym błędzie lub nieudanej akcji Twoje kolejne decyzje stają się bardziej zachowawcze?',
+        ctx: 'Grasz ostrożniej niż zwykle przez kilka kolejnych akcji?', dir: -1,
+        pos: {
+          0: { t: 'Jak często po interwencji która nie wyszła idealnie przez kilka następnych sytuacji grasz asekuracyjnie — zostajesz bliżej linii, nie wychodzisz do ryzykownych piłek?', ctx: 'Czy jeden błąd bramkarski zmienia Twój styl gry na bardziej pasywny przez resztę meczu?' },
+          1: { t: 'Jak często po tym gdy napastnik Cię ograł lub odskoknął — przez kilka kolejnych akcji cofasz się bardziej niż potrzeba, zamiast trzymać normalną linię?', ctx: 'Czy po tym gdy napastnik Cię przechytrzył, zaczynasz "szanować go" bardziej niż wynika z sytuacji?' },
+          2: { t: 'Jak często po stracie piłki — szczególnie w kiepskim momencie — przez kilka akcji wybierasz tylko najprostsze podania, zamiast grać tak jak zwykle?', ctx: 'Czy strata włącza Ci tryb "nie ryzykuj" który trwa kilka akcji dłużej niż powinien?' },
+          3: { t: 'Jak często po chybieniu lub stracie — przez kilka minut unikasz wchodzenia za linię obrony i schodzisz głębiej, zamiast dalej szukać przestrzeni za obrońcami?', ctx: 'Czy chybienie zmienia gdzie się pozycjonujesz przez kilka kolejnych akcji?' },
+        }
+      },
     ]
   },
   {
     id: 'percepcja', name: 'PERCEPCJA', pillar: 'Filar 5 — Boiskowa mądrość', n: '12',
     qs: [
       {
-        t: 'Jak często zanim otrzymasz piłkę, wiesz już gdzie możesz ją zagrać — bo wcześniej rozejrzałeś się i zebrałeś informacje?',
-        ctx: 'Czy opcje są znane zanim piłka dotrze do Ciebie?', dir: 1,
+        t: 'Jak często zanim dostaniesz piłkę, wiesz już gdzie ją zagrasz — bo rozejrzałeś się wcześniej i widziałeś co się dzieje dookoła?',
+        ctx: 'Czy masz gotowy plan zanim piłka dotrze do Ciebie, czy dopiero wtedy zaczynasz szukać opcji?', dir: 1,
         pos: {
-          0: { t: 'Jak często zanim zawodnik odda strzał lub zagranie, wiesz już gdzie piłka poleci i jesteś w odpowiedniej pozycji?', ctx: 'Czy czytasz zamiary rywala zanim wykona akcję?' },
-          1: { t: 'Jak często zanim musisz reagować na ruch rywala, masz już obraz sytuacji za plecami i z boku?', ctx: 'Czy wiesz co dzieje się za Tobą zanim napastnik się obraca?' },
-          3: { t: 'Jak często zanim otrzymasz piłkę, masz już obraz gdzie są luki za linią obrony i który ruch możesz wykonać?', ctx: 'Czy widzisz przestrzeń za obroną zanim dostajesz piłkę?' },
+          0: { t: 'Jak często zanim napastnik oddaje strzał lub dośrodkowanie leci w pole karne, masz już ustawione ciało w odpowiednim miejscu — bo wcześniej przeczytałeś jak akcja się rozwija?', ctx: 'Czy ustawiasz się z wyprzedzeniem na podstawie tego co widzisz, czy reagujesz dopiero gdy piłka już leci?' },
+          1: { t: 'Jak często wiesz gdzie pobiegnie napastnik zanim on to zrobi — na podstawie tego jak jest ustawiony, gdzie patrzy, jak się obraca?', ctx: 'Czy czytasz ruch napastnika z jego ciała zanim go wykona, czy reagujesz gdy już ruszył?' },
+          2: { t: 'Jak często zanim dostaniesz piłkę, wiesz już gdzie są rywale za Tobą i z boku — i przez to Twoja pierwsza akcja po przyjęciu jest już zaplanowana?', ctx: 'Czy masz obraz sytuacji dookoła zanim piłka do Ciebie dotrze, czy dopiero wtedy podnosisz głowę?' },
+          3: { t: 'Jak często wchodzisz za linię obrony we właściwym momencie — nie za wcześnie i nie za późno — bo wcześniej widziałeś ustawienie obrońców i wiedziałeś kiedy przestrzeń się otworzy?', ctx: 'Czy Twoje wejścia za obrońców wynikają z tego co wcześniej obserwowałeś, czy reagujesz na piłkę gdy już leci?' },
         }
       },
-      { t: 'Jak często decyzja o zagraniu lub ruchu pojawia się u Ciebie dopiero w momencie, gdy przeciwnik jest już blisko?', ctx: 'Reagujesz na rywala zamiast działać zanim on się zbliży?', dir: -1 },
+      {
+        t: 'Jak często gdy rywal doskakuje do Ciebie, dopiero wtedy decydujesz co zrobić z piłką — zamiast wiedzieć to już wcześniej?',
+        ctx: 'Czy zaskakuje Cię to że rywal jest blisko, czy działasz zanim to nastąpi?', dir: -1,
+        pos: {
+          0: { t: 'Jak często przy dośrodkowaniach lub sytuacjach w polu karnym dopiero w trakcie akcji orientujesz się gdzie są rywale — zamiast wiedzieć to zanim ruszysz do piłki?', ctx: 'Czy wiesz gdzie są atakujący zanim wyjdziesz do piłki, czy orientujesz się dopiero w połowie akcji?' },
+          1: { t: 'Jak często dopiero gdy rywal jest przy Tobie i zaczyna Cię naciskać, decydujesz co zrobić z piłką — zamiast mieć to już gotowe przed jego dojściem?', ctx: 'Czy Twoja decyzja jest gotowa zanim rywal doskacze, czy podejmujesz ją gdy jest już blisko?' },
+          2: { t: 'Jak często gdy rywal skraca do Ciebie, dopiero wtedy szukasz gdzie zagrać — zamiast wiedzieć to już przed jego dojściem?', ctx: 'Czy Twoja decyzja wyprzedza nacisk rywala, czy jest spóźniona o tę samą chwilę co jego doskoczenie?' },
+          3: { t: 'Jak często przestrzeń za linią obrony znika zanim wbiegniesz — bo obrońca zdążył zareagować na Twój ruch zanim Ty go wykonałeś?', ctx: 'Czy Twój ruch za obrońców jest szybszy niż ich reakcja, czy robisz go w tym samym momencie co oni reagują?' },
+        }
+      },
     ]
   },
   {
     id: 'decyzja', name: 'SZYBK. DECYZJI', pillar: 'Filar 5 — Boiskowa mądrość', n: '13',
     qs: [
       {
-        t: 'Jak często podejmujesz decyzję zanim przeciwnik zdąży skrócić do Ciebie dystans?',
-        ctx: 'Działasz zanim rywal jest blisko, czy dopiero gdy cię dopada?', dir: 1,
+        t: 'Jak często podejmujesz decyzję zanim rywal zdąży skrócić do Ciebie dystans?',
+        ctx: 'Działasz zanim rywal doskacze, czy dopiero gdy jest już przy Tobie?', dir: 1,
         pos: {
-          0: { t: 'Jak często podejmujesz decyzję o wyjściu, zagraniu lub ustawieniu się zanim sytuacja zmusi Cię do reakcji pod presją?', ctx: 'Czy działasz wyprzedzająco czy reagujesz na to co już się dzieje?' },
-          1: { t: 'Jak często decydujesz — wychodzić do przeciwnika czy cofać się — zanim znajdzie się on w niebezpiecznej pozycji?', ctx: 'Czy decyzja defensywna jest podjęta zanim rywal ma przewagę?' },
-          3: { t: 'Jak często decydujesz o ruchu za plecami obrońcy lub zejściu po piłkę zanim obrońca zdąży zareagować?', ctx: 'Czy Twój ruch jest szybszy niż reakcja obrońcy?' },
+          0: { t: 'Jak często przy wyjściu jeden na jeden z napastnikiem decydujesz — wychodzę do piłki czy zostaję — zanim on zdąży zrozumieć co zamierzasz i zmienić swoje działanie?', ctx: 'Czy Twoja decyzja o wyjściu lub zostaniu jest podjęta tak wcześnie, że napastnik nie ma już czasu na jej wyminięcie?' },
+          1: { t: 'Jak często decydujesz — skracam do rywala czy cofam się — zanim ten znajdzie się w pozycji z której może Cię ominąć lub oddać strzał?', ctx: 'Czy decyzja defensywna jest podjęta zanim rywal ma przewagę, czy reagujesz gdy już ją ma?' },
+          2: { t: 'Jak często wiesz co zrobisz z piłką — kierunek, do kogo, jak — zanim rywal doskacze, tak że możesz zagrać w jednym kontakcie bez zatrzymywania?', ctx: 'Czy decyzja jest gotowa zanim piłka dotrze do nogi, czy podejmujesz ją gdy rywal jest już blisko?' },
+          3: { t: 'Jak często decydujesz o ruchu za linią obrony — wbiegnięcie w przestrzeń lub zmiana kierunku — zanim obrońca zdąży zablokować Ci drogę?', ctx: 'Czy Twój ruch bez piłki jest szybszy niż reakcja obrońcy, czy robisz go w tym samym momencie co on reaguje?' },
         }
       },
-      { t: 'Jak często dobra opcja zagrania przestaje być dostępna, zanim zdążysz podjąć decyzję?', ctx: 'Partner się odsłonił, ale zanim zagrałeś — okno się zamknęło.', dir: -1 },
+      {
+        t: 'Jak często dobra okazja do zagrania znika zanim zdążysz ją wykorzystać — partner był wolny, ale gdy zagrałeś, już go kryli?',
+        ctx: 'Okno do zagrania otworzyło się i zamknęło zanim zdążyłeś je użyć.', dir: -1,
+        pos: {
+          0: { t: 'Jak często przy rozgrywaniu — gdy masz wolnego partnera i czas — piłka trafia do niego za późno i jest już pod presją, bo zbyt długo zwlekałeś z decyzją o zagraniu?', ctx: 'Czy Twoje podanie wychodzi na czas, czy partner jest już kryty gdy piłka do niego dociera?' },
+          1: { t: 'Jak często wolny partner — ten który na chwilę otworzył się przy wyprowadzaniu — jest już kryty zanim do niego zagrasz, bo potrzebowałeś za dużo czasu żeby go zauważyć lub zagrać?', ctx: 'Czy okna do podania przy wyprowadzaniu zamykają się zanim je wykorzystasz?' },
+          2: { t: 'Jak często partner który był wolny — otworzył się na chwilę w przestrzeni — jest już kryty zanim do niego zagrasz, bo za długo trzymałeś piłkę albo za późno go zauważyłeś?', ctx: 'Czy okna do zagrania otwierają się i zamykają szybciej niż Ty je wykorzystujesz?' },
+          3: { t: 'Jak często przestrzeń za linią obrony w którą chciałeś wbiec znika zanim zdążysz to zrobić — obrońca zdążył przesunąć się zanim Ty ruszyłeś?', ctx: 'Czy przestrzenie za obroną zamykają się zanim wbiegniesz, bo za późno podejmujesz decyzję o ruchu?' },
+        }
+      },
     ]
   },
 ];
@@ -1529,7 +1704,7 @@ function renderAllQuestions() {
             <div class="q-context">${esc(q.ctx)}</div>
             <div class="scale-wrap" style="margin-top:20px;">
               <div class="scale-btns">
-                ${[[1,'Nigdy'],[2,'Rzadko'],[3,'Czasami'],[4,'Często'],[5,'Zawsze']].map(([v,label]) => `
+                ${[[1,'Prawie nigdy'],[2,'Bardzo rzadko'],[3,'Rzadko'],[4,'Często'],[5,'Bardzo często'],[6,'Prawie zawsze']].map(([v,label]) => `
                   <button class="scale-btn ${(ans[seg.id] || [])[qi] === v ? 'sel' : ''}"
                     onclick="pickScroll('${esc(seg.id)}',${qi},${v},this)">
                     <span class="scale-num">${v}</span>
@@ -1549,7 +1724,7 @@ function renderAllQuestions() {
       seg.qs.forEach((q, qi) => {
         const qq = getQuestion(q);
         let btns = '';
-        [[1,'Nigdy'],[2,'Bardzo rzadko'],[3,'Rzadko'],[4,'Czasami'],[5,'Często'],[6,'Bardzo często'],[7,'Zawsze']].forEach(([v,label]) => {
+        [[1,'Prawie nigdy'],[2,'Bardzo rzadko'],[3,'Rzadko'],[4,'Często'],[5,'Bardzo często'],[6,'Prawie zawsze']].forEach(([v,label]) => {
           const sel = ans[seg.id][qi] === v ? 'sel' : '';
           btns += `<button class="scale-btn ${sel}" onclick="pickScroll('${esc(seg.id)}',${qi},${v},this)">`;
           btns += `<span class="scale-num">${v}</span>`;
@@ -2147,7 +2322,7 @@ function submitEmail() {
     document.getElementById('diagnosis-blur-wrap').style.filter = 'none';
     document.getElementById('diagnosis-blur-wrap').style.pointerEvents = 'auto';
     document.getElementById('diagnosis-unlocked-note').style.display = 'block';
-    document.getElementById('ai-diagnosis-text').textContent = 'Generuję Twoją diagnozę...';
+    document.getElementById('ai-diagnosis-text').innerHTML = inlineLoaderHTML('Generuję Twoją diagnozę');
     generateAIDiagnosis(cachedScores, '');
     return;
   }
@@ -2164,7 +2339,7 @@ function submitOpenQuestions(skip = false) {
   document.getElementById('diagnosis-blur-wrap').style.filter = 'none';
   document.getElementById('diagnosis-blur-wrap').style.pointerEvents = 'auto';
   document.getElementById('diagnosis-unlocked-note').style.display = 'block';
-  document.getElementById('ai-diagnosis-text').textContent = 'Generuję Twoją diagnozę...';
+  document.getElementById('ai-diagnosis-text').innerHTML = inlineLoaderHTML('Generuję Twoją diagnozę');
 
   generateAIDiagnosis(cachedScores, situation);
 }
@@ -2186,8 +2361,20 @@ function copyResultsLink(btn) {
 }
 
 // ══════════════════════════════════════
-//  STAN DIAGNOSTYCZNY — globalny kontekst między callami
+//  INLINE LOADER — helper
 // ══════════════════════════════════════
+function inlineLoaderHTML(label) {
+  return `
+    <div class="ai-loader">
+      <div class="ai-loader-dots">
+        <div class="ai-loader-dot"></div>
+        <div class="ai-loader-dot"></div>
+        <div class="ai-loader-dot"></div>
+      </div>
+      <div class="ai-loader-progress"></div>
+      <div class="ai-loader-label">${label || 'Analizuję'}</div>
+    </div>`;
+}
 let _diagState = {
   scores: null,
   deficits: [],
@@ -2264,9 +2451,10 @@ function _buildDiagData(scores) {
     });
   });
   const avgAnswer = allAnswers.length ? (allAnswers.reduce((a,b)=>a+b,0)/allAnswers.length).toFixed(1) : '3.0';
-  const allMiddle = allAnswers.every(v => v === 3 || v === 4);
+  // Przy skali 6-punktowej nie ma środka — ale wykrywamy czy ktoś odpowiadał głównie 3-4
+  const allMiddle = allAnswers.length > 0 && allAnswers.every(v => v === 3 || v === 4);
   const patternNote = allMiddle
-    ? 'Uwaga wewnętrzna: zawodnik odpowiadał głównie środkowymi wartościami — możliwa niepewność w samoocenie lub tendencja do unikania extremów. Diagnozuj z lekką rezerwą co do pewności wyników.'
+    ? 'Uwaga wewnętrzna: zawodnik odpowiadał głównie środkowymi wartościami (3-4) — możliwa niepewność w samoocenie lub tendencja do ostrożnych odpowiedzi. Diagnozuj z lekką rezerwą co do pewności wyników.'
     : '';
 
   return { deficitsData, strengthsData, ctxText, patternNote };
@@ -2535,7 +2723,7 @@ function skipAnchorAnswer() {
 async function generateBridge(anchorStory) {
   const bridgeWrap = document.getElementById('bridge-wrap');
   bridgeWrap.style.display = 'block';
-  document.getElementById('bridge-text').innerHTML = '<span style="color:#9a9488;font-size:13px;letter-spacing:0.05em;">...</span>';
+  document.getElementById('bridge-text').innerHTML = inlineLoaderHTML('Piszę podsumowanie');
 
   const topDeficit = _diagState.topDeficitIds[0] || '';
   const PRODUCT_NAMES = {
@@ -2891,18 +3079,18 @@ function calcScores() {
   if (isJunior) {
     SEGS_JUNIOR.forEach(seg => {
       const vals = (ans[seg.id] || []).filter(v => v != null);
-      const raw = vals.length ? vals.reduce((a,b) => a+b, 0) / vals.length : 3;
-      sc[seg.id] = Math.round(((raw - 1) / 4) * 100);
+      const raw = vals.length ? vals.reduce((a,b) => a+b, 0) / vals.length : 3.5;
+      sc[seg.id] = Math.round(((raw - 1) / 5) * 100); // skala 1-6 → 0-100
     });
   } else {
     SEGS.forEach(seg => {
       let sum = 0, cnt = 0;
       seg.qs.forEach((q, qi) => {
         const v = (ans[seg.id] || [])[qi];
-        if (v != null) { sum += q.dir === 1 ? v : (8 - v); cnt++; }
+        if (v != null) { sum += q.dir === 1 ? v : (7 - v); cnt++; }
       });
-      const raw = cnt > 0 ? sum / cnt : 4;
-      sc[seg.id] = Math.round(((raw - 1) / 6) * 100); // skala 1-7 → 0-100
+      const raw = cnt > 0 ? sum / cnt : 3.5;
+      sc[seg.id] = Math.round(((raw - 1) / 5) * 100); // skala 1-6 → 0-100
     });
   }
   return sc;
@@ -3331,7 +3519,7 @@ function downloadPDF() {
 
   // ── DIAGNOZA ──
   const diagEl = document.getElementById('ai-diagnosis-text');
-  if (diagEl && diagEl.innerText && diagEl.innerText.trim() !== 'Generuję Twoją diagnozę...') {
+  if (diagEl && diagEl.innerText && !diagEl.querySelector('.ai-loader') && diagEl.innerText.trim() !== '') {
     y += 2;
     checkPage(20);
     doc.setTextColor(14, 13, 11);
@@ -3533,7 +3721,7 @@ function quickTest(preset) {
 
   setTimeout(() => {
     document.querySelectorAll('.bar-fill').forEach(b => { b.style.width = b.dataset.w + '%'; });
-    document.getElementById('ai-diagnosis-text').textContent = 'Generuję Twoją diagnozę...';
+    document.getElementById('ai-diagnosis-text').innerHTML = inlineLoaderHTML('Generuję Twoją diagnozę');
     generateAIDiagnosis(scores, 'W 70. minucie dostałem piłkę w środku pola i nie wiedziałem co z nią zrobić — rywal mnie nakrył.');
   }, 150);
 }
