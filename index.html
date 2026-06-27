@@ -2306,7 +2306,6 @@ function renderTeamHeatmap(data) {
   const el = document.getElementById('team-heatmap');
   if (!el) return;
 
-  // Zbierz średnie wyniki per segment dla całej drużyny
   const SEG_ORDER = [
     { id: 'moc', name: 'MOC' },
     { id: 'wytrzymalosc', name: 'WYTRZYMAŁOŚĆ' },
@@ -2323,70 +2322,69 @@ function renderTeamHeatmap(data) {
     { id: 'decyzja', name: 'SZYBK. DECYZJI' },
   ];
 
-  // Policz średnią per segment
-  const segTotals = {};
-  const segCounts = {};
-  data.forEach(row => {
+  const totals = {};
+  const counts = {};
+
+  data.forEach(function(row) {
     if (!row.scores) return;
-    try {
-      const scores = JSON.parse(row.scores);
-      SEG_ORDER.forEach(s => {
-        if (scores[s.id] != null) {
-          segTotals[s.id] = (segTotals[s.id] || 0) + scores[s.id];
-          segCounts[s.id] = (segCounts[s.id] || 0) + 1;
-        }
-      });
-    } catch(e) {}
+    var scores;
+    try { scores = typeof row.scores === 'string' ? JSON.parse(row.scores) : row.scores; }
+    catch(e) { return; }
+    SEG_ORDER.forEach(function(s) {
+      var v = scores[s.id];
+      if (v != null && !isNaN(v)) {
+        totals[s.id] = (totals[s.id] || 0) + Number(v);
+        counts[s.id] = (counts[s.id] || 0) + 1;
+      }
+    });
   });
 
-  const segAvgs = SEG_ORDER.map(s => ({
-    ...s,
-    avg: segCounts[s.id] ? Math.round(segTotals[s.id] / segCounts[s.id]) : null,
-  })).filter(s => s.avg !== null).sort((a, b) => a.avg - b.avg);
+  var segAvgs = [];
+  SEG_ORDER.forEach(function(s) {
+    if (counts[s.id]) {
+      segAvgs.push({ id: s.id, name: s.name, avg: Math.round(totals[s.id] / counts[s.id]) });
+    }
+  });
+  segAvgs.sort(function(a, b) { return a.avg - b.avg; });
 
-  // Kolor skali cieplnej
-  const heatColor = (val) => {
-    if (val < 35) return { bg: '#fde8e8', border: '#d63c2f', text: '#b02020' };
-    if (val < 50) return { bg: '#fff3e0', border: '#e08020', text: '#c06010' };
-    if (val < 65) return { bg: '#fffde0', border: '#c8b820', text: '#9a8c10' };
-    return { bg: '#e8f5e9', border: '#2a7a3a', text: '#1a5a2a' };
-  };
-
-  el.innerHTML = `
-    <div style="margin-bottom:16px;">
-      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:4px;">Mapa deficytów drużyny</div>
-      <div style="font-size:12px;color:#9a9488;font-weight:300;">Średnie wyniki drużyny per obszar — od najsłabszego</div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;">
-      ${segAvgs.map(s => {
-        const c = heatColor(s.avg);
-        return `
-          <div style="border:1px solid ${c.border};background:${c.bg};padding:12px 14px;position:relative;">
-            <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:${c.text};margin-bottom:4px;font-weight:500;">${s.name}</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:${c.text};line-height:1;">${s.avg}</div>
-            <div style="font-size:10px;color:${c.text};opacity:0.6;">/100</div>
-            <div style="position:absolute;bottom:0;left:0;width:${s.avg}%;height:3px;background:${c.border};opacity:0.5;"></div>
-          </div>`;
-      }).join('')}
-    </div>
-    <div style="display:flex;gap:16px;margin-top:12px;flex-wrap:wrap;">
-      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#9a9488;">
-        <div style="width:12px;height:12px;background:#fde8e8;border:1px solid #d63c2f;"></div> Krytyczny (&lt;35)
-      </div>
-      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#9a9488;">
-        <div style="width:12px;height:12px;background:#fff3e0;border:1px solid #e08020;"></div> Do pracy (35-49)
-      </div>
-      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#9a9488;">
-        <div style="width:12px;height:12px;background:#fffde0;border:1px solid #c8b820;"></div> Przeciętny (50-64)
-      </div>
-      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#9a9488;">
-        <div style="width:12px;height:12px;background:#e8f5e9;border:1px solid #2a7a3a;"></div> Dobry (65+)
-      </div>
-    </div>
-  `;
-
-  // Zapisz segAvgs do globalnego stanu dla AI
   window._teamSegAvgs = segAvgs;
+
+  if (!segAvgs.length) {
+    el.innerHTML = '<div style="font-size:13px;color:#9a9488;padding:8px 0;">Brak danych do wyświetlenia mapy.</div>';
+    return;
+  }
+
+  function heatColor(val) {
+    if (val < 35) return { bg: '#fde8e8', border: '#d63c2f', text: '#b02020', label: 'Wymaga uwagi' };
+    if (val < 50) return { bg: '#fff3e0', border: '#e08020', text: '#c06010', label: 'Do pracy' };
+    if (val < 65) return { bg: '#fffde0', border: '#c8b820', text: '#9a8c10', label: 'Przeciętny' };
+    return { bg: '#e8f5e9', border: '#2a7a3a', text: '#1a5a2a', label: 'Dobry' };
+  }
+
+  var html = '<div style="margin-bottom:16px;">';
+  html += '<div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:4px;">Mapa deficytów drużyny</div>';
+  html += '<div style="font-size:12px;color:#9a9488;font-weight:300;margin-bottom:16px;">Średnie wyniki drużyny per obszar — od najsłabszego</div>';
+  html += '</div>';
+
+  html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px;margin-bottom:16px;">';
+  segAvgs.forEach(function(s) {
+    var c = heatColor(s.avg);
+    html += '<div style="border:1px solid ' + c.border + ';background:' + c.bg + ';padding:12px 14px;position:relative;">';
+    html += '<div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:' + c.text + ';margin-bottom:6px;font-weight:500;">' + s.name + '</div>';
+    html += '<div style="font-size:11px;color:' + c.text + ';font-weight:500;">' + c.label + '</div>';
+    html += '<div style="position:absolute;bottom:0;left:0;width:' + s.avg + '%;height:3px;background:' + c.border + ';opacity:0.6;"></div>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  html += '<div style="display:flex;gap:16px;flex-wrap:wrap;">';
+  html += '<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#9a9488;"><div style="width:12px;height:12px;background:#fde8e8;border:1px solid #d63c2f;"></div> Wymaga uwagi</div>';
+  html += '<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#9a9488;"><div style="width:12px;height:12px;background:#fff3e0;border:1px solid #e08020;"></div> Do pracy</div>';
+  html += '<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#9a9488;"><div style="width:12px;height:12px;background:#fffde0;border:1px solid #c8b820;"></div> Przeciętny</div>';
+  html += '<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#9a9488;"><div style="width:12px;height:12px;background:#e8f5e9;border:1px solid #2a7a3a;"></div> Dobry</div>';
+  html += '</div>';
+
+  el.innerHTML = html;
 }
 
 async function generateTeamAIRecommendation(data, code) {
@@ -2422,7 +2420,7 @@ Skład pozycyjny: ${posStr || 'nie podano'}
 Największe deficyty drużyny: ${top3Weak}
 Mocne strony drużyny: ${top3Strong}
 
-Napisz zwięzłą rekomendację dla trenera — 3-4 zdania. Mów konkretnie o grze drużyny, nie o liczbach. Powiedz: (1) co jest największym wspólnym problemem który wpływa na grę jako całości, (2) jaki jeden obszar treningowy dałby największy efekt jeśli zostałby wzmocniony, (3) co w tej drużynie działa dobrze i jak to wykorzystać. Pisz po polsku, bezpośrednio do trenera (forma "Twoja drużyna"), konkretnie i bez ogólników.`;
+Napisz zwięzłą rekomendację dla trenera — 3-4 zdania. Mów konkretnie o grze drużyny, nie o liczbach. Powiedz: (1) co jest największym wspólnym problemem który wpływa na grę jako całości, (2) jaki jeden obszar treningowy dałby największy efekt jeśli zostałby wzmocniony, (3) co w tej drużynie działa dobrze i jak to wykorzystać. Pisz po polsku, bezpośrednio do trenera (forma "Twoja drużyna"), konkretnie i bez ogólników. ZAKAZ używania markdown, gwiazdek, nagłówków — tylko czysty tekst.`;
 
   try {
     const response = await fetch('/api/diagnose', {
