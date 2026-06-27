@@ -2220,7 +2220,6 @@ function loadMockTeamData() {
 
   teamData = NAMES.map((name, i) => {
     const scores = {};
-    // Każdy zawodnik ma profil — jeden wyraźny deficyt
     const weakSeg = SEG_IDS[rand(0, SEG_IDS.length - 1)];
     SEG_IDS.forEach(id => {
       scores[id] = id === weakSeg ? rand(18, 38) : rand(42, 82);
@@ -2231,7 +2230,7 @@ function loadMockTeamData() {
 
     return {
       player_name: name,
-      email: `${name.toLowerCase().replace(/\s/g,'.')}.mock@test.pl`,
+      email: `${name.toLowerCase().replace(/[\s.]/g,'')}.mock@test.pl`,
       position: POSITIONS[i],
       overall_score: overall,
       scores: JSON.stringify(scores),
@@ -2242,11 +2241,15 @@ function loadMockTeamData() {
   });
 
   document.getElementById('team-empty').style.display = 'none';
-  renderTeamTable(teamData);
-  renderTeamStats(teamData);
-  renderTeamDeficits(teamData);
-  renderTeamHeatmap(teamData);
-  generateTeamAIRecommendation(teamData, 'Przykładowa drużyna');
+
+  // Daj DOM chwilę na aktualizację przed renderowaniem
+  setTimeout(() => {
+    renderTeamTable(teamData);
+    renderTeamStats(teamData);
+    renderTeamDeficits(teamData);
+    renderTeamHeatmap(teamData);
+    generateTeamAIRecommendation(teamData, 'Przykładowa drużyna');
+  }, 50);
 }
 
 function renderTeamStats(data) {
@@ -2398,7 +2401,8 @@ async function generateTeamAIRecommendation(data, code) {
         <div class="ai-loader-dot"></div>
         <div class="ai-loader-dot"></div>
       </div>
-      <div class="ai-loader-label">Analizuję dane drużyny</div>
+      <div class="ai-loader-progress"></div>
+      <div class="ai-loader-label" style="color:rgba(255,255,255,0.5);">Analizuję dane drużyny</div>
     </div>`;
 
   // Zbierz dane do promptu
@@ -2432,9 +2436,8 @@ Napisz zwięzłą rekomendację dla trenera — 3-4 zdania. Mów konkretnie o gr
 
     if (text) {
       el.innerHTML = `
-        <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:10px;">Rekomendacja dla trenera</div>
-        <div style="font-size:14px;color:#0e0d0b;line-height:1.85;font-weight:300;">${text}</div>
-        <div style="margin-top:16px;padding-top:12px;border-top:1px solid #d8d3c8;font-size:11px;color:#9a9488;">
+        <div style="font-size:14px;color:rgba(255,255,255,0.85);line-height:1.85;font-weight:300;">${text}</div>
+        <div style="margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.1);font-size:11px;color:rgba(255,255,255,0.3);">
           Analiza oparta na danych ${data.length} zawodników · ${new Date().toLocaleDateString('pl-PL')}
         </div>`;
     } else {
