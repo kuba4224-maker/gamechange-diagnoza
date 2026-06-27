@@ -1149,7 +1149,32 @@ body {
 
     <div id="product-wrap"></div>
 
-    <!-- PDF — pojawia się po diagnozie i produkcie -->
+    <!-- KARTA ZAWODNIKA — do pobrania i udostępnienia -->
+    <div id="player-card-wrap" style="display:none;margin-top:40px;border-top:1px solid #d8d3c8;padding-top:32px;">
+      <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;">Twoja karta zawodnika</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.02em;margin-bottom:8px;color:#0e0d0b;">Pobierz i pokaż znajomym</div>
+      <p style="font-size:13px;color:#9a9488;font-weight:300;line-height:1.7;margin-bottom:20px;">Twój pełny profil diagnostyczny w formacie karty — 13 obszarów, jeden wynik, jeden obraz.</p>
+
+      <div style="margin-bottom:16px;">
+        <label style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#3a3830;display:block;margin-bottom:8px;font-weight:500;">Twoje imię lub pseudonim na karcie</label>
+        <input id="card-name-input" type="text" placeholder="np. Mateusz K. / MK10 / Mateo"
+          maxlength="20"
+          style="width:100%;max-width:320px;padding:12px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;"
+          onfocus="this.style.borderColor='#0e0d0b'"
+          onblur="this.style.borderColor='#d8d3c8'"
+          oninput="updateCardPreview()">
+      </div>
+
+      <!-- Podgląd karty -->
+      <canvas id="player-card-canvas" width="480" height="600"
+        style="display:block;max-width:280px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,0.18);"></canvas>
+
+      <button onclick="downloadPlayerCard()"
+        style="background:#0e0d0b;color:#f5f2ec;border:none;padding:14px 32px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:0.1em;cursor:pointer;display:inline-flex;align-items:center;gap:10px;">
+        ↓ Pobierz kartę
+      </button>
+      <div style="font-size:12px;color:#9a9488;margin-top:8px;font-weight:300;">JPG · Gotowy do wrzucenia na Stories</div>
+    </div>
     <div id="pdf-section-wrap" style="display:none;margin-top:32px;border-top:1px solid #d8d3c8;padding-top:32px;">
       <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;">Raport diagnostyczny</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.02em;margin-bottom:8px;color:#0e0d0b;">Pobierz swój raport PDF</div>
@@ -1812,35 +1837,372 @@ async function loadTeamView(code) {
   renderTeamTable(teamData);
   renderTeamStats(teamData);
   renderTeamDeficits(teamData);
+  renderTeamHeatmap(teamData);
+  generateTeamAIRecommendation(teamData, code);
 }
 
 function renderTeamTable(data) {
   document.getElementById('team-count').textContent = `${data.length} zawodników`;
   const tbody = document.getElementById('team-tbody');
 
-  tbody.innerHTML = data.map(row => {
+  // Mapowanie id segmentu → czytelna nazwa
+  const SEG_NAMES_PL = {
+    moc: 'Moc', wytrzymalosc: 'Wytrzymałość', fizycznosc: 'Fizyczność',
+    techFund: 'Technika fund.', techSpec: 'Technika spec.',
+    tolerancja: 'Tol. obciążeń', regeneracja: 'Regeneracja',
+    odpornosc: 'Odporność', odzywianie: 'Odżywienie',
+    koncentracja: 'Koncentracja', mental: 'Stan mentalny',
+    percepcja: 'Percepcja', decyzja: 'Szybk. decyzji',
+  };
+
+  tbody.innerHTML = data.map((row, idx) => {
     const scores = row.scores ? (() => { try { return JSON.parse(row.scores); } catch(e) { return null; } })() : null;
     const overall = row.overall_score || '—';
     const color = overall < 40 ? '#d63c2f' : overall < 65 ? '#e08020' : '#2a7a3a';
     const deficits = row.top_deficits ? row.top_deficits.split(', ') : [];
     const mainDeficit = deficits[0] || '—';
-    const restDeficits = deficits.slice(1).join(', ') || '—';
     const date = row.created_at ? new Date(row.created_at).toLocaleDateString('pl-PL') : '—';
     const name = row.player_name || row.email || 'Anonimowy';
     const pos = row.position || '—';
 
-    return `<tr style="border-bottom:1px solid #e8e4dd;">
-      <td style="padding:14px 16px;font-size:13px;font-weight:500;color:#0e0d0b;">${name}</td>
-      <td style="padding:14px 16px;font-size:12px;color:#9a9488;">${pos}</td>
-      <td style="padding:14px 16px;text-align:center;">
-        <span style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:${color};">${overall}</span>
-        <span style="font-size:10px;color:#9a9488;">/100</span>
-      </td>
-      <td style="padding:14px 16px;font-size:12px;color:#d63c2f;font-weight:500;">${mainDeficit}</td>
-      <td style="padding:14px 16px;font-size:12px;color:#9a9488;">${restDeficits}</td>
-      <td style="padding:14px 16px;font-size:12px;color:#9a9488;">${date}</td>
-    </tr>`;
+    // Jedna praktyczna podpowiedź treningowa per zawodnik
+    const hint = _coachHintForPlayer(row, scores);
+
+    return `
+      <tr style="border-bottom:1px solid #e8e4dd;cursor:pointer;transition:background 0.1s;"
+        onmouseover="this.style.background='#f9f8f5'"
+        onmouseout="this.style.background=''"
+        onclick="openPlayerPanel(${idx})">
+        <td style="padding:14px 16px;">
+          <div style="font-size:13px;font-weight:500;color:#0e0d0b;">${name}</div>
+          <div style="font-size:11px;color:#9a9488;margin-top:2px;">${pos}</div>
+        </td>
+        <td style="padding:14px 16px;text-align:center;">
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:${color};">${overall}</span>
+          <div style="font-size:10px;color:#9a9488;">/100</div>
+        </td>
+        <td style="padding:14px 16px;">
+          <div style="font-size:12px;color:#d63c2f;font-weight:500;margin-bottom:2px;">${mainDeficit}</div>
+          <div style="font-size:11px;color:#9a9488;">${deficits.slice(1,3).join(' · ')}</div>
+        </td>
+        <td style="padding:14px 16px;max-width:220px;">
+          <div style="font-size:12px;color:#3a3830;line-height:1.5;font-weight:300;">${hint}</div>
+        </td>
+        <td style="padding:14px 16px;font-size:11px;color:#9a9488;">${date}</td>
+        <td style="padding:14px 16px;">
+          <button onclick="event.stopPropagation();openPlayerPanel(${idx})"
+            style="background:transparent;border:1px solid #d8d3c8;padding:5px 12px;font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:0.1em;cursor:pointer;color:#3a3830;">
+            PROFIL →
+          </button>
+        </td>
+      </tr>`;
   }).join('');
+}
+
+// Jedna konkretna podpowiedź treningowa dla trenera per zawodnik
+function _coachHintForPlayer(row, scores) {
+  if (!scores) return '—';
+  const sorted = Object.entries(scores).sort((a,b) => a[1]-b[1]);
+  const top = sorted[0];
+  if (!top) return '—';
+
+  const HINTS = {
+    moc: 'Włącz do rozgrzewki krótkie starty 10m. Priorytet: pierwsze 3 metry.',
+    wytrzymalosc: 'Ogranicz czas na boisku w intensywnych fragmentach. Małe gry 3v3 budują szybciej niż bieganie.',
+    fizycznosc: 'Ćwiczenia z kontaktem na treningach — nie unikaj sytuacji 1v1. Pozycja ciała ważniejsza niż siła.',
+    techFund: 'Więcej powtórzeń w zmiennych warunkach — nie statycznie. Zmieniaj kierunek, wysokość, presję.',
+    techSpec: 'Dawaj mu sytuacje gdzie musi zdecydować szybko. Małe gry z ograniczonym kontaktem z piłką.',
+    tolerancja: 'Kontroluj obciążenia. Nie dokładaj mu treningu gdy drużyna i tak dużo pracuje.',
+    regeneracja: 'Zapytaj o sen i jedzenie po treningu. Często problem leży tam, nie w samym treningu.',
+    odpornosc: 'Obserwuj jak reaguje po intensywnym tygodniu. Wczesne sygnały zmęczenia są ważniejsze niż liczby.',
+    odzywianie: 'Zaproponuj żeby jadł coś lekkiego przed treningiem. To może zmienić jego drugą połowę meczu.',
+    koncentracja: 'Po błędzie — nie komentuj od razu. Daj mu kilka akcji żeby sam się "zebrał". Oceniaj po meczu.',
+    mental: 'Dawaj mu odpowiedzialność w ćwiczeniach — niech podejmuje decyzje pod presją, nie tylko wykonuje.',
+    percepcja: 'Małe gry na małym boisku z dużą intensywnością. Wymuszają skanowanie — nie tłumacz, twórz sytuacje.',
+    decyzja: 'Ćwiczenia z presją czasu. Jeden kontakt, dwa kontakty. Szybkość decyzji buduje się przez powtórzenia.',
+  };
+
+  return HINTS[top[0]] || '—';
+}
+
+// ══════════════════════════════════════
+//  PANEL BOCZNY ZAWODNIKA — trener
+// ══════════════════════════════════════
+
+let _currentPlayerIdx = null;
+let _noteDebounce = null;
+
+const SEG_ORDER_PANEL = [
+  { id: 'moc', name: 'MOC' },
+  { id: 'wytrzymalosc', name: 'WYTRZYMAŁOŚĆ' },
+  { id: 'fizycznosc', name: 'FIZYCZNOŚĆ' },
+  { id: 'techFund', name: 'TECH. FUND.' },
+  { id: 'techSpec', name: 'TECH. SPEC.' },
+  { id: 'tolerancja', name: 'TOL. OBCIĄŻEŃ' },
+  { id: 'regeneracja', name: 'REGENERACJA' },
+  { id: 'odpornosc', name: 'ODPORNOŚĆ' },
+  { id: 'odzywianie', name: 'ODŻYWIENIE' },
+  { id: 'koncentracja', name: 'KONCENTRACJA' },
+  { id: 'mental', name: 'STAN MENTALNY' },
+  { id: 'percepcja', name: 'PERCEPCJA' },
+  { id: 'decyzja', name: 'SZYBK. DECYZJI' },
+];
+
+function openPlayerPanel(idx) {
+  _currentPlayerIdx = idx;
+  const row = teamData[idx];
+  if (!row) return;
+
+  const name = row.player_name || row.email || 'Anonimowy';
+  const scores = row.scores ? (() => { try { return JSON.parse(row.scores); } catch(e) { return null; } })() : null;
+  const overall = row.overall_score || '—';
+  const color = overall < 40 ? '#d63c2f' : overall < 65 ? '#e08020' : '#2a7a3a';
+
+  // Nagłówek
+  document.getElementById('pp-name').textContent = name;
+
+  // Statystyki
+  const statBox = (label, val, c) => `
+    <div style="background:#fff;border:1px solid #d8d3c8;padding:16px;text-align:center;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:${c};margin-bottom:2px;">${val}</div>
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#9a9488;">${label}</div>
+    </div>`;
+  document.getElementById('pp-stats').innerHTML =
+    statBox('Wynik ogólny', overall, color) +
+    statBox('Pozycja', row.position || '—', '#0e0d0b') +
+    statBox('Data', row.created_at ? new Date(row.created_at).toLocaleDateString('pl-PL') : '—', '#9a9488');
+
+  // Segmenty — paski sortowane od najsłabszego
+  if (scores) {
+    const sorted = SEG_ORDER_PANEL.map(s => ({ ...s, val: scores[s.id] || 0 }))
+      .sort((a, b) => a.val - b.val);
+    document.getElementById('pp-segments').innerHTML = sorted.map(s => {
+      const c = s.val < 35 ? '#d63c2f' : s.val < 50 ? '#e08020' : s.val < 65 ? '#c8b820' : '#2a7a3a';
+      return `
+        <div style="margin-bottom:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#3a3830;">${s.name}</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:${c};">${s.val}</div>
+          </div>
+          <div style="height:4px;background:#e8e4dd;border-radius:2px;">
+            <div style="height:4px;background:${c};border-radius:2px;width:${s.val}%;transition:width 0.5s ease;"></div>
+          </div>
+        </div>`;
+    }).join('');
+  } else {
+    document.getElementById('pp-segments').innerHTML = '<div style="font-size:13px;color:#9a9488;">Brak danych segmentów.</div>';
+  }
+
+  // Notatka trenera — z Supabase
+  document.getElementById('pp-note').value = '';
+  document.getElementById('pp-note-saved').style.display = 'none';
+  document.getElementById('pp-note-error').style.display = 'none';
+  loadCoachNote(row);
+
+  // Reset pytań
+  document.getElementById('pp-questions').innerHTML = '';
+  document.getElementById('pp-questions-btn').style.display = 'block';
+  document.getElementById('pp-enhanced-wrap').style.display = 'none';
+
+  // Pokaż panel
+  document.getElementById('player-panel-overlay').style.display = 'block';
+  document.getElementById('player-panel').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function closePlayerPanel() {
+  document.getElementById('player-panel-overlay').style.display = 'none';
+  document.getElementById('player-panel').style.display = 'none';
+  document.body.style.overflow = '';
+  _currentPlayerIdx = null;
+}
+
+async function saveCoachNote() {
+  if (_currentPlayerIdx === null) return;
+  const row = teamData[_currentPlayerIdx];
+  const note = document.getElementById('pp-note').value.trim();
+  const savedEl = document.getElementById('pp-note-saved');
+  const errorEl = document.getElementById('pp-note-error');
+  savedEl.style.display = 'none';
+  errorEl.style.display = 'none';
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/coach_notes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Prefer': 'resolution=merge-duplicates,return=minimal',
+      },
+      body: JSON.stringify({
+        player_email: row.email,
+        team_code: row.team_code,
+        note,
+        updated_at: new Date().toISOString(),
+      })
+    });
+    if (res.ok || res.status === 201) {
+      savedEl.style.display = 'inline';
+      setTimeout(() => { savedEl.style.display = 'none'; }, 3000);
+    } else {
+      errorEl.style.display = 'inline';
+    }
+  } catch(e) {
+    errorEl.style.display = 'inline';
+  }
+}
+
+async function loadCoachNote(row) {
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/coach_notes?player_email=eq.${encodeURIComponent(row.email)}&team_code=eq.${encodeURIComponent(row.team_code || '')}&limit=1`,
+      { headers: { 'apikey': SUPABASE_KEY } }
+    );
+    const data = await res.json();
+    if (data && data[0] && data[0].note) {
+      document.getElementById('pp-note').value = data[0].note;
+    }
+  } catch(e) { /* cicho — puste pole to OK */ }
+}
+
+async function generateCoachQuestions() {
+  if (_currentPlayerIdx === null) return;
+  const row = teamData[_currentPlayerIdx];
+  const name = row.player_name || 'ten zawodnik';
+  const scores = row.scores ? (() => { try { return JSON.parse(row.scores); } catch(e) { return null; } })() : null;
+  const deficits = row.top_deficits || '';
+  const pos = row.position || 'nieznana pozycja';
+  const overall = row.overall_score || '—';
+
+  const btn = document.getElementById('pp-questions-btn');
+  const questionsEl = document.getElementById('pp-questions');
+  btn.textContent = 'Generuję pytania...';
+  btn.disabled = true;
+
+  // Prompt — pytania spersonalizowane pod tego zawodnika
+  const sorted = scores ? Object.entries(scores).sort((a,b)=>a[1]-b[1]).slice(0,3) : [];
+  const topDefStr = sorted.map(([id,val]) => `${id} (${val}/100)`).join(', ');
+
+  const prompt = `Jesteś systemem diagnostycznym Gamechange. Analizujesz profil zawodnika i generujesz pytania dla jego trenera. Pytania mają uzupełnić dane z ankiety o obserwacje trenera z boiska — żeby razem dały pełniejszy obraz zawodnika.
+
+PROFIL ZAWODNIKA:
+Imię: ${name}
+Pozycja: ${pos}
+Wynik ogólny: ${overall}/100
+Największe deficyty wg ankiety: ${topDefStr}
+Top deficyty (etykiety): ${deficits}
+
+Wygeneruj dokładnie 4 pytania dla trenera. Każde pytanie musi:
+1. Być spersonalizowane pod pozycję i deficyty tego konkretnego zawodnika
+2. Pytać o to czego ankieta nie może zmierzyć — obserwacje z boiska, zachowanie pod presją, relacje z zespołem, reakcję na krytykę
+3. Być krótkie (jedno zdanie) i konkretne — trener odpowiada w 2-3 zdaniach
+4. Nie powtarzać tego co już zmierzono ankietą
+
+Format odpowiedzi — tylko JSON, bez żadnego dodatkowego tekstu:
+[
+  "pytanie 1",
+  "pytanie 2",
+  "pytanie 3",
+  "pytanie 4"
+]`;
+
+  try {
+    const res = await fetch('/api/diagnose', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, maxTokens: 400 })
+    });
+    const data = await res.json();
+    const raw = data.content?.filter(c=>c.type==='text').map(c=>c.text).join('').trim() || '[]';
+    const clean = raw.replace(/```json|```/g,'').trim();
+    const questions = JSON.parse(clean);
+
+    // Renderuj pytania jako pola do odpowiedzi
+    questionsEl.innerHTML = questions.map((q, i) => `
+      <div style="margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:500;color:#0e0d0b;margin-bottom:6px;">${i+1}. ${q}</div>
+        <textarea data-q="${i}" rows="2"
+          placeholder="Twoja obserwacja..."
+          style="width:100%;padding:10px 14px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:13px;color:#0e0d0b;outline:none;resize:none;line-height:1.5;display:block;"
+          onfocus="this.style.borderColor='#0e0d0b'"
+          onblur="this.style.borderColor='#d8d3c8'"></textarea>
+      </div>`).join('') +
+      `<button onclick="submitCoachAnswers()"
+        style="background:#0e0d0b;color:#f5f2ec;border:none;padding:12px 24px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:0.1em;cursor:pointer;width:100%;margin-top:4px;">
+        Wygeneruj ulepszoną diagnozę →
+      </button>`;
+
+    btn.style.display = 'none';
+  } catch(e) {
+    questionsEl.innerHTML = '<div style="font-size:13px;color:#d63c2f;">Błąd generowania pytań.</div>';
+    btn.textContent = 'Spróbuj ponownie';
+    btn.disabled = false;
+  }
+}
+
+async function submitCoachAnswers() {
+  if (_currentPlayerIdx === null) return;
+  const row = teamData[_currentPlayerIdx];
+  const name = row.player_name || 'ten zawodnik';
+  const scores = row.scores ? (() => { try { return JSON.parse(row.scores); } catch(e) { return null; } })() : null;
+  const pos = row.position || 'nieznana pozycja';
+
+  // Zbierz pytania i odpowiedzi
+  const qas = [];
+  document.querySelectorAll('#pp-questions textarea').forEach(ta => {
+    const q = ta.previousElementSibling?.textContent?.replace(/^\d+\.\s*/, '') || '';
+    const a = ta.value.trim();
+    if (q && a) qas.push({ q, a });
+  });
+
+  if (!qas.length) {
+    alert('Odpowiedz na przynajmniej jedno pytanie.');
+    return;
+  }
+
+  const enhanced = document.getElementById('pp-enhanced-wrap');
+  const enhancedText = document.getElementById('pp-enhanced');
+  enhanced.style.display = 'block';
+  enhancedText.innerHTML = inlineLoaderHTML('Generuję ulepszoną diagnozę').replace('ai-loader-label', 'ai-loader-label" style="color:rgba(255,255,255,0.5)');
+
+  // Posortuj segmenty
+  const sorted = scores ? Object.entries(scores).sort((a,b)=>a[1]-b[1]).slice(0,4) : [];
+  const defStr = sorted.map(([id,val]) => `${id}: ${val}/100`).join(', ');
+
+  const coachInput = qas.map(({q,a}) => `Pytanie: ${q}\nObserwacja trenera: ${a}`).join('\n\n');
+
+  const prompt = `Jesteś systemem diagnostycznym Gamechange. Masz dane z ankiety zawodnika i obserwacje jego trenera. Napisz ulepszoną diagnozę która łączy obie perspektywy.
+
+DANE Z ANKIETY:
+Zawodnik: ${name}, pozycja: ${pos}
+Główne deficyty wg systemu: ${defStr}
+
+OBSERWACJE TRENERA Z BOISKA:
+${coachInput}
+
+Napisz diagnozę w 4-5 zdaniach. Zasady:
+— Zacznij od tego co łączy dane systemu z obserwacjami trenera — gdzie się pokrywają i co to razem mówi
+— Jeśli obserwacje trenera korygują lub uzupełniają dane systemu — uwzględnij to wprost
+— Pisz konkretnie, językiem boiskowym
+— Zakończ jednym zdaniem rekomendacji dla trenera: co powinien priorytetyzować w pracy indywidualnej z tym zawodnikiem
+— Forma bezosobowa (nie "Ty" do zawodnika, bo to diagnoza dla trenera)
+— Pisz po polsku`;
+
+  try {
+    const res = await fetch('/api/diagnose', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, maxTokens: 400 })
+    });
+    const data = await res.json();
+    const text = data.content?.filter(c=>c.type==='text').map(c=>c.text).join('').trim() || '';
+    enhancedText.innerHTML = text
+      ? `<p style="margin:0;">${text}</p>`
+      : '<p style="color:rgba(255,255,255,0.4);">Nie udało się wygenerować diagnozy.</p>';
+  } catch(e) {
+    enhancedText.innerHTML = '<p style="color:#d63c2f;">Błąd połączenia.</p>';
+  }
 }
 
 function renderTeamStats(data) {
@@ -1892,6 +2254,151 @@ function renderTeamDeficits(data) {
         </div>
       </div>`;
   }).join('');
+}
+
+function renderTeamHeatmap(data) {
+  const el = document.getElementById('team-heatmap');
+  if (!el) return;
+
+  // Zbierz średnie wyniki per segment dla całej drużyny
+  const SEG_ORDER = [
+    { id: 'moc', name: 'MOC' },
+    { id: 'wytrzymalosc', name: 'WYTRZYMAŁOŚĆ' },
+    { id: 'fizycznosc', name: 'FIZYCZNOŚĆ' },
+    { id: 'techFund', name: 'TECH. FUND.' },
+    { id: 'techSpec', name: 'TECH. SPEC.' },
+    { id: 'tolerancja', name: 'TOL. OBCIĄŻEŃ' },
+    { id: 'regeneracja', name: 'REGENERACJA' },
+    { id: 'odpornosc', name: 'ODPORNOŚĆ' },
+    { id: 'odzywianie', name: 'ODŻYWIENIE' },
+    { id: 'koncentracja', name: 'KONCENTRACJA' },
+    { id: 'mental', name: 'STAN MENTAL.' },
+    { id: 'percepcja', name: 'PERCEPCJA' },
+    { id: 'decyzja', name: 'SZYBK. DECYZJI' },
+  ];
+
+  // Policz średnią per segment
+  const segTotals = {};
+  const segCounts = {};
+  data.forEach(row => {
+    if (!row.scores) return;
+    try {
+      const scores = JSON.parse(row.scores);
+      SEG_ORDER.forEach(s => {
+        if (scores[s.id] != null) {
+          segTotals[s.id] = (segTotals[s.id] || 0) + scores[s.id];
+          segCounts[s.id] = (segCounts[s.id] || 0) + 1;
+        }
+      });
+    } catch(e) {}
+  });
+
+  const segAvgs = SEG_ORDER.map(s => ({
+    ...s,
+    avg: segCounts[s.id] ? Math.round(segTotals[s.id] / segCounts[s.id]) : null,
+  })).filter(s => s.avg !== null).sort((a, b) => a.avg - b.avg);
+
+  // Kolor skali cieplnej
+  const heatColor = (val) => {
+    if (val < 35) return { bg: '#fde8e8', border: '#d63c2f', text: '#b02020' };
+    if (val < 50) return { bg: '#fff3e0', border: '#e08020', text: '#c06010' };
+    if (val < 65) return { bg: '#fffde0', border: '#c8b820', text: '#9a8c10' };
+    return { bg: '#e8f5e9', border: '#2a7a3a', text: '#1a5a2a' };
+  };
+
+  el.innerHTML = `
+    <div style="margin-bottom:16px;">
+      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:4px;">Mapa deficytów drużyny</div>
+      <div style="font-size:12px;color:#9a9488;font-weight:300;">Średnie wyniki drużyny per obszar — od najsłabszego</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;">
+      ${segAvgs.map(s => {
+        const c = heatColor(s.avg);
+        return `
+          <div style="border:1px solid ${c.border};background:${c.bg};padding:12px 14px;position:relative;">
+            <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:${c.text};margin-bottom:4px;font-weight:500;">${s.name}</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:${c.text};line-height:1;">${s.avg}</div>
+            <div style="font-size:10px;color:${c.text};opacity:0.6;">/100</div>
+            <div style="position:absolute;bottom:0;left:0;width:${s.avg}%;height:3px;background:${c.border};opacity:0.5;"></div>
+          </div>`;
+      }).join('')}
+    </div>
+    <div style="display:flex;gap:16px;margin-top:12px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#9a9488;">
+        <div style="width:12px;height:12px;background:#fde8e8;border:1px solid #d63c2f;"></div> Krytyczny (&lt;35)
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#9a9488;">
+        <div style="width:12px;height:12px;background:#fff3e0;border:1px solid #e08020;"></div> Do pracy (35-49)
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#9a9488;">
+        <div style="width:12px;height:12px;background:#fffde0;border:1px solid #c8b820;"></div> Przeciętny (50-64)
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#9a9488;">
+        <div style="width:12px;height:12px;background:#e8f5e9;border:1px solid #2a7a3a;"></div> Dobry (65+)
+      </div>
+    </div>
+  `;
+
+  // Zapisz segAvgs do globalnego stanu dla AI
+  window._teamSegAvgs = segAvgs;
+}
+
+async function generateTeamAIRecommendation(data, code) {
+  const el = document.getElementById('team-ai-recommendation');
+  if (!el) return;
+
+  el.innerHTML = `
+    <div class="ai-loader">
+      <div class="ai-loader-dots">
+        <div class="ai-loader-dot"></div>
+        <div class="ai-loader-dot"></div>
+        <div class="ai-loader-dot"></div>
+      </div>
+      <div class="ai-loader-label">Analizuję dane drużyny</div>
+    </div>`;
+
+  // Zbierz dane do promptu
+  const segAvgs = window._teamSegAvgs || [];
+  const top3Weak = segAvgs.slice(0, 3).map(s => `${s.name} (${s.avg}/100)`).join(', ');
+  const top3Strong = [...segAvgs].reverse().slice(0, 3).map(s => `${s.name} (${s.avg}/100)`).join(', ');
+  const avgOverall = Math.round(data.map(r => r.overall_score || 0).reduce((a,b)=>a+b,0) / data.length);
+  const positions = {};
+  data.forEach(r => { if (r.position) positions[r.position] = (positions[r.position]||0)+1; });
+  const posStr = Object.entries(positions).map(([p,c])=>`${p}: ${c}`).join(', ');
+
+  const prompt = `Jesteś ekspertem od diagnostyki piłkarskiej. Analizujesz dane drużyny i piszesz rekomendację dla trenera.
+
+DANE DRUŻYNY "${code}":
+Liczba zawodników: ${data.length}
+Skład pozycyjny: ${posStr || 'nie podano'}
+Średni wynik ogólny: ${avgOverall}/100
+Największe deficyty drużyny: ${top3Weak}
+Mocne strony drużyny: ${top3Strong}
+
+Napisz zwięzłą rekomendację dla trenera — 3-4 zdania. Mów konkretnie o grze drużyny, nie o liczbach. Powiedz: (1) co jest największym wspólnym problemem który wpływa na grę jako całości, (2) jaki jeden obszar treningowy dałby największy efekt jeśli zostałby wzmocniony, (3) co w tej drużynie działa dobrze i jak to wykorzystać. Pisz po polsku, bezpośrednio do trenera (forma "Twoja drużyna"), konkretnie i bez ogólników.`;
+
+  try {
+    const response = await fetch('/api/diagnose', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, maxTokens: 300 })
+    });
+    const result = await response.json();
+    const text = result.content?.filter(c => c.type === 'text').map(c => c.text).join('').trim() || '';
+
+    if (text) {
+      el.innerHTML = `
+        <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:10px;">Rekomendacja dla trenera</div>
+        <div style="font-size:14px;color:#0e0d0b;line-height:1.85;font-weight:300;">${text}</div>
+        <div style="margin-top:16px;padding-top:12px;border-top:1px solid #d8d3c8;font-size:11px;color:#9a9488;">
+          Analiza oparta na danych ${data.length} zawodników · ${new Date().toLocaleDateString('pl-PL')}
+        </div>`;
+    } else {
+      el.innerHTML = '<div style="font-size:13px;color:#9a9488;">Nie udało się wygenerować rekomendacji.</div>';
+    }
+  } catch(e) {
+    el.innerHTML = '<div style="font-size:13px;color:#9a9488;">Błąd połączenia.</div>';
+  }
 }
 
 function downloadTeamPDF() {
@@ -2901,13 +3408,14 @@ async function _saveFeedbackToSupabase(rating, comment) {
 // ══════════════════════════════════════
 function _showProductSection(scores) {
   renderProduct(scores);
-  // Pokaż sekcję PDF po produkcie
   setTimeout(() => {
+    // Karta zawodnika
+    showPlayerCard(scores);
+
+    // Sekcja PDF
     const pdfSection = document.getElementById('pdf-section-wrap');
     if (pdfSection) {
       pdfSection.style.display = 'block';
-      // Jeśli email już podany — pokaż tylko przycisk
-      // Jeśli nie — pokaż bramkę emailową
       const hasEmail = !!(playerEmail);
       document.getElementById('pdf-email-gate').style.display = hasEmail ? 'none' : 'block';
       document.getElementById('pdf-download-btn-wrap').style.display = hasEmail ? 'block' : 'none';
@@ -3726,6 +4234,176 @@ function quickTest(preset) {
   }, 150);
 }
 
+// ══════════════════════════════════════
+//  KARTA ZAWODNIKA — generowanie Canvas
+// ══════════════════════════════════════
+
+function showPlayerCard(scores) {
+  document.getElementById('player-card-wrap').style.display = 'block';
+  _drawPlayerCard(scores, '');
+}
+
+function updateCardPreview() {
+  const name = document.getElementById('card-name-input').value || '';
+  _drawPlayerCard(cachedScores, name);
+}
+
+function _drawPlayerCard(scores, playerName) {
+  const canvas = document.getElementById('player-card-canvas');
+  if (!canvas || !scores) return;
+  const ctx = canvas.getContext('2d');
+  const W = 480, H = 600;
+
+  // Tło — gradientowe ciemne
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#0a0a0a');
+  bg.addColorStop(1, '#1a1a1a');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // Subtelna tekstura — linia ukośna
+  ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+  ctx.lineWidth = 1;
+  for (let i = -H; i < W + H; i += 24) {
+    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i + H, H); ctx.stroke();
+  }
+
+  // Logo Gamechange — górny pasek
+  ctx.fillStyle = '#c8ff00';
+  ctx.fillRect(0, 0, W, 4);
+
+  ctx.fillStyle = 'rgba(200,255,0,0.08)';
+  ctx.fillRect(0, 0, W, 56);
+
+  ctx.fillStyle = '#c8ff00';
+  ctx.font = 'bold 13px Arial';
+  ctx.letterSpacing = '0.2em';
+  ctx.fillText('GAMECHANGE', 24, 34);
+
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.font = '11px Arial';
+  ctx.fillText('DIAGNOSTIC SYSTEM', 24 + 115, 34);
+
+  // Wynik ogólny — centrum górne
+  const vals = Object.values(scores);
+  const overall = Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);
+
+  ctx.fillStyle = '#c8ff00';
+  ctx.font = 'bold 96px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText(overall, W/2, 165);
+
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.font = '11px Arial';
+  ctx.letterSpacing = '0.2em';
+  ctx.fillText('WYNIK OGÓLNY', W/2, 188);
+
+  // Imię zawodnika
+  const displayName = playerName || '—';
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 22px Arial';
+  ctx.letterSpacing = '0.05em';
+  ctx.fillText(displayName.toUpperCase(), W/2, 222);
+
+  // Pozycja jeśli znana
+  if (ctx.pos !== null && typeof CTX_LABELS !== 'undefined') {
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.font = '12px Arial';
+    ctx.letterSpacing = '0.1em';
+    const posLabel = (ctx.pos !== null && ctx.pos < 4)
+      ? ['BRAMKARZ','OBROŃCA','POMOCNIK','NAPASTNIK'][ctx.pos] : '';
+    if (posLabel) ctx.fillText(posLabel, W/2, 242);
+  }
+
+  // Hexagon — środek
+  const CX = W/2, CY = 390, R = 130;
+  const segIds = ['moc','wytrzymalosc','fizycznosc','techFund','techSpec',
+                  'tolerancja','regeneracja','odpornosc','odzywianie',
+                  'koncentracja','mental','percepcja','decyzja'];
+  const N = segIds.length;
+
+  // Siatka hexagonu (koła referencyjne)
+  [0.25, 0.5, 0.75, 1.0].forEach(r => {
+    ctx.beginPath();
+    for (let i = 0; i < N; i++) {
+      const angle = (2 * Math.PI * i / N) - Math.PI/2;
+      const x = CX + R * r * Math.cos(angle);
+      const y = CY + R * r * Math.sin(angle);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = r === 1.0 ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = r === 1.0 ? 1.5 : 1;
+    ctx.stroke();
+  });
+
+  // Linie osi
+  for (let i = 0; i < N; i++) {
+    const angle = (2 * Math.PI * i / N) - Math.PI/2;
+    ctx.beginPath();
+    ctx.moveTo(CX, CY);
+    ctx.lineTo(CX + R * Math.cos(angle), CY + R * Math.sin(angle));
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // Wypełnienie profilu
+  ctx.beginPath();
+  segIds.forEach((id, i) => {
+    const val = (scores[id] || 0) / 100;
+    const angle = (2 * Math.PI * i / N) - Math.PI/2;
+    const x = CX + R * val * Math.cos(angle);
+    const y = CY + R * val * Math.sin(angle);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.closePath();
+  const grad = ctx.createRadialGradient(CX, CY, 0, CX, CY, R);
+  grad.addColorStop(0, 'rgba(200,255,0,0.5)');
+  grad.addColorStop(1, 'rgba(200,255,0,0.1)');
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.strokeStyle = '#c8ff00';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Punkty na hexagonie
+  segIds.forEach((id, i) => {
+    const val = (scores[id] || 0) / 100;
+    const angle = (2 * Math.PI * i / N) - Math.PI/2;
+    const x = CX + R * val * Math.cos(angle);
+    const y = CY + R * val * Math.sin(angle);
+    ctx.beginPath();
+    ctx.arc(x, y, 3, 0, Math.PI * 2);
+    ctx.fillStyle = '#c8ff00';
+    ctx.fill();
+  });
+
+  // Stopka
+  ctx.fillStyle = 'rgba(255,255,255,0.12)';
+  ctx.fillRect(0, H - 52, W, 52);
+
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.font = '11px Arial';
+  ctx.textAlign = 'center';
+  ctx.letterSpacing = '0.05em';
+  ctx.fillText('gamechange-diagnoza.vercel.app', W/2, H - 24);
+
+  ctx.fillStyle = 'rgba(255,255,255,0.2)';
+  ctx.font = '10px Arial';
+  ctx.fillText('13 SEGMENTÓW · DIAGNOSTYKA AI · ' + new Date().getFullYear(), W/2, H - 10);
+}
+
+function downloadPlayerCard() {
+  const name = (document.getElementById('card-name-input').value || '').trim();
+  _drawPlayerCard(cachedScores, name);
+  const canvas = document.getElementById('player-card-canvas');
+  const link = document.createElement('a');
+  link.download = 'gamechange-karta-' + (name || 'zawodnik').toLowerCase().replace(/\s+/g,'-') + '.jpg';
+  link.href = canvas.toDataURL('image/jpeg', 0.92);
+  link.click();
+}
+
 function restart() {
   ans = {}; cachedScores = null;
   isJunior = false; activeSegs = [];
@@ -3756,6 +4434,11 @@ function restart() {
   const ft = document.getElementById('feedback-thanks');
   if (ft) ft.style.display = 'none';
 
+  const cardWrap = document.getElementById('player-card-wrap');
+  if (cardWrap) cardWrap.style.display = 'none';
+  const cardInput = document.getElementById('card-name-input');
+  if (cardInput) cardInput.value = '';
+
   document.querySelectorAll('.ctx-btn').forEach(b => b.classList.remove('sel'));
   history.replaceState(null, '', window.location.pathname);
   showScreen('screen-intro');
@@ -3775,13 +4458,24 @@ function restart() {
       </button>
     </div>
 
-    <div style="max-width:900px;margin:0 auto;padding:32px 24px;">
+    <div style="max-width:960px;margin:0 auto;padding:32px 24px;">
 
       <!-- Statystyki drużyny -->
       <div id="team-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;"></div>
 
+      <!-- Rekomendacja AI — najważniejszy element dla trenera -->
+      <div style="background:#0e0d0b;border:1px solid #2a2a2a;padding:28px;margin-bottom:32px;">
+        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#c8ff00;margin-bottom:4px;">AI — Rekomendacja dla trenera</div>
+        <div id="team-ai-recommendation" style="font-size:14px;color:rgba(255,255,255,0.75);line-height:1.85;font-weight:300;"></div>
+      </div>
+
+      <!-- Mapa cieplna drużyny -->
+      <div style="background:#fff;border:1px solid #d8d3c8;padding:24px;margin-bottom:32px;">
+        <div id="team-heatmap"></div>
+      </div>
+
       <!-- Tabela zawodników -->
-      <div style="background:#fff;border:1px solid #d8d3c8;overflow:hidden;">
+      <div style="background:#fff;border:1px solid #d8d3c8;overflow:hidden;margin-bottom:32px;">
         <div style="padding:20px 24px;border-bottom:1px solid #d8d3c8;display:flex;align-items:center;justify-content:space-between;">
           <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.05em;">Wyniki zawodników</div>
           <div style="font-size:12px;color:#9a9488;" id="team-count"></div>
@@ -3791,11 +4485,11 @@ function restart() {
             <thead>
               <tr style="background:#f5f2ec;">
                 <th style="padding:12px 16px;text-align:left;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#9a9488;font-weight:500;border-bottom:1px solid #d8d3c8;">Zawodnik</th>
-                <th style="padding:12px 16px;text-align:left;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#9a9488;font-weight:500;border-bottom:1px solid #d8d3c8;">Pozycja</th>
                 <th style="padding:12px 16px;text-align:center;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#9a9488;font-weight:500;border-bottom:1px solid #d8d3c8;">Wynik</th>
-                <th style="padding:12px 16px;text-align:left;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#9a9488;font-weight:500;border-bottom:1px solid #d8d3c8;">Główny deficyt</th>
-                <th style="padding:12px 16px;text-align:left;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#9a9488;font-weight:500;border-bottom:1px solid #d8d3c8;">Top 3 wąskie gardła</th>
+                <th style="padding:12px 16px;text-align:left;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#9a9488;font-weight:500;border-bottom:1px solid #d8d3c8;">Główne deficyty</th>
+                <th style="padding:12px 16px;text-align:left;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#9a9488;font-weight:500;border-bottom:1px solid #d8d3c8;">Podpowiedź treningowa</th>
                 <th style="padding:12px 16px;text-align:left;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#9a9488;font-weight:500;border-bottom:1px solid #d8d3c8;">Data</th>
+                <th style="padding:12px 16px;border-bottom:1px solid #d8d3c8;"></th>
               </tr>
             </thead>
             <tbody id="team-tbody"></tbody>
@@ -3809,11 +4503,73 @@ function restart() {
       </div>
 
       <!-- Najczęstsze deficyty drużyny -->
-      <div style="margin-top:24px;background:#fff;border:1px solid #d8d3c8;padding:24px;">
+      <div style="background:#fff;border:1px solid #d8d3c8;padding:24px;">
         <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.05em;margin-bottom:16px;">Najczęstsze wąskie gardła drużyny</div>
         <div id="team-deficits" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;"></div>
       </div>
 
+    </div>
+  </div>
+</div>
+
+<!-- PANEL BOCZNY ZAWODNIKA -->
+<div id="player-panel-overlay"
+  style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;"
+  onclick="closePlayerPanel()"></div>
+
+<div id="player-panel"
+  style="display:none;position:fixed;top:0;right:0;width:min(560px,100vw);height:100vh;background:#f5f2ec;z-index:1001;overflow-y:auto;box-shadow:-8px 0 48px rgba(0,0,0,0.2);">
+
+  <div style="background:#0e0d0b;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;">
+    <div>
+      <div style="font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:2px;">Profil zawodnika</div>
+      <div id="pp-name" style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#f5f2ec;letter-spacing:0.05em;">—</div>
+    </div>
+    <button onclick="closePlayerPanel()"
+      style="background:transparent;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.6);padding:8px 16px;font-family:'Bebas Neue',sans-serif;font-size:13px;cursor:pointer;letter-spacing:0.1em;">
+      ZAMKNIJ ✕
+    </button>
+  </div>
+
+  <div style="padding:24px;">
+    <div id="pp-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;"></div>
+
+    <div style="background:#fff;border:1px solid #d8d3c8;padding:20px;margin-bottom:20px;">
+      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:16px;">Wyniki per segment</div>
+      <div id="pp-segments"></div>
+    </div>
+
+    <div style="background:#fff;border:1px solid #d8d3c8;padding:20px;margin-bottom:20px;">
+      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;">Twoja notatka</div>
+      <p style="font-size:12px;color:#9a9488;font-weight:300;margin-bottom:10px;">Widoczna tylko dla Ciebie. Zawodnik jej nie widzi. Dostępna z każdego urządzenia.</p>
+      <textarea id="pp-note" rows="3"
+        placeholder="Np. Technicznie dobry, ale odpuszcza w końcówkach. Sprawdzić motywację..."
+        style="width:100%;padding:12px 14px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:13px;color:#0e0d0b;outline:none;resize:none;line-height:1.6;display:block;margin-bottom:10px;"
+        onfocus="this.style.borderColor='#0e0d0b'"
+        onblur="this.style.borderColor='#d8d3c8'"></textarea>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button onclick="saveCoachNote()"
+          style="background:#0e0d0b;color:#f5f2ec;border:none;padding:10px 24px;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:0.1em;cursor:pointer;">
+          Zapisz notatkę
+        </button>
+        <div id="pp-note-saved" style="font-size:12px;color:#2a7a3a;display:none;">✓ Zapisano w bazie</div>
+        <div id="pp-note-error" style="font-size:12px;color:#d63c2f;display:none;">Błąd zapisu — sprawdź połączenie</div>
+      </div>
+    </div>
+
+    <div style="background:#fff;border:1px solid #d8d3c8;padding:20px;margin-bottom:20px;">
+      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:4px;">Pytania dla trenera</div>
+      <p style="font-size:12px;color:#9a9488;font-weight:300;margin-bottom:14px;">Twoje odpowiedzi + dane z ankiety → ulepszona diagnoza tego zawodnika.</p>
+      <div id="pp-questions"></div>
+      <button id="pp-questions-btn" onclick="generateCoachQuestions()"
+        style="background:#0e0d0b;color:#f5f2ec;border:none;padding:12px 24px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:0.1em;cursor:pointer;margin-top:12px;width:100%;">
+        Generuj pytania dla tego zawodnika →
+      </button>
+    </div>
+
+    <div id="pp-enhanced-wrap" style="display:none;background:#0e0d0b;padding:20px;margin-bottom:20px;">
+      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#c8ff00;margin-bottom:10px;">Ulepszona diagnoza — obserwacje trenera + dane systemu</div>
+      <div id="pp-enhanced" style="font-size:13px;color:rgba(255,255,255,0.82);line-height:1.85;font-weight:300;"></div>
     </div>
   </div>
 </div>
