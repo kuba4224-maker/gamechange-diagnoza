@@ -2448,6 +2448,20 @@ Napisz zwięzłą rekomendację dla trenera — 3-4 zdania. Mów konkretnie o gr
   }
 }
 
+function stripPolishChars(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/ą/g,'a').replace(/Ą/g,'A')
+    .replace(/ć/g,'c').replace(/Ć/g,'C')
+    .replace(/ę/g,'e').replace(/Ę/g,'E')
+    .replace(/ł/g,'l').replace(/Ł/g,'L')
+    .replace(/ń/g,'n').replace(/Ń/g,'N')
+    .replace(/ó/g,'o').replace(/Ó/g,'O')
+    .replace(/ś/g,'s').replace(/Ś/g,'S')
+    .replace(/ź/g,'z').replace(/Ź/g,'Z')
+    .replace(/ż/g,'z').replace(/Ż/g,'Z');
+}
+
 function downloadTeamPDF() {
   if (!teamData.length) return;
   const { jsPDF } = window.jspdf;
@@ -2461,11 +2475,11 @@ function downloadTeamPDF() {
   doc.setTextColor(200,255,0);
   doc.setFont('helvetica','bold');
   doc.setFontSize(18);
-  doc.text('GAMECHANGE SYSTEM', margin, 12);
+  doc.text(stripPolishChars('GAMECHANGE SYSTEM'), margin, 12);
   doc.setTextColor(180,180,180);
   doc.setFontSize(9);
   doc.setFont('helvetica','normal');
-  doc.text(`Raport drużyny · ${teamData[0]?.team_code || ''} · ${new Date().toLocaleDateString('pl-PL')} · ${teamData.length} zawodników`, margin, 21);
+  doc.text(stripPolishChars(`Raport drużyny · ${teamData[0]?.team_code || ''} · ${new Date().toLocaleDateString('pl-PL')} · ${teamData.length} zawodników`), margin, 21);
 
   y = 38;
 
@@ -2480,7 +2494,7 @@ function downloadTeamPDF() {
   doc.setFontSize(7.5);
   doc.setFont('helvetica','bold');
   headers.forEach((h, i) => {
-    doc.text(h.toUpperCase(), x, y);
+    doc.text(stripPolishChars(h.toUpperCase()), x, y);
     x += cols[i];
   });
   y += 6;
@@ -2502,18 +2516,18 @@ function downloadTeamPDF() {
 
     x = margin;
     doc.setTextColor(14,13,11);
-    doc.text((row.player_name || row.email || 'Anonimowy').slice(0,22), x, y); x += cols[0];
+    doc.text(stripPolishChars((row.player_name || row.email || 'Anonimowy').slice(0,22)), x, y); x += cols[0];
     doc.setTextColor(100,96,88);
-    doc.text((row.position || '—').slice(0,12), x, y); x += cols[1];
+    doc.text(stripPolishChars((row.position || '—').slice(0,12)), x, y); x += cols[1];
     doc.setTextColor(...color);
     doc.setFont('helvetica','bold');
-    doc.text(`${overall}`, x, y); x += cols[2];
+    doc.text(stripPolishChars(`${overall}`), x, y); x += cols[2];
     doc.setTextColor(214,60,47);
     doc.setFont('helvetica','normal');
-    doc.text((deficits[0] || '—').slice(0,28), x, y); x += cols[3];
+    doc.text(stripPolishChars((deficits[0] || '—').slice(0,28)), x, y); x += cols[3];
     doc.setTextColor(100,96,88);
-    doc.text(deficits.slice(1).join(', ').slice(0,32) || '—', x, y); x += cols[4];
-    doc.text(date, x, y);
+    doc.text(stripPolishChars(deficits.slice(1).join(', ').slice(0,32) || '—'), x, y); x += cols[4];
+    doc.text(stripPolishChars(date), x, y);
 
     y += 8;
   });
@@ -2521,7 +2535,7 @@ function downloadTeamPDF() {
   // Stopka
   doc.setFontSize(7);
   doc.setTextColor(180,175,165);
-  doc.text('Gamechange System · gamechange-diagnoza.vercel.app', margin, H-6);
+  doc.text(stripPolishChars('Gamechange System · gamechange-diagnoza.vercel.app'), margin, H-6);
 
   doc.save(`gamechange-druzyna-${teamData[0]?.team_code || 'raport'}-${new Date().toLocaleDateString('pl-PL').replace(/\./g,'-')}.pdf`);
 }
@@ -3943,30 +3957,30 @@ function downloadPDF() {
   doc.setTextColor(200, 255, 0);
   doc.setFontSize(22);
   doc.setFont('helvetica', 'bold');
-  doc.text('GAMECHANGE SYSTEM', margin, 16);
+  doc.text(stripPolishChars('GAMECHANGE SYSTEM'), margin, 16);
 
   doc.setTextColor(180, 180, 180);
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
-  doc.text('Raport diagnostyczny', margin, 24);
+  doc.text(stripPolishChars('Raport diagnostyczny'), margin, 24);
 
   const dateStr = new Date().toLocaleDateString('pl-PL');
-  doc.text(`Data: ${dateStr}`, margin, 30);
+  doc.text(stripPolishChars(`Data: ${dateStr}`), margin, 30);
 
   // Kontekst zawodnika
   if (ctx.level !== null) {
     const ctxStr = `${CTX_LABELS.level[ctx.level]}  ·  ${CTX_LABELS.pos[ctx.pos]}  ·  ${CTX_LABELS.age[ctx.age]}`;
-    doc.text(ctxStr, margin, 36);
+    doc.text(stripPolishChars(ctxStr), margin, 36);
   }
 
   // Wynik ogólny
   doc.setTextColor(200, 255, 0);
   doc.setFontSize(28);
   doc.setFont('helvetica', 'bold');
-  doc.text(`${overall}`, W - margin - 20, 28, { align: 'right' });
+  doc.text(stripPolishChars(`${overall}`), W - margin - 20, 28, { align: 'right' });
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
-  doc.text('/100', W - margin, 28, { align: 'right' });
+  doc.text(stripPolishChars('/100'), W - margin, 28, { align: 'right' });
 
   y = 52;
 
@@ -3974,7 +3988,7 @@ function downloadPDF() {
   doc.setTextColor(14, 13, 11);
   doc.setFontSize(13);
   doc.setFont('helvetica', 'bold');
-  doc.text('WYNIKI SEGMENTÓW', margin, y);
+  doc.text(stripPolishChars('WYNIKI SEGMENTÓW'), margin, y);
   y += 6;
 
   doc.setDrawColor(216, 211, 200);
@@ -3992,7 +4006,7 @@ function downloadPDF() {
     doc.setTextColor(60, 56, 48);
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
-    doc.text(name, margin, y);
+    doc.text(stripPolishChars(name), margin, y);
 
     // Pasek
     const barX = margin + 60;
@@ -4006,7 +4020,7 @@ function downloadPDF() {
     // Liczba
     doc.setTextColor(...color);
     doc.setFont('helvetica', 'bold');
-    doc.text(`${score}`, W - margin, y, { align: 'right' });
+    doc.text(stripPolishChars(`${score}`), W - margin, y, { align: 'right' });
 
     y += 8;
   });
@@ -4018,7 +4032,7 @@ function downloadPDF() {
   doc.setTextColor(14, 13, 11);
   doc.setFontSize(13);
   doc.setFont('helvetica', 'bold');
-  doc.text('KLUCZOWE WĄSKIE GARDŁA', margin, y);
+  doc.text(stripPolishChars('KLUCZOWE WĄSKIE GARDŁA'), margin, y);
   y += 6;
 
   doc.setDrawColor(216, 211, 200);
@@ -4037,17 +4051,17 @@ function downloadPDF() {
     doc.setTextColor(255,255,255);
     doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
-    doc.text(`${i+1}`, margin + 4, y + 0.5, { align: 'center' });
+    doc.text(stripPolishChars(`${i+1}`), margin + 4, y + 0.5, { align: 'center' });
 
     // Nazwa i wynik
     doc.setTextColor(14, 13, 11);
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
-    doc.text(name, margin + 12, y);
+    doc.text(stripPolishChars(name), margin + 12, y);
 
     doc.setTextColor(214, 60, 47);
     doc.setFontSize(14);
-    doc.text(`${score}/100`, W - margin, y, { align: 'right' });
+    doc.text(stripPolishChars(`${score}/100`), W - margin, y, { align: 'right' });
     y += 7;
 
     // Przyczyna
@@ -4068,7 +4082,7 @@ function downloadPDF() {
     }
 
     const lines = doc.splitTextToSize(causeText, contentW - 12);
-    doc.text(lines, margin + 12, y);
+    doc.text(stripPolishChars(lines), margin + 12, y);
     y += lines.length * 5 + 6;
   });
 
@@ -4080,7 +4094,7 @@ function downloadPDF() {
     doc.setTextColor(14, 13, 11);
     doc.setFontSize(13);
     doc.setFont('helvetica', 'bold');
-    doc.text('TWOJA DIAGNOZA', margin, y);
+    doc.text(stripPolishChars('TWOJA DIAGNOZA'), margin, y);
     y += 6;
 
     doc.setDrawColor(216, 211, 200);
@@ -4094,7 +4108,7 @@ function downloadPDF() {
     const diagLines = doc.splitTextToSize(diagText, contentW);
     diagLines.forEach(line => {
       checkPage(6);
-      doc.text(line, margin, y);
+      doc.text(stripPolishChars(line), margin, y);
       y += 5.5;
     });
   }
@@ -4106,8 +4120,8 @@ function downloadPDF() {
     doc.setFontSize(7);
     doc.setTextColor(180, 175, 165);
     doc.setFont('helvetica', 'normal');
-    doc.text('Gamechange System  ·  gamechange-diagnoza.vercel.app', margin, 290);
-    doc.text(`${p} / ${pageCount}`, W - margin, 290, { align: 'right' });
+    doc.text(stripPolishChars('Gamechange System  ·  gamechange-diagnoza.vercel.app'), margin, 290);
+    doc.text(stripPolishChars(`${p} / ${pageCount}`), W - margin, 290, { align: 'right' });
   }
 
   doc.save(`gamechange-diagnoza-${dateStr.replace(/\./g,'-')}.pdf`);
@@ -4511,13 +4525,13 @@ function restart() {
       <div id="team-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;"></div>
 
       <!-- Rekomendacja dla trenera -->
-      <div style="background:#0e0d0b;border:1px solid #2a2a2a;padding:28px;margin-bottom:32px;">
-        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#c8ff00;margin-bottom:4px;">Rekomendacja dla trenera</div>
-        <div id="team-ai-recommendation" style="font-size:14px;color:rgba(255,255,255,0.75);line-height:1.85;font-weight:300;"></div>
+      <div style="background:#0e0d0b;border:1px solid #2a2a2a;padding:28px;margin-bottom:32px;min-height:120px;">
+        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#c8ff00;margin-bottom:12px;">Rekomendacja dla trenera</div>
+        <div id="team-ai-recommendation" style="font-size:14px;color:rgba(255,255,255,0.75);line-height:1.85;font-weight:300;min-height:60px;"></div>
       </div>
 
       <!-- Mapa cieplna drużyny -->
-      <div style="background:#fff;border:1px solid #d8d3c8;padding:24px;margin-bottom:32px;">
+      <div style="background:#fff;border:1px solid #d8d3c8;padding:24px;margin-bottom:32px;min-height:80px;">
         <div id="team-heatmap"></div>
       </div>
 
