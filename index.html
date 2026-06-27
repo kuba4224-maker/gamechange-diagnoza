@@ -1857,8 +1857,10 @@ function renderTeamTable(data) {
 
   tbody.innerHTML = data.map((row, idx) => {
     const scores = row.scores ? (() => { try { return JSON.parse(row.scores); } catch(e) { return null; } })() : null;
-    const overall = row.overall_score || '—';
-    const color = overall < 40 ? '#d63c2f' : overall < 65 ? '#e08020' : '#2a7a3a';
+    const overall = row.overall_score;
+    const lvlLabel = !overall ? '—' : overall < 40 ? 'Wymaga uwagi' : overall < 55 ? 'Poniżej średniej' : overall < 70 ? 'Przeciętny' : 'Dobry';
+    const color = !overall ? '#9a9488' : overall < 40 ? '#d63c2f' : overall < 55 ? '#e08020' : overall < 70 ? '#c8b820' : '#2a7a3a';
+    const bgColor = !overall ? 'transparent' : overall < 40 ? '#fde8e8' : overall < 55 ? '#fff3e0' : overall < 70 ? '#fffde0' : '#e8f5e9';
     const deficits = row.top_deficits ? row.top_deficits.split(', ') : [];
     const mainDeficit = deficits[0] || '—';
     const date = row.created_at ? new Date(row.created_at).toLocaleDateString('pl-PL') : '—';
@@ -1878,8 +1880,7 @@ function renderTeamTable(data) {
           <div style="font-size:11px;color:#9a9488;margin-top:2px;">${pos}</div>
         </td>
         <td style="padding:14px 16px;text-align:center;">
-          <span style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:${color};">${overall}</span>
-          <div style="font-size:10px;color:#9a9488;">/100</div>
+          <span style="display:inline-block;padding:4px 10px;background:${bgColor};border:1px solid ${color};font-size:11px;font-weight:500;color:${color};letter-spacing:0.05em;">${lvlLabel}</span>
         </td>
         <td style="padding:14px 16px;">
           <div style="font-size:12px;color:#d63c2f;font-weight:500;margin-bottom:2px;">${mainDeficit}</div>
@@ -1955,22 +1956,19 @@ function openPlayerPanel(idx) {
 
   const name = row.player_name || row.email || 'Anonimowy';
   const scores = row.scores ? (() => { try { return JSON.parse(row.scores); } catch(e) { return null; } })() : null;
-  const overall = row.overall_score || '—';
-  const color = overall < 40 ? '#d63c2f' : overall < 65 ? '#e08020' : '#2a7a3a';
+  const lvlLabel = !overall ? '—' : overall < 40 ? 'Wymaga uwagi' : overall < 55 ? 'Poniżej średniej' : overall < 70 ? 'Przeciętny' : 'Dobry';
+  const lvlColor = !overall ? '#9a9488' : overall < 40 ? '#d63c2f' : overall < 55 ? '#e08020' : overall < 70 ? '#c8b820' : '#2a7a3a';
+  const lvlBg = !overall ? 'transparent' : overall < 40 ? '#fde8e8' : overall < 55 ? '#fff3e0' : overall < 70 ? '#fffde0' : '#e8f5e9';
 
-  // Nagłówek
-  document.getElementById('pp-name').textContent = name;
-
-  // Statystyki
-  const statBox = (label, val, c) => `
+  const statBox = (label, val, c, bg) => `
     <div style="background:#fff;border:1px solid #d8d3c8;padding:16px;text-align:center;">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:${c};margin-bottom:2px;">${val}</div>
+      <div style="display:inline-block;padding:4px 10px;background:${bg};border:1px solid ${c};font-size:13px;font-weight:500;color:${c};margin-bottom:6px;">${val}</div>
       <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#9a9488;">${label}</div>
     </div>`;
   document.getElementById('pp-stats').innerHTML =
-    statBox('Wynik ogólny', overall, color) +
-    statBox('Pozycja', row.position || '—', '#0e0d0b') +
-    statBox('Data', row.created_at ? new Date(row.created_at).toLocaleDateString('pl-PL') : '—', '#9a9488');
+    statBox('Poziom ogólny', lvlLabel, lvlColor, lvlBg) +
+    statBox('Pozycja', row.position || '—', '#0e0d0b', 'transparent') +
+    statBox('Data', row.created_at ? new Date(row.created_at).toLocaleDateString('pl-PL') : '—', '#9a9488', 'transparent');
 
   // Segmenty — paski sortowane od najsłabszego
   if (scores) {
@@ -1978,14 +1976,15 @@ function openPlayerPanel(idx) {
       .sort((a, b) => a.val - b.val);
     document.getElementById('pp-segments').innerHTML = sorted.map(s => {
       const c = s.val < 35 ? '#d63c2f' : s.val < 50 ? '#e08020' : s.val < 65 ? '#c8b820' : '#2a7a3a';
+      const lbl = s.val < 35 ? 'Wymaga uwagi' : s.val < 50 ? 'Do pracy' : s.val < 65 ? 'Przeciętny' : 'Dobry';
       return `
         <div style="margin-bottom:10px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
             <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#3a3830;">${s.name}</div>
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:${c};">${s.val}</div>
+            <div style="font-size:10px;color:${c};font-weight:500;">${lbl}</div>
           </div>
-          <div style="height:4px;background:#e8e4dd;border-radius:2px;">
-            <div style="height:4px;background:${c};border-radius:2px;width:${s.val}%;transition:width 0.5s ease;"></div>
+          <div style="height:5px;background:#e8e4dd;border-radius:2px;">
+            <div style="height:5px;background:${c};border-radius:2px;width:${s.val}%;transition:width 0.5s ease;"></div>
           </div>
         </div>`;
     }).join('');
@@ -2429,7 +2428,7 @@ Napisz zwięzłą rekomendację dla trenera — 3-4 zdania. Mów konkretnie o gr
     const response = await fetch('/api/diagnose', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, maxTokens: 300 })
+      body: JSON.stringify({ prompt, maxTokens: 600 })
     });
     const result = await response.json();
     const text = result.content?.filter(c => c.type === 'text').map(c => c.text).join('').trim() || '';
