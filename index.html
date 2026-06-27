@@ -1837,8 +1837,10 @@ async function loadTeamView(code) {
   renderTeamTable(teamData);
   renderTeamStats(teamData);
   renderTeamDeficits(teamData);
-  renderTeamHeatmap(teamData);
-  generateTeamAIRecommendation(teamData, code);
+  setTimeout(() => {
+    renderTeamHeatmap(teamData);
+    generateTeamAIRecommendation(teamData, code);
+  }, 100);
 }
 
 function renderTeamTable(data) {
@@ -2241,13 +2243,22 @@ function loadMockTeamData() {
 
   document.getElementById('team-empty').style.display = 'none';
 
-  // Daj DOM chwilę na aktualizację przed renderowaniem
   setTimeout(() => {
     renderTeamTable(teamData);
     renderTeamStats(teamData);
     renderTeamDeficits(teamData);
-    renderTeamHeatmap(teamData);
-    generateTeamAIRecommendation(teamData, 'Przykładowa drużyna');
+
+    // Heatmapa jako ostatnia — dajemy więcej czasu żeby DOM był gotowy
+    setTimeout(() => {
+      renderTeamHeatmap(teamData);
+      // Weryfikacja
+      const el = document.getElementById('team-heatmap');
+      if (el && !el.innerHTML.trim()) {
+        console.warn('Heatmapa pusta po renderowaniu — próba ponowna');
+        setTimeout(() => renderTeamHeatmap(teamData), 200);
+      }
+      generateTeamAIRecommendation(teamData, 'Przykładowa drużyna');
+    }, 100);
   }, 50);
 }
 
