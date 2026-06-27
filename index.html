@@ -2130,7 +2130,7 @@ Format odpowiedzi — tylko JSON, bez żadnego dodatkowego tekstu:
       </div>`).join('') +
       `<button onclick="submitCoachAnswers()"
         style="background:#0e0d0b;color:#f5f2ec;border:none;padding:12px 24px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:0.1em;cursor:pointer;width:100%;margin-top:4px;">
-        Wygeneruj ulepszoną diagnozę →
+        Połącz moje obserwacje z wynikami →
       </button>`;
 
     btn.style.display = 'none';
@@ -2203,6 +2203,50 @@ Napisz diagnozę w 4-5 zdaniach. Zasady:
   } catch(e) {
     enhancedText.innerHTML = '<p style="color:#d63c2f;">Błąd połączenia.</p>';
   }
+}
+
+function loadMockTeamData() {
+  const NAMES = ['Mateusz K.','Jakub W.','Piotr S.','Tomasz N.','Adrian L.',
+                 'Kamil R.','Dawid M.','Michał B.','Łukasz P.','Szymon G.',
+                 'Bartosz Z.','Krzysztof A.','Rafał D.','Marcin H.','Paweł J.'];
+  const POSITIONS = ['Bramkarz','Obrońca','Obrońca','Pomocnik','Pomocnik',
+                     'Pomocnik','Napastnik','Obrońca','Pomocnik','Napastnik',
+                     'Bramkarz','Obrońca','Pomocnik','Napastnik','Pomocnik'];
+  const SEG_IDS = ['moc','wytrzymalosc','fizycznosc','techFund','techSpec',
+                   'tolerancja','regeneracja','odpornosc','odzywianie',
+                   'koncentracja','mental','percepcja','decyzja'];
+
+  const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+  teamData = NAMES.map((name, i) => {
+    const scores = {};
+    // Każdy zawodnik ma profil — jeden wyraźny deficyt
+    const weakSeg = SEG_IDS[rand(0, SEG_IDS.length - 1)];
+    SEG_IDS.forEach(id => {
+      scores[id] = id === weakSeg ? rand(18, 38) : rand(42, 82);
+    });
+    const overall = Math.round(Object.values(scores).reduce((a,b)=>a+b,0) / SEG_IDS.length);
+    const sortedDef = Object.entries(scores).sort((a,b)=>a[1]-b[1]).slice(0,3);
+    const top_deficits = sortedDef.map(([id,v]) => `${id} (${v})`).join(', ');
+
+    return {
+      player_name: name,
+      email: `${name.toLowerCase().replace(/\s/g,'.')}.mock@test.pl`,
+      position: POSITIONS[i],
+      overall_score: overall,
+      scores: JSON.stringify(scores),
+      top_deficits,
+      team_code: 'MOCK',
+      created_at: new Date(Date.now() - rand(0, 14) * 86400000).toISOString(),
+    };
+  });
+
+  document.getElementById('team-empty').style.display = 'none';
+  renderTeamTable(teamData);
+  renderTeamStats(teamData);
+  renderTeamDeficits(teamData);
+  renderTeamHeatmap(teamData);
+  generateTeamAIRecommendation(teamData, 'Przykładowa drużyna');
 }
 
 function renderTeamStats(data) {
@@ -4463,9 +4507,9 @@ function restart() {
       <!-- Statystyki drużyny -->
       <div id="team-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px;"></div>
 
-      <!-- Rekomendacja AI — najważniejszy element dla trenera -->
+      <!-- Rekomendacja dla trenera -->
       <div style="background:#0e0d0b;border:1px solid #2a2a2a;padding:28px;margin-bottom:32px;">
-        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#c8ff00;margin-bottom:4px;">AI — Rekomendacja dla trenera</div>
+        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#c8ff00;margin-bottom:4px;">Rekomendacja dla trenera</div>
         <div id="team-ai-recommendation" style="font-size:14px;color:rgba(255,255,255,0.75);line-height:1.85;font-weight:300;"></div>
       </div>
 
@@ -4498,7 +4542,11 @@ function restart() {
         <div id="team-loading" style="padding:48px;text-align:center;color:#9a9488;font-size:14px;font-weight:300;">Ładowanie danych drużyny...</div>
         <div id="team-empty" style="display:none;padding:48px;text-align:center;">
           <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:#9a9488;margin-bottom:8px;">Brak wyników</div>
-          <div style="font-size:13px;color:#9a9488;font-weight:300;">Żaden zawodnik nie wypełnił jeszcze ankiety z tym kodem drużyny.</div>
+          <div style="font-size:13px;color:#9a9488;font-weight:300;margin-bottom:24px;">Żaden zawodnik nie wypełnił jeszcze ankiety z tym kodem drużyny.</div>
+          <button onclick="loadMockTeamData()"
+            style="background:#0e0d0b;color:#f5f2ec;border:none;padding:12px 28px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:0.1em;cursor:pointer;">
+            Podgląd z przykładowymi danymi →
+          </button>
         </div>
       </div>
 
@@ -4558,17 +4606,17 @@ function restart() {
     </div>
 
     <div style="background:#fff;border:1px solid #d8d3c8;padding:20px;margin-bottom:20px;">
-      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:4px;">Pytania dla trenera</div>
-      <p style="font-size:12px;color:#9a9488;font-weight:300;margin-bottom:14px;">Twoje odpowiedzi + dane z ankiety → ulepszona diagnoza tego zawodnika.</p>
+      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:4px;">Kilka pytań do Ciebie</div>
+      <p style="font-size:12px;color:#9a9488;font-weight:300;margin-bottom:14px;">Twoje obserwacje z boiska połączone z wynikami ankiety dają pełniejszy obraz zawodnika.</p>
       <div id="pp-questions"></div>
       <button id="pp-questions-btn" onclick="generateCoachQuestions()"
         style="background:#0e0d0b;color:#f5f2ec;border:none;padding:12px 24px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:0.1em;cursor:pointer;margin-top:12px;width:100%;">
-        Generuj pytania dla tego zawodnika →
+        Zadaj mi pytania o tego zawodnika →
       </button>
     </div>
 
     <div id="pp-enhanced-wrap" style="display:none;background:#0e0d0b;padding:20px;margin-bottom:20px;">
-      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#c8ff00;margin-bottom:10px;">Ulepszona diagnoza — obserwacje trenera + dane systemu</div>
+      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#c8ff00;margin-bottom:10px;">Diagnoza uzupełniona Twoimi obserwacjami</div>
       <div id="pp-enhanced" style="font-size:13px;color:rgba(255,255,255,0.82);line-height:1.85;font-weight:300;"></div>
     </div>
   </div>
