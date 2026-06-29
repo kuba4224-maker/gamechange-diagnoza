@@ -3382,6 +3382,9 @@ window.addEventListener('load', () => {
     loadParentView(parentParam);
     return;
   }
+
+  // Panel trenera
+  const teamParam = urlParams.get('team');
   if (teamParam) {
     loadTeamView(teamParam.toUpperCase());
     return;
