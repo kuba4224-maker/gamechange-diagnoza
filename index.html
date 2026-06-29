@@ -2306,10 +2306,8 @@ ZASADY: Pisz bezpośrednio do rodzica (forma "Twoje dziecko", "możesz", "warto"
 }
 
 async function sendParentReport(playerData, parentEmail) {
-  // Generuj unikalny token dla rodzica
   const token = Math.random().toString(36).slice(2) + Date.now().toString(36);
 
-  // Zapisz token do Supabase
   try {
     await fetch(`${SUPABASE_URL}/rest/v1/diagnostics?email=eq.${encodeURIComponent(playerData.email || '')}`, {
       method: 'PATCH',
@@ -2323,14 +2321,16 @@ async function sendParentReport(playerData, parentEmail) {
     });
   } catch(e) { console.warn('Nie udało się zapisać tokenu rodzica', e); }
 
-  // Wyślij email do rodzica przez EmailJS
   const parentLink = `${window.location.origin}${window.location.pathname}?parent=${token}`;
+
+  // Używamy istniejącego szablonu — pola dopasowane do template_ybc0bsq
   try {
     await emailjs.send('service_7dxlxuq', 'template_ybc0bsq', {
       to_email: parentEmail,
+      from_name: 'Gamechange System',
       subject: 'Raport o grze Twojego dziecka — Gamechange',
-      message: `Twoje dziecko właśnie ukończyło profesjonalną diagnostykę piłkarską w systemie Gamechange.\n\nPrzygotowaliśmy dla Ciebie osobny raport — napisany specjalnie dla rodzica, nie dla zawodnika.\n\nKliknij żeby go zobaczyć:\n${parentLink}\n\nLink jest aktywny bezterminowo.`,
-      parent_link: parentLink,
+      message: `Twoje dziecko właśnie ukończyło profesjonalną diagnostykę piłkarską w systemie Gamechange.\n\nPrzygotowaliśmy dla Ciebie osobny raport — napisany specjalnie dla rodzica.\n\nKliknij żeby go zobaczyć:\n${parentLink}\n\nLink jest aktywny bezterminowo.`,
+      reply_to: 'noreply@gamechange.pl',
     });
   } catch(e) { console.warn('EmailJS parent send failed', e); }
 }
