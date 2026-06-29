@@ -15,9 +15,9 @@
   --ink2: #3a3830;
   --muted: #9a9488;
   --rule: #d8d3c8;
-  --accent: #c8ff00;
-  --accent-dark: #8fb800;
-  --red: #d63c2f;
+  --accent: #E8432D;
+  --accent-dark: #C0392B;
+  --red: #C0392B;
   --amber: #e08020;
   --green: #2a7a3a;
   --surface: #ffffff;
@@ -203,7 +203,7 @@ body {
 .scale-btn.sel {
   background: #0e0d0b;
   border-color: #0e0d0b;
-  color: #c8ff00;
+  color: #E8432D;
 }
 .scale-num {
   font-family: 'Bebas Neue', sans-serif;
@@ -609,7 +609,7 @@ body {
   line-height: 1.4;
 }
 .ctx-btn:hover { border-color: #0e0d0b; color: #0e0d0b; }
-.ctx-btn.sel { background: #0e0d0b; border-color: #0e0d0b; color: #c8ff00; }
+.ctx-btn.sel { background: #0e0d0b; border-color: #0e0d0b; color: #E8432D; }
 .multi-btn {
   padding: 10px 14px;
   border: 1px solid #d8d3c8;
@@ -622,7 +622,7 @@ body {
   transition: all 0.1s;
 }
 .multi-btn:hover { border-color: #0e0d0b; }
-.multi-btn.sel { background: #0e0d0b; border-color: #0e0d0b; color: #c8ff00; }
+.multi-btn.sel { background: #0e0d0b; border-color: #0e0d0b; color: #E8432D; }
 </style>
 </head>
 <body>
@@ -632,14 +632,20 @@ body {
   <div style="min-height:100vh;background:#0e0d0b;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 24px;position:relative;overflow:hidden;">
 
     <!-- Tło dekoracyjne -->
-    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%, rgba(200,255,0,0.04) 0%, transparent 65%);pointer-events:none;"></div>
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%, rgba(232,67,45,0.04) 0%, transparent 65%);pointer-events:none;"></div>
     <div style="position:absolute;bottom:-40px;left:50%;transform:translateX(-50%);font-family:'Bebas Neue',sans-serif;font-size:200px;color:rgba(255,255,255,0.02);letter-spacing:0.1em;white-space:nowrap;pointer-events:none;">DIAGNOZA</div>
 
     <div style="position:relative;z-index:1;max-width:640px;width:100%;">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:0.25em;color:rgba(255,255,255,0.3);margin-bottom:40px;text-transform:uppercase;">Gamechange System</div>
+      <!-- Logo Gamechange -->
+      <div style="margin-bottom:40px;">
+        <img src="Logo_Gamechange.png" alt="Gamechange"
+          style="height:36px;filter:brightness(0) invert(1);opacity:0.9;"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <div style="display:none;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:0.25em;color:rgba(255,255,255,0.3);text-transform:uppercase;">Gamechange System</div>
+      </div>
 
       <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,8vw,96px);line-height:0.92;letter-spacing:0.01em;color:#f5f2ec;margin-bottom:32px;">
-        Co tak naprawdę<br><span style="color:#c8ff00;">ogranicza</span><br>Twoją grę?
+        Co tak naprawdę<br><span style="color:#E8432D;">ogranicza</span><br>Twoją grę?
       </div>
 
       <p style="font-size:16px;color:rgba(255,255,255,0.45);font-weight:300;line-height:1.8;margin-bottom:48px;max-width:420px;margin-left:auto;margin-right:auto;">
@@ -647,8 +653,8 @@ body {
       </p>
 
       <button onclick="startSurvey()"
-        style="display:inline-flex;align-items:center;gap:16px;background:#c8ff00;color:#0e0d0b;border:none;padding:20px 48px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.1em;cursor:pointer;transition:all 0.15s;"
-        onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 32px rgba(200,255,0,0.25)'"
+        style="display:inline-flex;align-items:center;gap:16px;background:#E8432D;color:#0e0d0b;border:none;padding:20px 48px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.1em;cursor:pointer;transition:all 0.15s;"
+        onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 32px rgba(232,67,45,0.25)'"
         onmouseout="this.style.transform='none';this.style.boxShadow='none'">
         Sprawdź swoje wąskie gardło
         <span style="font-size:24px;">→</span>
@@ -657,19 +663,19 @@ body {
       <!-- SOCIAL PROOF — liczby systemu -->
       <div style="margin-top:56px;display:flex;justify-content:center;gap:0;border:1px solid rgba(255,255,255,0.07);max-width:480px;margin-left:auto;margin-right:auto;">
         <div style="flex:1;padding:20px 16px;border-right:1px solid rgba(255,255,255,0.07);text-align:center;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#c8ff00;letter-spacing:0.05em;line-height:1;">5</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#E8432D;letter-spacing:0.05em;line-height:1;">5</div>
           <div style="font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;margin-top:4px;">Filarów</div>
         </div>
         <div style="flex:1;padding:20px 16px;border-right:1px solid rgba(255,255,255,0.07);text-align:center;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#c8ff00;letter-spacing:0.05em;line-height:1;">13</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#E8432D;letter-spacing:0.05em;line-height:1;">13</div>
           <div style="font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;margin-top:4px;">Obszarów</div>
         </div>
         <div style="flex:1;padding:20px 16px;border-right:1px solid rgba(255,255,255,0.07);text-align:center;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#c8ff00;letter-spacing:0.05em;line-height:1;">47</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#E8432D;letter-spacing:0.05em;line-height:1;">47</div>
           <div style="font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;margin-top:4px;">Zależności</div>
         </div>
         <div style="flex:1;padding:20px 16px;text-align:center;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#c8ff00;letter-spacing:0.05em;line-height:1;">26</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#E8432D;letter-spacing:0.05em;line-height:1;">26</div>
           <div style="font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;margin-top:4px;">Pytań</div>
         </div>
       </div>
@@ -699,7 +705,7 @@ body {
       <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:0.25em;color:rgba(255,255,255,0.3);margin-bottom:32px;text-transform:uppercase;">Gamechange System</div>
 
       <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,6vw,56px);line-height:0.95;color:#f5f2ec;margin-bottom:24px;">
-        Dowiedz się co<br>naprawdę<br><span style="color:#c8ff00;">hamuje Twój rozwój</span>
+        Dowiedz się co<br>naprawdę<br><span style="color:#E8432D;">hamuje Twój rozwój</span>
       </div>
 
       <p style="font-size:15px;color:rgba(255,255,255,0.5);font-weight:300;line-height:1.8;margin-bottom:32px;">
@@ -709,31 +715,31 @@ body {
       <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:24px;margin-bottom:24px;">
         <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:16px;">Co dostajesz za 19 zł</div>
         <div style="display:flex;gap:12px;margin-bottom:10px;align-items:flex-start;">
-          <span style="color:#c8ff00;flex-shrink:0;margin-top:2px;">✓</span>
+          <span style="color:#E8432D;flex-shrink:0;margin-top:2px;">✓</span>
           <span style="font-size:14px;color:rgba(255,255,255,0.7);font-weight:300;">Pełny profil sportowy w 13 obszarach</span>
         </div>
         <div style="display:flex;gap:12px;margin-bottom:10px;align-items:flex-start;">
-          <span style="color:#c8ff00;flex-shrink:0;margin-top:2px;">✓</span>
+          <span style="color:#E8432D;flex-shrink:0;margin-top:2px;">✓</span>
           <span style="font-size:14px;color:rgba(255,255,255,0.7);font-weight:300;">Wskazanie wąskiego gardła które blokuje wszystkie inne</span>
         </div>
         <div style="display:flex;gap:12px;margin-bottom:10px;align-items:flex-start;">
-          <span style="color:#c8ff00;flex-shrink:0;margin-top:2px;">✓</span>
+          <span style="color:#E8432D;flex-shrink:0;margin-top:2px;">✓</span>
           <span style="font-size:14px;color:rgba(255,255,255,0.7);font-weight:300;">Spersonalizowana diagnoza dopasowana do Twojej pozycji i poziomu</span>
         </div>
         <div style="display:flex;gap:12px;margin-bottom:10px;align-items:flex-start;">
-          <span style="color:#c8ff00;flex-shrink:0;margin-top:2px;">✓</span>
+          <span style="color:#E8432D;flex-shrink:0;margin-top:2px;">✓</span>
           <span style="font-size:14px;color:rgba(255,255,255,0.7);font-weight:300;">Kierunek pracy — co poprawić żeby efekt był najszybszy</span>
         </div>
         <div style="display:flex;gap:12px;margin-bottom:0;align-items:flex-start;">
-          <span style="color:#c8ff00;flex-shrink:0;margin-top:2px;">✓</span>
+          <span style="color:#E8432D;flex-shrink:0;margin-top:2px;">✓</span>
           <span style="font-size:14px;color:rgba(255,255,255,0.7);font-weight:300;">Raport PDF który możesz pokazać trenerowi</span>
         </div>
       </div>
 
       <button onclick="goToStripePayment()"
-        style="width:100%;background:#c8ff00;color:#0e0d0b;border:none;padding:20px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.1em;cursor:pointer;margin-bottom:12px;transition:all 0.15s;"
+        style="width:100%;background:#E8432D;color:#0e0d0b;border:none;padding:20px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.1em;cursor:pointer;margin-bottom:12px;transition:all 0.15s;"
         onmouseover="this.style.background='#d4ff00'"
-        onmouseout="this.style.background='#c8ff00'">
+        onmouseout="this.style.background='#E8432D'">
         Kup diagnozę — 19 zł →
       </button>
 
@@ -826,15 +832,61 @@ body {
       </div>
 
       <div style="margin-bottom:32px;">
-        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:12px;font-weight:500;">Przedział wiekowy</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
-          <button class="ctx-btn" onclick="ctxPick('age',0,this)">Do 14 lat</button>
-          <button class="ctx-btn" onclick="ctxPick('age',1,this)">Do 14 lat — z rodzicem lub trenerem</button>
-          <button class="ctx-btn" onclick="ctxPick('age',2,this)">15–19 lat</button>
-          <button class="ctx-btn" onclick="ctxPick('age',3,this)">20–25 lat</button>
-          <button class="ctx-btn" onclick="ctxPick('age',4,this)">26–30 lat</button>
-          <button class="ctx-btn" onclick="ctxPick('age',5,this)">30+ lat</button>
-        </div>
+        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:8px;font-weight:500;">Rok urodzenia</div>
+        <select id="birth-year-input"
+          onchange="updateAgeFromYear(this.value)"
+          style="width:100%;max-width:220px;padding:12px 16px;border:1px solid #d8d3c8;background:#fff;font-family:'DM Sans',sans-serif;font-size:15px;color:#0e0d0b;outline:none;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22><path d=%22M1 1l5 5 5-5%22 stroke=%22%239a9488%22 stroke-width=%221.5%22 fill=%22none%22/></svg>');background-repeat:no-repeat;background-position:right 14px center;cursor:pointer;"
+          onfocus="this.style.borderColor='#0e0d0b'"
+          onblur="this.style.borderColor='#d8d3c8'">
+<option value="">— wybierz rok —</option>
+          <option value="2015">2015</option>
+          <option value="2014">2014</option>
+          <option value="2013">2013</option>
+          <option value="2012">2012</option>
+          <option value="2011">2011</option>
+          <option value="2010">2010</option>
+          <option value="2009">2009</option>
+          <option value="2008">2008</option>
+          <option value="2007">2007</option>
+          <option value="2006">2006</option>
+          <option value="2005">2005</option>
+          <option value="2004">2004</option>
+          <option value="2003">2003</option>
+          <option value="2002">2002</option>
+          <option value="2001">2001</option>
+          <option value="2000">2000</option>
+          <option value="1999">1999</option>
+          <option value="1998">1998</option>
+          <option value="1997">1997</option>
+          <option value="1996">1996</option>
+          <option value="1995">1995</option>
+          <option value="1994">1994</option>
+          <option value="1993">1993</option>
+          <option value="1992">1992</option>
+          <option value="1991">1991</option>
+          <option value="1990">1990</option>
+          <option value="1989">1989</option>
+          <option value="1988">1988</option>
+          <option value="1987">1987</option>
+          <option value="1986">1986</option>
+          <option value="1985">1985</option>
+          <option value="1984">1984</option>
+          <option value="1983">1983</option>
+          <option value="1982">1982</option>
+          <option value="1981">1981</option>
+          <option value="1980">1980</option>
+          <option value="1979">1979</option>
+          <option value="1978">1978</option>
+          <option value="1977">1977</option>
+          <option value="1976">1976</option>
+          <option value="1975">1975</option>
+          <option value="1974">1974</option>
+          <option value="1973">1973</option>
+          <option value="1972">1972</option>
+          <option value="1971">1971</option>
+          <option value="1970">1970</option>
+        </select>
+        <div id="age-label" style="font-size:12px;color:#9a9488;margin-top:6px;font-weight:300;min-height:18px;"></div>
       </div>
 
       <!-- NOWE: Treningi — warstwa 1 danych treningowych -->
@@ -849,7 +901,7 @@ body {
       </div>
 
       <div style="margin-bottom:40px;">
-        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:12px;font-weight:500;">Treningi własne w tygodniu <span style="font-weight:300;text-transform:none;letter-spacing:0;">(poza drużyną)</span></div>
+        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:12px;font-weight:500;">Dodatkowa praca własna w tygodniu <span style="font-weight:300;text-transform:none;letter-spacing:0;">(poza treningami drużyny)</span></div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
           <button class="ctx-btn" onclick="ctxPick('ownTrainings',0,this)">0</button>
           <button class="ctx-btn" onclick="ctxPick('ownTrainings',1,this)">1</button>
@@ -858,11 +910,21 @@ body {
         </div>
       </div>
 
+      <!-- Email rodzica — pojawia się automatycznie gdy zawodnik ma < 16 lat -->
+      <div id="parent-email-wrap" style="display:none;margin-bottom:32px;padding:20px;background:#fff8f0;border:1px solid #e8c87a;">
+        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:6px;font-weight:500;">Email rodzica lub opiekuna</div>
+        <p style="font-size:12px;color:#9a9488;font-weight:300;margin-bottom:12px;line-height:1.6;">Twój rodzic dostanie osobny raport — napisany dla niego, nie dla Ciebie. Zobaczy w czym jesteś dobry i co może zrobić żeby Ci pomóc. Możesz pominąć.</p>
+        <input id="parent-email-input" type="email" placeholder="email@rodzica.pl"
+          style="width:100%;padding:12px 16px;border:1px solid #d8d3c8;background:#fff;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;"
+          onfocus="this.style.borderColor='#0e0d0b'"
+          onblur="this.style.borderColor='#d8d3c8'">
+      </div>
+
       <button onclick="startSurveyFromContext()"
         style="background:#0e0d0b;color:#f5f2ec;border:none;padding:18px 48px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.1em;cursor:pointer;width:100%;">
         Dalej →
       </button>
-      <div id="ctx-error" style="display:none;color:#d63c2f;font-size:13px;text-align:center;margin-top:12px;">Zaznacz odpowiedź w każdym pytaniu.</div>
+      <div id="ctx-error" style="display:none;color:#C0392B;font-size:13px;text-align:center;margin-top:12px;">Zaznacz odpowiedź w każdym pytaniu.</div>
 
       <!-- Kod drużyny — opcjonalny -->
       <div style="margin-top:32px;padding-top:24px;border-top:1px solid #d8d3c8;">
@@ -901,8 +963,8 @@ body {
 
       <!-- Co robi na własną rękę — pojawia się tylko gdy ownTrainings > 0 -->
       <div id="own-training-types-wrap" style="display:none;margin-bottom:28px;">
-        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:6px;font-weight:500;">Co robisz na tych treningach własnych?</div>
-        <p style="font-size:12px;color:#9a9488;margin-bottom:12px;font-weight:300;">Zaznacz wszystko co pasuje.</p>
+        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:6px;font-weight:500;">Co robisz na tej dodatkowej pracy?</div>
+        <p style="font-size:12px;color:#9a9488;margin-bottom:12px;font-weight:300;">Zaznacz wszystko co pasuje — rozciąganie, siłownia, technika, cokolwiek robisz poza treningiem drużynowym.</p>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="own-training-type-buttons">
           <button class="multi-btn" onclick="multiToggle('ownTypes','technika',this)">Technika z piłką</button>
           <button class="multi-btn" onclick="multiToggle('ownTypes','silownia',this)">Siłownia</button>
@@ -947,7 +1009,7 @@ body {
   </div>
   <div style="max-width:680px;margin:0 auto;padding:24px 24px 0;border-bottom:1px solid #d8d3c8;margin-bottom:0;">
     <p style="font-size:13px;color:#9a9488;font-weight:300;line-height:1.7;padding-bottom:20px;">
-      Odpowiadaj na podstawie ostatnich 4–6 tygodni. Nie ma dobrych ani złych odpowiedzi — liczy się to co faktycznie robisz i czujesz na boisku, nie to co chciałbyś robić.
+      Odpowiadaj na podstawie ostatnich 4–6 tygodni. Nie ma dobrych ani złych odpowiedzi — liczy się to co faktycznie robisz i czujesz na boisku, nie to co chciałbyś robić. Część pytań jest sformułowana odwrotnie — pyta o to co Ci się nie udaje. Odpowiadaj zgodnie z pytaniem.
     </p>
   </div>
   <div class="survey-body" id="survey-body"></div>
@@ -1011,7 +1073,7 @@ body {
       <div id="email-gate-box" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;">
         <div style="background:#fff;border:1px solid #d8d3c8;padding:40px;max-width:480px;width:100%;text-align:center;box-shadow:0 8px 48px rgba(0,0,0,0.08);">
           <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Odbierz pełną diagnozę</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1.1;letter-spacing:0.01em;margin-bottom:16px;">Widzisz swoje wyniki.<br>Teraz dowiedz się <em style="color:#d63c2f;font-style:normal;">co z nimi zrobić.</em></div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1.1;letter-spacing:0.01em;margin-bottom:16px;">Widzisz swoje wyniki.<br>Teraz dowiedz się <em style="color:#C0392B;font-style:normal;">co z nimi zrobić.</em></div>
           <p style="font-size:14px;color:#3a3830;font-weight:300;line-height:1.8;margin-bottom:28px;">Podaj email — wyślemy Ci diagnozę na podstawie Twoich wyników i zaproponujemy konkretne rozwiązania które poprawią Twoją grę.</p>
           <input id="email-input" type="email" placeholder="twoj@email.com"
             style="width:100%;padding:14px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:15px;color:#0e0d0b;outline:none;margin-bottom:12px;display:block;"
@@ -1022,7 +1084,7 @@ body {
             style="width:100%;background:#0e0d0b;color:#f5f2ec;border:none;padding:16px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;cursor:pointer;margin-bottom:10px;">
             Odblokuj diagnozę →
           </button>
-          <div id="email-error" style="color:#d63c2f;font-size:13px;display:none;margin-bottom:8px;">Podaj poprawny adres email.</div>
+          <div id="email-error" style="color:#C0392B;font-size:13px;display:none;margin-bottom:8px;">Podaj poprawny adres email.</div>
           <p style="font-size:11px;color:#9a9488;font-weight:300;">Bez spamu. Tylko Twoja diagnoza i materiały które mogą Ci pomóc.</p>
         </div>
       </div>
@@ -1122,7 +1184,7 @@ body {
     <div id="anchor-question-wrap" style="display:none;margin-bottom:32px;">
       <div style="border:1px solid #d8d3c8;padding:32px;background:#fff;">
         <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;">Jeszcze jedno pytanie</div>
-        <div id="anchor-question-text" style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.02em;margin-bottom:16px;color:#0e0d0b;line-height:1.3;">Kiedy ostatnio poczułeś to na boisku?</div>
+        <div id="anchor-question-text" style="font-size:17px;line-height:1.5;margin-bottom:16px;color:#0e0d0b;word-break:break-word;overflow-wrap:break-word;">Kiedy ostatnio poczułeś to na boisku?</div>
         <textarea id="anchor-answer" rows="3" placeholder="Opisz jedną konkretną sytuację z meczu lub treningu..."
           style="width:100%;padding:14px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;resize:none;line-height:1.6;display:block;margin-bottom:16px;"
           onfocus="this.style.borderColor='#0e0d0b'"
@@ -1195,7 +1257,7 @@ body {
             Pobierz →
           </button>
         </div>
-        <div id="pdf-email-error" style="display:none;color:#d63c2f;font-size:12px;margin-top:6px;">Podaj poprawny adres email.</div>
+        <div id="pdf-email-error" style="display:none;color:#C0392B;font-size:12px;margin-top:6px;">Podaj poprawny adres email.</div>
       </div>
       <!-- Przycisk jeśli email już jest -->
       <div id="pdf-download-btn-wrap">
@@ -1214,9 +1276,9 @@ body {
 </div>
 
 <script>
-// ══════════════════════════════════════
+// ======================================
 //  DATA — 26 pytań, 2 na segment
-// ══════════════════════════════════════
+// ======================================
 const SEGS = [
   {
     id: 'moc', name: 'MOC', pillar: 'Filar 1 — Dominacja fizyczna', n: '01',
@@ -1235,8 +1297,8 @@ const SEGS = [
         t: 'Jak często po zmianie kierunku rozpędzasz się z powrotem szybciej niż przeciwnik?',
         ctx: 'Kto wraca do pełnej szybkości pierwszy — Ty czy rywal?', dir: 1,
         pos: {
-          0: { t: 'Jak często po wybiciu, chwycie lub interwencji jesteś od razu ustawiony na kolejną sytuację — bez zatrzymania i resetowania pozycji?', ctx: 'Czy po każdej interwencji jesteś gotowy do kolejnej akcji od razu, czy potrzebujesz chwili żeby się zebrać?' },
-          1: { t: 'Jak często po wejściu w kontakt z napastnikiem lub wybiciu piłki natychmiast wracasz w ustawienie obronne — bez chwili, w której tracisz sytuację za sobą?', ctx: 'Czy po akcji obronnej wracasz na miejsce tak szybko jak napastnik rusza do kolejnego zagrania?' },
+          0: { t: 'Jak często po wybiciu, chwycie lub interwencji jesteś gotowy do następnej akcji zanim rywal zdąży ponownie zagrozić — bez chwili gdy stoisz w miejscu i się "zbierasz"?', ctx: 'Chodzi o to czy Twoje ciało natychmiast wraca do gotowości po każdej akcji, czy potrzebujesz sekundy przerwy.' },
+          1: { t: 'Jak często po wejściu w kontakt z napastnikiem lub wybiciu piłki natychmiast wracasz w ustawienie obronne — bez chwili gdy napastnik ucieka Ci za plecy bo nie zdążyłeś wrócić?', ctx: 'Czy po akcji obronnej wracasz na miejsce tak szybko jak napastnik rusza do kolejnego zagrania?' },
           2: { t: 'Jak często po stracie piłki natychmiast ruszasz do odbioru — bez chwili zawahania — i dobiegasz do rywala zanim ten zdąży rozegrać?', ctx: 'Czy powrót do pressingu po stracie jest natychmiastowy, czy potrzebujesz sekundy żeby ruszyć?' },
           3: { t: 'Jak często po strzale lub stracie piłki w polu karnym natychmiast ruszasz do dobitki lub wracasz na pozycję — bez chwili zatrzymania?', ctx: 'Czy Twoje ciało jest w stanie wykonać kolejny wysiłek zaraz po poprzednim, bez odpoczynku?' },
         }
@@ -1246,8 +1308,20 @@ const SEGS = [
   {
     id: 'wytrzymalosc', name: 'WYTRZYMAŁOŚĆ', pillar: 'Filar 1 — Dominacja fizyczna', n: '02',
     qs: [
-      { t: 'Jak często w ostatnich 15 minutach meczu poruszasz się z podobną intensywnością co na początku — biegasz do piłki, wracasz, nie odpuszczasz akcji?', ctx: 'Porównaj swoje zaangażowanie ruchowe w końcówce do pierwszych 15 minut.', dir: 1 },
-      { t: 'Jak często po intensywnym sprincie lub walce fizycznej jesteś gotowy do kolejnego wysiłku bez potrzeby kilku sekund odpoczynku?', ctx: 'Czy możesz od razu biec z powrotem po zakończeniu sprintu lub kontaktu?', dir: 1 },
+      {
+        t: 'Jak często w ostatnich 15 minutach meczu poruszasz się z podobną intensywnością co na początku — biegasz do piłki, wracasz, nie odpuszczasz akcji?',
+        ctx: 'Porównaj swoje zaangażowanie ruchowe w końcówce do pierwszych 15 minut.', dir: 1,
+        pos: {
+          0: { t: 'Jak często w ostatnich 15 minutach meczu Twoje reakcje i wyjścia do piłki są tak samo szybkie i zdecydowane jak na początku — nie zostajesz na linii gdy powinieneś wyjść?', ctx: 'Porównaj jak decydujesz się na wyjście do piłki w 80. minucie do tego jak robisz to w 10. minucie.' },
+        }
+      },
+      {
+        t: 'Jak często po intensywnym sprincie lub walce fizycznej jesteś gotowy do kolejnego wysiłku bez potrzeby kilku sekund odpoczynku?',
+        ctx: 'Czy możesz od razu biec z powrotem po zakończeniu sprintu lub kontaktu?', dir: 1,
+        pos: {
+          0: { t: 'Jak często po wymagającej interwencji — trudny chwyt, wyjście w tłum, wybicie pod presją — jesteś od razu skupiony i gotowy na kolejną sytuację bez chwili w której "wyłączasz się"?', ctx: 'Czy po trudnej akcji natychmiast wracasz do pełnej czujności, czy potrzebujesz kilku sekund żeby się pozbierać?' },
+        }
+      },
     ]
   },
   {
@@ -1267,7 +1341,7 @@ const SEGS = [
         t: 'Jak często przeciwnik wypycha Cię z pozycji lub odbiera przestrzeń w bezpośredniej walce fizycznej?',
         ctx: 'Konkretna sytuacja: tracisz pozycję pod wpływem kontaktu.', dir: -1,
         pos: {
-          0: { t: 'Jak często przy stałych fragmentach rywal wypycha Cię z miejsca które zajmowałeś — tracisz pozycję lub nie możesz wykonać zagrania które planowałeś?', ctx: 'Przy rożnych i wolnych — czy trzymasz swoje miejsce, czy jesteś przesuwany?' },
+          0: { t: 'Jak często przy stałych fragmentach rywal wypycha Cię z miejsca które zajmowałeś — tracisz pozycję lub nie możesz wykonać zagrania które planowałeś?', ctx: 'Przy rożnych i wolnych — czy trzymasz swoje miejsce, czy jesteś przesuwany? Im rzadziej Cię wypychają, tym lepiej — "Prawie nigdy" to tutaj najlepsza odpowiedź.' },
           1: { t: 'Jak często rywal barkiem lub całym ciałem wybija Cię z równowagi w trakcie biegu — i przez to wyprzedza Cię do piłki lub zmusza do faulu?', ctx: 'Czy kontakt w biegu narusza Twoje ustawienie, czy pozostajesz stabilny mimo nacisku?' },
           2: { t: 'Jak często przy odbiorze lub utrzymaniu piłki rywal usuwa Cię ze swojej drogi — a Ty jesteś za słaby fizycznie żeby utrzymać pozycję?', ctx: 'Czy ustawiasz ciało między rywalem a piłką, czy on łatwo Cię od niej odsuwa?' },
           3: { t: 'Jak często przy próbie przyjęcia lub obrotu pod bramką obrońca kontroluje Cię fizycznie tak, że nie możesz się swobodnie poruszyć?', ctx: 'Czy obrońca potrafi "przykryć" Cię ciałem i odebrać Ci możliwość ruchu?' },
@@ -1317,7 +1391,7 @@ const SEGS = [
   {
     id: 'regeneracja', name: 'REGENERACJA', pillar: 'Filar 3 — Trwałość organizmu', n: '07',
     qs: [
-      { t: 'Jak często dzień po intensywnym meczu lub treningu Twoje ciało czuje się gotowe — bez bólu mięśni, sztywności ani uczucia zmęczenia przed rozgrzewką?', ctx: 'Czy ciało reaguje na rozgrzewkę tak samo jak po dniu odpoczynku?', dir: 1 },
+      { t: 'Jak często po intensywnym treningu lub meczu Twoje ciało czuje się gotowe na kolejny wysiłek — bez bólu mięśni, sztywności ani uczucia zmęczenia przed rozgrzewką?', ctx: 'Czy ciało reaguje na rozgrzewkę tak samo jak po dniu odpoczynku?', dir: 1 },
       { t: 'Jak często masz problemy ze snem, które sprawiają, że czujesz się niewyspany przed treningiem lub meczem?', ctx: 'Budzisz się zmęczony lub masz trudności z zasypianiem?', dir: -1 },
     ]
   },
@@ -1325,14 +1399,14 @@ const SEGS = [
     id: 'odpornosc', name: 'ODPORNOŚĆ', pillar: 'Filar 3 — Trwałość organizmu', n: '08',
     qs: [
       { t: 'Jak często kończysz pełny miesiąc treningowy bez żadnej przerwy spowodowanej chorobą lub przeziębieniem?', ctx: 'Policz ile miesięcy w ostatnim sezonie przepadło przez chorobę.', dir: 1 },
-      { t: 'Jak często po chorobie wracasz do pełnej formy w ciągu tygodnia — bez wyraźnego spadku jakości gry w pierwszych treningach po powrocie?', ctx: 'Czy pierwsze treningi po chorobie wyglądają normalnie czy gorzej niż zwykle?', dir: 1 },
+      { t: 'Jak często pierwsze treningi po chorobie wyglądają u Ciebie tak samo jak przed chorobą — bez wyraźnego spadku jakości, tempa ani wytrzymałości?', ctx: 'Nie chodzi o to czy wróciłeś po tygodniu — chodzi o to jak wyglądają te pierwsze treningi po powrocie. Są normalne czy wyraźnie gorsze?', dir: 1 },
     ]
   },
   {
     id: 'odzywianie', name: 'ODŻYWIENIE', pillar: 'Filar 3 — Trwałość organizmu', n: '09',
     qs: [
       { t: 'Jak często w drugiej połowie meczu czujesz tyle samo energii co w pierwszej?', ctx: 'Porównaj poziom energii w 70. minucie do 20. minuty.', dir: 1 },
-      { t: 'Jak często podczas meczu lub treningu pojawiają się objawy takie jak pragnienie, zawroty głowy lub problemy żołądkowe?', ctx: 'Konkretne fizyczne odczucia — nie subiektywne zmęczenie.', dir: -1 },
+      { t: 'Jak często podczas meczu lub treningu pojawiają się u Ciebie objawy takie jak zawroty głowy, skurcze mięśni lub problemy żołądkowe?', ctx: 'Pragnienie podczas meczu jest normalne — pytamy o poważniejsze sygnały że coś z odżywieniem lub nawodnieniem nie gra.', dir: -1 },
     ]
   },
   {
@@ -1437,9 +1511,9 @@ const SEGS = [
   },
 ];
 
-// ══════════════════════════════════════
+// ======================================
 //  WERSJA JUNIOR — 13 pytań, tylko pozytywne
-// ══════════════════════════════════════
+// ======================================
 const SEGS_JUNIOR = [
   {
     id: 'moc', name: 'MOC', n: '01',
@@ -1501,7 +1575,7 @@ const SEGS_JUNIOR = [
     id: 'odzywianie', name: 'ODŻYWIENIE', n: '09',
     qs: [
       { q: 'Jak często w drugiej połowie meczu masz tyle samo energii co w pierwszej?', ctx: 'Porównaj jak się czujesz w 70. minucie do 20. minuty.' },
-      { q: 'Jak często podczas meczu lub treningu czujesz pragnienie, zawroty głowy lub ból brzucha?', ctx: 'Konkretne fizyczne odczucia które przeszkadzają Ci w grze.' },
+      { q: 'Jak często podczas meczu lub treningu masz zawroty głowy, skurcze lub ból brzucha?', ctx: 'Pragnienie w meczu jest normalne — pytamy o poważniejsze sygnały że coś nie gra.' },
     ]
   },
   {
@@ -1559,9 +1633,9 @@ const SEG_NAMES = {};
 SEGS.forEach(s => SEG_NAMES[s.id] = s.name);
 
 
-// ══════════════════════════════════════
+// ======================================
 //  CONTEXT STATE
-// ══════════════════════════════════════
+// ======================================
 const CTX_LABELS = {
   level: ['Amator / rekreacyjnie','Juniorski klub','Seniorski klub amatorski','Półprofesjonalny','Profesjonalny'],
   pos:   ['Bramkarz','Obrońca','Pomocnik','Napastnik','Nie dotyczy'],
@@ -1578,6 +1652,30 @@ let presurvey = {
   selfDesc: '',        // samoopis zawodnika
 };
 let ctx = { level: null, pos: null, age: null, clubTrainings: null, ownTrainings: null };
+
+function updateAgeFromYear(yearStr) {
+  const year = parseInt(yearStr);
+  if (!year || year < 1970 || year > 2015) {
+    ctx.age = null;
+    document.getElementById('age-label').textContent = '';
+    document.getElementById('parent-email-wrap').style.display = 'none';
+    return;
+  }
+  const currentYear = new Date().getFullYear();
+  const age = currentYear - year;
+  ctx.age = age;
+  ctx.birthYear = year;
+
+  const label = age + ' lat';
+  document.getElementById('age-label').textContent = label;
+  document.getElementById('ctx-error').style.display = 'none';
+
+  // Pokaż pole email rodzica dla juniorów < 16 lat
+  const parentWrap = document.getElementById('parent-email-wrap');
+  if (parentWrap) {
+    parentWrap.style.display = age < 16 ? 'block' : 'none';
+  }
+}
 
 function ctxPick(field, idx, btn) {
   ctx[field] = idx;
@@ -1613,12 +1711,22 @@ function startSurveyFromContext() {
   if (ctx.level === null || ctx.pos === null || ctx.age === null ||
       ctx.clubTrainings === null || ctx.ownTrainings === null) {
     document.getElementById('ctx-error').style.display = 'block';
-    document.getElementById('ctx-error').textContent = 'Zaznacz odpowiedź w każdym pytaniu.';
+    document.getElementById('ctx-error').textContent =
+      ctx.age === null ? 'Podaj rok urodzenia.' : 'Zaznacz odpowiedź w każdym pytaniu.';
     return;
   }
   document.getElementById('ctx-error').style.display = 'none';
   teamCode = (document.getElementById('team-code-input').value.trim().toUpperCase()) || null;
   playerName = document.getElementById('player-name-input').value.trim() || null;
+
+  // Zbierz email rodzica jeśli podany
+  const parentInput = document.getElementById('parent-email-input');
+  if (parentInput && parentInput.value.trim()) {
+    const pe = parentInput.value.trim();
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(pe)) {
+      window._parentEmail = pe;
+    }
+  }
 
   // Przejdź do ekranu "dla chętnych" — PRZED ankietą
   showScreen('screen-presurvey');
@@ -1633,8 +1741,8 @@ function startSurveyFromPresurvey(skip = false) {
     presurvey.selfDesc = '';
   }
 
-  // Inicjalizuj ankietę
-  isJunior = ctx.age === 0;
+  // Junior = poniżej 15 lat
+  isJunior = ctx.age !== null && ctx.age < 15;
   activeSegs = isJunior ? SEGS_JUNIOR : SEGS;
 
   document.getElementById('survey-mode-label').textContent = isJunior ? 'Diagnoza Junior' : 'Diagnoza';
@@ -1653,9 +1761,9 @@ function startSurveyFromPresurvey(skip = false) {
   showScreen('screen-survey');
 }
 
-// ══════════════════════════════════════
+// ======================================
 //  STATE
-// ══════════════════════════════════════
+// ======================================
 let ans = {};
 let cachedScores = null;
 let playerEmail = null;
@@ -1667,9 +1775,9 @@ let hasPaidAccess = false; // false = bramka aktywna
 // Kody bezpłatnego dostępu dla klubów i trenerów
 const FREE_ACCESS_CODES = ['GAMECHANGE', 'TRENER', 'PILOT', 'GAMECHANGE2025', 'LEGIA2025'];
 
-// ══════════════════════════════════════
+// ======================================
 //  SURVEY RENDER
-// ══════════════════════════════════════
+// ======================================
 function startSurvey() {
   if (hasPaidAccess) {
     showScreen('screen-context');
@@ -1699,9 +1807,9 @@ function esc(str) {
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-// ══════════════════════════════════════
+// ======================================
 //  SURVEY — SCROLL MODE
-// ══════════════════════════════════════
+// ======================================
 let isJunior = false;
 let activeSegs = [];
 
@@ -1729,7 +1837,7 @@ function renderAllQuestions() {
             <div class="q-context">${esc(q.ctx)}</div>
             <div class="scale-wrap" style="margin-top:20px;">
               <div class="scale-btns">
-                ${[[1,'Prawie nigdy'],[2,'Bardzo rzadko'],[3,'Rzadko'],[4,'Często'],[5,'Bardzo często'],[6,'Prawie zawsze']].map(([v,label]) => `
+                ${[[1,'Prawie nigdy'],[2,'Rzadko'],[3,'Raczej rzadko'],[4,'Raczej często'],[5,'Często'],[6,'Prawie zawsze']].map(([v,label]) => `
                   <button class="scale-btn ${(ans[seg.id] || [])[qi] === v ? 'sel' : ''}"
                     onclick="pickScroll('${esc(seg.id)}',${qi},${v},this)">
                     <span class="scale-num">${v}</span>
@@ -1749,7 +1857,7 @@ function renderAllQuestions() {
       seg.qs.forEach((q, qi) => {
         const qq = getQuestion(q);
         let btns = '';
-        [[1,'Prawie nigdy'],[2,'Bardzo rzadko'],[3,'Rzadko'],[4,'Często'],[5,'Bardzo często'],[6,'Prawie zawsze']].forEach(([v,label]) => {
+        [[1,'Prawie nigdy'],[2,'Rzadko'],[3,'Raczej rzadko'],[4,'Raczej często'],[5,'Często'],[6,'Prawie zawsze']].forEach(([v,label]) => {
           const sel = ans[seg.id][qi] === v ? 'sel' : '';
           btns += `<button class="scale-btn ${sel}" onclick="pickScroll('${esc(seg.id)}',${qi},${v},this)">`;
           btns += `<span class="scale-num">${v}</span>`;
@@ -1810,14 +1918,448 @@ function updateProgressScroll() {
   }
 }
 
-// ══════════════════════════════════════
+// ======================================
 //  TEAM VIEW — widok trenera
-// ══════════════════════════════════════
+// ======================================
 let teamData = [];
+
+// ======================================
+//  PANEL RODZICA
+// ======================================
+
+// ======================================
+//  REJESTRACJA TRENERA — automatyczny kod
+// ======================================
+
+async function registerCoach() {
+  const name  = document.getElementById('coach-name-input').value.trim();
+  const email = document.getElementById('coach-email-input').value.trim();
+  const club  = document.getElementById('coach-club-input').value.trim();
+  const err   = document.getElementById('coach-register-error');
+
+  if (!name || !email || !club) {
+    err.textContent = 'Uzupełnij wszystkie pola.';
+    err.style.display = 'block';
+    return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    err.textContent = 'Podaj prawidłowy adres email.';
+    err.style.display = 'block';
+    return;
+  }
+  err.style.display = 'none';
+
+  // Sprawdź czy email już zarejestrowany
+  try {
+    const dup = await fetch(
+      `${SUPABASE_URL}/rest/v1/teams?coach_email=eq.${encodeURIComponent(email)}&limit=1`,
+      { headers: { 'apikey': SUPABASE_KEY } }
+    );
+    const dupData = await dup.json();
+    if (dupData && dupData.length > 0) {
+      // Pokaż istniejący kod zamiast tworzyć nowy
+      const existing = dupData[0];
+      document.getElementById('coach-code-display').textContent = existing.code;
+      const panelLink = `${window.location.origin}${window.location.pathname}?team=${existing.code}`;
+      document.getElementById('coach-panel-link').innerHTML = `Panel trenera: <a href="${panelLink}" style="color:#0e0d0b;">${panelLink}</a>`;
+      document.getElementById('coach-register-success').style.display = 'block';
+      err.textContent = 'Ten email jest już zarejestrowany. Wyświetlamy Twój istniejący kod.';
+      err.style.display = 'block';
+      return;
+    }
+  } catch(e) { /* ignoruj — kontynuuj rejestrację */ }
+
+  // Generuj unikalny kod z nazwy klubu + losowe 4 cyfry
+  const base = club.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
+  const suffix = Math.floor(1000 + Math.random() * 9000);
+  const code = base + suffix;
+
+  try {
+    // Zapisz do Supabase (tabela teams)
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/teams`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({ code, coach_name: name, coach_email: email, club_name: club, created_at: new Date().toISOString() })
+    });
+
+    if (!res.ok && res.status !== 201) throw new Error('Supabase error');
+
+    // Wyślij email do trenera z kodem
+    const panelLink = `${window.location.origin}${window.location.pathname}?team=${code}`;
+    await emailjs.send('service_7dxlxuq', 'template_ybc0bsq', {
+      to_email: email,
+      subject: `Twój kod drużyny Gamechange: ${code}`,
+      message: `Cześć ${name},\n\nTwój kod drużyny jest gotowy.\n\nKOD: ${code}\n\nPodaj ten kod swoim zawodnikom. Gdy wypełnią diagnozę na gamechange-diagnoza.vercel.app, wpisują ten kod i trafiają do Twojego raportu.\n\nTwój panel trenera:\n${panelLink}\n\nGamechange System`,
+    });
+
+    // Pokaż sukces
+    document.getElementById('coach-code-display').textContent = code;
+    document.getElementById('coach-panel-link').innerHTML = `Panel trenera: <a href="${panelLink}" style="color:#0e0d0b;">${panelLink}</a>`;
+    document.getElementById('coach-register-success').style.display = 'block';
+    document.querySelector('#screen-coach-register button').style.display = 'none';
+
+  } catch(e) {
+    err.textContent = 'Wystąpił błąd. Spróbuj ponownie.';
+    err.style.display = 'block';
+    console.error(e);
+  }
+}
+
+// ======================================
+//  ANALIZA FEEDBACKÓW — cotygodniowy raport
+// ======================================
+
+async function loadFeedbackAnalysis() {
+  // Pobierz ostatnie 30 dni negatywnych/mieszanych feedbacków
+  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/diagnostics?feedback_accuracy=in.(nie trafna,częściowo trafna)&created_at=gte.${since}&order=created_at.desc&limit=50`,
+      { headers: { 'apikey': SUPABASE_KEY } }
+    );
+    const rows = await res.json();
+    if (!rows.length) return null;
+
+    // Zlicz problemy per segment
+    const deficitCounts = {};
+    rows.forEach(r => {
+      if (r.top_deficits) {
+        r.top_deficits.split(',').forEach(d => {
+          const id = d.trim().split(' ')[0];
+          deficitCounts[id] = (deficitCounts[id] || 0) + 1;
+        });
+      }
+    });
+
+    const problemSegs = Object.entries(deficitCounts)
+      .sort((a,b) => b[1]-a[1])
+      .slice(0,5)
+      .map(([id, count]) => {
+        const seg = SEGS.find(s=>s.id===id);
+        return `${seg ? seg.name : id}: ${count} diagnoz`;
+      });
+
+    const comments = rows
+      .filter(r => r.feedback_comment && r.feedback_comment.trim())
+      .slice(0,10)
+      .map(r => `— "${r.feedback_comment}" (${r.position||'?'}, ${r.age_group||'?'})`);
+
+    return {
+      total: rows.length,
+      problemSegs,
+      comments,
+      notRate: rows.filter(r=>r.feedback_accuracy==='nie trafna').length,
+      partialRate: rows.filter(r=>r.feedback_accuracy==='częściowo trafna').length,
+    };
+  } catch(e) { return null; }
+}
+
+async function sendFeedbackDigest() {
+  const data = await loadFeedbackAnalysis();
+  if (!data) return;
+
+  const msg = `GAMECHANGE — Raport feedbacków (ostatnie 30 dni)\n\n` +
+    `Diagnozy z negatywnym feedbackiem: ${data.total}\n` +
+    `  - "Nie trafna": ${data.notRate}\n` +
+    `  - "Częściowo trafna": ${data.partialRate}\n\n` +
+    `Segmenty najczęściej przy słabym feedbacku:\n${data.problemSegs.join('\n')}\n\n` +
+    `Komentarze zawodników:\n${data.comments.join('\n')}`;
+
+  try {
+    await emailjs.send('service_7dxlxuq', 'template_ybc0bsq', {
+      to_email: 'dajwlowski@gmail.com',
+      subject: `Gamechange — raport feedbacków`,
+      message: msg,
+    });
+  } catch(e) { console.warn('Feedback digest send failed', e); }
+}
+
+async function loadParentView(token) {
+  showScreen('screen-parent');
+  const el = document.getElementById('parent-content');
+
+  try {
+    // Pobierz dane z Supabase po tokenie
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/diagnostics?parent_token=eq.${encodeURIComponent(token)}&order=created_at.desc&limit=1`,
+      { headers: { 'apikey': SUPABASE_KEY } }
+    );
+    const rows = await res.json();
+    if (!rows.length) {
+      el.innerHTML = '<div style="padding:48px;text-align:center;"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:24px;color:#9a9488;margin-bottom:8px;">Nie znaleziono raportu</div><p style="font-size:13px;color:#9a9488;font-weight:300;">Link może być nieaktualny lub nieprawidłowy.</p></div>';
+      return;
+    }
+    const row = rows[0];
+    const name = row.player_name || 'Twoje dziecko';
+    document.getElementById('parent-child-name').textContent = name + ' — raport dla rodzica';
+    await generateParentReport(row, el);
+  } catch(e) {
+    el.innerHTML = '<div style="padding:48px;text-align:center;color:#9a9488;">Błąd ładowania raportu.</div>';
+  }
+}
+
+async function generateParentReport(row, el) {
+  el.innerHTML = inlineLoaderHTML('Przygotowuję raport');
+
+  const scores = row.scores ? (() => { try { return JSON.parse(row.scores); } catch(e) { return null; } })() : null;
+  if (!scores) {
+    el.innerHTML = '<div style="padding:48px;text-align:center;color:#9a9488;">Brak danych do wygenerowania raportu.</div>';
+    return;
+  }
+
+  const name = row.player_name || 'Twoje dziecko';
+  const pos = row.position || '';
+  const age = row.age_group || '';
+
+  // Wylicz mocne strony i deficyty
+  const SEG_NAMES_PL = {
+    moc: 'eksplozywność i szybkość startowa', wytrzymalosc: 'wytrzymałość przez cały mecz',
+    fizycznosc: 'siła w kontakcie fizycznym', techFund: 'jakość techniki podstawowej',
+    techSpec: 'tworzenie przewagi technicznej', tolerancja: 'odporność na obciążenia',
+    regeneracja: 'regeneracja między treningami', odpornosc: 'odporność zdrowotna w sezonie',
+    odzywianie: 'energia przez cały mecz', koncentracja: 'skupienie i powrót po błędzie',
+    mental: 'odwaga i stabilność w trudnych momentach', percepcja: 'czytanie gry przed odbiorem piłki',
+    decyzja: 'szybkość podejmowania decyzji',
+  };
+
+  const sorted = Object.entries(scores).sort((a,b) => b[1]-a[1]);
+  const strengths = sorted.slice(0,3).filter(([,v]) => v >= 55);
+  const deficits = sorted.slice().reverse().slice(0,3).filter(([,v]) => v < 65);
+  const overall = Math.round(Object.values(scores).reduce((a,b)=>a+b,0) / Object.values(scores).length);
+
+  const strengthsText = strengths.map(([id]) => SEG_NAMES_PL[id]).filter(Boolean).join(', ');
+  const deficitsText = deficits.map(([id]) => SEG_NAMES_PL[id]).filter(Boolean).join(', ');
+
+  // Wskazówki dla rodzica — co może zrobić poza boiskiem
+  const PARENT_TIPS = {
+    koncentracja: 'Po meczu — szczególnie po przegranym lub po błędzie — nie analizuj natychmiast. Daj mu 30 minut ciszy. Mózg potrzebuje czasu żeby przetworzyć emocje zanim będzie gotowy na rozmowę. Pytanie "co myślisz że poszło nie tak?" zadane zbyt wcześnie tylko utrwala negatywne emocje.',
+    mental: 'Kiedy dziecko mówi że chce rzucić piłkę lub że nie jest dość dobre — nie zaprzeczaj i nie przekonuj. Zapytaj "co konkretnie było dzisiaj trudne?" To przesuwa rozmowę z oceny na fakty i pomaga mu samemu znaleźć odpowiedź.',
+    percepcja: 'Oglądaj z nim mecze — nie tylko ligę mistrzów, ale mecze na jego poziomie. Pytaj "co ten zawodnik zrobił zanim dostał piłkę?" To buduje bibliotekę wzorców w głowie bez żadnego treningu fizycznego.',
+    decyzja: 'Nie podpowiadaj mu decyzji podczas meczu z trybun. Zawodnik który słyszy instrukcje od rodzica uczy się czekać na podpowiedź zamiast samodzielnie decydować. Kibicuj — nie trenuj.',
+    moc: 'Sen jest ważniejszy niż dodatkowy trening. Zawodnik który śpi 8-9 godzin rozwija moc szybciej niż ten który śpi 6 i trenuje codziennie. Pilnuj regularnych godzin snu bardziej niż liczby treningów.',
+    wytrzymalosc: 'Zadbaj o to żeby miał dobry posiłek 2-3 godziny przed meczem. Zawodnik który gra na czczo lub po fast foodzie wyczerpuje się szybciej niezależnie od kondycji — to jest zmiana którą możesz wprowadzić od następnego meczu.',
+    fizycznosc: 'Jeśli chcesz żeby chodził na siłownię — zaproponuj razem. Nastolatek który zaczyna siłownię z rodzicem ma większą szansę że to będzie regularne niż ten który zaczyna sam.',
+    techFund: '15 minut podań pod ścianą lub z Tobą kilka razy w tygodniu robi więcej niż jeden dodatkowy trening tygodniowo. Nie musisz być trenerem — musisz tylko stać naprzeciwko i podawać piłkę.',
+    techSpec: 'Nie chwal go za wynik — chwal za odważne decyzje. "Dobrze że spróbowałeś tego podania nawet jeśli nie wyszło" buduje zawodnika który będzie grał odważnie. Chwalenie tylko za efekt buduje zawodnika który gra bezpiecznie.',
+    tolerancja: 'Nie martw się każdą drobną kontuzją — ale pilnuj żeby naprawdę odpoczął gdy jest zmęczony. Zawodnik który trenuje z bólem lub zmęczeniem nie buduje odporności — buduje nawyk ignorowania sygnałów ciała.',
+    regeneracja: 'Zadbaj o to żeby miał coś do jedzenia w ciągu 30 minut po treningu. Banana, kanapkę, cokolwiek. Ten posiłek decyduje czy trening z poprzedniego dnia da efekt czy nie.',
+    odpornosc: 'Gdy jest chory — nie wysyłaj na trening. Trening z infekcją nie "przebiegnie" choroby, wydłuża ją. Dwa dni odpoczynku przy przeziębieniu są lepsze niż tydzień absencji przez powikłania.',
+    odzywianie: 'Jeden nawyk który zmieni jego energię w meczu: śniadanie w dniu meczu. Zawodnik który nie je rano traci energię w drugiej połowie niezależnie od kondycji. Makaron, ryż, płatki — cokolwiek co lubi, byle było.',
+  };
+
+  const topDeficitId = deficits[0] ? deficits[0][0] : null;
+  const topStrengthId = strengths[0] ? strengths[0][0] : null;
+  const parentTip = topDeficitId && PARENT_TIPS[topDeficitId] ? PARENT_TIPS[topDeficitId] : (topStrengthId && PARENT_TIPS[topStrengthId] ? PARENT_TIPS[topStrengthId] : '');
+
+  // Prompt dla AI — raport napisany dla rodzica
+  const prompt = `Jesteś ekspertem od rozwoju młodych piłkarzy. Piszesz krótki raport dla rodzica zawodnika. Ton: ciepły, konkretny, wspierający — jak rozmowa z doświadczonym trenerem który ceni sobie czas rodzica.
+
+DANE ZAWODNIKA:
+Imię: ${name}
+Pozycja: ${pos || 'nie podano'}
+Wiek: ${age || 'nie podano'}
+Mocne strony (wg diagnozy): ${strengthsText || 'wynik wyrównany'}
+Obszar który go teraz blokuje: ${deficitsText || 'brak wyraźnego deficytu'}
+
+Napisz raport w trzech krótkich sekcjach (każda 2-3 zdania):
+
+SEKCJA 1 — "Co Twoje dziecko ma naprawdę dobre":
+Napisz o mocnych stronach w języku rodzica — co to oznacza w praktyce na boisku. Nie używaj terminologii technicznej. Rodzic powinien poczuć dumę i zrozumieć dlaczego to jest wartościowe.
+
+SEKCJA 2 — "Co go teraz blokuje":
+Jedno konkretne wąskie gardło — opisane jako sytuacja boiskowa którą rodzic mógł widzieć na trybunach, nie jako deficyt psychologiczny. Bez oceniania. Zakończ zdaniem że to jest do naprawienia.
+
+SEKCJA 3 — "Jeden konkret który możesz zrobić":
+Jedna praktyczna rzecz którą rodzic może zrobić w tym miesiącu — nie treningowo, ale jako rodzic. Codzienna, realistyczna, bez kosztów.
+
+ZASADY: Pisz bezpośrednio do rodzica (forma "Twoje dziecko", "możesz", "warto"). Żadnych liczb ani wyników. Żadnego żargonu. ZAKAZ markdown, gwiazdek, nagłówków z hashami — tylko czysty tekst z nagłówkami sekcji jako osobnymi liniami.`;
+
+  try {
+    const response = await fetch('/api/diagnose', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt, maxTokens: 600 })
+    });
+    const data = await response.json();
+    const text = data.content?.filter(c => c.type === 'text').map(c => c.text).join('').trim() || '';
+
+    // Renderuj raport
+    const lvlColor = overall < 45 ? '#e08020' : overall < 65 ? '#c8b820' : '#2a7a3a';
+
+    let html = '';
+
+    // Profil hexagon dziecka — uproszczony i kolorowy
+    html += '<div style="background:#fff;border:1px solid #d8d3c8;padding:28px;margin-bottom:20px;text-align:center;">';
+    html += '<div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:16px;">Profil ' + name + '</div>';
+
+    // Paski segmentów — tylko top 3 mocne i top 3 słabe, bez liczb
+    const SEG_LABELS = { mocne: 'Mocne strony', slabe: 'Obszary do pracy' };
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;text-align:left;">';
+
+    html += '<div>';
+    html += '<div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#2a7a3a;margin-bottom:10px;font-weight:500;">Co mu wychodzi dobrze</div>';
+    strengths.slice(0,3).forEach(([id]) => {
+      const name_seg = SEG_NAMES_PL[id] || id;
+      html += '<div style="margin-bottom:8px;">';
+      html += '<div style="font-size:12px;color:#3a3830;margin-bottom:3px;">' + name_seg + '</div>';
+      html += '<div style="height:4px;background:#e8f5e9;border-radius:2px;"><div style="height:4px;background:#2a7a3a;border-radius:2px;width:' + (scores[id] || 0) + '%;"></div></div>';
+      html += '</div>';
+    });
+    html += '</div>';
+
+    html += '<div>';
+    html += '<div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#e08020;margin-bottom:10px;font-weight:500;">Co go teraz blokuje</div>';
+    deficits.slice(0,3).forEach(([id]) => {
+      const name_seg = SEG_NAMES_PL[id] || id;
+      html += '<div style="margin-bottom:8px;">';
+      html += '<div style="font-size:12px;color:#3a3830;margin-bottom:3px;">' + name_seg + '</div>';
+      html += '<div style="height:4px;background:#fff3e0;border-radius:2px;"><div style="height:4px;background:#e08020;border-radius:2px;width:' + (scores[id] || 0) + '%;"></div></div>';
+      html += '</div>';
+    });
+    html += '</div>';
+
+    html += '</div></div>';
+
+    // Raport AI
+    if (text) {
+      // Parsuj sekcje
+      const sections = text.split(/\n\n+/).filter(s => s.trim());
+      sections.forEach(section => {
+        const lines = section.trim().split('\n');
+        const heading = lines[0].replace(/^#+\s*/, '').replace(/\*\*/g, '').trim();
+        const body = lines.slice(1).join(' ').trim() || heading;
+        const isHeading = lines.length > 1 || heading.length < 60;
+
+        if (isHeading && lines.length > 1) {
+          html += '<div style="background:#fff;border:1px solid #d8d3c8;padding:24px;margin-bottom:12px;">';
+          html += '<div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;font-weight:500;">' + heading + '</div>';
+          html += '<div style="font-size:14px;color:#3a3830;line-height:1.8;font-weight:300;">' + body + '</div>';
+          html += '</div>';
+        } else {
+          html += '<div style="background:#fff;border:1px solid #d8d3c8;padding:24px;margin-bottom:12px;">';
+          html += '<div style="font-size:14px;color:#3a3830;line-height:1.8;font-weight:300;">' + section.trim() + '</div>';
+          html += '</div>';
+        }
+      });
+    }
+
+    // Wskazówka dla rodzica
+    if (parentTip) {
+      html += '<div style="background:#fff8f0;border:1px solid #e8c87a;padding:24px;margin-bottom:20px;">';
+      html += '<div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#c08820;margin-bottom:8px;font-weight:500;">Wskazówka dla Ciebie</div>';
+      html += '<div style="font-size:14px;color:#3a3830;line-height:1.8;font-weight:300;">' + parentTip + '</div>';
+      html += '</div>';
+    }
+
+    // CTA — zakup programu
+    if (topDeficitId) {
+      const PRODUCT_NAMES = {
+        moc: 'Prawdziwa Eksplozywność', fizycznosc: 'Prawdziwa Eksplozywność',
+        wytrzymalosc: 'Program Wytrzymałości Meczowej', tolerancja: 'Protokół Tolerancji Obciążeń',
+        regeneracja: 'Protokół Regeneracji', odzywianie: 'Protokół Odżywienia Sportowca',
+        odpornosc: 'Protokół Odporności Sezonowej',
+        percepcja: 'Percepcja i Szybkość Decyzji', decyzja: 'Percepcja i Szybkość Decyzji',
+        koncentracja: 'Protokół Mentalny', mental: 'Protokół Mentalny',
+        techFund: 'Program Techniki', techSpec: 'Program Techniki',
+      };
+      const STRIPE_LINKS = {
+        moc: 'https://buy.stripe.com/cNibJ14U6bBc62M2Fndby09',
+        fizycznosc: 'https://buy.stripe.com/dRm5kDfyK20C76Qgwddby0b',
+        wytrzymalosc: 'https://buy.stripe.com/eVq3cv86icFg4YI1Bjdby01',
+        tolerancja: 'https://buy.stripe.com/9B68wP86iax81Mwfs9dby02',
+        regeneracja: 'https://buy.stripe.com/7sY3cv86ifRsbn693Ldby05',
+        odzywianie: 'https://buy.stripe.com/28E9ATcmy20C4YI1Bjdby07',
+        odpornosc: 'https://buy.stripe.com/bJebJ1fyKcFgezigwddby08',
+        percepcja: 'https://buy.stripe.com/fZu4gzgCOgVw3UEfs9dby06',
+        decyzja: 'https://buy.stripe.com/fZu4gzgCOgVw3UEfs9dby06',
+        koncentracja: 'https://buy.stripe.com/9B628r86i48K1Mw5Rzdby0a',
+        mental: 'https://buy.stripe.com/6oU4gz5Ya20C2QAgwddby04',
+        techFund: 'https://buy.stripe.com/7sY8wP9am20Caj26VDdby03',
+        techSpec: 'https://buy.stripe.com/7sY8wP9am20Caj26VDdby03',
+      };
+      const pName = PRODUCT_NAMES[topDeficitId];
+      const pLink = STRIPE_LINKS[topDeficitId];
+      if (pName && pLink) {
+        html += '<div style="background:#0e0d0b;padding:28px;margin-bottom:20px;">';
+        html += '<div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#E8432D;margin-bottom:8px;">Program dla ' + name + '</div>';
+        html += '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:#f5f2ec;letter-spacing:0.02em;margin-bottom:10px;">' + pName + '</div>';
+        html += '<div style="font-size:13px;color:rgba(255,255,255,0.7);font-weight:300;line-height:1.7;margin-bottom:20px;">Program stworzony bezpośrednio pod to co diagnoza wskazała jako największe wąskie gardło ' + name + '. Gotowy plan pracy — ' + name + ' wie co robić, Ty wiesz dlaczego to ważne.</div>';
+        html += '<a href="' + pLink + '" style="display:inline-block;background:#E8432D;color:#0e0d0b;padding:14px 32px;font-family:\'Bebas Neue\',sans-serif;font-size:17px;letter-spacing:0.1em;text-decoration:none;font-weight:700;">Kup program — 97 zł →</a>';
+        html += '<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:10px;">Jednorazowy zakup · Program zostaje z ' + name + '</div>';
+        html += '</div>';
+      }
+    }
+
+    // Stopka
+    html += '<div style="text-align:center;padding:16px 0;font-size:11px;color:#9a9488;">Raport wygenerowany przez Gamechange System · ' + new Date().toLocaleDateString('pl-PL') + '</div>';
+
+    el.innerHTML = html;
+
+  } catch(e) {
+    el.innerHTML = '<div style="padding:48px;text-align:center;color:#9a9488;">Błąd generowania raportu.</div>';
+  }
+}
+
+async function sendParentReport(playerData, parentEmail) {
+  // Generuj unikalny token dla rodzica
+  const token = Math.random().toString(36).slice(2) + Date.now().toString(36);
+
+  // Zapisz token do Supabase
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/diagnostics?email=eq.${encodeURIComponent(playerData.email || '')}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({ parent_token: token, parent_email: parentEmail })
+    });
+  } catch(e) { console.warn('Nie udało się zapisać tokenu rodzica', e); }
+
+  // Wyślij email do rodzica przez EmailJS
+  const parentLink = `${window.location.origin}${window.location.pathname}?parent=${token}`;
+  try {
+    await emailjs.send('service_7dxlxuq', 'template_ybc0bsq', {
+      to_email: parentEmail,
+      subject: 'Raport o grze Twojego dziecka — Gamechange',
+      message: `Twoje dziecko właśnie ukończyło profesjonalną diagnostykę piłkarską w systemie Gamechange.\n\nPrzygotowaliśmy dla Ciebie osobny raport — napisany specjalnie dla rodzica, nie dla zawodnika.\n\nKliknij żeby go zobaczyć:\n${parentLink}\n\nLink jest aktywny bezterminowo.`,
+      parent_link: parentLink,
+    });
+  } catch(e) { console.warn('EmailJS parent send failed', e); }
+}
 
 async function loadTeamView(code) {
   document.getElementById('team-title').textContent = `Drużyna: ${code}`;
   showScreen('screen-team');
+
+  // Weryfikuj kod — sprawdź zarówno hardcoded jak i dynamiczne z Supabase
+  const STATIC_CODES = ['GAMECHANGE', 'TRENER', 'PILOT', 'GAMECHANGE2025', 'LEGIA2025', 'MOCK'];
+  if (!STATIC_CODES.includes(code)) {
+    try {
+      const codeCheck = await fetch(
+        `${SUPABASE_URL}/rest/v1/teams?code=eq.${encodeURIComponent(code)}&limit=1`,
+        { headers: { 'apikey': SUPABASE_KEY } }
+      );
+      const codeData = await codeCheck.json();
+      if (!codeData || !codeData.length) {
+        document.getElementById('team-loading').style.display = 'none';
+        document.getElementById('team-empty').style.display = 'block';
+        document.getElementById('team-empty').innerHTML = '<div style="padding:48px;text-align:center;"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:24px;color:#9a9488;margin-bottom:8px;">Nieznany kod drużyny</div><p style="font-size:13px;color:#9a9488;font-weight:300;">Sprawdź czy kod jest wpisany poprawnie.</p></div>';
+        return;
+      }
+      // Pokaż nazwę drużyny jeśli jest
+      if (codeData[0].club_name) {
+        document.getElementById('team-title').textContent = codeData[0].club_name + ' — ' + code;
+      }
+    } catch(e) { /* ignoruj — pokaż panel normalnie */ }
+  }
 
   try {
     const res = await fetch(
@@ -1861,8 +2403,8 @@ function renderTeamTable(data) {
     const scores = row.scores ? (() => { try { return JSON.parse(row.scores); } catch(e) { return null; } })() : null;
     const overall = row.overall_score;
     const lvlLabel = !overall ? '—' : overall < 40 ? 'Wymaga uwagi' : overall < 55 ? 'Poniżej średniej' : overall < 70 ? 'Przeciętny' : 'Dobry';
-    const color = !overall ? '#9a9488' : overall < 40 ? '#d63c2f' : overall < 55 ? '#e08020' : overall < 70 ? '#c8b820' : '#2a7a3a';
-    const bgColor = !overall ? 'transparent' : overall < 40 ? '#fde8e8' : overall < 55 ? '#fff3e0' : overall < 70 ? '#fffde0' : '#e8f5e9';
+    const color = !overall ? '#9a9488' : overall < 40 ? '#C0392B' : overall < 55 ? '#e08020' : overall < 70 ? '#c8b820' : '#2a7a3a';
+    const bgColor = !overall ? 'transparent' : overall < 40 ? '#FDEBEB' : overall < 55 ? '#fff3e0' : overall < 70 ? '#fffde0' : '#e8f5e9';
     const deficits = row.top_deficits ? row.top_deficits.split(', ') : [];
     const mainDeficit = deficits[0] || '—';
     const date = row.created_at ? new Date(row.created_at).toLocaleDateString('pl-PL') : '—';
@@ -1885,7 +2427,7 @@ function renderTeamTable(data) {
           <span style="display:inline-block;padding:4px 10px;background:${bgColor};border:1px solid ${color};font-size:11px;font-weight:500;color:${color};letter-spacing:0.05em;">${lvlLabel}</span>
         </td>
         <td style="padding:14px 16px;">
-          <div style="font-size:12px;color:#d63c2f;font-weight:500;margin-bottom:2px;">${mainDeficit}</div>
+          <div style="font-size:12px;color:#C0392B;font-weight:500;margin-bottom:2px;">${mainDeficit}</div>
           <div style="font-size:11px;color:#9a9488;">${deficits.slice(1,3).join(' · ')}</div>
         </td>
         <td style="padding:14px 16px;max-width:220px;">
@@ -1928,9 +2470,9 @@ function _coachHintForPlayer(row, scores) {
   return HINTS[top[0]] || '—';
 }
 
-// ══════════════════════════════════════
+// ======================================
 //  PANEL BOCZNY ZAWODNIKA — trener
-// ══════════════════════════════════════
+// ======================================
 
 let _currentPlayerIdx = null;
 let _noteDebounce = null;
@@ -1959,8 +2501,8 @@ function openPlayerPanel(idx) {
   const name = row.player_name || row.email || 'Anonimowy';
   const scores = row.scores ? (() => { try { return JSON.parse(row.scores); } catch(e) { return null; } })() : null;
   const lvlLabel = !overall ? '—' : overall < 40 ? 'Wymaga uwagi' : overall < 55 ? 'Poniżej średniej' : overall < 70 ? 'Przeciętny' : 'Dobry';
-  const lvlColor = !overall ? '#9a9488' : overall < 40 ? '#d63c2f' : overall < 55 ? '#e08020' : overall < 70 ? '#c8b820' : '#2a7a3a';
-  const lvlBg = !overall ? 'transparent' : overall < 40 ? '#fde8e8' : overall < 55 ? '#fff3e0' : overall < 70 ? '#fffde0' : '#e8f5e9';
+  const lvlColor = !overall ? '#9a9488' : overall < 40 ? '#C0392B' : overall < 55 ? '#e08020' : overall < 70 ? '#c8b820' : '#2a7a3a';
+  const lvlBg = !overall ? 'transparent' : overall < 40 ? '#FDEBEB' : overall < 55 ? '#fff3e0' : overall < 70 ? '#fffde0' : '#e8f5e9';
 
   const statBox = (label, val, c, bg) => `
     <div style="background:#fff;border:1px solid #d8d3c8;padding:16px;text-align:center;">
@@ -1977,7 +2519,7 @@ function openPlayerPanel(idx) {
     const sorted = SEG_ORDER_PANEL.map(s => ({ ...s, val: scores[s.id] || 0 }))
       .sort((a, b) => a.val - b.val);
     document.getElementById('pp-segments').innerHTML = sorted.map(s => {
-      const c = s.val < 35 ? '#d63c2f' : s.val < 50 ? '#e08020' : s.val < 65 ? '#c8b820' : '#2a7a3a';
+      const c = s.val < 35 ? '#C0392B' : s.val < 50 ? '#e08020' : s.val < 65 ? '#c8b820' : '#2a7a3a';
       const lbl = s.val < 35 ? 'Wymaga uwagi' : s.val < 50 ? 'Do pracy' : s.val < 65 ? 'Przeciętny' : 'Dobry';
       return `
         <div style="margin-bottom:10px;">
@@ -2136,7 +2678,7 @@ Format odpowiedzi — tylko JSON, bez żadnego dodatkowego tekstu:
 
     btn.style.display = 'none';
   } catch(e) {
-    questionsEl.innerHTML = '<div style="font-size:13px;color:#d63c2f;">Błąd generowania pytań.</div>';
+    questionsEl.innerHTML = '<div style="font-size:13px;color:#C0392B;">Błąd generowania pytań.</div>';
     btn.textContent = 'Spróbuj ponownie';
     btn.disabled = false;
   }
@@ -2202,7 +2744,7 @@ Napisz diagnozę w 4-5 zdaniach. Zasady:
       ? `<p style="margin:0;">${text}</p>`
       : '<p style="color:rgba(255,255,255,0.4);">Nie udało się wygenerować diagnozy.</p>';
   } catch(e) {
-    enhancedText.innerHTML = '<p style="color:#d63c2f;">Błąd połączenia.</p>';
+    enhancedText.innerHTML = '<p style="color:#C0392B;">Błąd połączenia.</p>';
   }
 }
 
@@ -2278,9 +2820,9 @@ function renderTeamStats(data) {
 
   statsEl.innerHTML =
     stat('Zawodnicy', data.length, '#0e0d0b') +
-    stat('Śr. wynik', avg, avg < 50 ? '#d63c2f' : avg < 65 ? '#e08020' : '#2a7a3a') +
+    stat('Śr. wynik', avg, avg < 50 ? '#C0392B' : avg < 65 ? '#e08020' : '#2a7a3a') +
     stat('Najlepszy', best, '#2a7a3a') +
-    stat('Wymaga uwagi', below50, below50 > 0 ? '#d63c2f' : '#9a9488');
+    stat('Wymaga uwagi', below50, below50 > 0 ? '#C0392B' : '#9a9488');
 }
 
 function renderTeamDeficits(data) {
@@ -2305,9 +2847,9 @@ function renderTeamDeficits(data) {
         <div style="font-size:13px;font-weight:500;color:#0e0d0b;margin-bottom:6px;">${name}</div>
         <div style="display:flex;align-items:center;gap:8px;">
           <div style="flex:1;height:4px;background:#e8e4dd;border-radius:2px;">
-            <div style="height:4px;background:#d63c2f;border-radius:2px;width:${pct}%"></div>
+            <div style="height:4px;background:#C0392B;border-radius:2px;width:${pct}%"></div>
           </div>
-          <div style="font-size:12px;color:#d63c2f;font-weight:500;min-width:32px;">${count}/${data.length}</div>
+          <div style="font-size:12px;color:#C0392B;font-weight:500;min-width:32px;">${count}/${data.length}</div>
         </div>
       </div>`;
   }).join('');
@@ -2366,7 +2908,7 @@ function renderTeamHeatmap(data) {
   }
 
   function heatColor(val) {
-    if (val < 35) return { bg: '#fde8e8', border: '#d63c2f', text: '#b02020', label: 'Wymaga uwagi' };
+    if (val < 35) return { bg: '#FDEBEB', border: '#C0392B', text: '#8B1A1A', label: 'Wymaga uwagi' };
     if (val < 50) return { bg: '#fff3e0', border: '#e08020', text: '#c06010', label: 'Do pracy' };
     if (val < 65) return { bg: '#fffde0', border: '#c8b820', text: '#9a8c10', label: 'Przeciętny' };
     return { bg: '#e8f5e9', border: '#2a7a3a', text: '#1a5a2a', label: 'Dobry' };
@@ -2436,7 +2978,7 @@ function renderTeamHeatmap(data) {
 
   // Wynik ogólny w środku
   var teamAvg = Math.round(segAvgs.reduce(function(a, s) { return a + s.avg; }, 0) / segAvgs.length);
-  var teamColor = teamAvg < 40 ? '#d63c2f' : teamAvg < 55 ? '#e08020' : teamAvg < 70 ? '#c8b820' : '#2a7a3a';
+  var teamColor = teamAvg < 40 ? '#C0392B' : teamAvg < 55 ? '#e08020' : teamAvg < 70 ? '#c8b820' : '#2a7a3a';
 
   html += '<div style="display:flex;align-items:flex-start;gap:32px;margin-bottom:28px;flex-wrap:wrap;">';
   html += '<svg viewBox="0 0 400 400" width="260" height="260" style="flex-shrink:0;">';
@@ -2490,7 +3032,7 @@ function renderTeamHeatmap(data) {
   html += '</div>';
 
   html += '<div style="display:flex;gap:16px;flex-wrap:wrap;">';
-  html += '<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#9a9488;"><div style="width:12px;height:12px;background:#fde8e8;border:1px solid #d63c2f;"></div> Wymaga uwagi</div>';
+  html += '<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#9a9488;"><div style="width:12px;height:12px;background:#FDEBEB;border:1px solid #C0392B;"></div> Wymaga uwagi</div>';
   html += '<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#9a9488;"><div style="width:12px;height:12px;background:#fff3e0;border:1px solid #e08020;"></div> Do pracy</div>';
   html += '<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#9a9488;"><div style="width:12px;height:12px;background:#fffde0;border:1px solid #c8b820;"></div> Przeciętny</div>';
   html += '<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#9a9488;"><div style="width:12px;height:12px;background:#e8f5e9;border:1px solid #2a7a3a;"></div> Dobry</div>';
@@ -2514,25 +3056,100 @@ async function generateTeamAIRecommendation(data, code) {
       <div class="ai-loader-label" style="color:rgba(255,255,255,0.5);">Analizuję dane drużyny</div>
     </div>`;
 
-  // Zbierz dane do promptu
   const segAvgs = window._teamSegAvgs || [];
-  const top3Weak = segAvgs.slice(0, 3).map(s => `${s.name} (${s.avg}/100)`).join(', ');
-  const top3Strong = [...segAvgs].reverse().slice(0, 3).map(s => `${s.name} (${s.avg}/100)`).join(', ');
+  const top3Weak = segAvgs.slice(0, 3).map(s => s.name + ' (' + s.avg + '/100)').join(', ');
+  const top3Strong = [...segAvgs].reverse().slice(0, 3).map(s => s.name + ' (' + s.avg + '/100)').join(', ');
   const avgOverall = Math.round(data.map(r => r.overall_score || 0).reduce((a,b)=>a+b,0) / data.length);
   const positions = {};
   data.forEach(r => { if (r.position) positions[r.position] = (positions[r.position]||0)+1; });
-  const posStr = Object.entries(positions).map(([p,c])=>`${p}: ${c}`).join(', ');
+  const posStr = Object.entries(positions).map(([p,c])=>p+': '+c).join(', ');
 
-  const prompt = `Jesteś ekspertem od diagnostyki piłkarskiej. Analizujesz dane drużyny i piszesz rekomendację dla trenera.
+  const TRAINING_TIPS = {
+    moc: [
+      'Przed każdym treningiem: 4×5 startów eksplozywnych na 10m z 45-sekundową przerwą między seriami. Zawodnicy startują z różnych pozycji — stój, siad, leżenie przodem. Jakość pierwszych 3 kroków ważniejsza niż czas przebiegu.',
+      'W rozgrzewce 2× w tygodniu: 3 serie po 5 skoków w dal z miejsca, przerwa między seriami. Skakaj jak najdalej, ląduj stabilnie. Proste, bez sprzętu, buduje moc startową lepiej niż bieganie.',
+      'Raz w tygodniu: wyścigi 5m w parach ze startem z sygnału, jeden zawodnik z ułamkiem sekundy przewagi. Uczy pierwszego kroku pod presją rywala, nie w próżni.',
+    ],
+    wytrzymalosc: [
+      'Małe gry 3v3 lub 4v4, boisko 20×15m: 4 minuty gry / 2 minuty przerwy, 6-8 serii. Intensywność musi być naprawdę wysoka — jeśli zawodnicy rozmawiają podczas gry, boisko jest za duże.',
+      'Co drugi trening: ostatnie 15 minut to "końcówka meczowa" — gramy z wynikiem i presją, tempo nie spada. Obserwuj którzy zawodnicy odpuszczają ruchy bez piłki jako pierwsi — to jest lista priorytetów.',
+      'Skracaj przerwy między ćwiczeniami — 60 do 90 sekund maksymalnie. Zawodnicy którzy "nie zdążyli odpocząć" i dalej grają dobrze — mają wytrzymałość meczową. Ci którzy przy każdej przerwie kładą się na murawie — nie mają.',
+    ],
+    fizycznosc: [
+      'Raz w tygodniu: ćwiczenia 1v1 "utrzymanie piłki pod presją" — obrońca napiera z tyłu, atakujący chroni piłkę 5 sekund i rozgrywa. Rotacja co 30 sek, 4 serie na zawodnika. Uczy pozycji ciała bez teorii.',
+      'W każdym treningu: zawodnicy walczą o pozycję przy wrzucie zanim piłka dotrze. Sędzia ocenia kto zajął lepsze miejsce przed kontaktem z piłką, nie kto wyskoczył wyżej. 3 serie, rotacja.',
+      'Na każdym treningu przed główną częścią: przysiady z własnym ciężarem 3×15, wypady 3×10 na każdą nogę, deska 3×30 sek. 5 minut, bez sprzętu. Zawodnicy którzy to robią regularnie trzymają pozycję przy kontakcie lepiej niż ci którzy nie robią nic poza treningiem.',
+    ],
+    techFund: [
+      'Codziennie w rozgrzewce: podania w trójkach na 2 kontakty (10-12m), tempo wzrasta co minutę. Patrz który zawodnik jako pierwszy zaczyna tracić jakość przy wyższym tempie — to jest Twoja lista priorytetów.',
+      'Raz w tygodniu: "technika pod presją" — zawodnik przyjmuje piłkę, za 2 sekundy nadbiega rywal. Technika musi być na tyle zautomatyzowana żeby działać bez czasu na myślenie.',
+      'Po każdym treningu: 10 minut podań w dwójkach na 8m, spokojne tempo, każda noga. Nie rywalizacja. Technika automatyzuje się przez powtórzenia — te 10 minut robi więcej niż godzina ćwiczeń technicznych raz w tygodniu.',
+    ],
+    techSpec: [
+      'W każdej małej grze: podanie które przełamuje linię obrony = punkt bonusowy. Nie tłumaczysz dlaczego — zasada gry zmienia co zawodnicy próbują robić, bez wykładu taktycznego.',
+      'Ćwiczenie "decyzja przed odbiorem": zawodnik stoi tyłem do podającego, odwraca się na sygnał i widzi boisko. Musi zagrać w ciągu 1.5 sekundy. Uczy zbierania informacji przed kontaktem z piłką.',
+      'Ćwiczenie "zejście i wyjście": zawodnik schodzi po piłkę, przyjmuje i natychmiast odgrywa do partnera który wybiega w przestrzeń. Partnerzy rotują. Uczy synchronizacji ruchu bez piłki z momentem zagrania — to jest fundament tworzenia przewagi bez dryblingu.',
+    ],
+    tolerancja: [
+      'Zapisuj subiektywną ocenę zmęczenia (1-10) od każdego zawodnika po każdym treningu. Gdy kilku raportuje 8-9 dwa treningi z rzędu — skróć następny trening o 30% i zmniejsz intensywność. Nie czekaj na kontuzje.',
+      'Zasada 10%: nie zwiększaj łącznej objętości treningów o więcej niż 10% tygodniowo. Przeciążenia w amatorskiej piłce rzadko wynikają z jednego ciężkiego treningu — najczęściej ze zbyt szybkiego dokładania kolejnych.',
+      'Po każdym meczu: 15 minut aktywnej regeneracji zamiast od razu do szatni — trucht 5 minut + rozciąganie dynamiczne. Skraca czas do pełnej gotowości o kilkanaście godzin przed kolejnym treningiem.',
+    ],
+    regeneracja: [
+      'Wprowadź stały rytuał po treningu: 10 minut chłodzenia (lekki trucht) + woda lub napój izotoniczny natychmiast + białko w ciągu 30 minut. To warunek żeby poprzedni trening dał efekt — nie opcja.',
+      'Pilnuj żeby trening kończył się najpóźniej 2 godziny przed godziną snu. Trening późno wieczorem rozkręca organizm — zawodnik idzie spać pobudzony, śpi gorzej, przychodzi na następny trening niewyspany. To co kontrolujesz jako trener to godzina zakończenia zajęć.',
+      'Obserwuj jak zawodnicy wyglądają na początku treningów. Zawodnik który "żyje" dopiero po 20 minutach rozgrzewki prawdopodobnie nie regeneruje się wystarczająco między sesjami.',
+    ],
+    odpornosc: [
+      'Zapytaj zawodników co jedzą bezpośrednio po treningu. Jeśli większość odpowiada "nic" lub "cokolwiek" — zaproponuj konkretnie: chleb z twarogiem lub jajkiem, banan i szklanka mleka. Tanie, dostępne wszędzie, wystarczające. Organizm który nie dostaje białka po wysiłku nie odbudowuje mięśni ani odporności — nawet przy dobrym treningu.',
+      'W intensywnych tygodniach (3+ treningi): skróć czas ćwiczeń o 20%, ale nie zmniejszaj tempa. Krótszy trening o tej samej intensywności daje efekt treningowy przy mniejszym ryzyku że drużyna zacznie chorować jeden po drugim.',
+      'Twarda zasada: zawodnicy z temperaturą powyżej 37.5°C nie trenują. Trening z infekcją nie "przebiegnie jej" — wydłuża ją i ryzykuje poważniejsze konsekwencje i dłuższą absencję.',
+    ],
+    odzywianie: [
+      'Posiłek 2-3 godziny przed meczem: węglowodany złożone (makaron, ryż, ziemniaki) + chude białko. Zbyt ciężki posiłek tuż przed = problemy żołądkowe w drugiej połowie. Zbyt lekki lub brak = spadek energii po 60 minutach.',
+      'Nawodnienie: butelka wody przed treningiem, małymi łykami w trakcie. Pragnienie pojawia się gdy organizm jest już odwodniony — zawodnik który pije dopiero gdy jest spragniony jest już spóźniony. Powiedz to drużynie wprost.',
+      'Po meczu i treningu: izotoniczny lub woda z bananem w ciągu 30 minut. Okno regeneracyjne jest krótkie — co zawodnik zje w pierwszej godzinie po wysiłku decyduje jak szybko będzie gotowy na kolejny.',
+    ],
+    koncentracja: [
+      'Zasada "reset po błędzie": po każdym błędzie zawodnik ma 3 sekundy (może powiedzieć coś do siebie, machnąć ręką — cokolwiek jest jego sygnałem), potem wraca do gry. Ćwicz to na treningach, nie po meczu.',
+      'Nie komentuj błędów zawodników natychmiast po akcji — czekaj do przerwy. Komentarz w tej chwili wydłuża czas w którym zawodnik myśli o poprzedniej akcji zamiast o następnej. Twoje zachowanie wpływa na ich koncentrację.',
+      'Małe gry z narastającą stawką: pierwsze dwie serie normalnie, trzecia z "konsekwencją". Obserwuj różnicę w błędach — to jest wskaźnik jak drużyna reaguje na presję.',
+    ],
+    mental: [
+      'Dawaj zawodnikom odpowiedzialność za decyzje, nie tylko za wykonanie. Zamiast "zagraj do prawej" powiedz "zagraj tam gdzie widzisz przestrzeń" i przyjmuj złe decyzje bez natychmiastowej korekty. Zawodnik który boi się podjąć złą decyzję gra zachowawczo.',
+      'Zmień język po stracie bramki: zamiast "co wy robicie" powiedz konkretnie co taktycznie ma się zmienić. Emocjonalna reakcja trenera jest sygnałem zagrożenia — zawodnicy przełączają się na tryb ochronny, nie ofensywny.',
+      'Raz w tygodniu po treningu: jedno pytanie do drużyny — "Kto dzisiaj zagrał zagranie które zrobiłoby jego idol?". Zawodnik mówi co zagrał i dlaczego. Nie oceniasz. To przesuwa ich myślenie z "nie popełnić błędu" na "zrobić coś wartego zapamiętania" — i to jest właśnie różnica między graniem defensywnym a odważnym.',
+    ],
+    percepcja: [
+      'Zasada "dwa skany" na każdym treningu: przed każdym odbiorem piłki zawodnik musi się dwa razy rozejrzeć. Egzekwuj zasadę, nie tłumacz dlaczego — gra spowalnia na początku, potem wchodzi w nawyk.',
+      'Zatrzymuj grę losowo i pytaj konkretnego zawodnika: "gdzie jest X?" (inny zawodnik). Jeśli nie wie — widać że nie skanował. Rób to regularnie bez oceniania — budujesz nawyk świadomej obserwacji.',
+      'Małe gry na ograniczonej przestrzeni (15×10m dla 4v4) wymuszają skanowanie bardziej niż jakiekolwiek ćwiczenie izolowane. To jest najlepsza forma treningu percepcji — bez osobnego bloku czasowego.',
+    ],
+    decyzja: [
+      'Gry z limitem kontaktów: 2 kontakty dla wszystkich, 1 kontakt dla zawodników z deficytem decyzji. Jeden kontakt fizycznie wymusza decyzję przed odbiorem. Efekt pojawia się po 3-4 treningach.',
+      'Ćwiczenie "zegar": zawodnik ma piłkę, za 1.5 sekundy nadbiega rywal. Stopniowo zmniejszaj czas (1.5 → 1.0 → 0.7 sekundy). Zawodnicy uczą się decydować przy coraz mniejszej ilości czasu — definicja szybkości decyzji.',
+      'Po treningu: jedno pytanie do drużyny — "Kto dzisiaj trzymał piłkę za długo?" Zawodnik który potrafi sam wskazać moment decyzyjny który przegapił — następnym razem go nie przegapi. Trener który tylko wskazuje błędy zawodnicy słyszą, ale nie przyswajają.',
+    ],
+  };
 
-DANE DRUŻYNY "${code}":
-Liczba zawodników: ${data.length}
-Skład pozycyjny: ${posStr || 'nie podano'}
-Średni wynik ogólny: ${avgOverall}/100
-Największe deficyty drużyny: ${top3Weak}
-Mocne strony drużyny: ${top3Strong}
+  const weakSegs = segAvgs.slice(0, 3).filter(s => s.avg < 65);
+  var tipsHTML = '';
+  weakSegs.forEach(function(s) {
+    var tips = TRAINING_TIPS[s.id];
+    if (!tips) return;
+    var selected = [tips[0], tips[Math.floor(Math.random() * (tips.length - 1)) + 1]].filter(Boolean);
+    tipsHTML += '<div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">';
+    tipsHTML += '<div style="font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(232,67,45,0.7);margin-bottom:10px;">' + s.name + ' — wskazówki praktyczne</div>';
+    selected.forEach(function(tip, i) {
+      tipsHTML += '<div style="display:flex;gap:10px;margin-bottom:10px;">';
+      tipsHTML += '<div style="color:#E8432D;font-size:12px;flex-shrink:0;margin-top:1px;">' + (i+1) + '.</div>';
+      tipsHTML += '<div style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.75;font-weight:300;">' + tip + '</div>';
+      tipsHTML += '</div>';
+    });
+    tipsHTML += '</div>';
+  });
 
-Napisz zwięzłą rekomendację dla trenera — 3-4 zdania. Mów konkretnie o grze drużyny, nie o liczbach. Powiedz: (1) co jest największym wspólnym problemem który wpływa na grę jako całości, (2) jaki jeden obszar treningowy dałby największy efekt jeśli zostałby wzmocniony, (3) co w tej drużynie działa dobrze i jak to wykorzystać. Pisz po polsku, bezpośrednio do trenera (forma "Twoja drużyna"), konkretnie i bez ogólników. ZAKAZ używania markdown, gwiazdek, nagłówków — tylko czysty tekst.`;
+  const prompt = 'Jesteś ekspertem od diagnostyki piłkarskiej. Analizujesz dane drużyny i piszesz rekomendację dla trenera.\n\nDANE DRUŻYNY "' + code + '":\nLiczba zawodników: ' + data.length + '\nSkład pozycyjny: ' + (posStr || 'nie podano') + '\nŚredni wynik ogólny: ' + avgOverall + '/100\nNajwiększe deficyty drużyny: ' + top3Weak + '\nMocne strony drużyny: ' + top3Strong + '\n\nNapisz zwięzłą rekomendację dla trenera — 3-4 zdania. Mów konkretnie o grze drużyny, nie o liczbach. Powiedz: (1) co jest największym wspólnym problemem który wpływa na grę jako całości, (2) jaki jeden obszar treningowy dałby największy efekt jeśli zostałby wzmocniony, (3) co w tej drużynie działa dobrze i jak to wykorzystać. Pisz po polsku, bezpośrednio do trenera (forma "Twoja drużyna"), konkretnie i bez ogólników. ZAKAZ używania markdown, gwiazdek, nagłówków — tylko czysty tekst.';
 
   try {
     const response = await fetch('/api/diagnose', {
@@ -2541,14 +3158,13 @@ Napisz zwięzłą rekomendację dla trenera — 3-4 zdania. Mów konkretnie o gr
       body: JSON.stringify({ prompt, maxTokens: 600 })
     });
     const result = await response.json();
-    const text = result.content?.filter(c => c.type === 'text').map(c => c.text).join('').trim() || '';
+    const text = result.content && result.content.filter(c => c.type === 'text').map(c => c.text).join('').trim() || '';
 
     if (text) {
-      el.innerHTML = `
-        <div style="font-size:14px;color:rgba(255,255,255,0.85);line-height:1.85;font-weight:300;">${text}</div>
-        <div style="margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.1);font-size:11px;color:rgba(255,255,255,0.3);">
-          Analiza oparta na danych ${data.length} zawodników · ${new Date().toLocaleDateString('pl-PL')}
-        </div>`;
+      el.innerHTML =
+        '<div style="font-size:14px;color:rgba(255,255,255,0.85);line-height:1.85;font-weight:300;">' + text + '</div>' +
+        tipsHTML +
+        '<div style="margin-top:20px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.1);font-size:11px;color:rgba(255,255,255,0.3);">Analiza oparta na danych ' + data.length + ' zawodników · ' + new Date().toLocaleDateString('pl-PL') + '</div>';
     } else {
       el.innerHTML = '<div style="font-size:13px;color:#9a9488;">Nie udało się wygenerować rekomendacji.</div>';
     }
@@ -2556,6 +3172,7 @@ Napisz zwięzłą rekomendację dla trenera — 3-4 zdania. Mów konkretnie o gr
     el.innerHTML = '<div style="font-size:13px;color:#9a9488;">Błąd połączenia.</div>';
   }
 }
+
 
 function stripPolishChars(str) {
   if (!str) return '';
@@ -2649,9 +3266,9 @@ function downloadTeamPDF() {
   doc.save(`gamechange-druzyna-${teamData[0]?.team_code || 'raport'}-${new Date().toLocaleDateString('pl-PL').replace(/\./g,'-')}.pdf`);
 }
 
-// ══════════════════════════════════════
+// ======================================
 //  URL — ZAPIS I ODCZYT WYNIKÓW
-// ══════════════════════════════════════
+// ======================================
 function saveResultsToURL(scores) {
   try {
     const data = { s: scores, j: isJunior ? 1 : 0, c: ctx };
@@ -2682,7 +3299,7 @@ function buyProduct(productId, stripeLink) {
   const emailInput = document.getElementById(`product-email-${productId}`);
   const email = emailInput ? emailInput.value.trim() : (playerEmail || '');
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    if (emailInput) { emailInput.style.borderColor = '#d63c2f'; emailInput.focus(); }
+    if (emailInput) { emailInput.style.borderColor = '#C0392B'; emailInput.focus(); }
     return;
   }
   playerEmail = email;
@@ -2753,8 +3370,18 @@ function handleProductPurchaseReturn(productId) {
 window.addEventListener('load', () => {
   const urlParams = new URLSearchParams(window.location.search);
 
-  // Widok trenera
-  const teamParam = urlParams.get('team');
+  // Rejestracja trenera
+  if (urlParams.get('register') === 'coach') {
+    showScreen('screen-coach-register');
+    return;
+  }
+
+  // Panel rodzica
+  const parentParam = urlParams.get('parent');
+  if (parentParam) {
+    loadParentView(parentParam);
+    return;
+  }
   if (teamParam) {
     loadTeamView(teamParam.toUpperCase());
     return;
@@ -2812,9 +3439,9 @@ async function sendEmailNotification(eventType, extras = {}) {
   }
 }
 
-// ══════════════════════════════════════
+// ======================================
 //  SUPABASE — BAZA DANYCH
-// ══════════════════════════════════════
+// ======================================
 const SUPABASE_URL = 'https://kqrbztsvepjtggjmmcdx.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_EoYRIZpDhUSdNSJDXWl4Ew_SG8aJABP';
 
@@ -2850,7 +3477,7 @@ function buildDiagnosticsRecord(extras = {}) {
     mode: isJunior ? 'junior' : 'adult',
     level: ctx.level !== null ? CTX_LABELS.level[ctx.level] : null,
     position: ctx.pos !== null ? CTX_LABELS.pos[ctx.pos] : null,
-    age_group: ctx.age !== null ? CTX_LABELS.age[ctx.age] : null,
+    age_group: ctx.age !== null ? ctx.age + ' lat' : null,
     club_trainings: ctx.clubTrainings !== null ? CTX_LABELS.clubTrainings[ctx.clubTrainings] : null,
     own_trainings: ctx.ownTrainings !== null ? CTX_LABELS.ownTrainings[ctx.ownTrainings] : null,
     own_training_types: presurvey.ownTypes.size > 0 ? [...presurvey.ownTypes].join(',') : null,
@@ -2868,9 +3495,9 @@ function buildDiagnosticsRecord(extras = {}) {
   };
 }
 
-// ══════════════════════════════════════
+// ======================================
 //  HISTORIA ZAWODNIKA
-// ══════════════════════════════════════
+// ======================================
 async function loadPlayerHistory(email) {
   try {
     const res = await fetch(
@@ -2882,50 +3509,9 @@ async function loadPlayerHistory(email) {
   } catch(e) { return []; }
 }
 
-function renderHistoryComparison(history, currentScores) {
-  if (!history.length) return '';
-  const prev = history[0];
-  if (!prev.scores) return '';
-  let prevScores;
-  try { prevScores = JSON.parse(prev.scores); } catch(e) { return ''; }
-
-  const prevDate = new Date(prev.created_at).toLocaleDateString('pl-PL');
-  const segsToShow = Object.entries(currentScores)
-    .map(([id, score]) => {
-      const diff = score - (prevScores[id] || score);
-      const seg = isJunior ? SEGS_JUNIOR.find(s=>s.id===id) : SEGS.find(s=>s.id===id);
-      return { id, name: seg ? seg.name : id, score, diff };
-    })
-    .filter(s => Math.abs(s.diff) >= 5)
-    .sort((a,b) => Math.abs(b.diff) - Math.abs(a.diff))
-    .slice(0, 4);
-
-  if (!segsToShow.length) return `
-    <div style="background:#f0f7f0;border:1px solid #b8d8b8;padding:16px 20px;margin-bottom:24px;">
-      <div style="font-size:12px;color:#2a7a3a;font-weight:500;margin-bottom:4px;">✓ Poprzednia diagnoza: ${prevDate}</div>
-      <div style="font-size:13px;color:#3a3830;font-weight:300;">Twoje wyniki są podobne do poprzedniego wypełnienia — brak wyraźnych zmian.</div>
-    </div>`;
-
-  const changes = segsToShow.map(s => {
-    const arrow = s.diff > 0 ? '↑' : '↓';
-    const color = s.diff > 0 ? '#2a7a3a' : '#d63c2f';
-    const sign = s.diff > 0 ? '+' : '';
-    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #e8e4dd;">
-      <span style="font-size:13px;color:#3a3830;">${s.name}</span>
-      <span style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:${color};">${arrow} ${sign}${s.diff}</span>
-    </div>`;
-  }).join('');
-
-  return `
-    <div style="border:1px solid #d8d3c8;padding:20px;margin-bottom:24px;background:#fff;">
-      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Twój postęp od ${prevDate}</div>
-      ${changes}
-    </div>`;
-}
-
-// ══════════════════════════════════════
+// ======================================
 //  GENERATE RESULTS → EMAIL GATE
-// ══════════════════════════════════════
+// ======================================
 
 async function generateResults() {
   showScreen('screen-loading');
@@ -2960,6 +3546,118 @@ async function generateResults() {
   }, 100);
 }
 
+function renderHistoryComparison(history, currentScores) {
+  if (!history.length) return '';
+  // history[0] to aktualna diagnoza (właśnie wygenerowana)
+  // history[1] to poprzednia — to z nią porównujemy
+  const prev = history[1] || history[0];
+  if (!prev || !prev.scores) return '';
+  let prevScores;
+  try { prevScores = JSON.parse(prev.scores); } catch(e) { return ''; }
+  // Nie porównuj z samym sobą
+  if (prev.created_at === history[0].created_at) return '';
+
+  const prevDate = new Date(prev.created_at).toLocaleDateString('pl-PL');
+  const SEG_IDS = ['moc','wytrzymalosc','fizycznosc','techFund','techSpec',
+    'tolerancja','regeneracja','odpornosc','odzywianie','koncentracja','mental','percepcja','decyzja'];
+
+  const changes = SEG_IDS.map(id => {
+    const curr = currentScores[id] || 0;
+    const prevVal = prevScores[id] || curr;
+    return { id, curr, prev: prevVal, diff: curr - prevVal };
+  }).filter(s => Math.abs(s.diff) >= 5).sort((a,b) => Math.abs(b.diff) - Math.abs(a.diff));
+
+  const avgCurr = Math.round(Object.values(currentScores).reduce((a,b)=>a+b,0) / SEG_IDS.length);
+  const avgPrev = Math.round(SEG_IDS.map(id => prevScores[id]||0).reduce((a,b)=>a+b,0) / SEG_IDS.length);
+  const avgDiff = avgCurr - avgPrev;
+  const diffColor = avgDiff >= 0 ? '#2a7a3a' : '#C0392B';
+  const diffSign  = avgDiff >= 0 ? '+' : '';
+  const diffLabel = avgDiff > 3 ? 'Widoczna poprawa' : avgDiff < -3 ? 'Wynik niższy' : 'Wynik podobny';
+
+  // SVG hexagon — dwa nałożone profile
+  const CX = 130, CY = 130, R = 100, N = SEG_IDS.length;
+  function pt(i, val) {
+    const v = isNaN(val) ? 0 : Math.min(100, Math.max(0, val));
+    const angle = (2 * Math.PI * i / N) - Math.PI / 2;
+    return (CX + R * (v/100) * Math.cos(angle)).toFixed(1) + ',' + (CY + R * (v/100) * Math.sin(angle)).toFixed(1);
+  }
+  const prevPts = SEG_IDS.map((id,i) => pt(i, prevScores[id]||0)).join(' ');
+  const currPts = SEG_IDS.map((id,i) => pt(i, currentScores[id]||0)).join(' ');
+
+  let gridSVG = '';
+  [0.25, 0.5, 0.75, 1].forEach(r => {
+    const pts = SEG_IDS.map((_,i) => {
+      const angle = (2 * Math.PI * i / N) - Math.PI / 2;
+      return (CX + R * r * Math.cos(angle)).toFixed(1) + ',' + (CY + R * r * Math.sin(angle)).toFixed(1);
+    }).join(' ');
+    gridSVG += '<polygon points="' + pts + '" fill="none" stroke="#d8d3c8" stroke-width="' + (r===1?'1.5':'0.8') + '"/>';
+  });
+
+  const changesHTML = changes.length ? changes.slice(0,4).map(s => {
+    const seg = (isJunior ? SEGS_JUNIOR : SEGS).find(x => x.id === s.id);
+    const name = seg ? seg.name : s.id;
+    const c = s.diff > 0 ? '#2a7a3a' : '#C0392B';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f0ede8;">' +
+      '<span style="font-size:12px;color:#3a3830;">' + name + '</span>' +
+      '<span style="font-size:13px;font-weight:600;color:' + c + ';">' + (s.diff>0?'↑ +':'↓ ') + s.diff + '</span>' +
+      '</div>';
+  }).join('') : '<div style="font-size:12px;color:#9a9488;padding:8px 0;">Brak wyraźnych zmian w poszczególnych obszarach.</div>';
+
+  return '<div style="border:1px solid #d8d3c8;background:#fff;margin-bottom:24px;overflow:hidden;">' +
+    '<div style="background:#f5f2ec;padding:14px 20px;border-bottom:1px solid #d8d3c8;display:flex;justify-content:space-between;align-items:center;">' +
+      '<div>' +
+        '<div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;">Twój postęp</div>' +
+        '<div style="font-size:12px;color:#3a3830;margin-top:2px;">Poprzednia diagnoza: <strong>' + prevDate + '</strong></div>' +
+      '</div>' +
+      '<div style="text-align:right;">' +
+        '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:28px;color:' + diffColor + ';">' + diffSign + avgDiff + '</div>' +
+        '<div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:' + diffColor + ';">' + diffLabel + '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div style="display:flex;gap:0;flex-wrap:wrap;">' +
+      '<div style="flex:0 0 auto;padding:16px;">' +
+        '<svg viewBox="0 0 260 260" width="160" height="160">' +
+          gridSVG +
+          '<polygon points="' + prevPts + '" fill="rgba(180,180,180,0.15)" stroke="#bbbbbb" stroke-width="1.5" stroke-dasharray="4,3"/>' +
+          '<polygon points="' + currPts + '" fill="rgba(14,13,11,0.1)" stroke="#0e0d0b" stroke-width="2"/>' +
+        '</svg>' +
+        '<div style="display:flex;gap:12px;justify-content:center;margin-top:4px;">' +
+          '<div style="display:flex;align-items:center;gap:4px;font-size:10px;color:#9a9488;"><div style="width:14px;height:0;border-top:2px dashed #bbbbbb;"></div> ' + prevDate + '</div>' +
+          '<div style="display:flex;align-items:center;gap:4px;font-size:10px;color:#3a3830;"><div style="width:14px;height:2px;background:#0e0d0b;"></div> Teraz</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="flex:1;padding:16px 20px;min-width:160px;">' +
+        '<div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#9a9488;margin-bottom:10px;">Największe zmiany</div>' +
+        changesHTML +
+      '</div>' +
+    '</div>' +
+  '</div>';
+}
+
+async function scheduleFollowUpEmail(email, topDeficitId, topDeficitName) {
+  // Sprawdź czy follow-up dla tego emaila już istnieje (unikaj duplikatów)
+  try {
+    const check = await fetch(
+      `${SUPABASE_URL}/rest/v1/followups?email=eq.${encodeURIComponent(email)}&sent=eq.false&limit=1`,
+      { headers: { 'apikey': SUPABASE_KEY } }
+    );
+    const existing = await check.json();
+    if (existing && existing.length > 0) return; // już zaplanowany
+  } catch(e) { /* ignoruj błąd sprawdzania */ }
+
+  const followUpDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+  try {
+    await saveToSupabase('followups', {
+      email,
+      top_deficit_id: topDeficitId || null,
+      top_deficit_name: topDeficitName || null,
+      scheduled_for: followUpDate,
+      sent: false,
+      created_at: new Date().toISOString(),
+    });
+  } catch(e) { console.warn('Follow-up schedule failed', e); }
+}
+
 function submitEmail() {
   const email = document.getElementById('email-input').value.trim();
   const err = document.getElementById('email-error');
@@ -2985,7 +3683,13 @@ function submitEmail() {
   // Załaduj historię i pokaż porównanie jeśli jest
   loadPlayerHistory(email).then(history => {
     playerHistory = history;
-    if (history.length > 0 && cachedScores) {
+    // Komunikat powitalny dla powracającego zawodnika
+    if (history.length > 1 && cachedScores) {
+      const prevDate = new Date(history[1].created_at).toLocaleDateString('pl-PL');
+      const confirmText = document.getElementById('email-confirm-text');
+      if (confirmText) {
+        confirmText.innerHTML = `Wyślemy diagnozę na ${email}. <span style="color:#2a7a3a;font-weight:500;">Witaj z powrotem — Twoja poprzednia diagnoza pochodzi z ${prevDate}.</span>`;
+      }
       const historyHtml = renderHistoryComparison(history, cachedScores);
       if (historyHtml) {
         const confirmBox = document.getElementById('email-confirm-box');
@@ -2993,6 +3697,14 @@ function submitEmail() {
       }
     }
   });
+
+  // Zaplanuj follow-up email po 14 dniach
+  if (cachedScores) {
+    const sortedDefs = Object.entries(cachedScores).sort((a,b)=>a[1]-b[1]);
+    const topId = sortedDefs[0] ? sortedDefs[0][0] : null;
+    const topSeg = topId ? (SEGS.find(s=>s.id===topId) || {name: topId}) : null;
+    scheduleFollowUpEmail(email, topId, topSeg ? topSeg.name : null);
+  }
 
   // Junior — generuj od razu
   if (isJunior) {
@@ -3026,7 +3738,7 @@ function copyResultsLink(btn) {
   navigator.clipboard.writeText(url).then(() => {
     btn.textContent = '✓ Skopiowano';
     btn.style.background = '#0e0d0b';
-    btn.style.color = '#c8ff00';
+    btn.style.color = '#E8432D';
     setTimeout(() => {
       btn.textContent = 'Kopiuj link do wyników';
       btn.style.background = '#f5f2ec';
@@ -3037,9 +3749,9 @@ function copyResultsLink(btn) {
   });
 }
 
-// ══════════════════════════════════════
+// ======================================
 //  INLINE LOADER — helper
-// ══════════════════════════════════════
+// ======================================
 function inlineLoaderHTML(label) {
   return `
     <div class="ai-loader">
@@ -3069,9 +3781,9 @@ let _diagState = {
   patternNote: '',
 };
 
-// ══════════════════════════════════════
+// ======================================
 //  HELPER — buduje dane diagnostyczne
-// ══════════════════════════════════════
+// ======================================
 function _buildDiagData(scores) {
   const sorted = Object.entries(scores).sort((a,b) => a[1]-b[1]);
   const deficits = sorted.filter(([,v]) => v < 70).slice(0, 4);
@@ -3118,7 +3830,7 @@ function _buildDiagData(scores) {
   });
 
   const ctxText = ctx.level !== null
-    ? `Pozycja: ${CTX_LABELS.pos[ctx.pos]}. Poziom rozgrywek: ${CTX_LABELS.level[ctx.level]}. Wiek: ${CTX_LABELS.age[ctx.age]}.`
+    ? `Pozycja: ${CTX_LABELS.pos[ctx.pos]}. Poziom rozgrywek: ${CTX_LABELS.level[ctx.level]}. Wiek: ${ctx.age + ' lat'}.`
     : '';
 
   const allAnswers = [];
@@ -3137,9 +3849,9 @@ function _buildDiagData(scores) {
   return { deficitsData, strengthsData, ctxText, patternNote };
 }
 
-// ══════════════════════════════════════
+// ======================================
 //  CALL 2 — DIAGNOZA GŁÓWNA
-// ══════════════════════════════════════
+// ======================================
 async function generateAIDiagnosis(scores, situation = '') {
 
   const { deficitsData, strengthsData, ctxText, patternNote } = _buildDiagData(scores);
@@ -3257,6 +3969,10 @@ FORMAT ODPOWIEDZI (zachowaj dokładnie te znaczniki):
     if (raw && raw.includes('[SYTUACJA]')) {
       _diagState.diagnosisText = raw;
       renderDiagnosisV2(raw, scores, deficitsData);
+      // Wyślij raport do rodzica jeśli podano email
+      if (window._parentEmail && playerEmail) {
+        sendParentReport({ email: playerEmail }, window._parentEmail);
+      }
     } else {
       console.warn('Call 2: brak [SYTUACJA] w odpowiedzi. Raw:', raw.slice(0, 200));
       renderFallback(scores, deficitsData);
@@ -3275,9 +3991,9 @@ FORMAT ODPOWIEDZI (zachowaj dokładnie te znaczniki):
   document.getElementById('diagnosis-blur-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// ══════════════════════════════════════
+// ======================================
 //  RENDER DIAGNOZY V2
-// ══════════════════════════════════════
+// ======================================
 function renderDiagnosisV2(raw, scores, deficitsData) {
   const get = (tag) => {
     const m = raw.match(new RegExp(`\\[${tag}\\]([\\s\\S]*?)(?=\\[|$)`));
@@ -3374,9 +4090,9 @@ function renderDiagnosisV2(raw, scores, deficitsData) {
   }
 }
 
-// ══════════════════════════════════════
+// ======================================
 //  ANCHOR — odpowiedź na pytanie zakotwiczające
-// ══════════════════════════════════════
+// ======================================
 function submitAnchorAnswer() {
   const answer = (document.getElementById('anchor-answer').value || '').trim();
   _diagState.anchorStory = answer;
@@ -3394,9 +4110,9 @@ function skipAnchorAnswer() {
   generateBridge('');
 }
 
-// ══════════════════════════════════════
+// ======================================
 //  CALL 3 — MOSTEK DO PRODUKTU (zawsze)
-// ══════════════════════════════════════
+// ======================================
 async function generateBridge(anchorStory) {
   const bridgeWrap = document.getElementById('bridge-wrap');
   bridgeWrap.style.display = 'block';
@@ -3477,9 +4193,9 @@ ZASADY:
   _showProductSection(_diagState.scores);
 }
 
-// ══════════════════════════════════════
+// ======================================
 //  FEEDBACK
-// ══════════════════════════════════════
+// ======================================
 function submitFeedback(rating, btn) {
   _diagState.feedbackRating = rating;
 
@@ -3522,9 +4238,9 @@ function skipFeedbackComment() {
   document.getElementById('feedback-thanks').style.display = 'block';
 }
 
-// ══════════════════════════════════════
+// ======================================
 //  SUPABASE — zapis danych diagnostycznych
-// ══════════════════════════════════════
+// ======================================
 async function _saveAnchorToSupabase(anchorStory) {
   if (!playerEmail) return;
   try {
@@ -3542,7 +4258,7 @@ async function _saveAnchorToSupabase(anchorStory) {
         anchor_question: _diagState.anchorQuestion,
         anchor_story: anchorStory,
         position: ctx.pos !== null ? CTX_LABELS.pos[ctx.pos] : null,
-        age_group: ctx.age !== null ? CTX_LABELS.age[ctx.age] : null,
+        age_group: ctx.age !== null ? ctx.age + ' lat' : null,
         level: ctx.level !== null ? CTX_LABELS.level[ctx.level] : null,
         top_deficits: _diagState.topDeficitIds.slice(0,3).join(','),
       })
@@ -3573,9 +4289,9 @@ async function _saveFeedbackToSupabase(rating, comment) {
   } catch(e) { console.warn('Supabase feedback save failed', e); }
 }
 
-// ══════════════════════════════════════
+// ======================================
 //  HELPER — pokaż sekcję produktową
-// ══════════════════════════════════════
+// ======================================
 function _showProductSection(scores) {
   renderProduct(scores);
   setTimeout(() => {
@@ -3651,9 +4367,9 @@ function renderFallback(scores, deficitsData) {
 
 // renderDiagnosisText i renderDiagnosisHTML usunięte — zastąpione przez renderDiagnosisV2
 
-// ══════════════════════════════════════
+// ======================================
 //  FALLBACK DIAGNOSIS — gdy API nie odpowie
-// ══════════════════════════════════════
+// ======================================
 function buildFallbackDiagnosis(scores, deficits) {
   const sorted = Object.entries(scores).sort((a,b) => b[1]-a[1]);
   const topStrength = sorted[0];
@@ -3749,9 +4465,9 @@ function buildFallbackDiagnosis(scores, deficits) {
   return { diagnosis, steps };
 }
 
-// ══════════════════════════════════════
+// ======================================
 //  SCORING
-// ══════════════════════════════════════
+// ======================================
 function calcScores() {
   const sc = {};
   if (isJunior) {
@@ -3777,9 +4493,9 @@ function calcScores() {
 function lvl(s) { return s < 40 ? 'critical' : s < 65 ? 'warning' : 'good'; }
 function lvlLabel(s) { return s < 40 ? 'Deficyt' : s < 65 ? 'Do pracy' : 'OK'; }
 
-// ══════════════════════════════════════
+// ======================================
 //  RESULTS
-// ══════════════════════════════════════
+// ======================================
 
 
 function renderResults(scores) {
@@ -3832,7 +4548,7 @@ function renderResults(scores) {
       <td class="td-tag" style="text-align:right;">
         <span style="font-size:10px;color:#2a7a3a;background:rgba(42,122,58,0.08);padding:2px 6px;">OK ≥65</span>
         <span style="font-size:10px;color:#e08020;background:rgba(224,128,32,0.08);padding:2px 6px;margin-left:4px;">40–64</span>
-        <span style="font-size:10px;color:#d63c2f;background:rgba(214,60,47,0.08);padding:2px 6px;margin-left:4px;">&lt;40</span>
+        <span style="font-size:10px;color:#C0392B;background:rgba(214,60,47,0.08);padding:2px 6px;margin-left:4px;">&lt;40</span>
       </td>
     </tr>
   ` + sorted.map(([id, score]) => {
@@ -3981,7 +4697,7 @@ function renderProduct(scores) {
 
     return `
     <div style="border:${isPrimary ? '2px solid #0e0d0b' : '1px solid #d8d3c8'};padding:32px;margin-bottom:16px;background:#fff;position:relative;">
-      ${isPrimary ? `<div style="position:absolute;top:-1px;left:32px;background:#0e0d0b;color:#c8ff00;font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:0.15em;padding:4px 12px;">GŁÓWNY PRIORYTET</div>` : ''}
+      ${isPrimary ? `<div style="position:absolute;top:-1px;left:32px;background:#0e0d0b;color:#E8432D;font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:0.15em;padding:4px 12px;">GŁÓWNY PRIORYTET</div>` : ''}
 
       <!-- Problem zawodnika — jego język -->
       <div style="margin-top:${isPrimary ? '12px' : '0'};margin-bottom:20px;padding:16px 20px;background:#f5f2ec;border-left:3px solid ${isPrimary ? '#0e0d0b' : '#d8d3c8'};">
@@ -4033,9 +4749,9 @@ function renderProduct(scores) {
   `;
 }
 
-// ══════════════════════════════════════
+// ======================================
 //  PDF EXPORT
-// ══════════════════════════════════════
+// ======================================
 function downloadPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -4078,7 +4794,7 @@ function downloadPDF() {
 
   // Kontekst zawodnika
   if (ctx.level !== null) {
-    const ctxStr = `${CTX_LABELS.level[ctx.level]}  ·  ${CTX_LABELS.pos[ctx.pos]}  ·  ${CTX_LABELS.age[ctx.age]}`;
+    const ctxStr = `${CTX_LABELS.level[ctx.level]}  ·  ${CTX_LABELS.pos[ctx.pos]}  ·  ${ctx.age + ' lat'}`;
     doc.text(stripPolishChars(ctxStr), margin, 36);
   }
 
@@ -4236,9 +4952,9 @@ function downloadPDF() {
   doc.save(`gamechange-diagnoza-${dateStr.replace(/\./g,'-')}.pdf`);
 }
 
-// ══════════════════════════════════════
+// ======================================
 //  WAITLIST & CONSULTATION
-// ══════════════════════════════════════
+// ======================================
 const leads = { waitlist: [], consultations: [] };
 
 function submitWaitlist(productId, productTitle) {
@@ -4332,18 +5048,18 @@ function submitMonthly() {
   confirmEl.style.display = 'block';
 }
 
-// ══════════════════════════════════════
+// ======================================
 //  UTILS
-// ══════════════════════════════════════
+// ======================================
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0, 0);
 }
-// ══════════════════════════════════════
+// ======================================
 //  DEV — szybki test bez klikania przez ankietę
 //  Usuń ten blok przed produkcją lub zostaw — nie wpływa na działanie
-// ══════════════════════════════════════
+// ======================================
 function quickTest(preset) {
   // Kontekst: pomocnik, seniorski klub amatorski, 20-25 lat
   ctx = { level: 2, pos: 2, age: 3 };
@@ -4404,9 +5120,9 @@ function quickTest(preset) {
   }, 150);
 }
 
-// ══════════════════════════════════════
+// ======================================
 //  KARTA ZAWODNIKA — generowanie Canvas
-// ══════════════════════════════════════
+// ======================================
 
 function showPlayerCard(scores) {
   document.getElementById('player-card-wrap').style.display = 'block';
@@ -4439,26 +5155,40 @@ function _drawPlayerCard(scores, playerName) {
   }
 
   // Logo Gamechange — górny pasek
-  ctx.fillStyle = '#c8ff00';
+  ctx.fillStyle = '#E8432D';
   ctx.fillRect(0, 0, W, 4);
 
-  ctx.fillStyle = 'rgba(200,255,0,0.08)';
+  ctx.fillStyle = 'rgba(232,67,45,0.08)';
   ctx.fillRect(0, 0, W, 56);
 
-  ctx.fillStyle = '#c8ff00';
-  ctx.font = 'bold 13px Arial';
-  ctx.letterSpacing = '0.2em';
-  ctx.fillText('GAMECHANGE', 24, 34);
-
-  ctx.fillStyle = 'rgba(255,255,255,0.3)';
-  ctx.font = '11px Arial';
-  ctx.fillText('DIAGNOSTIC SYSTEM', 24 + 115, 34);
+  // Wczytaj logo PNG na kartę
+  const _logoOnCard = new Image();
+  _logoOnCard.onload = function() {
+    ctx.save();
+    const lh = 22;
+    const lw = _logoOnCard.width * (lh / _logoOnCard.height);
+    ctx.filter = 'brightness(0) invert(1)';
+    ctx.globalAlpha = 0.9;
+    ctx.drawImage(_logoOnCard, 20, 17, lw, lh);
+    ctx.restore();
+  };
+  _logoOnCard.onerror = function() {
+    ctx.fillStyle = '#E8432D';
+    ctx.font = 'bold 13px Arial';
+    ctx.textAlign = 'left';
+    ctx.letterSpacing = '0.2em';
+    ctx.fillText('GAMECHANGE', 24, 34);
+    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+    ctx.font = '11px Arial';
+    ctx.fillText('DIAGNOSTIC SYSTEM', 24 + 115, 34);
+  };
+  _logoOnCard.src = 'Logo_Gamechange.png';
 
   // Wynik ogólny — centrum górne
   const vals = Object.values(scores);
   const overall = Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);
 
-  ctx.fillStyle = '#c8ff00';
+  ctx.fillStyle = '#E8432D';
   ctx.font = 'bold 96px Arial';
   ctx.textAlign = 'center';
   ctx.fillText(overall, W/2, 165);
@@ -4529,11 +5259,11 @@ function _drawPlayerCard(scores, playerName) {
   });
   ctx.closePath();
   const grad = ctx.createRadialGradient(CX, CY, 0, CX, CY, R);
-  grad.addColorStop(0, 'rgba(200,255,0,0.5)');
-  grad.addColorStop(1, 'rgba(200,255,0,0.1)');
+  grad.addColorStop(0, 'rgba(232,67,45,0.5)');
+  grad.addColorStop(1, 'rgba(232,67,45,0.1)');
   ctx.fillStyle = grad;
   ctx.fill();
-  ctx.strokeStyle = '#c8ff00';
+  ctx.strokeStyle = '#E8432D';
   ctx.lineWidth = 2;
   ctx.stroke();
 
@@ -4545,7 +5275,7 @@ function _drawPlayerCard(scores, playerName) {
     const y = CY + R * val * Math.sin(angle);
     ctx.beginPath();
     ctx.arc(x, y, 3, 0, Math.PI * 2);
-    ctx.fillStyle = '#c8ff00';
+    ctx.fillStyle = '#E8432D';
     ctx.fill();
   });
 
@@ -4615,6 +5345,65 @@ function restart() {
 }
 </script>
 <!-- ════ TEAM VIEW — widok trenera ════ -->
+<!-- ════ REJESTRACJA TRENERA ════ -->
+<div id="screen-coach-register" class="screen">
+  <div style="min-height:100vh;background:#f5f2ec;display:flex;align-items:center;justify-content:center;padding:32px 24px;">
+    <div style="max-width:480px;width:100%;">
+
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:0.2em;color:#9a9488;margin-bottom:8px;">Gamechange System</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#0e0d0b;letter-spacing:0.02em;margin-bottom:8px;">Panel trenera</div>
+      <p style="font-size:13px;color:#9a9488;font-weight:300;line-height:1.7;margin-bottom:32px;">Twoi zawodnicy wypełniają diagnozę z kodem drużyny i płacą sami. Ty dostajesz bezpłatny raport całej drużyny — automatycznie, bez żadnej pracy z Twojej strony.</p>
+
+      <div style="background:#fff;border:1px solid #d8d3c8;padding:28px;">
+        <div style="margin-bottom:20px;">
+          <label style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;display:block;margin-bottom:8px;font-weight:500;">Twoje imię i nazwisko</label>
+          <input id="coach-name-input" type="text" placeholder="Jan Kowalski"
+            style="width:100%;padding:12px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;"
+            onfocus="this.style.borderColor='#0e0d0b'" onblur="this.style.borderColor='#d8d3c8'">
+        </div>
+        <div style="margin-bottom:20px;">
+          <label style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;display:block;margin-bottom:8px;font-weight:500;">Email</label>
+          <input id="coach-email-input" type="email" placeholder="trener@klub.pl"
+            style="width:100%;padding:12px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;"
+            onfocus="this.style.borderColor='#0e0d0b'" onblur="this.style.borderColor='#d8d3c8'">
+        </div>
+        <div style="margin-bottom:24px;">
+          <label style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;display:block;margin-bottom:8px;font-weight:500;">Nazwa drużyny / klubu</label>
+          <input id="coach-club-input" type="text" placeholder="np. KS Mazovia Warszawa U19"
+            style="width:100%;padding:12px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;"
+            onfocus="this.style.borderColor='#0e0d0b'" onblur="this.style.borderColor='#d8d3c8'">
+        </div>
+        <div id="coach-register-error" style="display:none;font-size:12px;color:#C0392B;margin-bottom:16px;"></div>
+        <button onclick="registerCoach()"
+          style="width:100%;background:#0e0d0b;color:#f5f2ec;border:none;padding:16px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;cursor:pointer;">
+          Utwórz kod drużyny →
+        </button>
+      </div>
+
+      <div id="coach-register-success" style="display:none;background:#fff;border:1px solid #2a7a3a;padding:28px;margin-top:16px;">
+        <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#2a7a3a;margin-bottom:8px;">Kod drużyny gotowy</div>
+        <div id="coach-code-display" style="font-family:'Bebas Neue',sans-serif;font-size:40px;color:#0e0d0b;letter-spacing:0.1em;margin-bottom:12px;"></div>
+        <p style="font-size:13px;color:#3a3830;font-weight:300;line-height:1.7;margin-bottom:16px;">Wyślij ten kod swoim zawodnikom. Gdy wypełnią diagnozę, automatycznie trafią do Twojego raportu drużyny.</p>
+        <div id="coach-panel-link" style="font-size:13px;color:#9a9488;word-break:break-all;"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ════ PANEL RODZICA ════ -->
+<div id="screen-parent" class="screen">
+  <div style="min-height:100vh;background:#f5f2ec;">
+    <div style="background:#0e0d0b;padding:24px 32px;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:0.2em;color:rgba(255,255,255,0.4);margin-bottom:4px;">Gamechange System</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:#f5f2ec;letter-spacing:0.05em;" id="parent-child-name">Raport dla rodzica</div>
+    </div>
+    <div style="max-width:680px;margin:0 auto;padding:32px 24px;" id="parent-content">
+      <div style="padding:48px;text-align:center;color:#9a9488;">Ładowanie raportu...</div>
+    </div>
+  </div>
+</div>
+
 <div id="screen-team" class="screen">
   <div style="min-height:100vh;background:#f5f2ec;">
     <div style="background:#0e0d0b;padding:24px 32px;display:flex;align-items:center;justify-content:space-between;">
@@ -4623,7 +5412,7 @@ function restart() {
         <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#f5f2ec;letter-spacing:0.05em;" id="team-title">Drużyna</div>
       </div>
       <button onclick="downloadTeamPDF()"
-        style="background:#c8ff00;color:#0e0d0b;border:none;padding:12px 24px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:0.1em;cursor:pointer;">
+        style="background:#E8432D;color:#0e0d0b;border:none;padding:12px 24px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:0.1em;cursor:pointer;">
         ↓ Pobierz PDF drużyny
       </button>
     </div>
@@ -4635,7 +5424,7 @@ function restart() {
 
       <!-- Rekomendacja dla trenera -->
       <div style="background:#0e0d0b;border:1px solid #2a2a2a;padding:28px;margin-bottom:32px;min-height:120px;">
-        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#c8ff00;margin-bottom:12px;">Rekomendacja dla trenera</div>
+        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#E8432D;margin-bottom:12px;">Rekomendacja dla trenera</div>
         <div id="team-ai-recommendation" style="font-size:14px;color:rgba(255,255,255,0.75);line-height:1.85;font-weight:300;min-height:60px;"></div>
       </div>
 
@@ -4682,11 +5471,15 @@ function restart() {
         <div id="team-deficits" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;"></div>
       </div>
 
+      <!-- Stopka panelu trenera z linkiem do rejestracji -->
+      <div style="margin-top:32px;padding:20px;background:#fff;border:1px solid #d8d3c8;text-align:center;">
+        <div style="font-size:12px;color:#9a9488;margin-bottom:8px;">Jesteś trenerem bez kodu drużyny?</div>
+        <a href="?register=coach" style="font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:0.1em;color:#0e0d0b;text-decoration:none;border-bottom:1px solid #0e0d0b;">Utwórz swój kod drużyny →</a>
+      </div>
+
     </div>
   </div>
 </div>
-
-<!-- PANEL BOCZNY ZAWODNIKA -->
 <div id="player-panel-overlay"
   style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;"
   onclick="closePlayerPanel()"></div>
@@ -4727,7 +5520,7 @@ function restart() {
           Zapisz notatkę
         </button>
         <div id="pp-note-saved" style="font-size:12px;color:#2a7a3a;display:none;">✓ Zapisano w bazie</div>
-        <div id="pp-note-error" style="font-size:12px;color:#d63c2f;display:none;">Błąd zapisu — sprawdź połączenie</div>
+        <div id="pp-note-error" style="font-size:12px;color:#C0392B;display:none;">Błąd zapisu — sprawdź połączenie</div>
       </div>
     </div>
 
@@ -4742,7 +5535,7 @@ function restart() {
     </div>
 
     <div id="pp-enhanced-wrap" style="display:none;background:#0e0d0b;padding:20px;margin-bottom:20px;">
-      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#c8ff00;margin-bottom:10px;">Diagnoza uzupełniona Twoimi obserwacjami</div>
+      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#E8432D;margin-bottom:10px;">Diagnoza uzupełniona Twoimi obserwacjami</div>
       <div id="pp-enhanced" style="font-size:13px;color:rgba(255,255,255,0.82);line-height:1.85;font-weight:300;"></div>
     </div>
   </div>
