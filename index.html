@@ -623,6 +623,36 @@ body {
 }
 .multi-btn:hover { border-color: #0e0d0b; }
 .multi-btn.sel { background: #0e0d0b; border-color: #0e0d0b; color: #E8432D; }
+/* ==========================================
+   SYSTEM PROWADZENIA — progressive guidance
+   ========================================== */
+.ctx-section { transition: opacity 0.3s ease, transform 0.3s ease; margin-bottom: 32px; }
+.ctx-section.locked { opacity: 0.32; pointer-events: none; }
+.ctx-section.done > .ctx-section-label::after { content: ' ✓'; color: #2a7a3a; font-size: 13px; font-weight: 400; }
+.ctx-section.active { border-left: 2px solid #E8432D; padding-left: 14px; margin-left: -16px; }
+.ctx-section-label { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: #3a3830; margin-bottom: 12px; font-weight: 500; display: flex; align-items: center; gap: 8px; }
+.ctx-hint { font-size: 12px; color: #9a9488; font-weight: 300; margin-top: 5px; line-height: 1.5; max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease; margin-bottom: 0; }
+.ctx-section.active .ctx-hint { max-height: 48px; opacity: 1; margin-bottom: 10px; }
+.ctx-section.done .ctx-hint { max-height: 0; opacity: 0; }
+
+@keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
+.active-dot { width:6px;height:6px;border-radius:50%;background:#E8432D;display:inline-block;animation:pulse-dot 1.4s ease-in-out infinite;flex-shrink:0;margin-top:1px; }
+
+@keyframes pulse-confirm { 0%{box-shadow:0 0 0 0 rgba(232,67,45,0.35)} 100%{box-shadow:0 0 0 10px rgba(232,67,45,0)} }
+.ctx-btn.sel { animation: pulse-confirm 0.5s ease-out; }
+
+.guided-textarea:focus { border-color: #E8432D !important; box-shadow: 0 0 0 3px rgba(232,67,45,0.07); }
+.char-counter { font-size: 11px; color: #c8c4bc; text-align: right; margin-top: 4px; transition: color 0.2s; }
+.char-counter.good { color: #2a7a3a; }
+
+.survey-progress-bar { height: 3px; background: #e8e4dd; border-radius: 2px; margin-bottom: 28px; }
+.survey-progress-fill { height: 100%; background: #E8432D; border-radius: 2px; transition: width 0.5s ease; width: 0%; }
+
+.survey-q-wrap { transition: opacity 0.25s ease; }
+.survey-q-wrap.q-past { opacity: 0.45; }
+.survey-q-wrap.q-active { opacity: 1; }
+.survey-q-wrap.q-future { opacity: 0.45; }
+
 </style>
 </head>
 <body>
@@ -801,16 +831,19 @@ body {
       <p style="font-size:14px;color:#9a9488;font-weight:300;margin-bottom:32px;">Diagnoza będzie dopasowana do Twojego poziomu i realiów gry.</p>
 
       <!-- Imię zawodnika -->
-      <div style="margin-bottom:28px;">
-        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:8px;font-weight:500;">Twoje imię i nazwisko</div>
+      <div class="ctx-section active" id="ctx-s-name">
+        <div class="ctx-section-label"><span class="active-dot" id="dot-name"></span>Twoje imię i nazwisko</div>
+        <div class="ctx-hint">Diagnoza będzie do Ciebie — podaj imię które pojawi się na raporcie.</div>
         <input id="player-name-input" type="text" placeholder="np. Jan Kowalski"
           style="width:100%;padding:12px 16px;border:1px solid #d8d3c8;background:#fff;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;"
-          onfocus="this.style.borderColor='#0e0d0b'"
-          onblur="this.style.borderColor='#d8d3c8'">
+          onfocus="this.style.borderColor='#E8432D'"
+          onblur="this.style.borderColor='#d8d3c8';ctxProgress()"
+          oninput="ctxProgress()">
       </div>
 
-      <div style="margin-bottom:32px;">
-        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:12px;font-weight:500;">Poziom rozgrywek</div>
+      <div class="ctx-section locked" id="ctx-s-level">
+        <div class="ctx-section-label"><span class="active-dot" id="dot-level" style="display:none"></span>Poziom rozgrywek</div>
+        <div class="ctx-hint">Pytania w ankiecie są dopasowane do poziomu — wybierz ten który najlepiej opisuje Twoje obecne rozgrywki.</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
           <button class="ctx-btn" onclick="ctxPick('level',0,this)">Amator / rekreacyjnie</button>
           <button class="ctx-btn" onclick="ctxPick('level',1,this)">Juniorski klub</button>
@@ -820,8 +853,9 @@ body {
         </div>
       </div>
 
-      <div style="margin-bottom:32px;">
-        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:12px;font-weight:500;">Pozycja na boisku</div>
+      <div class="ctx-section locked" id="ctx-s-pos">
+        <div class="ctx-section-label"><span class="active-dot" id="dot-pos" style="display:none"></span>Pozycja na boisku</div>
+        <div class="ctx-hint">Pytania są spersonalizowane pod pozycję — bramkarz dostaje inne pytania niż napastnik.</div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
           <button class="ctx-btn" onclick="ctxPick('pos',0,this)">Bramkarz</button>
           <button class="ctx-btn" onclick="ctxPick('pos',1,this)">Obrońca</button>
@@ -831,8 +865,9 @@ body {
         </div>
       </div>
 
-      <div style="margin-bottom:32px;">
-        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:8px;font-weight:500;">Rok urodzenia</div>
+      <div class="ctx-section locked" id="ctx-s-age">
+        <div class="ctx-section-label"><span class="active-dot" id="dot-age" style="display:none"></span>Rok urodzenia</div>
+        <div class="ctx-hint">Wiek wpływa na interpretację wyników — junior inaczej niż senior.</div>
         <select id="birth-year-input"
           onchange="updateAgeFromYear(this.value)"
           style="width:100%;max-width:220px;padding:12px 16px;border:1px solid #d8d3c8;background:#fff;font-family:'DM Sans',sans-serif;font-size:15px;color:#0e0d0b;outline:none;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 viewBox=%220 0 12 8%22><path d=%22M1 1l5 5 5-5%22 stroke=%22%239a9488%22 stroke-width=%221.5%22 fill=%22none%22/></svg>');background-repeat:no-repeat;background-position:right 14px center;cursor:pointer;"
@@ -889,9 +924,10 @@ body {
         <div id="age-label" style="font-size:12px;color:#9a9488;margin-top:6px;font-weight:300;min-height:18px;"></div>
       </div>
 
-      <!-- NOWE: Treningi — warstwa 1 danych treningowych -->
-      <div style="margin-bottom:32px;">
-        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:12px;font-weight:500;">Treningi z drużyną w tygodniu</div>
+      <!-- Treningi — warstwa 1 danych treningowych -->
+      <div class="ctx-section locked" id="ctx-s-club">
+        <div class="ctx-section-label"><span class="active-dot" id="dot-club" style="display:none"></span>Treningi z drużyną w tygodniu</div>
+        <div class="ctx-hint">Ile razy tygodniowo trenujesz z drużyną — nie licząc meczów.</div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
           <button class="ctx-btn" onclick="ctxPick('clubTrainings',0,this)">1</button>
           <button class="ctx-btn" onclick="ctxPick('clubTrainings',1,this)">2</button>
@@ -900,8 +936,9 @@ body {
         </div>
       </div>
 
-      <div style="margin-bottom:40px;">
-        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:12px;font-weight:500;">Dodatkowa praca własna w tygodniu <span style="font-weight:300;text-transform:none;letter-spacing:0;">(poza treningami drużyny)</span></div>
+      <div class="ctx-section locked" id="ctx-s-own">
+        <div class="ctx-section-label"><span class="active-dot" id="dot-own" style="display:none"></span>Dodatkowa praca własna w tygodniu <span style="font-weight:300;text-transform:none;letter-spacing:0;">(poza treningami drużyny)</span></div>
+        <div class="ctx-hint">Rozciąganie, siłownia, bieganie — cokolwiek robisz samodzielnie się liczy.</div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
           <button class="ctx-btn" onclick="ctxPick('ownTrainings',0,this)">0</button>
           <button class="ctx-btn" onclick="ctxPick('ownTrainings',1,this)">1</button>
@@ -979,11 +1016,13 @@ body {
       <div style="margin-bottom:28px;">
         <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:8px;font-weight:500;">Opisz siebie jako zawodnika</div>
         <p style="font-size:12px;color:#9a9488;margin-bottom:10px;font-weight:300;">Co już działa w Twojej grze? Co chcesz poprawić? Kilka zdań wystarczy.</p>
-        <textarea id="ps-selfDesc" rows="4"
+        <textarea id="ps-selfDesc" rows="4" class="guided-textarea"
           placeholder="Np. Jestem szybki i dobrze czuję się w pressingu, ale w końcówkach brakuje mi energii i często popełniam proste błędy których nie robię na początku meczu. Chciałbym grać pewniej pod presją..."
           style="width:100%;padding:14px 16px;border:1px solid #d8d3c8;background:#fff;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;resize:none;line-height:1.6;display:block;"
-          onfocus="this.style.borderColor='#0e0d0b'"
+          oninput="updateCharCounter(this)"
+          onfocus="this.style.borderColor='#E8432D'"
           onblur="this.style.borderColor='#d8d3c8'"></textarea>
+        <div class="char-counter" id="self-desc-counter">Kilka zdań wystarczy — min. 20 znaków żeby diagnoza mogła to porównać z wynikami</div>
       </div>
 
       <div style="display:flex;gap:12px;align-items:center;">
@@ -1677,6 +1716,95 @@ function updateAgeFromYear(yearStr) {
   }
 }
 
+// Kolejność sekcji kontekstu
+const CTX_ORDER = ['name','level','pos','age','club','own'];
+
+function ctxProgress() {
+  const name = (document.getElementById('player-name-input').value || '').trim();
+  const done = {
+    name: name.length >= 2,
+    level: ctx.level !== null,
+    pos: ctx.pos !== null,
+    age: ctx.age !== null,
+    club: ctx.clubTrainings !== null,
+    own: ctx.ownTrainings !== null,
+  };
+
+  // Znajdź pierwszą niezrobioną sekcję
+  let firstPending = null;
+  CTX_ORDER.forEach(id => { if (!done[id] && !firstPending) firstPending = id; });
+
+  CTX_ORDER.forEach(id => {
+    const el = document.getElementById('ctx-s-' + id);
+    const dot = document.getElementById('dot-' + id);
+    if (!el) return;
+
+    el.classList.remove('locked', 'active', 'done');
+
+    if (done[id]) {
+      el.classList.add('done');
+      if (dot) dot.style.display = 'none';
+    } else if (id === firstPending) {
+      el.classList.add('active');
+      if (dot) { dot.style.display = 'inline-block'; }
+      // Płynnie scroll do aktywnej sekcji jeśli poniżej widoku
+      setTimeout(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 150);
+    } else if (!done[id]) {
+      // Zablokuj sekcje które są za aktywną
+      const activeIdx = CTX_ORDER.indexOf(firstPending);
+      const thisIdx = CTX_ORDER.indexOf(id);
+      if (thisIdx > activeIdx) {
+        el.classList.add('locked');
+        if (dot) dot.style.display = 'none';
+      } else {
+        el.classList.add('active');
+      }
+    }
+  });
+}
+
+function updateCharCounter(textarea) {
+  const len = textarea.value.trim().length;
+  const counter = document.getElementById('self-desc-counter');
+  if (!counter) return;
+  if (len === 0) {
+    counter.textContent = 'Kilka zdań wystarczy — min. 20 znaków żeby diagnoza mogła to porównać z wynikami';
+    counter.className = 'char-counter';
+  } else if (len < 20) {
+    counter.textContent = `${len} / potrzeba min. 20 znaków`;
+    counter.className = 'char-counter';
+  } else {
+    counter.textContent = `${len} znaków ✓ Dobra odpowiedź`;
+    counter.className = 'char-counter good';
+  }
+}
+
+function updateSurveyProgress() {
+  const total = activeSegs.reduce((sum, seg) => sum + seg.qs.length, 0);
+  const answered = Object.keys(ans).length;
+  const fill = document.getElementById('survey-progress-fill');
+  if (fill) fill.style.width = (total > 0 ? (answered / total) * 100 : 0) + '%';
+
+  // Wycisz pytania przed i po aktywnym
+  document.querySelectorAll('.survey-q-wrap').forEach(el => {
+    const qIdx = parseInt(el.dataset.qidx || '0');
+    const answeredIdxs = Object.keys(ans).map(k => parseInt(k));
+    const maxAnswered = answeredIdxs.length > 0 ? Math.max(...answeredIdxs) : -1;
+    if (qIdx <= maxAnswered) {
+      el.classList.remove('q-active', 'q-future');
+      el.classList.add('q-past');
+    } else if (qIdx === maxAnswered + 1) {
+      el.classList.remove('q-past', 'q-future');
+      el.classList.add('q-active');
+    } else {
+      el.classList.remove('q-past', 'q-active');
+      el.classList.add('q-future');
+    }
+  });
+}
+
 function ctxPick(field, idx, btn) {
   ctx[field] = idx;
   btn.parentElement.querySelectorAll('.ctx-btn').forEach(b => b.classList.remove('sel'));
@@ -1689,6 +1817,9 @@ function ctxPick(field, idx, btn) {
     if (wrap) wrap.style.display = idx > 0 ? 'block' : 'none';
     if (idx === 0) presurvey.ownTypes.clear();
   }
+
+  // Aktualizuj prowadzenie po każdym wyborze
+  setTimeout(ctxProgress, 50);
 }
 
 function presurveyPick(field, idx, btn) {
@@ -1832,7 +1963,7 @@ function renderAllQuestions() {
           <span class="segment-label-name">${esc(seg.name)}</span>
         </div>
         ${seg.qs.map((q, qi) => `
-          <div class="question-block" style="animation:none;opacity:1;transform:none;">
+          <div class="question-block survey-q-wrap q-future" data-seg="${esc(seg.id)}" data-qi="${qi}" style="animation:none;opacity:1;transform:none;transition:opacity 0.3s ease;">\n            <div class="q-text">${esc(q.q)}</div>\n            <div class="q-context">${esc(q.ctx)}</div>\n            <div class="scale-wrap" style="margin-top:20px;">\n              <div class="scale-btns">\n                ${[[1,'Prawie nigdy'],[2,'Rzadko'],[3,'Raczej rzadko'],[4,'Raczej często'],[5,'Często'],[6,'Prawie zawsze']].map(([v,label]) => `\n                  <button class="scale-btn ${(ans[seg.id] || [])[qi] === v ? 'sel' : ''}"\n                    onclick="pickScroll('${esc(seg.id)}',${qi},${v},this)">\n                    <span class="scale-num">${v}</span>\n                    <span class="scale-label-text">${label}</span>\n                  </button>\n                `).join('')}\n              </div>\n            </div>\n          </div>
             <div class="q-text">${esc(q.q)}</div>
             <div class="q-context">${esc(q.ctx)}</div>
             <div class="scale-wrap" style="margin-top:20px;">
@@ -1889,6 +2020,37 @@ function pickScroll(segId, qi, val, btn) {
   btn.closest('.scale-btns').querySelectorAll('.scale-btn').forEach(b => b.classList.remove('sel'));
   btn.classList.add('sel');
   updateProgressScroll();
+  updateSurveyQuestionStates();
+}
+
+function updateSurveyQuestionStates() {
+  // Znajdź globalne indeksy odpowiedzi
+  let globalIdx = 0;
+  let lastAnsweredIdx = -1;
+  activeSegs.forEach(seg => {
+    seg.qs.forEach((q, qi) => {
+      if (ans[seg.id] && ans[seg.id][qi] != null) lastAnsweredIdx = globalIdx;
+      globalIdx++;
+    });
+  });
+
+  // Zastosuj klasy do wrapperów pytań
+  let idx = 0;
+  activeSegs.forEach(seg => {
+    seg.qs.forEach((q, qi) => {
+      const wrap = document.querySelector(`[data-seg="${seg.id}"][data-qi="${qi}"]`);
+      if (!wrap) { idx++; return; }
+      wrap.classList.remove('q-past', 'q-active', 'q-future');
+      if (idx <= lastAnsweredIdx) {
+        wrap.classList.add('q-past');
+      } else if (idx === lastAnsweredIdx + 1) {
+        wrap.classList.add('q-active');
+      } else {
+        wrap.classList.add('q-future');
+      }
+      idx++;
+    });
+  });
 }
 
 function updateProgressScroll() {
@@ -5058,6 +5220,10 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0, 0);
+  // Inicjalizuj prowadzenie przy wejściu na ekran kontekstu
+  if (id === 'screen-context') {
+    setTimeout(ctxProgress, 100);
+  }
 }
 // ======================================
 //  DEV — szybki test bez klikania przez ankietę
