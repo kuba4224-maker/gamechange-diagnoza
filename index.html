@@ -1992,7 +1992,7 @@ async function registerCoach() {
     // Wyślij email do trenera z kodem
     const panelLink = `${window.location.origin}${window.location.pathname}?team=${code}`;
     await emailjs.send('service_7dxlxuq', 'template_ybc0bsq', {
-      to_email: email,
+      email: email,
       subject: `Twój kod drużyny Gamechange: ${code}`,
       message: `Cześć ${name},\n\nTwój kod drużyny jest gotowy.\n\nKOD: ${code}\n\nPodaj ten kod swoim zawodnikom. Gdy wypełnią diagnozę na gamechange-diagnoza.vercel.app, wpisują ten kod i trafiają do Twojego raportu.\n\nTwój panel trenera:\n${panelLink}\n\nGamechange System`,
     });
@@ -2072,7 +2072,7 @@ async function sendFeedbackDigest() {
 
   try {
     await emailjs.send('service_7dxlxuq', 'template_ybc0bsq', {
-      to_email: 'dajwlowski@gmail.com',
+      email: 'dajwlowski@gmail.com',
       subject: `Gamechange — raport feedbacków`,
       message: msg,
     });
@@ -2326,7 +2326,7 @@ async function sendParentReport(playerData, parentEmail) {
   // Używamy istniejącego szablonu — pola dopasowane do template_ybc0bsq
   try {
     await emailjs.send('service_7dxlxuq', 'template_ybc0bsq', {
-      to_email: parentEmail,
+      email: parentEmail,
       from_name: 'Gamechange System',
       subject: 'Raport o grze Twojego dziecka — Gamechange',
       message: `Twoje dziecko właśnie ukończyło profesjonalną diagnostykę piłkarską w systemie Gamechange.\n\nPrzygotowaliśmy dla Ciebie osobny raport — napisany specjalnie dla rodzica.\n\nKliknij żeby go zobaczyć:\n${parentLink}\n\nLink jest aktywny bezterminowo.`,
@@ -3348,7 +3348,7 @@ function handleProductPurchaseReturn(productId) {
   // Wyślij email przez EmailJS jeśli mamy email
   if (email) {
     emailjs.send('service_7dxlxuq', 'template_ybc0bsq', {
-      to_email: email,
+      email: email,
       product_title: product.title,
       pdf_link: window.location.origin + '/' + product.file,
       date: new Date().toLocaleDateString('pl-PL'),
