@@ -404,10 +404,7 @@ body {
 }
 .section-head p { font-size: 13px; color: var(--muted); font-weight: 300; }
 
-.scores-table { width: 100%; border-collapse: collapse; }
-.scores-table tr { border-bottom: 1px solid var(--rule); }
-.scores-table tr:last-child { border-bottom: none; }
-.scores-table td { padding: 14px 0; vertical-align: middle; }
+.scores-table { width: 100%; }
 .td-name {
   font-size: 14px;
   font-weight: 400;
@@ -455,6 +452,34 @@ body {
 .tag.critical { background: rgba(214,60,47,0.1); color: var(--red); }
 .tag.warning { background: rgba(224,128,32,0.1); color: var(--amber); }
 .tag.good { background: rgba(42,122,58,0.08); color: var(--green); }
+
+/* SEGMENT GROUPS — prezentacja bez surowych liczb (odejście od punktacji liczbowej) */
+.seg-group-section { margin-bottom: 32px; }
+.seg-group-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 6px; }
+.seg-group-head h4 { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 0.04em; font-weight: 400; }
+.seg-group-badge { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; padding: 3px 9px; font-weight: 500; }
+.seg-group-desc { font-size: 13px; color: var(--muted); font-weight: 300; margin-bottom: 16px; max-width: 480px; }
+.seg-group-1 .seg-group-badge { background: rgba(214,60,47,0.12); color: var(--red); }
+.seg-group-1 .seg-group-head h4 { color: var(--red); }
+.seg-group-2 .seg-group-badge { background: rgba(42,122,58,0.1); color: var(--green); }
+.seg-group-2 .seg-group-head h4 { color: var(--green); }
+.seg-group-3 .seg-group-badge { background: rgba(224,128,32,0.12); color: var(--amber); }
+.seg-group-4 .seg-group-badge { background: var(--surface2); color: var(--muted); }
+.seg-group-row { display: grid; grid-template-columns: 200px 1fr; gap: 20px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--rule); }
+.seg-group-row:last-child { border-bottom: none; }
+.seg-group-name { font-size: 14px; font-weight: 500; color: var(--ink2); }
+.seg-group-bar-wrap { display: flex; align-items: center; gap: 12px; }
+.seg-group-bar-track { flex: 1; height: 6px; background: var(--surface2); overflow: hidden; }
+.seg-group-bar-fill { height: 100%; width: 0%; transition: width 1.2s cubic-bezier(.4,0,.2,1); }
+.seg-group-bar-fill.critical { background: var(--red); }
+.seg-group-bar-fill.warning { background: var(--amber); }
+.seg-group-bar-fill.good { background: var(--green); }
+.seg-group-bar-fill.neutral { background: var(--muted); opacity: 0.5; }
+.seg-group-tier-tag { font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; min-width: 64px; text-align: right; }
+@media (max-width: 480px) {
+  .seg-group-row { grid-template-columns: 1fr; gap: 6px; }
+  .seg-group-tier-tag { text-align: left; }
+}
 
 /* DEFICITS */
 .deficits-section { margin-bottom: 64px; }
@@ -679,7 +704,7 @@ body {
       </div>
 
       <p style="font-size:16px;color:rgba(255,255,255,0.45);font-weight:300;line-height:1.8;margin-bottom:48px;max-width:420px;margin-left:auto;margin-right:auto;">
-        4 minuty. 26 pytań. Diagnoza która wskazuje przyczynę — nie tylko objaw.
+        4 minuty. 27 pytań. Diagnoza która wskazuje przyczynę — nie tylko objaw.
       </p>
 
       <button onclick="startSurvey()"
@@ -701,11 +726,11 @@ body {
           <div style="font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;margin-top:4px;">Obszarów</div>
         </div>
         <div style="flex:1;padding:20px 16px;border-right:1px solid rgba(255,255,255,0.07);text-align:center;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#E8432D;letter-spacing:0.05em;line-height:1;">47</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#E8432D;letter-spacing:0.05em;line-height:1;">81</div>
           <div style="font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;margin-top:4px;">Zależności</div>
         </div>
         <div style="flex:1;padding:20px 16px;text-align:center;">
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#E8432D;letter-spacing:0.05em;line-height:1;">26</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#E8432D;letter-spacing:0.05em;line-height:1;">27</div>
           <div style="font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;margin-top:4px;">Pytań</div>
         </div>
       </div>
@@ -855,13 +880,17 @@ body {
 
       <div class="ctx-section locked" id="ctx-s-pos">
         <div class="ctx-section-label"><span class="active-dot" id="dot-pos" style="display:none"></span>Pozycja na boisku</div>
-        <div class="ctx-hint">Pytania są spersonalizowane pod pozycję — bramkarz dostaje inne pytania niż napastnik.</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+        <div class="ctx-hint">Pytania są spersonalizowane pod pozycję — bramkarz dostaje inne pytania niż napastnik. Wybierz tę która najlepiej opisuje jak grasz najczęściej.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
           <button class="ctx-btn" onclick="ctxPick('pos',0,this)">Bramkarz</button>
-          <button class="ctx-btn" onclick="ctxPick('pos',1,this)">Obrońca</button>
-          <button class="ctx-btn" onclick="ctxPick('pos',2,this)">Pomocnik</button>
-          <button class="ctx-btn" onclick="ctxPick('pos',3,this)">Napastnik</button>
-          <button class="ctx-btn" onclick="ctxPick('pos',4,this)">Nie dotyczy</button>
+          <button class="ctx-btn" onclick="ctxPick('pos',1,this)">Środkowy obrońca <span style="opacity:0.5;">(4/5)</span></button>
+          <button class="ctx-btn" onclick="ctxPick('pos',2,this)">Boczny obrońca <span style="opacity:0.5;">(2/3)</span></button>
+          <button class="ctx-btn" onclick="ctxPick('pos',3,this)">Defensywny pomocnik <span style="opacity:0.5;">(6)</span></button>
+          <button class="ctx-btn" onclick="ctxPick('pos',4,this)">Środkowy pomocnik <span style="opacity:0.5;">(8)</span></button>
+          <button class="ctx-btn" onclick="ctxPick('pos',5,this)">Ofensywny pomocnik <span style="opacity:0.5;">(10)</span></button>
+          <button class="ctx-btn" onclick="ctxPick('pos',6,this)">Skrzydłowy <span style="opacity:0.5;">(7/11)</span></button>
+          <button class="ctx-btn" onclick="ctxPick('pos',7,this)">Napastnik <span style="opacity:0.5;">(9)</span></button>
+          <button class="ctx-btn" onclick="ctxPick('pos',8,this)" style="grid-column:span 2;">Nie dotyczy</button>
         </div>
       </div>
 
@@ -1086,10 +1115,10 @@ body {
 
     <div class="scores-section">
       <div class="section-head">
-        <h3>Wszystkie segmenty</h3>
-        <p>Posortowane od najsłabszego</p>
+        <h3>Twoja gra, obszar po obszarze</h3>
+        <p>Względem reszty Twoich własnych wyników</p>
       </div>
-      <table class="scores-table" id="scores-table"></table>
+      <div class="scores-table" id="scores-table"></div>
     </div>
 
     <!-- DIAGNOSIS GATE — blur + email unlock -->
@@ -1097,9 +1126,9 @@ body {
 
       <!-- Blurred content -->
       <div id="diagnosis-blur-wrap" style="filter:blur(6px);pointer-events:none;user-select:none;transition:filter 0.5s ease;">
-        <div class="section-head" style="margin-bottom:24px;">
-          <h3>Kluczowe wąskie gardła</h3>
-          <p>Tu powinieneś zacząć pracę</p>
+        <div class="section-head" style="margin-bottom:24px;" id="deficits-section-head">
+          <h3 id="deficits-heading">Kluczowe wąskie gardła</h3>
+          <p id="deficits-subheading">Tu powinieneś zacząć pracę</p>
         </div>
         <div id="deficits-list"></div>
         <div style="margin-top:32px;border:1px solid #d8d3c8;padding:32px;background:#fff;">
@@ -1316,7 +1345,7 @@ body {
 
 <script>
 // ======================================
-//  DATA — 26 pytań, 2 na segment
+//  DATA — 27 pytań (12 segmentów po 2, odzywianie ma 3)
 // ======================================
 const SEGS = [
   {
@@ -1328,8 +1357,12 @@ const SEGS = [
         pos: {
           0: { t: 'Jak często przy wyjściu do piłki — dośrodkowanie, wolny lub podanie za linię — docierasz do niej tak szybko, że zamykasz rywalowi drogę?', ctx: 'Czy Twoje wyjście jest na tyle szybkie, że rywal traci szansę zanim dotrze do piłki?' },
           1: { t: 'Jak często po tym jak napastnik zmienia kierunek lub zrywa się do biegu, odrabiasz stratę i wracasz do optymalnej pozycji defensywnej zanim on zagrozi?', ctx: 'Czy Twoja szybkość reakcji pozwala Ci utrzymać właściwe ustawienie mimo ruchu napastnika?' },
-          2: { t: 'Jak często w pressingu Twoje tempo dobiegnięcia jest na tyle duże, że rywal odczuwa realną presję — spieszy się, popełnia błąd lub wybiera gorsze zagranie?', ctx: 'Pressing działa gdy rywal czuje że nie ma czasu. Czy Twoje tempo mu to odbiera?' },
-          3: { t: 'Jak często po zmianie kierunku lub nagłym odejściu od obrońcy jesteś w stanie utrzymać lub powiększyć przewagę — obrońca nie dogania Cię i zostajesz przy piłce lub w lepszej pozycji?', ctx: 'Czy Twoje przyspieszenie po ruchu jest wystarczające żeby obrońca nie zdążył wrócić na właściwe miejsce?' },
+          2: { t: 'Jak często w wyścigu z napastnikiem lub skrzydłowym rywala do piłki dogrywanej w Twój korytarz jesteś pierwszy — czy to broniąc dośrodkowania, czy odcinając podanie za plecy?', ctx: 'Boczny obrońca biega najwięcej ze wszystkich obrońców. Kto wygrywa wyścig na Twoim skrzydle — Ty czy rywal?' },
+          3: { t: 'Jak często jako pierwszy docierasz do luźnej piłki przed polem karnym lub do rywala wchodzącego w Twoją strefę — zanim zdąży się obrócić albo zagrać do przodu?', ctx: 'Defensywny pomocnik jest ostatnią linią przed obroną. Czy Twoje pierwsze metry wystarczają żeby przeciąć zagrożenie zanim ono dojrzeje?' },
+          4: { t: 'Jak często w pressingu Twoje tempo dobiegnięcia jest na tyle duże, że rywal odczuwa realną presję — spieszy się, popełnia błąd lub wybiera gorsze zagranie?', ctx: 'Pressing działa gdy rywal czuje że nie ma czasu. Czy Twoje tempo mu to odbiera?' },
+          5: { t: 'Jak często wygrywasz wyścig do piłki odbitej lub prostopadłej podanej między liniami rywala — docierasz do niej pierwszy, zanim obrońca zdąży zareagować?', ctx: 'To moment w którym otwierasz się między liniami. Kto jest szybszy do tej piłki — Ty czy obrońca?' },
+          6: { t: 'Jak często wygrywasz wyścig do piłki granej w przestrzeń za plecami obrońcy — docierasz do niej pierwszy, zanim on zdąży Cię odciąć?', ctx: 'To Twoja podstawowa broń — bieg w wolną przestrzeń. Kto jest szybszy na starcie do tej piłki?' },
+          7: { t: 'Jak często po zmianie kierunku lub nagłym odejściu od obrońcy jesteś w stanie utrzymać lub powiększyć przewagę — obrońca nie dogania Cię i zostajesz przy piłce lub w lepszej pozycji?', ctx: 'Czy Twoje przyspieszenie po ruchu jest wystarczające żeby obrońca nie zdążył wrócić na właściwe miejsce?' },
         }
       },
       {
@@ -1338,8 +1371,12 @@ const SEGS = [
         pos: {
           0: { t: 'Po obronie w jedną stronę, jeśli piłka wraca i wymaga natychmiastowej drugiej interwencji w innym kierunku — czy reagujesz z pełną mocą, czy tracisz cenny ułamek sekundy zanim zdołasz się ponownie ustawić?', ctx: 'Klasyczna sytuacja: obrona, odbita piłka, drugi strzał z innej strony. Czy druga interwencja jest tak samo mocna jak pierwsza?' },
           1: { t: 'Jak często gdy ruszasz w jedną stronę a napastnik nagle zmienia kierunek, jesteś w stanie z tego samego rozpędu skręcić w nową stronę z pełną mocą — bez zatrzymania i ponownego rozpędzania się?', ctx: 'To moment w którym napastnik zmienia kierunek żeby Cię zgubić. Czy Twoje ciało nadąża bez utraty mocy?' },
-          2: { t: 'Jak często gdy wchodzisz w pressing w jedną stronę a piłka ucieka w inną, zmieniasz kierunek biegu z pełną mocą — bez zauważalnego spadku tempa w pierwszych krokach nowego biegu?', ctx: 'Pressing rzadko idzie w prostej linii. Czy zmiana kierunku kosztuje Cię moc w pierwszych metrach?' },
-          3: { t: 'Po zwodzie lub ruchu w jedną stronę, jak często jesteś w stanie natychmiast eksplodować w przeciwnym kierunku z taką samą mocą jak pierwszy ruch?', ctx: 'To moment tuż po zwodzie. Czy druga eksplozja w nową stronę jest tak samo mocna jak pierwsza?' },
+          2: { t: 'Jak często gdy ruszasz do przodu we wsparciu ataku, a gra nagle się odwraca i musisz wracać w przeciwnym kierunku, robisz to z pełną mocą — bez zauważalnej straty tempa w pierwszych krokach powrotu?', ctx: 'Boczny obrońca ciągle zmienia kierunek między atakiem a obroną. Czy powrót jest tak samo szybki jak wyjście do przodu?' },
+          3: { t: 'Jak często po przechwyceniu piłki lub ustawieniu się w jedną stronę, a rywal natychmiast zmienia kierunek ataku, jesteś w stanie z tego samego rozpędu skręcić i zareagować z pełną mocą?', ctx: 'Gra się odwraca u Ciebie najszybciej ze wszystkich pozycji. Czy Twoje ciało nadąża za zmianą kierunku ataku bez utraty mocy?' },
+          4: { t: 'Jak często gdy wchodzisz w pressing w jedną stronę a piłka ucieka w inną, zmieniasz kierunek biegu z pełną mocą — bez zauważalnego spadku tempa w pierwszych krokach nowego biegu?', ctx: 'Pressing rzadko idzie w prostej linii. Czy zmiana kierunku kosztuje Cię moc w pierwszych metrach?' },
+          5: { t: 'Po zwodzie lub przyjęciu w jedną stronę, jak często jesteś w stanie natychmiast eksplodować w przeciwnym kierunku z pełną mocą — żeby wejść w linię obrony zanim się przegrupuje?', ctx: 'To moment tuż po przyjęciu piłki. Czy druga eksplozja w nową stronę jest tak samo mocna jak pierwszy ruch?' },
+          6: { t: 'Po zwodzie lub zmianie kierunku przy piłce, jak często eksplodujesz w nową stronę z taką samą mocą jak przed zwodem — bez utraty tempa w pierwszych krokach?', ctx: 'To jest Twoje główne narzędzie w 1v1. Czy zwód naprawdę Cię przyspiesza, czy tylko zmienia kierunek bez zysku tempa?' },
+          7: { t: 'Po zwodzie lub ruchu w jedną stronę, jak często jesteś w stanie natychmiast eksplodować w przeciwnym kierunku z taką samą mocą jak pierwszy ruch?', ctx: 'To moment tuż po zwodzie. Czy druga eksplozja w nową stronę jest tak samo mocna jak pierwsza?' },
         }
       },
     ]
@@ -1357,8 +1394,12 @@ const SEGS = [
         pos: {
           0: { t: 'Jak często pod koniec meczu Twoje interwencje są mniej precyzyjne niż na początku, a Twoja aktywność w kierowaniu obroną — ustawianie linii, komunikacja z zawodnikami, korygowanie ich pozycji — jest rzadsza lub mniej wyraźna?', ctx: 'Bramkarz nie biega po całym boisku, ale cały czas organizuje defensywę głosem i ustawieniem. Czy zmęczenie sprawia że robisz to rzadziej lub mniej wyraźnie?' },
           1: { t: 'Jak często pod koniec meczu Twoje wybicia i podania są mniej precyzyjne niż na początku, a wracasz na swoją pozycję lub domykasz przestrzeń wolniej — zostawiasz partnera bez asekuracji, bo fizycznie nie zdążysz?', ctx: 'Chodzi zarówno o jakość zagrań z piłką, jak i o pracę bez piłki — powroty, domykanie, asekurację partnera.' },
-          2: { t: 'Jak często pod koniec meczu Twoje podania są mniej precyzyjne niż na początku, a przełączanie się między obroną a atakiem jest wolniejsze — zostajesz w jednej fazie gry zamiast wracać do pomocy w drugiej?', ctx: 'Pomocnik pracuje w obie strony boiska. Czy zmęczenie sprawia że słabnie zarówno jakość podań, jak i praca przejściowa?' },
-          3: { t: 'Jak często pod koniec meczu Twoje przyjęcia i wykończenia akcji są mniej precyzyjne niż na początku, a rzadziej z własnej woli podejmujesz inicjatywę — wychodzisz do wysokiego pressingu, atakujesz przestrzeń, wybiegasz za linię — bo brakuje Ci sił żeby robić to bez przerwy?', ctx: 'Napastnik traci nie tylko jakość wykończenia, ale też chęć do działania z własnej inicjatywy — mniej prób pressingu, mniej wybiegania w przestrzeń, więcej czekania zamiast atakowania. Czy zmęczenie odbiera Ci tę inicjatywę?' },
+          2: { t: 'Jak często pod koniec meczu Twoje dośrodkowania i wsparcie ataku są rzadsze lub mniej precyzyjne niż na początku, a powrót do obrony po stracie jest wolniejszy — bo fizycznie brakuje Ci sił żeby robić oba te zadania bez przerwy?', ctx: 'Boczny obrońca pracuje na całej długości boiska. Czy zmęczenie odbiera Ci zarówno atak, jak i powroty defensywne?' },
+          3: { t: 'Jak często pod koniec meczu Twoje przechwyty i asekuracja obrony są rzadsze lub mniej skuteczne niż na początku, a pokrycie przestrzeni przed obroną jest wolniejsze — nie z braku chęci, ale dlatego że fizycznie brakuje Ci sił?', ctx: 'Ty jesteś tarczą przed obroną. Czy zmęczenie sprawia że ta tarcza słabnie w końcówce?' },
+          4: { t: 'Jak często pod koniec meczu Twoje podania są mniej precyzyjne niż na początku, a przełączanie się między obroną a atakiem jest wolniejsze — zostajesz w jednej fazie gry zamiast wracać do pomocy w drugiej?', ctx: 'Pomocnik pracuje w obie strony boiska. Czy zmęczenie sprawia że słabnie zarówno jakość podań, jak i praca przejściowa?' },
+          5: { t: 'Jak często pod koniec meczu Twoje podania decydujące i wejścia w pole karne są rzadsze lub mniej precyzyjne niż na początku, a szukanie wolnej przestrzeni między liniami jest mniej częste — bo brakuje Ci sił żeby ciągle się tam odnajdywać?', ctx: 'Ty tworzysz najwięcej sytuacji bramkowych. Czy zmęczenie odbiera Ci tę kreatywność w końcówce?' },
+          6: { t: 'Jak często pod koniec meczu Twoje dryblingi i wbiegnięcia za plecy obrońcy są rzadsze lub wolniejsze niż na początku, a wracasz do defensywy wolniej — bo fizycznie brakuje Ci sił żeby robić to bez przerwy przez cały mecz?', ctx: 'Skrzydłowy żyje z powtarzalnych sprintów w obie strony. Czy zmęczenie odbiera Ci tempo tych sprintów w końcówce?' },
+          7: { t: 'Jak często pod koniec meczu Twoje przyjęcia i wykończenia akcji są mniej precyzyjne niż na początku, a rzadziej z własnej woli podejmujesz inicjatywę — wychodzisz do wysokiego pressingu, atakujesz przestrzeń, wybiegasz za linię — bo brakuje Ci sił żeby robić to bez przerwy?', ctx: 'Napastnik traci nie tylko jakość wykończenia, ale też chęć do działania z własnej inicjatywy — mniej prób pressingu, mniej wybiegania w przestrzeń, więcej czekania zamiast atakowania. Czy zmęczenie odbiera Ci tę inicjatywę?' },
         }
       },
     ]
@@ -1372,8 +1413,12 @@ const SEGS = [
         pos: {
           0: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni bramkarze z którymi trenujesz — w wyskoku, sile rzutu, sile odbicia?', ctx: 'Chodzi o Twoją bazę siłową jako bramkarza, nie o pojedynek z rywalem.' },
           1: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni obrońcy z którymi trenujesz — w przysiadach, pracy nóg, sile górnej części ciała?', ctx: 'To pytanie o bazę siłową, nie o starcie z konkretnym napastnikiem.' },
-          2: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni pomocnicy z którymi trenujesz — w sile nóg, stabilności tułowia, sile górnej części ciała?', ctx: 'Porównanie do innych pomocników w pracy siłowej.' },
-          3: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni napastnicy z którymi trenujesz — w sile nóg, sile górnej części ciała, stabilności w kontakcie?', ctx: 'To pytanie o Twoją bazę fizyczną na tle innych napastników.' },
+          2: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni boczni obrońcy z którymi trenujesz — w pojedynkach 1v1, sile nóg, wytrzymałości siłowej?', ctx: 'To pytanie o Twoją bazę siłową na tle innych bocznych obrońców, nie o starcie z konkretnym rywalem.' },
+          3: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni defensywni pomocnicy z którymi trenujesz — w starciach o piłkę, stabilności w kontakcie, sile górnej części ciała?', ctx: 'Porównanie do innych zawodników na tej samej, mocno kontaktowej pozycji.' },
+          4: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni pomocnicy z którymi trenujesz — w sile nóg, stabilności tułowia, sile górnej części ciała?', ctx: 'Porównanie do innych pomocników w pracy siłowej.' },
+          5: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni ofensywni pomocnicy z którymi trenujesz — w utrzymaniu piłki pod presją, sile nóg, stabilności tułowia?', ctx: 'To pytanie o Twoją bazę siłową na tle innych kreatywnych pomocników.' },
+          6: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni skrzydłowi z którymi trenujesz — w sile nóg, wytrzymałości na sprint, stabilności przy zwodach?', ctx: 'Porównanie do innych skrzydłowych w pracy siłowej.' },
+          7: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni napastnicy z którymi trenujesz — w sile nóg, sile górnej części ciała, stabilności w kontakcie?', ctx: 'To pytanie o Twoją bazę fizyczną na tle innych napastników.' },
         }
       },
       {
@@ -1382,8 +1427,12 @@ const SEGS = [
         pos: {
           0: { t: 'Przy wyjściu na dośrodkowanie, gdy napastnik wchodzi barkiem żeby zablokować Twój skok — jak często wygrywasz tę walkę o pozycję i docierasz do piłki?', ctx: 'Chodzi o wynik starcia w powietrzu — kto zdobywa pozycję do gry piłką.' },
           1: { t: 'Gdy biegniesz ramię w ramię z napastnikiem do piłki dogrywanej w przestrzeń, a on napiera barkiem żeby Cię wypchnąć z toru biegu — jak często wygrywasz tę walkę o pozycję i docierasz do piłki pierwszy?', ctx: 'To klasyczna sytuacja wyścigu z kontaktem. Kto broni swojego miejsca w biegu?' },
-          2: { t: 'Gdy przyjmujesz piłkę, a rywal wchodzi barkiem od tyłu żeby ją odebrać — jak często wygrywasz tę walkę o pozycję i zatrzymujesz piłkę przy sobie?', ctx: 'To codzienna sytuacja w środku pola. Kto wygrywa starcie o piłkę?' },
-          3: { t: 'Gdy stoisz plecami do bramki i czekasz na piłkę, a obrońca napiera od tyłu żeby nie dać Ci się obrócić — jak często wygrywasz tę walkę o pozycję i zdobywasz przestrzeń do gry przodem?', ctx: 'To bezpośrednio z fizyki pojedynku — kto wygrywa nacisk plecy w plecy.' },
+          2: { t: 'Gdy skrzydłowy rywala wchodzi barkiem żeby minąć Cię od zewnątrz lub wygrać pojedynek przy linii bocznej, jak często wygrywasz tę walkę o pozycję i nie dajesz się minąć?', ctx: 'To codzienna sytuacja na Twoim skrzydle. Kto wygrywa starcie bark w bark — Ty czy skrzydłowy?' },
+          3: { t: 'Gdy wchodzisz w starcie o piłkę z rywalem w środku pola — obaj napieracie barkiem o pozycję — jak często wygrywasz ten pojedynek i odzyskujesz piłkę?', ctx: 'To jest Twoje główne zadanie — wygrywać starcia w środku pola. Kto góruje w tym kontakcie?' },
+          4: { t: 'Gdy przyjmujesz piłkę, a rywal wchodzi barkiem od tyłu żeby ją odebrać — jak często wygrywasz tę walkę o pozycję i zatrzymujesz piłkę przy sobie?', ctx: 'To codzienna sytuacja w środku pola. Kto wygrywa starcie o piłkę?' },
+          5: { t: 'Gdy przyjmujesz piłkę plecami lub bokiem do rywala, który napiera barkiem żeby Cię zepchnąć z pozycji, jak często wygrywasz tę walkę i utrzymujesz piłkę?', ctx: 'Grasz często pod presją z tyłu. Kto wygrywa nacisk w tej sytuacji?' },
+          6: { t: 'Gdy obrońca wchodzi barkiem żeby zablokować Twój zwód lub wypchnąć Cię z linii biegu, jak często wygrywasz tę walkę o pozycję i zachowujesz przewagę?', ctx: 'To bezpośrednio wpływa na skuteczność Twoich dryblingów. Kto wygrywa kontakt w tym momencie?' },
+          7: { t: 'Gdy stoisz plecami do bramki i czekasz na piłkę, a obrońca napiera od tyłu żeby nie dać Ci się obrócić — jak często wygrywasz tę walkę o pozycję i zdobywasz przestrzeń do gry przodem?', ctx: 'To bezpośrednio z fizyki pojedynku — kto wygrywa nacisk plecy w plecy.' },
         }
       },
     ]
@@ -1397,8 +1446,12 @@ const SEGS = [
         pos: {
           0: { t: 'Jak często Twoje podstawowe interwencje — chwyt, wybicie, rozegranie nogą w spokojnej sytuacji — wychodzą tak jak zamierzasz, gdy nie ma presji czasu ani rywala w polu karnym?', ctx: 'Czy w standardowych, niezbyt trudnych interwencjach Twoja technika jest niezawodna?' },
           1: { t: 'Jak często Twoje podstawowe zagrania — przyjęcie, podanie, wybicie — wychodzą tak jak zamierzasz, gdy masz czas i przestrzeń, bez rywala napierającego z bliska?', ctx: 'Chodzi o spokojne sytuacje w obronie.' },
-          2: { t: 'Jak często Twoje podstawowe zagrania — przyjęcie, podanie na krótki i średni dystans — wychodzą tak jak zamierzasz, gdy masz czas na decyzję i nikt nie naciska?', ctx: 'To pytanie o spokojne fragmenty gry w środku pola.' },
-          3: { t: 'Jak często Twoje podstawowe zagrania — przyjęcie, uderzenie, prowadzenie piłki — wychodzą tak jak zamierzasz, gdy masz przestrzeń i czas, bez obrońcy tuż przy Tobie?', ctx: 'Chodzi o spokojne momenty przy piłce.' },
+          2: { t: 'Jak często Twoje podstawowe zagrania — przyjęcie, długie podanie wzdłuż linii, dośrodkowanie — wychodzą tak jak zamierzasz, gdy masz czas i przestrzeń na swoim skrzydle?', ctx: 'Chodzi o spokojne sytuacje na Twoim boku boiska, bez rywala napierającego z bliska.' },
+          3: { t: 'Jak często Twoje podstawowe zagrania — przyjęcie pod presją niskiej intensywności, proste podanie rozpoczynające akcję — wychodzą tak jak zamierzasz, gdy masz chwilę czasu przed pressingiem rywala?', ctx: 'To pytanie o spokojne momenty rozpoczynania akcji z głębi pola.' },
+          4: { t: 'Jak często Twoje podstawowe zagrania — przyjęcie, podanie na krótki i średni dystans — wychodzą tak jak zamierzasz, gdy masz czas na decyzję i nikt nie naciska?', ctx: 'To pytanie o spokojne fragmenty gry w środku pola.' },
+          5: { t: 'Jak często Twoje podstawowe zagrania — przyjęcie między liniami, proste podanie — wychodzą tak jak zamierzasz, gdy masz chwilę czasu zanim obrońca zdąży doskoczyć?', ctx: 'To pytanie o spokojne fragmenty gry w strefach ofensywnych.' },
+          6: { t: 'Jak często Twoje podstawowe zagrania — przyjęcie przy linii bocznej, pierwsze podanie po odbiorze — wychodzą tak jak zamierzasz, gdy masz przestrzeń i czas na start?', ctx: 'Chodzi o spokojne momenty zanim zaczniesz akcję 1v1.' },
+          7: { t: 'Jak często Twoje podstawowe zagrania — przyjęcie, uderzenie, prowadzenie piłki — wychodzą tak jak zamierzasz, gdy masz przestrzeń i czas, bez obrońcy tuż przy Tobie?', ctx: 'Chodzi o spokojne momenty przy piłce.' },
         }
       },
       {
@@ -1407,8 +1460,12 @@ const SEGS = [
         pos: {
           0: { t: 'Jak często Twoje interwencje wychodzą tak samo dobrze gdy w polu karnym jest tłok i presja czasu, jak w spokojnej sytuacji bez rywali w pobliżu?', ctx: 'Czy technika wtedy się rozpada, czy zostaje taka sama?' },
           1: { t: 'Jak często Twoje zagrania wychodzą tak samo dobrze gdy napastnik napiera z bliska i nie masz czasu, jak w spokojnej sytuacji z przestrzenią?', ctx: 'Czy technika z poprzedniej, spokojnej sytuacji przetrwa taki nacisk?' },
-          2: { t: 'Jak często Twoje podania wychodzą tak samo dobrze gdy jesteś pod pressingiem i musisz zagrać szybko, jak wtedy gdy masz czas na decyzję?', ctx: 'Czy Twoja technika przetrwa pressing, czy się psuje?' },
-          3: { t: 'Jak często Twoje zagrania wychodzą tak samo dobrze gdy obrońca jest tuż przy Tobie i wywiera presję, jak wtedy gdy masz przestrzeń?', ctx: 'Czy technika ze spokojnej sytuacji przetrwa taki nacisk?' },
+          2: { t: 'Jak często Twoje przyjęcia i podania wychodzą tak samo dobrze gdy skrzydłowy rywala napiera z bliska i odcina Ci czas, jak w spokojnej sytuacji z przestrzenią?', ctx: 'Czy technika ze spokojnej sytuacji przetrwa presję na Twoim skrzydle?' },
+          3: { t: 'Jak często Twoje przyjęcia i podania wychodzą tak samo dobrze gdy jesteś pod natychmiastowym pressingiem po odbiorze piłki, jak wtedy gdy masz czas na decyzję?', ctx: 'To jest codzienność defensywnego pomocnika — odbiór i natychmiastowy pressing. Czy technika to wytrzymuje?' },
+          4: { t: 'Jak często Twoje podania wychodzą tak samo dobrze gdy jesteś pod pressingiem i musisz zagrać szybko, jak wtedy gdy masz czas na decyzję?', ctx: 'Czy Twoja technika przetrwa pressing, czy się psuje?' },
+          5: { t: 'Jak często Twoje przyjęcia i podania wychodzą tak samo dobrze gdy grasz plecami do bramki z obrońcą tuż za Tobą, jak w spokojnej sytuacji przodem do gry?', ctx: 'Czy Twoja technika przetrwa grę pod presją z tyłu, którą często musisz znosić?' },
+          6: { t: 'Jak często Twoje przyjęcia i pierwsze podanie po zwodzie wychodzą tak samo dobrze gdy obrońca jest tuż przy Tobie, jak w sytuacji z przestrzenią do dryblingu?', ctx: 'Czy technika ze spokojnej sytuacji przetrwa bezpośredni kontakt z obrońcą?' },
+          7: { t: 'Jak często Twoje zagrania wychodzą tak samo dobrze gdy obrońca jest tuż przy Tobie i wywiera presję, jak wtedy gdy masz przestrzeń?', ctx: 'Czy technika ze spokojnej sytuacji przetrwa taki nacisk?' },
         }
       },
     ]
@@ -1422,8 +1479,12 @@ const SEGS = [
         pos: {
           0: { t: 'Jak często Twoje rozegranie — krótkie podanie, wyrzut, zagranie nogą — daje partnerowi tyle czasu, że może przyjąć piłkę i od razu podjąć decyzję bez presji rywala?', ctx: 'Czy Twoje rozegranie buduje przewagę, czy tylko oddaje piłkę?' },
           1: { t: 'Jak często Twoje podanie przełamuje lub omija linię pressingu rywala — piłka ląduje za rywalem który Cię pressuje, nie przed nim?', ctx: 'Czy Twoje zagrania przełamują pressing?' },
-          2: { t: 'Jak często po Twoim zagraniu Twój partner dostaje się w sytuację 1v1 lub z wolną przestrzenią przed sobą — zamiast od razu znowu być pod presją?', ctx: 'Czy widzisz i wykorzystujesz momenty gdy rywal jest źle ustawiony?' },
-          3: { t: 'Jak często Twój ruch bez piłki — odejście, zmiana kierunku, wyjście za linię — otwiera przestrzeń którą Twój partner może natychmiast wykorzystać?', ctx: 'Czy Twoje ruchy bez piłki coś tworzą dla drużyny?' },
+          2: { t: 'Jak często Twoje dośrodkowanie lub podanie w pole karne daje partnerowi realną szansę na strzał lub przyjęcie z przewagą — zamiast trafiać prosto w obrońcę?', ctx: 'Czy Twoje dośrodkowania tworzą przewagę, czy tylko oddają piłkę w stronę bramki?' },
+          3: { t: 'Jak często po odzyskaniu piłki Twoje pierwsze podanie od razu wyprowadza drużynę z presji — partner dostaje piłkę z czasem na decyzję, zamiast być od razu pressowany?', ctx: 'Czy Twoje rozegranie po przechwycie buduje przewagę, czy tylko przekazuje problem dalej?' },
+          4: { t: 'Jak często po Twoim zagraniu Twój partner dostaje się w sytuację 1v1 lub z wolną przestrzenią przed sobą — zamiast od razu znowu być pod presją?', ctx: 'Czy widzisz i wykorzystujesz momenty gdy rywal jest źle ustawiony?' },
+          5: { t: 'Jak często Twoje podanie ostatnie przed strzałem daje partnerowi realną sytuację bramkową — czysty strzał lub sytuację sam na sam, zamiast dogrania pod obrońcę?', ctx: 'To jest Twoje główne zadanie — kreować sytuacje bramkowe. Czy Twoje podania to naprawdę robią?' },
+          6: { t: 'Jak często po Twoim dryblingu lub zwodzie partner dostaje piłkę w sytuacji z wyraźną przewagą — wolne pole lub przewaga liczebna, zamiast wracać do punktu wyjścia?', ctx: 'Czy Twój drybling faktycznie tworzy coś dla drużyny, czy kończy się na Tobie?' },
+          7: { t: 'Jak często Twój ruch bez piłki — odejście, zmiana kierunku, wyjście za linię — otwiera przestrzeń którą Twój partner może natychmiast wykorzystać?', ctx: 'Czy Twoje ruchy bez piłki coś tworzą dla drużyny?' },
         }
       },
       {
@@ -1432,8 +1493,12 @@ const SEGS = [
         pos: {
           0: { t: 'Jak często gdy masz możliwość mądrego rozegrania które buduje grę od tyłu, wybierasz zamiast niego dalekie wybicie — bo krótkie rozegranie wydaje Ci się zbyt ryzykowne?', ctx: 'Im rzadziej wybijasz zamiast rozgrywać, tym lepiej.' },
           1: { t: 'Jak często gdy możesz zagrać podanie które przełamałoby pressing, wybierasz zamiast niego bezpieczne odegranie wzdłuż linii lub z powrotem?', ctx: 'Im rzadziej grasz zachowawczo gdy jest lepsza opcja, tym lepiej.' },
-          2: { t: 'Jak często gdy masz możliwość zagrania trudnego podania za linię obrony lub na wychodzącego partnera, wybierasz zamiast niego proste podanie do bliższego partnera?', ctx: 'Im rzadziej rezygnujesz z trudnego podania gdy jest ono właściwym wyborem, tym lepiej.' },
-          3: { t: 'Jak często gdy masz okazję do strzału lub ryzykownego dryblingu, wybierasz zamiast niego odegranie piłki bo boisz się błędu?', ctx: 'Im rzadziej rezygnujesz z odważnej akcji gdy naprawdę masz szansę, tym lepiej.' },
+          2: { t: 'Jak często gdy masz możliwość zagrania ryzykownego podania do środka lub włączenia się do ataku, wybierasz zamiast tego bezpieczne, proste podanie wzdłuż linii?', ctx: 'Im rzadziej rezygnujesz z odważniejszej opcji ofensywnej, tym lepiej.' },
+          3: { t: 'Jak często gdy masz możliwość zagrania prostopadłego podania otwierającego atak, wybierasz zamiast tego bezpieczne podanie do boku lub do tyłu?', ctx: 'Im rzadziej wybierasz bezpieczne rozegranie kiedy jest lepsza opcja otwierająca grę, tym lepiej.' },
+          4: { t: 'Jak często gdy masz możliwość zagrania trudnego podania za linię obrony lub na wychodzącego partnera, wybierasz zamiast niego proste podanie do bliższego partnera?', ctx: 'Im rzadziej rezygnujesz z trudnego podania gdy jest ono właściwym wyborem, tym lepiej.' },
+          5: { t: 'Jak często gdy masz okazję na ryzykowne podanie w linię obrony lub przyjęcie w trudnej pozycji między rywalami, wybierasz zamiast tego bezpieczne, boczne rozegranie?', ctx: 'Im rzadziej rezygnujesz z podania które realnie mogłoby otworzyć obronę rywala, tym lepiej.' },
+          6: { t: 'Jak często gdy masz okazję do dryblingu 1v1 lub podania za linię obrony, wybierasz zamiast tego bezpieczne cofnięcie piłki?', ctx: 'Im rzadziej rezygnujesz z próby 1v1 gdy masz realną szansę, tym lepiej.' },
+          7: { t: 'Jak często gdy masz okazję do strzału lub ryzykownego dryblingu, wybierasz zamiast niego odegranie piłki bo boisz się błędu?', ctx: 'Im rzadziej rezygnujesz z odważnej akcji gdy naprawdę masz szansę, tym lepiej.' },
         }
       },
     ]
@@ -1493,102 +1558,6 @@ const SEGS = [
     qs: [
       { t: 'Jak często w sytuacji którą już wcześniej wielokrotnie widziałeś, wiesz od razu jakie zagranie zwykle działa najlepiej?', ctx: 'Pomyśl o sytuacji która powtarza się w Twoich meczach — na przykład konkretny moment obronny albo ofensywny który zdarza się często. Czy masz do niej gotowe rozwiązanie, czy za każdym razem zaczynasz zastanawiać się od nowa?', dir: 1 },
       { t: 'Jak często Twoje działanie — podanie, ruch, decyzja — jest już spóźnione, bo sytuacja zdążyła się zmienić zanim zdążyłeś je podjąć?', ctx: 'Chodzi o moment kiedy widzisz efekt spóźnienia — podanie trafia w miejsce gdzie już nikogo nie ma, ruch okazuje się o krok za późno. Nie musisz wiedzieć jaka byłaby lepsza opcja — wystarczy że zauważasz że Twoje działanie nie zdążyło.', dir: -1 },
-    ]
-  },
-];
-
-// ======================================
-//  WERSJA JUNIOR — 13 pytań, tylko pozytywne
-// ======================================
-const SEGS_JUNIOR = [
-  {
-    id: 'moc', name: 'MOC', n: '01',
-    qs: [
-      { q: 'Jak często wygrywasz pierwsze metry biegu w walce o piłkę?', ctx: 'Kto jest szybszy na starcie — Ty czy rywal?' },
-      { q: 'Jak często po zmianie kierunku rozpędzasz się z powrotem szybciej niż przeciwnik?', ctx: 'Kto wraca do pełnej szybkości pierwszy — Ty czy rywal?' },
-    ]
-  },
-  {
-    id: 'wytrzymalosc', name: 'WYTRZYMAŁOŚĆ', n: '02',
-    qs: [
-      { q: 'Jak często w ostatnich 10 minutach meczu nadal biegasz do piłki i wracasz do obrony tak samo jak na początku?', ctx: 'Porównaj swoje zaangażowanie w końcówce do pierwszych minut.' },
-      { q: 'Jak często po kilku intensywnych akcjach z rzędu jesteś gotowy od razu ruszyć do następnej — bez potrzeby chwili odpoczynku?', ctx: 'Czy możesz biec z powrotem zaraz po sprincie lub walce o piłkę?' },
-    ]
-  },
-  {
-    id: 'fizycznosc', name: 'FIZYCZNOŚĆ', n: '03',
-    qs: [
-      { q: 'Jak często wygrywasz bezpośrednie starcia z przeciwnikiem gdy obaj walczycie o piłkę lub pozycję (np. bark w bark)?', ctx: 'Kto wygrywa kontakt — Ty czy rywal?' },
-      { q: 'Jak często rywal wypycha Cię z pozycji lub odbiera Ci piłkę w bezpośrednim kontakcie?', ctx: 'Czy tracisz piłkę lub pozycję gdy ktoś na Ciebie naciera?' },
-    ]
-  },
-  {
-    id: 'techFund', name: 'TECHNIKA FUNDAMENTALNA', n: '04',
-    qs: [
-      { q: 'Jak często piłka idzie dokładnie tam gdzie chciałeś — przy podaniu, strzale lub przyjęciu?', ctx: 'Czy wykonanie zgadza się z intencją?' },
-      { q: 'Jak często gdy rywal wywiera na Ciebie dużą presję — jest blisko i goni za piłką — nadal trafiasz tam gdzie chcesz?', ctx: 'Czy technika działa tak samo pod presją jak gdy masz spokój?' },
-    ]
-  },
-  {
-    id: 'techSpec', name: 'TECHNIKA SPECJALISTYCZNA', n: '05',
-    qs: [
-      { q: 'Jak często po Twoim podaniu lub dryblingu partner dostaje piłkę w lepszej sytuacji — ma więcej czasu lub miejsca niż przed chwilą?', ctx: 'Czy Twoje zagranie poprawia sytuację drużyny?' },
-      { q: 'Jak często pod presją wybierasz proste zagranie zamiast tego które mogłoby dać drużynie większą przewagę?', ctx: 'Czy grasz bezpiecznie gdy masz szansę na coś lepszego?' },
-    ]
-  },
-  {
-    id: 'tolerancja', name: 'TOLERANCJA OBCIĄŻEŃ', n: '06',
-    qs: [
-      { q: 'Jak często w trzecim lub czwartym dniu treningowym z rzędu czujesz się tak samo silny i ruchliwy jak pierwszego dnia tygodnia?', ctx: 'Porównaj jak się czujesz w środę/czwartek do poniedziałku.' },
-      { q: 'Jak często jeden dzień odpoczynku wystarczy żebyś wrócił do pełni sił — czujesz się tak samo świeży jak przed całym tygodniem?', ctx: 'Czy po jednym dniu przerwy jesteś gotowy na kolejny intensywny tydzień?' },
-    ]
-  },
-  {
-    id: 'regeneracja', name: 'REGENERACJA', n: '07',
-    qs: [
-      { q: 'Jak często dzień po ciężkim treningu lub meczu czujesz się w pełni gotowy do gry — bez bólu mięśni ani zmęczenia?', ctx: 'Czy ciało jest gotowe następnego dnia czy potrzebuje więcej czasu?' },
-      { q: 'Jak często budzisz się rano przed treningiem lub meczem czując się wyspany i pełen energii?', ctx: 'Jakość snu bezpośrednio wpływa na to jak grasz.' },
-    ]
-  },
-  {
-    id: 'odpornosc', name: 'ODPORNOŚĆ', n: '08',
-    qs: [
-      { q: 'Jak często kończysz cały miesiąc treningowy bez choroby która zatrzymała Cię od grania?', ctx: 'Policz ile miesięcy w tym sezonie przepadło przez chorobę.' },
-      { q: 'Jak często po chorobie wracasz do pełnej formy w ciągu tygodnia — grasz tak samo dobrze jak przed?', ctx: 'Czy pierwsze treningi po chorobie wyglądają normalnie?' },
-    ]
-  },
-  {
-    id: 'odzywianie', name: 'ODŻYWIENIE', n: '09',
-    qs: [
-      { q: 'Jak często w drugiej połowie meczu masz tyle samo energii co w pierwszej?', ctx: 'Porównaj jak się czujesz w 70. minucie do 20. minuty.' },
-      { q: 'Jak często podczas meczu lub treningu masz zawroty głowy, skurcze lub ból brzucha?', ctx: 'Pragnienie w meczu jest normalne — pytamy o poważniejsze sygnały że coś nie gra.' },
-    ]
-  },
-  {
-    id: 'koncentracja', name: 'KONCENTRACJA', n: '10',
-    qs: [
-      { q: 'Jak często po błędzie od razu wracasz myślami do gry — nie rozmyślasz o tym co się stało?', ctx: 'Czy błąd "zaraża" następną akcję i obniża jej jakość?' },
-      { q: 'Jak często przez cały mecz skupiasz się tylko na tym co dzieje się teraz?', ctx: 'Czy jesteś w stanie wyrzucić z głowy poprzednie błędy i grać dalej?' },
-    ]
-  },
-  {
-    id: 'mental', name: 'STAN MENTALNY', n: '11',
-    qs: [
-      { q: 'Jak często w trudnych momentach meczu sam szukasz piłki i chcesz podjąć decyzję?', ctx: 'Szukasz piłki gdy jest trudno, czy unikasz kontaktu z grą?' },
-      { q: 'Jak często po błędzie grasz dalej tak samo odważnie — nie grasz ostrożniej z obawy przed kolejnym błędem?', ctx: 'Czy błąd zmienia jak grasz przez resztę meczu?' },
-    ]
-  },
-  {
-    id: 'percepcja', name: 'PERCEPCJA', n: '12',
-    qs: [
-      { q: 'Jak często zanim dostaniesz piłkę, wiesz już gdzie możesz ją zagrać?', ctx: 'Czy rozejrzałeś się wcześniej i masz opcje zanim piłka do Ciebie dotrze?' },
-      { q: 'Jak często widzisz wolną przestrzeń lub wolnego partnera zanim jeszcze piłka do Ciebie dotrze?', ctx: 'Czy skaanujesz boisko przed otrzymaniem piłki?' },
-    ]
-  },
-  {
-    id: 'decyzja', name: 'SZYBKOŚĆ DECYZJI', n: '13',
-    qs: [
-      { q: 'Jak często decydujesz co zrobić z piłką zanim rywal zdąży do Ciebie dobiec?', ctx: 'Np. w grze w dziadka — czy decydujesz zanim ktoś Cię nakryje?' },
     ]
   },
 ];
@@ -1703,34 +1672,57 @@ const DEPENDENCY_CASCADES = [
 // (dependency_network.js, dependency_cascades.js) — 81 par + 6 kaskad.
 
 const CASCADE_DAMPING = 0.75; // osłabienie kaskad wielokrokowych względem par bezpośrednich (Krok 3)
-const THRESHOLD = 70;          // ten sam próg co dotychczasowy deficyt w kodzie
+
+/**
+ * Liczy medianę i odchylenie standardowe własnych wyników zawodnika —
+ * to samo obliczenie co w getRelativeDeficits/getRelativeStrengths, wydzielone
+ * do osobnej funkcji żeby pairSignificance/cascadeSignificance mogły z niego
+ * korzystać bez duplikowania logiki.
+ */
+function playerMedianAndSpread(scores) {
+  const values = Object.values(scores).sort((a, b) => a - b);
+  const n = values.length;
+  if (n === 0) return { median: 50, stdDev: 0 };
+  const median = n % 2 === 0 ? (values[n / 2 - 1] + values[n / 2]) / 2 : values[(n - 1) / 2];
+  const variance = values.reduce((sum, v) => sum + Math.pow(v - median, 2), 0) / n;
+  return { median, stdDev: Math.sqrt(variance) };
+}
 
 /**
  * Liczy wskaźnik istotności pojedynczej pary dla konkretnego zawodnika.
- * wskaźnik = max(0, próg-wynikA) × max(0, próg-wynikB) × waga
+ * WAŻNE: "słabość" segmentu liczona jest względem WŁASNEJ mediany zawodnika,
+ * nie względem sztywnego progu — inaczej zawodnik z ogólnie wysoką samooceną
+ * (wszystko powyżej 70) nigdy nie dostałby żadnej przyczyny nawet dla realnego,
+ * wykrytego względnego deficytu, a zawodnik z ogólnie niską samooceną (wszystko
+ * poniżej 70) dostawałby fałszywe alarmy przyczynowe dla segmentów które są
+ * całkowicie w normie względem reszty JEGO profilu.
+ * wskaźnik = max(0, mediana-wynikA) × max(0, mediana-wynikB) × waga
  */
 function pairSignificance(scores, from, to, weight) {
   const a = scores[from];
   const b = scores[to];
   if (a === undefined || b === undefined) return 0;
-  const weakA = Math.max(0, THRESHOLD - a);
-  const weakB = Math.max(0, THRESHOLD - b);
+  const { median } = playerMedianAndSpread(scores);
+  const weakA = Math.max(0, median - a);
+  const weakB = Math.max(0, median - b);
   return weakA * weakB * weight;
 }
 
 /**
  * Liczy wskaźnik istotności kaskady (3-4 węzły) dla konkretnego zawodnika.
- * Iloczyn słabości wszystkich węzłów na ścieżce (bez powtórzeń), razy waga kaskady,
- * razy dodatkowy mnożnik osłabiający (mniej pewne niż para bezpośrednia).
+ * Iloczyn słabości wszystkich węzłów na ścieżce (bez powtórzeń, względem
+ * WŁASNEJ mediany zawodnika — patrz komentarz w pairSignificance), razy waga
+ * kaskady, razy dodatkowy mnożnik osłabiający (mniej pewne niż para bezpośrednia).
  */
 function cascadeSignificance(scores, path, weight) {
   const uniqueNodes = [...new Set(path)];
+  const { median } = playerMedianAndSpread(scores);
   let product = weight * CASCADE_DAMPING;
   for (const node of uniqueNodes) {
     const val = scores[node];
     if (val === undefined) return 0;
-    const weak = Math.max(0, THRESHOLD - val);
-    if (weak === 0) return 0; // jeśli którykolwiek węzeł jest w normie, kaskada nieaktywna
+    const weak = Math.max(0, median - val);
+    if (weak === 0) return 0; // jeśli którykolwiek węzeł jest w normie (lub powyżej mediany), kaskada nieaktywna
     product *= weak;
   }
   return product;
@@ -1775,17 +1767,6 @@ function getRankedInfluences(scores, targetId, limit = 3) {
 
   results.sort((a, b) => b.significance - a.significance);
   return results.slice(0, limit);
-}
-
-/**
- * Funkcja kompatybilności wstecznej — odtwarza dawny format weightedBlockers
- * ([[segmentId, weight], ...]) na wypadek gdyby część kodu tego jeszcze wymagała
- * podczas stopniowej migracji czterech miejsc użycia.
- */
-function getLegacyWeightedBlockers(scores, targetId) {
-  return getRankedInfluences(scores, targetId, 5)
-    .filter(r => r.kind === 'pair')
-    .map(r => [r.from, r.weight]);
 }
 
 // ══════════════════════════════════════
@@ -1855,6 +1836,100 @@ function getRelativeStrengths(scores, limit = 3) {
 }
 
 /**
+ * Szerokość paska (0-100%) pokazująca relatywną pozycję wyniku względem
+ * własnej mediany i rozrzutu wyników TEGO zawodnika — nie względem
+ * uniwersalnej skali 0-100. Używane wyłącznie do wizualizacji (bez liczby).
+ */
+function relativeBarWidth(score, median, stdDev) {
+  const spread = Math.max(stdDev * 3, 15);
+  const rel = 50 + ((score - median) / spread) * 50;
+  return Math.max(6, Math.min(100, Math.round(rel)));
+}
+
+/**
+ * Grupuje wszystkie segmenty zawodnika do wyświetlenia bez surowych liczb —
+ * zamiast liczby 0-100, każdy segment trafia do jednej z grup na podstawie
+ * dwóch wymiarów: (1) czy odstaje od reszty JEGO WŁASNYCH wyników (patrz
+ * getRelativeDeficits/getRelativeStrengths), i jeśli mamy kartę pozycyjną,
+ * (2) jak ważny jest ten segment dla JEGO roli na boisku (POSITION_PROFILES).
+ *
+ * Z kartą pozycyjną (4 grupy):
+ *   g1 "Tu jest Twoja szansa"   — ważny/kluczowy dla pozycji + realny deficyt
+ *   g2 "Twoja przewaga"         — ważny/kluczowy dla pozycji + realna mocna strona
+ *   g3 "Warto wzmocnić"         — ważny dla pozycji, ale w normie (lub kluczowy w normie)
+ *   g4 "Solidne, drugorzędne"   — drugorzędny dla pozycji, niezależnie od poziomu
+ *
+ * Bez karty pozycyjnej (3 grupy, fallback):
+ *   g1 deficyty / g2 mocne strony / g4 reszta w normie
+ *
+ * Żaden segment nigdy nie znika z widoku — wszystkie 13 trafiają do którejś grupy.
+ */
+function groupSegmentsForDisplay(scores, positionProfile, segNames) {
+  const entries = Object.entries(scores);
+  const values = entries.map(([, v]) => v).sort((a, b) => a - b);
+  const n = values.length;
+  const median = n % 2 === 0 ? (values[n / 2 - 1] + values[n / 2]) / 2 : values[(n - 1) / 2];
+  const variance = values.reduce((sum, v) => sum + Math.pow(v - median, 2), 0) / n;
+  const stdDev = Math.sqrt(variance);
+
+  const MIN_ABS_GAP = 9;
+  const DEV_MULTIPLIER = 0.5;
+
+  const classify = (score) => {
+    const diff = score - median;
+    const statSig = Math.abs(diff) > DEV_MULTIPLIER * stdDev;
+    const absSig = Math.abs(diff) >= MIN_ABS_GAP;
+    if (statSig && absSig) return diff > 0 ? 'strength' : 'deficit';
+    return 'neutral';
+  };
+
+  const groups = { g1: [], g2: [], g3: [], g4: [] };
+  const tiers = positionProfile ? positionProfile.tiers : null;
+
+  entries.forEach(([id, score]) => {
+    const cls = classify(score);
+    const tier = tiers ? (tiers[id] || 'minor') : null;
+    const barW = relativeBarWidth(score, median, stdDev);
+    const entry = { id, score, name: segNames[id] || id, barW, cls, tier };
+
+    if (!tiers) {
+      if (cls === 'deficit') groups.g1.push(entry);
+      else if (cls === 'strength') groups.g2.push(entry);
+      else groups.g4.push(entry);
+      return;
+    }
+
+    if ((tier === 'key' || tier === 'important') && cls === 'deficit') groups.g1.push(entry);
+    else if ((tier === 'key' || tier === 'important') && cls === 'strength') groups.g2.push(entry);
+    else if (tier === 'important' || (tier === 'key' && cls === 'neutral')) groups.g3.push(entry);
+    else groups.g4.push(entry);
+  });
+
+  // Sortowanie wewnątrz grup: deficyty/mocne strony od najbardziej odstających
+  groups.g1.sort((a, b) => a.score - b.score);
+  groups.g2.sort((a, b) => b.score - a.score);
+
+  return { groups, hasTiers: !!tiers, median, stdDev };
+}
+
+/**
+ * Renderuje HTML dla jednej grupy segmentów (bez liczb) — używane w renderResults.
+ */
+function renderSegmentGroupHTML(entries, colorClass, showTier) {
+  if (!entries.length) return '';
+  const tierLabel = (t) => t === 'key' ? 'kluczowe' : t === 'important' ? 'ważne' : 'drugorzędne';
+  return entries.map(e => `
+    <div class="seg-group-row">
+      <div class="seg-group-name">${e.name}</div>
+      <div class="seg-group-bar-wrap">
+        <div class="seg-group-bar-track"><div class="seg-group-bar-fill ${colorClass}" data-w="${e.barW}" style="width:0%"></div></div>
+        ${showTier && e.tier ? `<div class="seg-group-tier-tag">${tierLabel(e.tier)}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+/**
  * Rozpoznaje w którym z 3 scenariuszy jest dany zawodnik:
  * 1 = realne, statystycznie istotne odchylenie (jest przynajmniej 1 deficyt)
  * 2 = brak odchylenia, ale mamy pozycję + kartę profilową
@@ -1904,13 +1979,6 @@ function getHiddenCauses(scores, knownDeficits, minWeight = 0.5) {
 
   return Object.values(candidateScores).sort((a, b) => b.totalWeight - a.totalWeight);
 }
-
-
-// Kompatybilność wsteczna — prosta lista ID blokerów (bez wag)
-const BLOCKERS = {};
-['moc','wytrzymalosc','fizycznosc','techFund','techSpec','tolerancja','regeneracja','odpornosc','odzywianie','koncentracja','mental','percepcja','decyzja'].forEach(id => {
-  BLOCKERS[id] = [...new Set(DEPENDENCY_NETWORK.filter(r => r.to === id).map(r => r.from))];
-});
 
 // ══════════════════════════════════════
 //  PROFILE POZYCYJNE — hierarchia ważności 13 segmentów per rola
@@ -2072,17 +2140,25 @@ const POSITION_PROFILES = {
   },
 };
 
-// Tymczasowe mapowanie 4 ogólnych ról ankietowych (ctx.pos 0-3) na 8 kart
-// szczegółowych — do czasu rozbudowy ankiety o drugie, doprecyzowujące pytanie.
+// Bezpośrednie mapowanie 8 pozycji ankietowych (ctx.pos: 0-7) na karty pozycyjne
+// z POSITION_PROFILES. Do czerwca 2026 to było zredukowane mapowanie 4 ogólnych ról
+// na 8 kart (np. każdy Obrońca dostawał kartę środkowego, każdy Pomocnik box-to-box) —
+// naprawione po rozbudowie ankiety o pełny wybór 8 szczegółowych pozycji + warianty
+// pytań dla wszystkich 8 w SEGS (moc, wytrzymałość, fizyczność, technika fund./spec.).
 const POSITION_MAP_TEMP = {
-  0: 'bramkarz',           // Bramkarz -> 1:1
-  1: 'obronca_srodkowy',   // Obrońca -> reprezentatywny wariant środkowy
-  2: 'pomocnik_srodkowy',  // Pomocnik -> reprezentatywny wariant box-to-box
-  3: 'napastnik',          // Napastnik -> 1:1 (środkowy)
+  0: 'bramkarz',
+  1: 'obronca_srodkowy',
+  2: 'obronca_boczny',
+  3: 'pomocnik_defensywny',
+  4: 'pomocnik_srodkowy',
+  5: 'pomocnik_ofensywny',
+  6: 'skrzydlowy',
+  7: 'napastnik',
+  // 8 = "Nie dotyczy" — celowo bez wpisu, getPositionProfile zwróci null
 };
 
 function getPositionProfile(ctxPos) {
-  if (ctxPos === null || ctxPos === undefined || ctxPos === 4) return null;
+  if (ctxPos === null || ctxPos === undefined || ctxPos === 8) return null;
   const positionId = POSITION_MAP_TEMP[ctxPos];
   return positionId ? POSITION_PROFILES[positionId] : null;
 }
@@ -2096,7 +2172,7 @@ SEGS.forEach(s => SEG_NAMES[s.id] = s.name);
 // ======================================
 const CTX_LABELS = {
   level: ['Amator / rekreacyjnie','Juniorski klub','Seniorski klub amatorski','Półprofesjonalny','Profesjonalny'],
-  pos:   ['Bramkarz','Obrońca','Pomocnik','Napastnik','Nie dotyczy'],
+  pos:   ['Bramkarz','Środkowy obrońca','Boczny obrońca','Defensywny pomocnik','Środkowy pomocnik','Ofensywny pomocnik','Skrzydłowy','Napastnik','Nie dotyczy'],
   age:   ['Do 14 lat','Do 14 lat — z rodzicem/trenerem','15–19 lat','20–25 lat','26–30 lat','30+ lat'],
   clubTrainings: ['1x w tygodniu','2x w tygodniu','3x w tygodniu','4+ razy w tygodniu'],
   ownTrainings:  ['0 — tylko drużynowe','1x w tygodniu','2x w tygodniu','3+ razy w tygodniu'],
@@ -2291,9 +2367,14 @@ function startSurveyFromPresurvey(skip = false) {
     presurvey.selfDesc = '';
   }
 
-  // Junior = poniżej 15 lat
+  // Junior = poniżej 15 lat — dziś steruje TYLKO etykietami UI i liczbą wariantu
+  // tekstu wprowadzającego. Od czerwca 2026 junior i senior dzielą ten sam,
+  // bogatszy zestaw pytań (SEGS) z wariantami pozycyjnymi — wcześniejszy osobny,
+  // uproszczony SEGS_JUNIOR (tylko pytania pozytywne, bez wariantów pozycyjnych)
+  // został scalony po decyzji że różnica jakości pytań przeważa nad ryzykiem
+  // większej złożoności dla młodszych zawodników.
   isJunior = ctx.age !== null && ctx.age < 15;
-  activeSegs = isJunior ? SEGS_JUNIOR : SEGS;
+  activeSegs = SEGS;
 
   document.getElementById('survey-mode-label').textContent = isJunior ? 'Diagnoza Junior' : 'Diagnoza';
 
@@ -2374,61 +2455,33 @@ function getQuestion(q) {
 function renderAllQuestions() {
   const body = document.getElementById('survey-body');
 
-  if (isJunior) {
-    body.innerHTML = activeSegs.map((seg) => `
-      <div class="segment-scroll-block" id="seg-${seg.id}" style="padding:48px 24px 16px;max-width:680px;margin:0 auto;border-bottom:1px solid #e8e4dd;">
-        <div class="segment-label" style="margin-bottom:24px;">
-          <span class="segment-label-num">${esc(seg.n)}</span>
-          <span class="segment-label-name">${esc(seg.name)}</span>
-        </div>
-        ${seg.qs.map((q, qi) => `
-          <div class="question-block survey-q-wrap q-future" data-seg="${esc(seg.id)}" data-qi="${qi}" style="animation:none;opacity:1;transform:none;transition:opacity 0.3s ease;">\n            <div class="q-text">${esc(q.q)}</div>\n            <div class="q-context">${esc(q.ctx)}</div>\n            <div class="scale-wrap" style="margin-top:20px;">\n              <div class="scale-btns">\n                ${[[1,'Prawie nigdy'],[2,'Rzadko'],[3,'Raczej rzadko'],[4,'Raczej często'],[5,'Często'],[6,'Prawie zawsze']].map(([v,label]) => `\n                  <button class="scale-btn ${(ans[seg.id] || [])[qi] === v ? 'sel' : ''}"\n                    onclick="pickScroll('${esc(seg.id)}',${qi},${v},this)">\n                    <span class="scale-num">${v}</span>\n                    <span class="scale-label-text">${label}</span>\n                  </button>\n                `).join('')}\n              </div>\n            </div>\n          </div>
-            <div class="q-text">${esc(q.q)}</div>
-            <div class="q-context">${esc(q.ctx)}</div>
-            <div class="scale-wrap" style="margin-top:20px;">
-              <div class="scale-btns">
-                ${[[1,'Prawie nigdy'],[2,'Rzadko'],[3,'Raczej rzadko'],[4,'Raczej często'],[5,'Często'],[6,'Prawie zawsze']].map(([v,label]) => `
-                  <button class="scale-btn ${(ans[seg.id] || [])[qi] === v ? 'sel' : ''}"
-                    onclick="pickScroll('${esc(seg.id)}',${qi},${v},this)">
-                    <span class="scale-num">${v}</span>
-                    <span class="scale-label-text">${label}</span>
-                  </button>
-                `).join('')}
-              </div>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    `).join('');
-  } else {
-    let html = '';
-    activeSegs.forEach((seg) => {
-      let questionsHtml = '';
-      seg.qs.forEach((q, qi) => {
-        const qq = getQuestion(q);
-        let btns = '';
-        [[1,'Prawie nigdy'],[2,'Rzadko'],[3,'Raczej rzadko'],[4,'Raczej często'],[5,'Często'],[6,'Prawie zawsze']].forEach(([v,label]) => {
-          const sel = ans[seg.id][qi] === v ? 'sel' : '';
-          btns += `<button class="scale-btn ${sel}" onclick="pickScroll('${esc(seg.id)}',${qi},${v},this)">`;
-          btns += `<span class="scale-num">${v}</span>`;
-          btns += `<span class="scale-label-text">${label}</span>`;
-          btns += `</button>`;
-        });
-        questionsHtml += `<div class="question-block" style="animation:none;opacity:1;transform:none;">`;
-        questionsHtml += `<div class="q-text">${esc(qq.t)}</div>`;
-        questionsHtml += `<div class="q-context">${esc(qq.ctx)}</div>`;
-        questionsHtml += `<div class="scale-wrap" style="margin-top:20px;"><div class="scale-btns">${btns}</div></div>`;
-        questionsHtml += `</div>`;
+  let html = '';
+  activeSegs.forEach((seg) => {
+    let questionsHtml = '';
+    seg.qs.forEach((q, qi) => {
+      const qq = getQuestion(q);
+      let btns = '';
+      [[1,'Prawie nigdy'],[2,'Rzadko'],[3,'Raczej rzadko'],[4,'Raczej często'],[5,'Często'],[6,'Prawie zawsze']].forEach(([v,label]) => {
+        const sel = ans[seg.id][qi] === v ? 'sel' : '';
+        btns += `<button class="scale-btn ${sel}" onclick="pickScroll('${esc(seg.id)}',${qi},${v},this)">`;
+        btns += `<span class="scale-num">${v}</span>`;
+        btns += `<span class="scale-label-text">${label}</span>`;
+        btns += `</button>`;
       });
-      html += `<div class="segment-scroll-block" id="seg-${seg.id}" style="padding:48px 24px 16px;max-width:680px;margin:0 auto;border-bottom:1px solid #e8e4dd;">`;
-      html += `<div class="segment-label" style="margin-bottom:24px;">`;
-      html += `<span class="segment-label-num">${esc(seg.n)}</span>`;
-      html += `<span class="segment-label-name">${esc(seg.name)}</span>`;
-      html += `<span class="segment-label-pillar">${esc(seg.pillar)}</span>`;
-      html += `</div>${questionsHtml}</div>`;
+      questionsHtml += `<div class="question-block" style="animation:none;opacity:1;transform:none;">`;
+      questionsHtml += `<div class="q-text">${esc(qq.t)}</div>`;
+      questionsHtml += `<div class="q-context">${esc(qq.ctx)}</div>`;
+      questionsHtml += `<div class="scale-wrap" style="margin-top:20px;"><div class="scale-btns">${btns}</div></div>`;
+      questionsHtml += `</div>`;
     });
-    body.innerHTML = html;
-  }
+    html += `<div class="segment-scroll-block" id="seg-${seg.id}" style="padding:48px 24px 16px;max-width:680px;margin:0 auto;border-bottom:1px solid #e8e4dd;">`;
+    html += `<div class="segment-label" style="margin-bottom:24px;">`;
+    html += `<span class="segment-label-num">${esc(seg.n)}</span>`;
+    html += `<span class="segment-label-name">${esc(seg.name)}</span>`;
+    html += `<span class="segment-label-pillar">${esc(seg.pillar)}</span>`;
+    html += `</div>${questionsHtml}</div>`;
+  });
+  body.innerHTML = html;
 
   updateProgressScroll();
   window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -3107,9 +3160,13 @@ function openPlayerPanel(idx) {
 
   const name = row.player_name || row.email || 'Anonimowy';
   const scores = row.scores ? (() => { try { return JSON.parse(row.scores); } catch(e) { return null; } })() : null;
+  const overall = row.overall_score;
   const lvlLabel = !overall ? '—' : overall < 40 ? 'Wymaga uwagi' : overall < 55 ? 'Poniżej średniej' : overall < 70 ? 'Przeciętny' : 'Dobry';
   const lvlColor = !overall ? '#9a9488' : overall < 40 ? '#C0392B' : overall < 55 ? '#e08020' : overall < 70 ? '#c8b820' : '#2a7a3a';
   const lvlBg = !overall ? 'transparent' : overall < 40 ? '#FDEBEB' : overall < 55 ? '#fff3e0' : overall < 70 ? '#fffde0' : '#e8f5e9';
+
+  const ppNameEl = document.getElementById('pp-name');
+  if (ppNameEl) ppNameEl.textContent = name;
 
   const statBox = (label, val, c, bg) => `
     <div style="background:#fff;border:1px solid #d8d3c8;padding:16px;text-align:center;">
@@ -3896,7 +3953,7 @@ function loadResultsFromURL() {
     renderResults(cachedScores);
     showScreen('screen-results');
     setTimeout(() => {
-      document.querySelectorAll('.bar-fill').forEach(b => { b.style.width = b.dataset.w + '%'; });
+      document.querySelectorAll('.bar-fill, .seg-group-bar-fill').forEach(b => { b.style.width = b.dataset.w + '%'; });
     }, 100);
     return true;
   } catch(e) { return false; }
@@ -4077,7 +4134,7 @@ async function saveToSupabase(table, data) {
 
 function buildDiagnosticsRecord(extras = {}) {
   const deficits = (cachedScores ? getRelativeDeficits(cachedScores, 3) : []).map(([id, score]) => {
-    const seg = isJunior ? SEGS_JUNIOR.find(s=>s.id===id) : SEGS.find(s=>s.id===id);
+    const seg = SEGS.find(s=>s.id===id);
     return `${seg ? seg.name : id} (${score})`;
   });
 
@@ -4149,7 +4206,7 @@ async function generateResults() {
 
   // Animate bars
   setTimeout(() => {
-    document.querySelectorAll('.bar-fill').forEach(b => {
+    document.querySelectorAll('.bar-fill, .seg-group-bar-fill').forEach(b => {
       b.style.width = b.dataset.w + '%';
     });
   }, 100);
@@ -4203,7 +4260,7 @@ function renderHistoryComparison(history, currentScores) {
   });
 
   const changesHTML = changes.length ? changes.slice(0,4).map(s => {
-    const seg = (isJunior ? SEGS_JUNIOR : SEGS).find(x => x.id === s.id);
+    const seg = SEGS.find(x => x.id === s.id);
     const name = seg ? seg.name : s.id;
     const c = s.diff > 0 ? '#2a7a3a' : '#C0392B';
     return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f0ede8;">' +
@@ -4416,7 +4473,7 @@ function _buildDiagData(scores) {
   };
 
   const deficitsData = deficits.map(([id, score]) => {
-    const seg = isJunior ? SEGS_JUNIOR.find(s => s.id === id) : SEGS.find(s => s.id === id);
+    const seg = SEGS.find(s => s.id === id);
     const influences = getRankedInfluences(scores, id, 2);
     const blockerStr = influences.length
       ? `przyczyna strukturalna: ${influences.map(inf =>
@@ -4436,14 +4493,14 @@ function _buildDiagData(scores) {
   });
 
   const strengthsData = strengths.map(([id, score]) => {
-    const seg = isJunior ? SEGS_JUNIOR.find(s => s.id === id) : SEGS.find(s => s.id === id);
+    const seg = SEGS.find(s => s.id === id);
     return { id, score, name: seg ? seg.name : id, lang: SEGMENT_LANGUAGE[id] || (seg ? seg.name : id) };
   });
 
   // Plan A: segmenty spoza wykrytych deficytów, będące ich silną, strukturalną
   // przyczyną — nawet jeśli ich własny wynik nie jest statystycznym odchyleniem.
   const hiddenCauses = getHiddenCauses(scores, deficits, 0.5).slice(0, 2).map(hc => {
-    const seg = isJunior ? SEGS_JUNIOR.find(s => s.id === hc.id) : SEGS.find(s => s.id === hc.id);
+    const seg = SEGS.find(s => s.id === hc.id);
     return {
       ...hc,
       name: seg ? seg.name : hc.id,
@@ -4524,10 +4581,14 @@ Treningi własne: ${ctx.ownTrainings !== null ? CTX_LABELS.ownTrainings[ctx.ownT
   const posIdx = ctx.pos;
   const posInstructions = {
     0: `Zawodnik gra na pozycji BRAMKARZA. Każdy deficyt opisuj przez pryzmat bramkarza: percepcja to czytanie ustawień przed dośrodkowaniem, moc to eksplozja przy interwencjach, koncentracja to stabilność po straconej bramce. Bramkarz nie "biega 90 minut" — jego wytrzymałość to głównie mentalna ciągłość i gotowość do jednej kluczowej akcji.`,
-    1: `Zawodnik gra na pozycji OBROŃCY. Deficyty opisuj przez pryzmat obrońcy: percepcja to przewidywanie ruchów napastnika zanim je wykona, fizyczność to wygrywanie dośrodkowań i kontaktów, koncentracja to utrzymanie ustawienia przez pełne 90 minut.`,
-    2: `Zawodnik gra na pozycji POMOCNIKA. Pomocnik ma największe wymagania wytrzymałościowe i percepcyjne. Deficyty opisuj przez pryzmat rytmu gry drużyny — pomocnik który decyduje wolno albo osypuje się w końcówce zatrzymuje całą drużynę.`,
-    3: `Zawodnik gra na pozycji NAPASTNIKA. Deficyty opisuj przez pryzmat napastnika: moc to pierwsze metry do piłki, percepcja to wchodzenie w przestrzeń zanim obrońca zdąży zareagować, fizyczność to gra plecami do bramki. Napastnik żyje z ułamków sekund i kluczowych momentów.`,
-    4: `Zawodnik nie podał pozycji — pisz uniwersalnie, bez odwoływania się do konkretnej pozycji.`,
+    1: `Zawodnik gra na pozycji ŚRODKOWEGO OBROŃCY. Deficyty opisuj przez pryzmat środkowego obrońcy: percepcja to przewidywanie ruchów napastnika zanim je wykona, fizyczność to wygrywanie pojedynków w powietrzu i kontaktów, koncentracja to utrzymanie ustawienia przez pełne 90 minut. Ta pozycja wymaga najwyższej odpowiedzialności decyzyjnej ze wszystkich obrońców — błąd tutaj często kończy się bramką.`,
+    2: `Zawodnik gra na pozycji BOCZNEGO OBROŃCY. Deficyty opisuj przez pryzmat bocznego obrońcy: wytrzymałość to praca na całej długości boiska w obie strony, moc to szybkość w wyścigach ze skrzydłowym rywala, szybkość decyzji to moment wyboru między wyjściem do przodu a pozostaniem w asekuracji. To pozycja z największą objętością biegową ze wszystkich ról defensywnych.`,
+    3: `Zawodnik gra na pozycji DEFENSYWNEGO POMOCNIKA. Deficyty opisuj przez pryzmat defensywnego pomocnika: percepcja to czytanie zagrożenia zanim ono dojrzeje, koncentracja to nieprzerwana czujność bo to ostatnia linia przed obroną, szybkość decyzji to wybór między przechwytem a odpowiednim ustawieniem. Ta pozycja jest tarczą chroniącą obronę — jej błędy rzadko są widoczne gołym okiem, ale mają największe konsekwencje.`,
+    4: `Zawodnik gra na pozycji ŚRODKOWEGO POMOCNIKA (box-to-box). Pomocnik ma największe wymagania wytrzymałościowe i percepcyjne ze wszystkich pozycji — pracuje na całej długości boiska w obie strony. Deficyty opisuj przez pryzmat rytmu gry drużyny — pomocnik który decyduje wolno albo osypuje się w końcówce zatrzymuje całą drużynę.`,
+    5: `Zawodnik gra na pozycji OFENSYWNEGO POMOCNIKA. Deficyty opisuj przez pryzmat kreatora gry: technika specjalistyczna to zdolność do podania decydującego przed strzałem, percepcja i szybkość decyzji to widzenie linii obrony zanim się domknie, stan mentalny to odwaga do próby trudnego podania mimo ryzyka straty. Ta pozycja tworzy najwięcej sytuacji bramkowych — jej deficyty bezpośrednio ograniczają skuteczność całej drużyny.`,
+    6: `Zawodnik gra na pozycji SKRZYDŁOWEGO. Deficyty opisuj przez pryzmat skrzydłowego: moc to eksplozja w dryblingu i sprincie za plecy obrońcy, technika specjalistyczna to skuteczność zwodu i dogrania, szybkość decyzji to moment wyboru między dryblingiem a podaniem. Skrzydłowy żyje z powtarzalnych, indywidualnych pojedynków 1v1 — jego mocna strona bez dobrej techniki specjalistycznej często zostaje niewykorzystana.`,
+    7: `Zawodnik gra na pozycji NAPASTNIKA. Deficyty opisuj przez pryzmat napastnika: moc to pierwsze metry do piłki, percepcja to wchodzenie w przestrzeń zanim obrońca zdąży zareagować, fizyczność to gra plecami do bramki. Napastnik żyje z ułamków sekund i kluczowych momentów.`,
+    8: `Zawodnik nie podał pozycji — pisz uniwersalnie, bez odwoływania się do konkretnej pozycji.`,
   };
   const posCtx = posIdx !== null && posInstructions[posIdx] ? `\n${posInstructions[posIdx]}` : '';
 
@@ -5029,9 +5090,7 @@ function renderFallback(scores, deficitsData) {
 function buildFallbackDiagnosis(scores, deficits) {
   const sorted = Object.entries(scores).sort((a,b) => b[1]-a[1]);
   const topStrength = sorted[0];
-  const strengthSeg = isJunior
-    ? SEGS_JUNIOR.find(s => s.id === topStrength[0])
-    : SEGS.find(s => s.id === topStrength[0]);
+  const strengthSeg = SEGS.find(s => s.id === topStrength[0]);
 
   const SEGMENT_LANGUAGE = {
     moc: 'szybkość i eksplozywność',
@@ -5091,7 +5150,7 @@ function buildFallbackDiagnosis(scores, deficits) {
   }
 
   const top = deficits[0];
-  const topSeg = isJunior ? SEGS_JUNIOR.find(s => s.id === top[0]) : SEGS.find(s => s.id === top[0]);
+  const topSeg = SEGS.find(s => s.id === top[0]);
   const influences = getRankedInfluences(scores, top[0], 3);
   // Dla tekstu lokalnego (bez AI) potrzebujemy pojedynczych segmentów jako "primaryBlocker" —
   // jeśli najwyżej rankowana pozycja to kaskada, bierzemy z niej pierwszy węzeł inny niż top[0].
@@ -5144,28 +5203,17 @@ function buildFallbackDiagnosis(scores, deficits) {
 // ======================================
 function calcScores() {
   const sc = {};
-  if (isJunior) {
-    SEGS_JUNIOR.forEach(seg => {
-      const vals = (ans[seg.id] || []).filter(v => v != null);
-      const raw = vals.length ? vals.reduce((a,b) => a+b, 0) / vals.length : 3.5;
-      sc[seg.id] = Math.round(((raw - 1) / 5) * 100); // skala 1-6 → 0-100
+  SEGS.forEach(seg => {
+    let sum = 0, cnt = 0;
+    seg.qs.forEach((q, qi) => {
+      const v = (ans[seg.id] || [])[qi];
+      if (v != null) { sum += q.dir === 1 ? v : (7 - v); cnt++; }
     });
-  } else {
-    SEGS.forEach(seg => {
-      let sum = 0, cnt = 0;
-      seg.qs.forEach((q, qi) => {
-        const v = (ans[seg.id] || [])[qi];
-        if (v != null) { sum += q.dir === 1 ? v : (7 - v); cnt++; }
-      });
-      const raw = cnt > 0 ? sum / cnt : 3.5;
-      sc[seg.id] = Math.round(((raw - 1) / 5) * 100); // skala 1-6 → 0-100
-    });
-  }
+    const raw = cnt > 0 ? sum / cnt : 3.5;
+    sc[seg.id] = Math.round(((raw - 1) / 5) * 100); // skala 1-6 → 0-100
+  });
   return sc;
 }
-
-function lvl(s) { return s < 40 ? 'critical' : s < 65 ? 'warning' : 'good'; }
-function lvlLabel(s) { return s < 40 ? 'Deficyt' : s < 65 ? 'Do pracy' : 'OK'; }
 
 // ======================================
 //  RESULTS
@@ -5173,84 +5221,126 @@ function lvlLabel(s) { return s < 40 ? 'Deficyt' : s < 65 ? 'Do pracy' : 'OK'; }
 
 
 function renderResults(scores) {
-  // Overall
-  const vals = Object.values(scores);
-  const overall = Math.round(vals.reduce((a,b) => a+b, 0) / vals.length);
-  const onEl = document.getElementById('overall-num');
-  onEl.textContent = overall;
-  onEl.style.color = overall < 40 ? 'var(--red)' : overall < 65 ? 'var(--amber)' : 'var(--ink)';
+  // Rozpoznanie scenariusza + karta pozycyjna (do grupowania bez liczb)
+  const positionId = POSITION_MAP_TEMP[ctx.pos] || null;
+  const positionProfile = getPositionProfile(ctx.pos);
+  const scenario = detectDiagnosisScenario(scores, positionId, POSITION_PROFILES);
+  const deficitsForScenario = getRelativeDeficits(scores, 4);
 
-  // Kontekst dla wyniku ogólnego
+  // Wynik ogólny — zastąpiony krótkim opisem, bez surowej liczby (patrz: odejście od punktacji liczbowej)
+  const onEl = document.getElementById('overall-num');
   const overallCtxEl = document.getElementById('overall-context');
-  if (overallCtxEl) {
-    let label, desc;
-    if (overall < 40) {
-      label = 'Wyraźne deficyty';
-      desc = 'Kilka obszarów wymaga pilnej uwagi. Dobra wiadomość: duży potencjał do szybkiej poprawy.';
-    } else if (overall < 55) {
-      label = 'Poniżej potencjału';
-      desc = 'Masz możliwości, ale coś je blokuje. Diagnoza pokaże Ci gdzie zacząć.';
-    } else if (overall < 70) {
-      label = 'Wyrównany profil';
-      desc = 'Solidna baza z miejscem na poprawę. Jedno wąskie gardło może podnieść cały poziom.';
+  if (onEl) {
+    let headline, desc, color;
+    if (scenario === 1) {
+      const count = deficitsForScenario.length;
+      headline = count === 1 ? 'Jedno wyraźne wąskie gardło' : 'Kilka wyraźnych wąskich gardeł';
+      desc = 'Reszta Twojej gry jest solidna — to jest miejsce gdzie warto zacząć.';
+      color = 'var(--red)';
+    } else if (scenario === 2) {
+      headline = 'Profil wyrównany';
+      desc = 'Nic wyraźnie nie odstaje — dla Twojej pozycji największą różnicę zrobią obszary poniżej.';
+      color = 'var(--amber)';
     } else {
-      label = 'Dobry poziom ogólny';
-      desc = 'Wysoki wynik — ale wąskie gardło wciąż istnieje. Tu kryje się Twoja przewaga.';
+      headline = 'Profil wyrównany';
+      desc = 'Nic wyraźnie nie odstaje. Odpowiedz na pytanie w diagnozie — to pomoże znaleźć kierunek.';
+      color = 'var(--amber)';
     }
-    overallCtxEl.innerHTML = `
-      <div style="font-size:12px;font-family:'Bebas Neue',sans-serif;letter-spacing:0.12em;color:${overall < 40 ? 'var(--red)' : overall < 65 ? 'var(--amber)' : 'var(--green)'};margin-bottom:4px;">${label}</div>
-      <div style="font-size:12px;color:var(--muted);font-weight:300;line-height:1.5;max-width:160px;">${desc}</div>
-    `;
+    onEl.style.fontSize = '28px';
+    onEl.style.lineHeight = '1.15';
+    onEl.style.color = color;
+    onEl.textContent = headline;
+    if (overallCtxEl) {
+      overallCtxEl.innerHTML = `<div style="font-size:12px;color:var(--muted);font-weight:300;line-height:1.5;max-width:200px;">${desc}</div>`;
+    }
   }
+
 
   // Sorted scores
   const sorted = Object.entries(scores).sort((a,b) => a[1]-b[1]);
 
-  // Title
-  const worst = sorted[0];
-  const worstSeg = SEGS.find(s => s.id === worst[0]);
-  document.getElementById('results-title').innerHTML =
-    `Twój profil<br><em>${worstSeg ? worstSeg.name : 'sportowy'}</em> to główny deficyt`;
+  // Title — zależny od scenariusza, nie zawsze zakłada istnienie deficytu
+  const titleEl = document.getElementById('results-title');
+  if (scenario === 1) {
+    const worstSeg = SEGS.find(s => s.id === deficitsForScenario[0][0]);
+    titleEl.innerHTML = `Twoja gra ma<br><em>${worstSeg ? worstSeg.name.toLowerCase() : 'wąskie gardło'}</em> jako wąskie gardło`;
+  } else {
+    titleEl.innerHTML = `Twój profil jest<br><em>wyrównany</em>`;
+  }
 
-  // Table
+  // Tabela segmentów — bez surowych liczb, pogrupowana wg odchylenia × wagi pozycyjnej
+  const { groups, hasTiers } = groupSegmentsForDisplay(scores, positionProfile, SEG_NAMES);
   const table = document.getElementById('scores-table');
-  table.innerHTML = `
-    <tr style="border-bottom:2px solid #e8e4dd;">
-      <td class="td-name" style="font-size:11px;color:#9a9488;text-transform:uppercase;letter-spacing:0.1em;padding-bottom:8px;">Obszar</td>
-      <td class="td-bar"></td>
-      <td class="td-score" style="font-size:11px;color:#9a9488;font-family:'DM Sans',sans-serif;font-weight:400;letter-spacing:0.05em;">Wynik</td>
-      <td class="td-tag" style="text-align:right;">
-        <span style="font-size:10px;color:#2a7a3a;background:rgba(42,122,58,0.08);padding:2px 6px;">OK ≥65</span>
-        <span style="font-size:10px;color:#e08020;background:rgba(224,128,32,0.08);padding:2px 6px;margin-left:4px;">40–64</span>
-        <span style="font-size:10px;color:#C0392B;background:rgba(214,60,47,0.08);padding:2px 6px;margin-left:4px;">&lt;40</span>
-      </td>
-    </tr>
-  ` + sorted.map(([id, score]) => {
-    const seg = isJunior
-      ? SEGS_JUNIOR.find(s => s.id === id)
-      : SEGS.find(s => s.id === id);
-    const l = lvl(score);
-    return `
-      <tr>
-        <td class="td-name">${seg ? seg.name : id}</td>
-        <td class="td-bar">
-          <div class="bar-track">
-            <div class="bar-fill ${l}" data-w="${score}" style="width:0%"></div>
-          </div>
-        </td>
-        <td class="td-score ${l}">${score}</td>
-        <td class="td-tag"><span class="tag ${l}">${lvlLabel(score)}</span></td>
-      </tr>
-    `;
-  }).join('');
+  let groupsHTML = '';
+  if (hasTiers) {
+    if (groups.g1.length) groupsHTML += `
+      <div class="seg-group-section seg-group-1">
+        <div class="seg-group-head"><h4>Tu jest Twoja szansa</h4><span class="seg-group-badge">PRIORYTET</span></div>
+        <div class="seg-group-desc">Bardzo ważne na Twojej pozycji, a jednocześnie Cię dziś ogranicza.</div>
+        ${renderSegmentGroupHTML(groups.g1, 'critical', true)}
+      </div>`;
+    if (groups.g2.length) groupsHTML += `
+      <div class="seg-group-section seg-group-2">
+        <div class="seg-group-head"><h4>Twoja przewaga</h4><span class="seg-group-badge">WYKORZYSTAJ</span></div>
+        <div class="seg-group-desc">Bardzo ważne na Twojej pozycji i już dziś mocna strona.</div>
+        ${renderSegmentGroupHTML(groups.g2, 'good', true)}
+      </div>`;
+    if (groups.g3.length) groupsHTML += `
+      <div class="seg-group-section seg-group-3">
+        <div class="seg-group-head"><h4>Warto wzmocnić</h4><span class="seg-group-badge">ROZWIJAJ</span></div>
+        <div class="seg-group-desc">Ważne na Twojej pozycji. Nie pali się, ale to dobra inwestycja czasu.</div>
+        ${renderSegmentGroupHTML(groups.g3, 'warning', true)}
+      </div>`;
+    if (groups.g4.length) groupsHTML += `
+      <div class="seg-group-section seg-group-4">
+        <div class="seg-group-head"><h4>Solidne, drugorzędne</h4><span class="seg-group-badge">W TLE</span></div>
+        <div class="seg-group-desc">Na Twojej pozycji to ma mniejsze znaczenie.</div>
+        ${renderSegmentGroupHTML(groups.g4, 'neutral', true)}
+      </div>`;
+  } else {
+    if (groups.g1.length) groupsHTML += `
+      <div class="seg-group-section seg-group-1">
+        <div class="seg-group-head"><h4>Wąskie gardła</h4><span class="seg-group-badge">DO PRACY</span></div>
+        <div class="seg-group-desc">Wyraźnie słabsze od reszty Twojej gry.</div>
+        ${renderSegmentGroupHTML(groups.g1, 'critical', false)}
+      </div>`;
+    if (groups.g2.length) groupsHTML += `
+      <div class="seg-group-section seg-group-2">
+        <div class="seg-group-head"><h4>Mocne strony</h4><span class="seg-group-badge">PRZEWAGA</span></div>
+        <div class="seg-group-desc">Wyraźnie mocniejsze od reszty Twojej gry.</div>
+        ${renderSegmentGroupHTML(groups.g2, 'good', false)}
+      </div>`;
+    if (groups.g4.length) groupsHTML += `
+      <div class="seg-group-section seg-group-4">
+        <div class="seg-group-head"><h4>W normie</h4><span class="seg-group-badge">STABILNIE</span></div>
+        <div class="seg-group-desc">Na podobnym poziomie co reszta — nic tu nie odstaje.</div>
+        ${renderSegmentGroupHTML(groups.g4, 'neutral', false)}
+      </div>`;
+  }
+  table.innerHTML = groupsHTML;
 
   // Deficits — względem własnej mediany zawodnika, z ważonymi blokerami
   const deficits = getRelativeDeficits(scores, 4);
+  const deficitsHeadingEl = document.getElementById('deficits-heading');
+  const deficitsSubheadingEl = document.getElementById('deficits-subheading');
+  if (deficitsHeadingEl && deficitsSubheadingEl) {
+    if (deficits.length === 0) {
+      deficitsHeadingEl.textContent = 'Twój kierunek pracy';
+      deficitsSubheadingEl.textContent = 'Tu warto zainwestować uwagę';
+    } else {
+      deficitsHeadingEl.textContent = 'Kluczowe wąskie gardła';
+      deficitsSubheadingEl.textContent = 'Tu powinieneś zacząć pracę';
+    }
+  }
   const dl = document.getElementById('deficits-list');
+  if (deficits.length === 0) {
+    dl.innerHTML = `
+      <div style="padding:24px 0;font-size:14px;color:var(--ink2);line-height:1.8;font-weight:300;">
+        Nic wyraźnie nie odstaje w Twoim profilu — to nie jest porażka systemu, to prawdziwa informacja o Twojej grze. Poniżej w diagnozie znajdziesz kierunek dopasowany do Twojej pozycji.
+      </div>`;
+  } else {
   dl.innerHTML = deficits.map(([id, score], i) => {
-    const seg = isJunior
-      ? SEGS_JUNIOR.find(s => s.id === id)
-      : SEGS.find(s => s.id === id);
+    const seg = SEGS.find(s => s.id === id);
 
     // Najistotniejsze wpływy (pary + kaskady) wg mechanizmu rankingowego z Kroku 3
     const influences = getRankedInfluences(scores, id, 3);
@@ -5283,10 +5373,10 @@ function renderResults(scores) {
           <div class="deficit-seg-name">${seg ? seg.name : id}</div>
           <div class="deficit-causes">${causeText}</div>
         </div>
-        <div class="deficit-score-big">${score}<small>/100</small></div>
       </div>
     `;
   }).join('');
+  }
 
   // Product — renderowane dopiero po odblokowaniu emailem
   document.getElementById('product-wrap').innerHTML = '';
@@ -5515,7 +5605,7 @@ function downloadPDF() {
 
   sorted.forEach(([id, score]) => {
     checkPage(8);
-    const seg = isJunior ? SEGS_JUNIOR.find(s=>s.id===id) : SEGS.find(s=>s.id===id);
+    const seg = SEGS.find(s=>s.id===id);
     const name = seg ? seg.name : id;
 
     // Kolor wyniku
@@ -5560,7 +5650,7 @@ function downloadPDF() {
   const deficits = getRelativeDeficits(scores, 4);
   deficits.forEach(([id, score], i) => {
     checkPage(24);
-    const seg = isJunior ? SEGS_JUNIOR.find(s=>s.id===id) : SEGS.find(s=>s.id===id);
+    const seg = SEGS.find(s=>s.id===id);
     const name = seg ? seg.name : id;
 
     // Numer
@@ -5759,8 +5849,8 @@ function showScreen(id) {
 //  Usuń ten blok przed produkcją lub zostaw — nie wpływa na działanie
 // ======================================
 function quickTest(preset) {
-  // Kontekst: pomocnik, seniorski klub amatorski, 20-25 lat
-  ctx = { level: 2, pos: 2, age: 3 };
+  // Kontekst: środkowy pomocnik, seniorski klub amatorski, 20-25 lat
+  ctx = { level: 2, pos: 4, age: 3 };
   isJunior = false;
   activeSegs = SEGS;
   hasPaidAccess = true;
@@ -5812,7 +5902,7 @@ function quickTest(preset) {
   if (unlockedNote) unlockedNote.style.display = 'block';
 
   setTimeout(() => {
-    document.querySelectorAll('.bar-fill').forEach(b => { b.style.width = b.dataset.w + '%'; });
+    document.querySelectorAll('.bar-fill, .seg-group-bar-fill').forEach(b => { b.style.width = b.dataset.w + '%'; });
     document.getElementById('ai-diagnosis-text').innerHTML = inlineLoaderHTML('Generuję Twoją diagnozę');
     generateAIDiagnosis(scores, 'W 70. minucie dostałem piłkę w środku pola i nie wiedziałem co z nią zrobić — rywal mnie nakrył.');
   }, 150);
@@ -5908,8 +5998,8 @@ function _drawPlayerCard(scores, playerName) {
     ctx.fillStyle = 'rgba(255,255,255,0.4)';
     ctx.font = '12px Arial';
     ctx.letterSpacing = '0.1em';
-    const posLabel = (ctx.pos !== null && ctx.pos < 4)
-      ? ['BRAMKARZ','OBROŃCA','POMOCNIK','NAPASTNIK'][ctx.pos] : '';
+    const posLabel = (ctx.pos !== null && ctx.pos < 8 && CTX_LABELS.pos[ctx.pos])
+      ? CTX_LABELS.pos[ctx.pos].toUpperCase() : '';
     if (posLabel) ctx.fillText(posLabel, W/2, 242);
   }
 
