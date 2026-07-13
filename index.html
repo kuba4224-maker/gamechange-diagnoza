@@ -1323,23 +1323,23 @@ const SEGS = [
     id: 'moc', name: 'MOC', pillar: 'Filar 1 — Dominacja fizyczna', n: '01',
     qs: [
       {
-        t: 'Jak często wygrywasz pierwsze metry biegu w sytuacjach walki o piłkę?',
-        ctx: 'Porównaj się do rywala — kto jest szybszy na starcie?', dir: 1,
+        t: 'Jak często wygrywasz wyścig do piłki z rywalem — docierasz do niej pierwszy zanim on zdąży Cię odciąć lub uprzedzić?',
+        ctx: 'Porównaj się do rywala — kto jest szybszy na starcie i kto przegrywa wyścig?', dir: 1,
         pos: {
-          0: { t: 'Jak często przy wyjściu na piłkę — dośrodkowanie, wolny lub podanie za linię — docierasz do niej pierwszy, zanim rywal zdąży zamknąć Ci drogę?', ctx: 'Czy wygrywasz wyścig do piłki w powietrzu i na ziemi, czy ktoś Cię uprzedza?' },
-          1: { t: 'Jak często po zmianie kierunku — gdy napastnik zmienia kierunek lub zrywa się do biegu — odrabiasz stratę i wracasz na właściwą pozycję, zanim on ruszy na bramkę?', ctx: 'Czy jesteś w stanie odrobić metr straty zanim napastnik zdąży odskoczyć?' },
-          2: { t: 'Jak często w pressingu dobiegasz do rywala zanim on zdąży zagrać — zamykasz mu opcję zanim partner może go odciążyć?', ctx: 'Czy pierwsze trzy metry w pressingu są wystarczająco szybkie, żeby opcja zniknęła zanim się otworzy?' },
-          3: { t: 'Jak często wygrywasz wyścig do piłki zagranej za linię obrony — docierasz do niej zanim obrońca zdąży się obrócić i Cię odciąć?', ctx: 'Pierwsze trzy do pięciu metrów decydują. Czy je wygrywasz?' },
+          0: { t: 'Jak często przy wyjściu do piłki — dośrodkowanie, wolny lub podanie za linię — docierasz do niej tak szybko, że zamykasz rywalowi drogę?', ctx: 'Czy Twoje wyjście jest na tyle szybkie, że rywal traci szansę zanim dotrze do piłki?' },
+          1: { t: 'Jak często po tym jak napastnik zmienia kierunek lub zrywa się do biegu, odrabiasz stratę i wracasz do optymalnej pozycji defensywnej zanim on zagrozi?', ctx: 'Czy Twoja szybkość reakcji pozwala Ci utrzymać właściwe ustawienie mimo ruchu napastnika?' },
+          2: { t: 'Jak często w pressingu Twoje tempo dobiegnięcia jest na tyle duże, że rywal odczuwa realną presję — spieszy się, popełnia błąd lub wybiera gorsze zagranie?', ctx: 'Pressing działa gdy rywal czuje że nie ma czasu. Czy Twoje tempo mu to odbiera?' },
+          3: { t: 'Jak często po zmianie kierunku lub nagłym odejściu od obrońcy jesteś w stanie utrzymać lub powiększyć przewagę — obrońca nie dogania Cię i zostajesz przy piłce lub w lepszej pozycji?', ctx: 'Czy Twoje przyspieszenie po ruchu jest wystarczające żeby obrońca nie zdążył wrócić na właściwe miejsce?' },
         }
       },
       {
-        t: 'Jak często po zmianie kierunku rozpędzasz się z powrotem szybciej niż przeciwnik?',
-        ctx: 'Kto wraca do pełnej szybkości pierwszy — Ty czy rywal?', dir: 1,
+        t: 'Jak często po ruchu w jedną stronę jesteś w stanie natychmiast zmienić kierunek i eksplodować w drugą stronę z taką samą mocą — bez utraty energii przy zmianie kierunku?',
+        ctx: 'Nie chodzi o powtórzenie tego samego ruchu — chodzi o to, czy moc "przechodzi" płynnie w nowy kierunek, czy część jej się traci.', dir: 1,
         pos: {
-          0: { t: 'Jak często po wybiciu, chwycie lub interwencji jesteś gotowy do następnej akcji zanim rywal zdąży ponownie zagrozić — bez chwili gdy stoisz w miejscu i się "zbierasz"?', ctx: 'Chodzi o to czy Twoje ciało natychmiast wraca do gotowości po każdej akcji, czy potrzebujesz sekundy przerwy.' },
-          1: { t: 'Jak często po wejściu w kontakt z napastnikiem lub wybiciu piłki natychmiast wracasz w ustawienie obronne — bez chwili gdy napastnik ucieka Ci za plecy bo nie zdążyłeś wrócić?', ctx: 'Czy po akcji obronnej wracasz na miejsce tak szybko jak napastnik rusza do kolejnego zagrania?' },
-          2: { t: 'Jak często po stracie piłki natychmiast ruszasz do odbioru — bez chwili zawahania — i dobiegasz do rywala zanim ten zdąży rozegrać?', ctx: 'Czy powrót do pressingu po stracie jest natychmiastowy, czy potrzebujesz sekundy żeby ruszyć?' },
-          3: { t: 'Jak często po strzale lub stracie piłki w polu karnym natychmiast ruszasz do dobitki lub wracasz na pozycję — bez chwili zatrzymania?', ctx: 'Czy Twoje ciało jest w stanie wykonać kolejny wysiłek zaraz po poprzednim, bez odpoczynku?' },
+          0: { t: 'Po obronie w jedną stronę, jeśli piłka wraca i wymaga natychmiastowej drugiej interwencji w innym kierunku — czy reagujesz z pełną mocą, czy tracisz cenny ułamek sekundy zanim zdołasz się ponownie ustawić?', ctx: 'Klasyczna sytuacja: obrona, odbita piłka, drugi strzał z innej strony. Czy druga interwencja jest tak samo mocna jak pierwsza?' },
+          1: { t: 'Jak często gdy ruszasz w jedną stronę a napastnik nagle zmienia kierunek, jesteś w stanie z tego samego rozpędu skręcić w nową stronę z pełną mocą — bez zatrzymania i ponownego rozpędzania się?', ctx: 'To moment w którym napastnik zmienia kierunek żeby Cię zgubić. Czy Twoje ciało nadąża bez utraty mocy?' },
+          2: { t: 'Jak często gdy wchodzisz w pressing w jedną stronę a piłka ucieka w inną, zmieniasz kierunek biegu z pełną mocą — bez zauważalnego spadku tempa w pierwszych krokach nowego biegu?', ctx: 'Pressing rzadko idzie w prostej linii. Czy zmiana kierunku kosztuje Cię moc w pierwszych metrach?' },
+          3: { t: 'Po zwodzie lub ruchu w jedną stronę, jak często jesteś w stanie natychmiast eksplodować w przeciwnym kierunku z taką samą mocą jak pierwszy ruch?', ctx: 'To moment tuż po zwodzie. Czy druga eksplozja w nową stronę jest tak samo mocna jak pierwsza?' },
         }
       },
     ]
@@ -1348,17 +1348,17 @@ const SEGS = [
     id: 'wytrzymalosc', name: 'WYTRZYMAŁOŚĆ', pillar: 'Filar 1 — Dominacja fizyczna', n: '02',
     qs: [
       {
-        t: 'Jak często w ostatnich 15 minutach meczu poruszasz się z podobną intensywnością co na początku — biegasz do piłki, wracasz, nie odpuszczasz akcji?',
-        ctx: 'Porównaj swoje zaangażowanie ruchowe w końcówce do pierwszych 15 minut.', dir: 1,
-        pos: {
-          0: { t: 'Jak często w ostatnich 15 minutach meczu Twoje reakcje i wyjścia do piłki są tak samo szybkie i zdecydowane jak na początku — nie zostajesz na linii gdy powinieneś wyjść?', ctx: 'Porównaj jak decydujesz się na wyjście do piłki w 80. minucie do tego jak robisz to w 10. minucie.' },
-        }
+        t: 'Jak często w ostatnich 15 minutach meczu czujesz się tak samo pełen energii jak na początku — bez uczucia zmęczenia, ciężkości w nogach czy wyczerpania?',
+        ctx: 'Nie chodzi o to ile biegasz czy ile walczysz o piłkę — chodzi o to jak się czujesz. Czy Twoje ciało ma jeszcze energię, czy jest już wyczerpane?', dir: 1,
       },
       {
-        t: 'Jak często po intensywnym sprincie lub walce fizycznej jesteś gotowy do kolejnego wysiłku bez potrzeby kilku sekund odpoczynku?',
-        ctx: 'Czy możesz od razu biec z powrotem po zakończeniu sprintu lub kontaktu?', dir: 1,
+        t: 'Jak często pod koniec meczu Twoje decyzje i zagrania są gorszej jakości niż na początku, a praca bez piłki — powroty, ustawienie, asekuracja partnerów — jest mniej dokładna? Nie dlatego że się boisz lub nie chcesz, ale dlatego że fizycznie brakuje Ci sił.',
+        ctx: 'To nie pytanie o odwagę czy charakter — chodzi wyłącznie o to, czy zmęczenie fizyczne odbiera Ci jakość wykonania z piłką ORAZ dokładność pracy bez piłki: powrotów, ustawienia, asekuracji.', dir: -1,
         pos: {
-          0: { t: 'Jak często po wymagającej interwencji — trudny chwyt, wyjście w tłum, wybicie pod presją — jesteś od razu skupiony i gotowy na kolejną sytuację bez chwili w której "wyłączasz się"?', ctx: 'Czy po trudnej akcji natychmiast wracasz do pełnej czujności, czy potrzebujesz kilku sekund żeby się pozbierać?' },
+          0: { t: 'Jak często pod koniec meczu Twoje interwencje są mniej precyzyjne niż na początku, a Twoja aktywność w kierowaniu obroną — ustawianie linii, komunikacja z zawodnikami, korygowanie ich pozycji — jest rzadsza lub mniej wyraźna?', ctx: 'Bramkarz nie biega po całym boisku, ale cały czas organizuje defensywę głosem i ustawieniem. Czy zmęczenie sprawia że robisz to rzadziej lub mniej wyraźnie?' },
+          1: { t: 'Jak często pod koniec meczu Twoje wybicia i podania są mniej precyzyjne niż na początku, a wracasz na swoją pozycję lub domykasz przestrzeń wolniej — zostawiasz partnera bez asekuracji, bo fizycznie nie zdążysz?', ctx: 'Chodzi zarówno o jakość zagrań z piłką, jak i o pracę bez piłki — powroty, domykanie, asekurację partnera.' },
+          2: { t: 'Jak często pod koniec meczu Twoje podania są mniej precyzyjne niż na początku, a przełączanie się między obroną a atakiem jest wolniejsze — zostajesz w jednej fazie gry zamiast wracać do pomocy w drugiej?', ctx: 'Pomocnik pracuje w obie strony boiska. Czy zmęczenie sprawia że słabnie zarówno jakość podań, jak i praca przejściowa?' },
+          3: { t: 'Jak często pod koniec meczu Twoje przyjęcia i wykończenia akcji są mniej precyzyjne niż na początku, a rzadziej z własnej woli podejmujesz inicjatywę — wychodzisz do wysokiego pressingu, atakujesz przestrzeń, wybiegasz za linię — bo brakuje Ci sił żeby robić to bez przerwy?', ctx: 'Napastnik traci nie tylko jakość wykończenia, ale też chęć do działania z własnej inicjatywy — mniej prób pressingu, mniej wybiegania w przestrzeń, więcej czekania zamiast atakowania. Czy zmęczenie odbiera Ci tę inicjatywę?' },
         }
       },
     ]
@@ -1367,23 +1367,23 @@ const SEGS = [
     id: 'fizycznosc', name: 'FIZYCZNOŚĆ', pillar: 'Filar 1 — Dominacja fizyczna', n: '03',
     qs: [
       {
-        t: 'Jak często wygrywasz bezpośrednie pojedynki fizyczne z przeciwnikiem (np. bark w bark)?',
-        ctx: 'Kto wygrywa kontakt — Ty czy rywal?', dir: 1,
+        t: 'Niezależnie czy trenujesz siłowo na siłowni czy w ramach treningu drużynowego — jak często masz poczucie że jesteś fizycznie silniejszy niż większość zawodników na Twojej pozycji, z którymi trenujesz lub grasz?',
+        ctx: 'Nie musisz znać liczb czy wyników — chodzi o odczuwalną różnicę.', dir: 1,
         pos: {
-          0: { t: 'Jak często przy wyjściu na piłkę w powietrzu — dośrodkowanie, rożny, wolny — jesteś pierwszy do piłki, mimo że atakujący zawodnicy skaczą razem z Tobą?', ctx: 'Czy wygrywasz wyskoki w polu karnym, mimo walki o przestrzeń?' },
-          1: { t: 'Jak często w bezpośrednim wyścigu ramię w ramię utrzymujesz się przy napastniku — on próbuje użyć ciała żeby odskoczyć, a Ty i tak zostajesz przy nim?', ctx: 'Czy potrafisz "przykleić się" do napastnika w kontakcie, czy on się od Ciebie odrywa?' },
-          2: { t: 'Jak często w środku pola — przy odbiorze lub utrzymaniu piłki — wytrzymujesz nacisk rywala na tyle długo, żeby rozegrać lub ochronić piłkę?', ctx: 'Czy utrzymujesz piłkę pod fizyczną presją w środku pola, czy tracisz ją przy pierwszym kontakcie?' },
-          3: { t: 'Jak często przyjmując piłkę tyłem do bramki wytrzymujesz nacisk obrońcy na tyle długo, żeby wykonać obrót lub rozegrać do partnera?', ctx: 'Czy utrzymujesz piłkę gdy obrońca napiera od tyłu, czy podajesz z powrotem bo nie masz innego wyjścia?' },
+          0: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni bramkarze z którymi trenujesz — w wyskoku, sile rzutu, sile odbicia?', ctx: 'Chodzi o Twoją bazę siłową jako bramkarza, nie o pojedynek z rywalem.' },
+          1: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni obrońcy z którymi trenujesz — w przysiadach, pracy nóg, sile górnej części ciała?', ctx: 'To pytanie o bazę siłową, nie o starcie z konkretnym napastnikiem.' },
+          2: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni pomocnicy z którymi trenujesz — w sile nóg, stabilności tułowia, sile górnej części ciała?', ctx: 'Porównanie do innych pomocników w pracy siłowej.' },
+          3: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni napastnicy z którymi trenujesz — w sile nóg, sile górnej części ciała, stabilności w kontakcie?', ctx: 'To pytanie o Twoją bazę fizyczną na tle innych napastników.' },
         }
       },
       {
-        t: 'Jak często przeciwnik wypycha Cię z pozycji lub odbiera przestrzeń w bezpośredniej walce fizycznej?',
-        ctx: 'Konkretna sytuacja: tracisz pozycję pod wpływem kontaktu.', dir: -1,
+        t: 'Jak często w bezpośrednim starciu fizycznym z rywalem — walka barkiem o pozycję, o piłkę, o miejsce — wygrywasz ten pojedynek?',
+        ctx: 'Liczy się kto góruje w starciu — nie czas jego trwania, tylko końcowy wynik.', dir: 1,
         pos: {
-          0: { t: 'Jak często przy stałych fragmentach rywal wypycha Cię z miejsca które zajmowałeś — tracisz pozycję lub nie możesz wykonać zagrania które planowałeś?', ctx: 'Przy rożnych i wolnych — czy trzymasz swoje miejsce, czy jesteś przesuwany? Im rzadziej Cię wypychają, tym lepiej — "Prawie nigdy" to tutaj najlepsza odpowiedź.' },
-          1: { t: 'Jak często rywal barkiem lub całym ciałem wybija Cię z równowagi w trakcie biegu — i przez to wyprzedza Cię do piłki lub zmusza do faulu?', ctx: 'Czy kontakt w biegu narusza Twoje ustawienie, czy pozostajesz stabilny mimo nacisku?' },
-          2: { t: 'Jak często przy odbiorze lub utrzymaniu piłki rywal usuwa Cię ze swojej drogi — a Ty jesteś za słaby fizycznie żeby utrzymać pozycję?', ctx: 'Czy ustawiasz ciało między rywalem a piłką, czy on łatwo Cię od niej odsuwa?' },
-          3: { t: 'Jak często przy próbie przyjęcia lub obrotu pod bramką obrońca kontroluje Cię fizycznie tak, że nie możesz się swobodnie poruszyć?', ctx: 'Czy obrońca potrafi "przykryć" Cię ciałem i odebrać Ci możliwość ruchu?' },
+          0: { t: 'Przy wyjściu na dośrodkowanie, gdy napastnik wchodzi barkiem żeby zablokować Twój skok — jak często wygrywasz tę walkę o pozycję i docierasz do piłki?', ctx: 'Chodzi o wynik starcia w powietrzu — kto zdobywa pozycję do gry piłką.' },
+          1: { t: 'Gdy biegniesz ramię w ramię z napastnikiem do piłki dogrywanej w przestrzeń, a on napiera barkiem żeby Cię wypchnąć z toru biegu — jak często wygrywasz tę walkę o pozycję i docierasz do piłki pierwszy?', ctx: 'To klasyczna sytuacja wyścigu z kontaktem. Kto broni swojego miejsca w biegu?' },
+          2: { t: 'Gdy przyjmujesz piłkę, a rywal wchodzi barkiem od tyłu żeby ją odebrać — jak często wygrywasz tę walkę o pozycję i zatrzymujesz piłkę przy sobie?', ctx: 'To codzienna sytuacja w środku pola. Kto wygrywa starcie o piłkę?' },
+          3: { t: 'Gdy stoisz plecami do bramki i czekasz na piłkę, a obrońca napiera od tyłu żeby nie dać Ci się obrócić — jak często wygrywasz tę walkę o pozycję i zdobywasz przestrzeń do gry przodem?', ctx: 'To bezpośrednio z fizyki pojedynku — kto wygrywa nacisk plecy w plecy.' },
         }
       },
     ]
@@ -1391,31 +1391,49 @@ const SEGS = [
   {
     id: 'techFund', name: 'TECHNIKA FUND.', pillar: 'Filar 2 — Efektywność techniczna', n: '04',
     qs: [
-      { t: 'Jak często Twoje przyjęcia, podania i strzały wychodzą dokładnie tak jak zamierzałeś?', ctx: 'Czy wykonanie zgadza się z intencją — piłka idzie tam gdzie chciałeś?', dir: 1 },
-      { t: 'Jak często w trakcie meczu zdarzają Ci się proste błędy techniczne bez presji przeciwnika?', ctx: 'Błędy gdy masz czas i przestrzeń — bez fizycznego nacisku.', dir: -1 },
+      {
+        t: 'Jak często Twoje podstawowe zagrania — przyjęcie, podanie, uderzenie — wychodzą tak jak zamierzasz, gdy masz czas i przestrzeń, bez presji rywala?',
+        ctx: 'To pytanie o podstawy, nie o wyjątkowe sytuacje.', dir: 1,
+        pos: {
+          0: { t: 'Jak często Twoje podstawowe interwencje — chwyt, wybicie, rozegranie nogą w spokojnej sytuacji — wychodzą tak jak zamierzasz, gdy nie ma presji czasu ani rywala w polu karnym?', ctx: 'Czy w standardowych, niezbyt trudnych interwencjach Twoja technika jest niezawodna?' },
+          1: { t: 'Jak często Twoje podstawowe zagrania — przyjęcie, podanie, wybicie — wychodzą tak jak zamierzasz, gdy masz czas i przestrzeń, bez rywala napierającego z bliska?', ctx: 'Chodzi o spokojne sytuacje w obronie.' },
+          2: { t: 'Jak często Twoje podstawowe zagrania — przyjęcie, podanie na krótki i średni dystans — wychodzą tak jak zamierzasz, gdy masz czas na decyzję i nikt nie naciska?', ctx: 'To pytanie o spokojne fragmenty gry w środku pola.' },
+          3: { t: 'Jak często Twoje podstawowe zagrania — przyjęcie, uderzenie, prowadzenie piłki — wychodzą tak jak zamierzasz, gdy masz przestrzeń i czas, bez obrońcy tuż przy Tobie?', ctx: 'Chodzi o spokojne momenty przy piłce.' },
+        }
+      },
+      {
+        t: 'Jak często Twoje przyjęcia i podania wychodzą tak samo dobrze gdy rywal jest tuż za plecami lub naciska, jak wtedy gdy masz spokój i czas?',
+        ctx: 'Chodzi o moment gdy rywal skraca dystans — czy wtedy technika Cię zawodzi?', dir: 1,
+        pos: {
+          0: { t: 'Jak często Twoje interwencje wychodzą tak samo dobrze gdy w polu karnym jest tłok i presja czasu, jak w spokojnej sytuacji bez rywali w pobliżu?', ctx: 'Czy technika wtedy się rozpada, czy zostaje taka sama?' },
+          1: { t: 'Jak często Twoje zagrania wychodzą tak samo dobrze gdy napastnik napiera z bliska i nie masz czasu, jak w spokojnej sytuacji z przestrzenią?', ctx: 'Czy technika z poprzedniej, spokojnej sytuacji przetrwa taki nacisk?' },
+          2: { t: 'Jak często Twoje podania wychodzą tak samo dobrze gdy jesteś pod pressingiem i musisz zagrać szybko, jak wtedy gdy masz czas na decyzję?', ctx: 'Czy Twoja technika przetrwa pressing, czy się psuje?' },
+          3: { t: 'Jak często Twoje zagrania wychodzą tak samo dobrze gdy obrońca jest tuż przy Tobie i wywiera presję, jak wtedy gdy masz przestrzeń?', ctx: 'Czy technika ze spokojnej sytuacji przetrwa taki nacisk?' },
+        }
+      },
     ]
   },
   {
     id: 'techSpec', name: 'TECHNIKA SPEC.', pillar: 'Filar 2 — Efektywność techniczna', n: '05',
     qs: [
       {
-        t: 'Jak często po Twoim zagraniu akcja przyspiesza lub partner dostaje piłkę w lepszej sytuacji niż przed chwilą?',
-        ctx: 'Czy Twoje zagranie zmienia sytuację na lepszą dla drużyny?', dir: 1,
+        t: 'Jak często po Twoim zagraniu Twój partner dostaje piłkę lub wchodzi w sytuację w której ma wyraźnie więcej czasu lub przestrzeni niż miałeś Ty?',
+        ctx: 'Zagranie które tworzy przewagę to takie, które poprawia sytuację drużyny.', dir: 1,
         pos: {
-          0: { t: 'Jak często Twoje podanie do obrońcy lub długa piłka do pomocnika daje partnerowi czas i przestrzeń — zamiast od razu narażać go na pressing?', ctx: 'Czy Twoje rozegranie zmienia sytuację drużyny na lepszą, czy partner od razu znowu jest pod presją?' },
-          1: { t: 'Jak często Twoje podanie przy wyprowadzaniu przeskakuje linię pressingu — trafia do partnera który jest za nią, zamiast grać wzdłuż tej linii lub z powrotem?', ctx: 'Czy Twoje zagrania rzeczywiście wyprowadzają drużynę za pressing, czy tylko przemieszczają piłkę?' },
-          2: { t: 'Jak często po Twoim zagraniu partner dostaje piłkę z większą przestrzenią lub czasem niż Ty miałeś — czyli Twój ruch faktycznie stworzył dla niego przewagę?', ctx: 'Czy po Twoim zagraniu sytuacja drużyny się poprawia, czy tylko piłka zmienia właściciela?' },
-          3: { t: 'Jak często Twoje zejście po piłkę lub ruch bez piłki sprawia, że partner nagle zyskuje wolną przestrzeń — bo obrońca poszedł za Tobą?', ctx: 'Czy Twój ruch bez piłki tworzy przestrzeń dla partnerów, czy ruszasz się tylko żeby dostać piłkę?' },
+          0: { t: 'Jak często Twoje rozegranie — krótkie podanie, wyrzut, zagranie nogą — daje partnerowi tyle czasu, że może przyjąć piłkę i od razu podjąć decyzję bez presji rywala?', ctx: 'Czy Twoje rozegranie buduje przewagę, czy tylko oddaje piłkę?' },
+          1: { t: 'Jak często Twoje podanie przełamuje lub omija linię pressingu rywala — piłka ląduje za rywalem który Cię pressuje, nie przed nim?', ctx: 'Czy Twoje zagrania przełamują pressing?' },
+          2: { t: 'Jak często po Twoim zagraniu Twój partner dostaje się w sytuację 1v1 lub z wolną przestrzenią przed sobą — zamiast od razu znowu być pod presją?', ctx: 'Czy widzisz i wykorzystujesz momenty gdy rywal jest źle ustawiony?' },
+          3: { t: 'Jak często Twój ruch bez piłki — odejście, zmiana kierunku, wyjście za linię — otwiera przestrzeń którą Twój partner może natychmiast wykorzystać?', ctx: 'Czy Twoje ruchy bez piłki coś tworzą dla drużyny?' },
         }
       },
       {
-        t: 'Jak często pod presją wybierasz proste, bezpieczne zagranie zamiast tego które mogłoby dać Twojej drużynie realną przewagę?',
-        ctx: 'Chodzi o sytuacje gdy masz opcję ryzykowną ale lepszą — i jej nie wybierasz.', dir: -1,
+        t: 'Jak często gdy widzisz ryzykowne zagranie które mogłoby stworzyć przewagę, wybierasz zamiast niego bezpieczniejszą opcję — bo boisz się że ryzykowne nie wyjdzie?',
+        ctx: 'Im rzadziej rezygnujesz z odważnego zagrania, tym lepiej — Prawie nigdy to tutaj najlepsza odpowiedź.', dir: -1,
         pos: {
-          0: { t: 'Jak często gdy masz wolnego partnera i czas na zagranie — decydujesz się na dokładne, szybkie podanie które uruchamia akcję, zamiast bezpiecznie wybijać daleko?', ctx: 'Czy korzystasz z chwil gdy masz czas, żeby zagrać mądrze, czy domyślnie wybijasz gdy nie musisz?' },
-          1: { t: 'Jak często gdy nikt na Ciebie nie doskakuje — decydujesz się na podanie w głąb pola lub przez środek, zamiast grać bezpiecznie wzdłuż linii lub z powrotem do bramkarza?', ctx: 'Czy korzystasz z chwil gdy masz przestrzeń żeby grać w przód, czy grasz bezpiecznie niezależnie od sytuacji?' },
-          2: { t: 'Jak często gdy widzisz partnera który właśnie się odsłonił w przestrzeni — za linią pressingu lub za plecami obrońcy — decydujesz się zagrać tam, mimo że to trudniejsze technicznie?', ctx: 'Czy trudniejsze ale lepsze zagranie jest dla Ciebie naturalnym wyborem, czy zawsze wybierasz łatwiejsze?' },
-          3: { t: 'Jak często gdy jesteś twarzą do bramki z piłką i obrońca jest daleko — decydujesz się na strzał lub drybling zamiast oddać piłkę do pomocnika?', ctx: 'Czy korzystasz z chwil gdy masz przestrzeń i czas, czy szukasz bezpieczniejszego wyjścia zamiast atakować?' },
+          0: { t: 'Jak często gdy masz możliwość mądrego rozegrania które buduje grę od tyłu, wybierasz zamiast niego dalekie wybicie — bo krótkie rozegranie wydaje Ci się zbyt ryzykowne?', ctx: 'Im rzadziej wybijasz zamiast rozgrywać, tym lepiej.' },
+          1: { t: 'Jak często gdy możesz zagrać podanie które przełamałoby pressing, wybierasz zamiast niego bezpieczne odegranie wzdłuż linii lub z powrotem?', ctx: 'Im rzadziej grasz zachowawczo gdy jest lepsza opcja, tym lepiej.' },
+          2: { t: 'Jak często gdy masz możliwość zagrania trudnego podania za linię obrony lub na wychodzącego partnera, wybierasz zamiast niego proste podanie do bliższego partnera?', ctx: 'Im rzadziej rezygnujesz z trudnego podania gdy jest ono właściwym wyborem, tym lepiej.' },
+          3: { t: 'Jak często gdy masz okazję do strzału lub ryzykownego dryblingu, wybierasz zamiast niego odegranie piłki bo boisz się błędu?', ctx: 'Im rzadziej rezygnujesz z odważnej akcji gdy naprawdę masz szansę, tym lepiej.' },
         }
       },
     ]
@@ -1423,129 +1441,58 @@ const SEGS = [
   {
     id: 'tolerancja', name: 'TOL. OBCIĄŻEŃ', pillar: 'Filar 3 — Trwałość organizmu', n: '06',
     qs: [
-      { t: 'Jak często w trzecim lub czwartym dniu treningowym z rzędu grasz na podobnym poziomie co na początku tygodnia?', ctx: 'Porównaj jakość gry w środku tygodnia do poniedziałku.', dir: 1 },
-      { t: 'Jak często pojawiają się u Ciebie przeciążenia, napięcia mięśniowe lub drobne dolegliwości wpływające na trening?', ctx: 'Konkretne fizyczne sygnały — ból, napięcie, ograniczenie ruchu.', dir: -1 },
+      { t: 'Jak często po intensywnym tygodniu treningowym to samo miejsce w ciele — kolano, ścięgno, pachwina, inne — zaczyna dawać znać bólem lub napięciem, mimo że nie doszło do żadnego konkretnego urazu?', ctx: 'Chodzi o powtarzający się wzorzec w tym samym miejscu, który wraca przy podobnym obciążeniu.', dir: -1 },
+      { t: 'Po przerwie w treningach — choroba, drobny uraz, urlop — jak często wracając do pełnego obciążenia łapiesz nowe przeciążenie lub ból, zamiast płynnie wrócić do formy?', ctx: 'Czy ciało nadgania bezpiecznie, czy próba szybkiego powrotu kończy się kolejnym problemem?', dir: -1 },
     ]
   },
   {
     id: 'regeneracja', name: 'REGENERACJA', pillar: 'Filar 3 — Trwałość organizmu', n: '07',
     qs: [
-      { t: 'Jak często po intensywnym treningu lub meczu Twoje ciało czuje się gotowe na kolejny wysiłek — bez bólu mięśni, sztywności ani uczucia zmęczenia przed rozgrzewką?', ctx: 'Czy ciało reaguje na rozgrzewkę tak samo jak po dniu odpoczynku?', dir: 1 },
-      { t: 'Jak często masz problemy ze snem, które sprawiają, że czujesz się niewyspany przed treningiem lub meczem?', ctx: 'Budzisz się zmęczony lub masz trudności z zasypianiem?', dir: -1 },
+      { t: 'Jak często zmęczenie po ciężkim treningu lub meczu znika zanim nadejdzie kolejne równie wymagające obciążenie?', ctx: 'Zmęczenie zaraz po wysiłku jest normalne, nie o to pytamy. Chodzi o to czy zdążysz dojść do siebie zanim przyjdzie kolejne duże obciążenie. Jeśli nie jesteś pewien — porównaj się do kolegów z drużyny: czy oni wracają do formy szybciej czy wolniej niż Ty w podobnych warunkach.', dir: 1 },
+      { t: 'Jak często śpisz wystarczająco długo i na tyle dobrze, że budzisz się rano faktycznie wypoczęty?', ctx: 'Chodzi o połączenie ilości i jakości snu — czy Twój sen, niezależnie czy to 6 czy 9 godzin, daje Ci realny wypoczynek, czy budzisz się i tak zmęczony.', dir: 1 },
     ]
   },
   {
     id: 'odpornosc', name: 'ODPORNOŚĆ', pillar: 'Filar 3 — Trwałość organizmu', n: '08',
     qs: [
-      { t: 'Jak często kończysz pełny miesiąc treningowy bez żadnej przerwy spowodowanej chorobą lub przeziębieniem?', ctx: 'Policz ile miesięcy w ostatnim sezonie przepadło przez chorobę.', dir: 1 },
-      { t: 'Jak często pierwsze treningi po chorobie wyglądają u Ciebie tak samo jak przed chorobą — bez wyraźnego spadku jakości, tempa ani wytrzymałości?', ctx: 'Nie chodzi o to czy wróciłeś po tygodniu — chodzi o to jak wyglądają te pierwsze treningi po powrocie. Są normalne czy wyraźnie gorsze?', dir: 1 },
+      { t: 'Jak często w ciągu sezonu choroba — przeziębienie, grypa, infekcja — zmusza Cię do przerwania regularnych treningów?', ctx: 'Odpowiadaj na podstawie liczby razy w tym sezonie — 1-2 razy to rzadko; 4 lub więcej to często.', dir: -1 },
+      { t: 'Gdy już zdarzy Ci się zachorować, jak często wracasz do pełnej gotowości treningowej szybko — w ciągu kilku dni — zamiast być wyłączonym na dłużej lub trenować na pół gwizdka jeszcze długo po ustąpieniu objawów?', ctx: 'Wysoka odpowiedź oznacza że zazwyczaj wracasz szybko i sprawnie po chorobie.', dir: 1 },
     ]
   },
   {
     id: 'odzywianie', name: 'ODŻYWIENIE', pillar: 'Filar 3 — Trwałość organizmu', n: '09',
     qs: [
-      { t: 'Jak często w drugiej połowie meczu czujesz tyle samo energii co w pierwszej?', ctx: 'Porównaj poziom energii w 70. minucie do 20. minuty.', dir: 1 },
-      { t: 'Jak często podczas meczu lub treningu pojawiają się u Ciebie objawy takie jak zawroty głowy, skurcze mięśni lub problemy żołądkowe?', ctx: 'Pragnienie podczas meczu jest normalne — pytamy o poważniejsze sygnały że coś z odżywieniem lub nawodnieniem nie gra.', dir: -1 },
+      { t: 'Jak często w ostatnich 15-20 minutach meczu Twoje nogi wciąż mają w sobie energię do sprintu na 100% swoich możliwości?', ctx: 'To pytanie o paliwo w baku, nie o chęci czy charakter. Nawet zawodnik z ogromną wolą walki, jeśli zabraknie mu energii, fizycznie nie przyspieszy tak jak chce — nogi po prostu nie zareagują. Odpowiadaj na podstawie tego co czujesz w mięśniach, nie na podstawie tego jak bardzo próbujesz.', dir: 1 },
+      { t: 'Jak często w drugiej połowie meczu lub w końcowej fazie intensywnego treningu zaczynają pojawiać się skurcze mięśni, zawroty głowy lub uczucie mgły w myśleniu — objawy których nie było jeszcze na początku tego samego wysiłku?', ctx: 'Liczy się wystąpienie któregokolwiek z tych objawów, nie wszystkich naraz. Odpowiadaj na podstawie tego jak często to się zdarza — jeśli praktycznie nigdy, zaznacz "Prawie nigdy".', dir: -1 },
+      { t: 'Jak często dbasz o to, żeby zjeść porcję białka — mięso, ryby, jaja, nabiał, rośliny strączkowe — wkrótce po treningu lub meczu, a nie dopiero przypadkowo w ciągu dnia?', ctx: 'Nie musisz znać dokładnych norm ani liczyć gramów. Chodzi o to czy świadomie zwracasz uwagę na to żeby zjeść coś z białkiem niedługo po wysiłku — czy raczej jesz przypadkowo, bez zastanowienia nad tym co i kiedy.', dir: 1 },
     ]
   },
   {
     id: 'koncentracja', name: 'KONCENTRACJA', pillar: 'Filar 4 — Mentalność', n: '10',
     qs: [
-      {
-        t: 'Jak często po popełnionym błędzie następna akcja wychodzi Ci na normalnym poziomie — jakby błędu nie było?',
-        ctx: 'Czy błąd "zaraża" kolejną akcję, czy wracasz od razu do swojego poziomu?', dir: 1,
-        pos: {
-          0: { t: 'Jak często po straconej bramce — nawet jeśli przez chwilę poczujesz frustrację — w kolejnych akcjach jesteś tak samo gotowy i zdecydowany jak przed stratą?', ctx: 'Czy stracona bramka zmienia Twoje działanie przez kolejne minuty, czy wracasz do pełnej gotowości natychmiast?' },
-          1: { t: 'Jak często po złym wybiciu, błędnym ustawieniu lub stracie w pressingu wracasz do normalnego krycia i pozycjonowania w następnej akcji — bez zbędnej ostrożności?', ctx: 'Czy błąd defensywny zmienia jak traktujesz kolejne sytuacje, czy od razu restartujesz się i grasz tak samo?' },
-          2: { t: 'Jak często po stracie piłki w środku pola — szczególnie gdy kosztowała kontrę — jesteś w następnej akcji tak samo aktywny i szukasz piłki, zamiast się chować?', ctx: 'Czy strata piłki wyłącza Cię na kilka akcji, czy od razu wracasz do gry?' },
-          3: { t: 'Jak często po chybieniu lub zmarnowanej okazji bramkowej jesteś w stanie w następnej sytuacji podjąć podobne ryzyko — nie grasz zachowawczo z obawy przed kolejnym chybieniem?', ctx: 'Czy chybienie zmienia jak szukasz kolejnych sytuacji, czy działasz tak samo śmiało?' },
-        }
-      },
-      {
-        t: 'Jak często w końcówkach meczu reagujesz wolniej na zmiany sytuacji niż na początku?',
-        ctx: 'Porównaj swoją szybkość reakcji w 80. minucie do 10. minuty.', dir: -1,
-        pos: {
-          0: { t: 'Jak często w ostatnich 15 minutach meczu — szczególnie przy trudnym wyniku — Twoje wyjścia do piłki i ustawienie są tak samo zdecydowane jak na początku?', ctx: 'Czy w końcówce jesteś tak samo gotowy przy interwencjach jak w 10. minucie, czy coś Cię zwalnia?' },
-          1: { t: 'Jak często w końcówce meczu Twoje krycie jest tak samo szczelne jak na początku — nie dajesz luzu napastnikowi przy dośrodkowaniach ani stałych fragmentach?', ctx: 'Czy ustawienie defensywne trzyma się przez pełne 90 minut, czy pod koniec zaczyna się "rozluźniać"?' },
-          2: { t: 'Jak często w 75-90. minucie Twoje podania i decyzje są tak samo trafne jak w pierwszej połowie — nie robisz błędów których nie robisz gdy jesteś świeży?', ctx: 'Czy zmęczenie mentalne objawia się u Ciebie w technicznym "rozsypywaniu się" pod koniec meczu?' },
-          3: { t: 'Jak często w końcówce meczu — szczególnie gdy wynik jest niekorzystny — dalej aktywnie szukasz sytuacji i wchodzisz za obrońców, zamiast schodzić po piłkę poza pole karne?', ctx: 'Czy pod presją wyniku dalej ryzykujesz wejścia za linię obrony, czy "odpuszczasz" głębokie ruchy?' },
-        }
-      },
+      { t: 'Jak często po błędzie lub trudnym momencie w meczu Twoje myśli zostają przy tym co się stało — nie potrafisz w pełni skupić się na kolejnej akcji, mimo że gra toczy się dalej?', ctx: 'Chodzi o dowolny moment który Cię wytrąca — Twój błąd, gwizdy z trybun, krzyk trenera, sytuacja z rywalem. Zastanów się jak długo po takim momencie Twoje myśli wciąż tam wracają, zanim znów jesteś w pełni skupiony na grze.', dir: -1 },
+      { t: 'Jak często już od pierwszych minut meczu jesteś w pełni skoncentrowany — zamiast "wchodzić w mecz" dopiero po 10-15 minutach?', ctx: 'Zwróć uwagę na pierwsze 10-15 minut — czy zdarzają Ci się tam proste błędy które nie wynikają ze zmęczenia ani z poziomu rywala, tylko z tego że głowa jeszcze nie jest w pełni w meczu?', dir: 1 },
     ]
   },
   {
     id: 'mental', name: 'STAN MENTALNY', pillar: 'Filar 4 — Mentalność', n: '11',
     qs: [
-      {
-        t: 'Jak często w trudnych momentach meczu bierzesz odpowiedzialność za decyzje i działania — pokazujesz się do gry, inicjujesz akcję?',
-        ctx: 'Szukasz piłki gdy jest trudno, czy unikasz kontaktu z grą?', dir: 1,
-        pos: {
-          0: { t: 'Jak często po trudnej sytuacji — stracona bramka, błąd przy wyjściu — dalej wychodzisz odważnie do kolejnych piłek poza pole karne, zamiast zostawać bliżej linii?', ctx: 'Czy po błędzie wychodzisz tak samo zdecydowanie do piłek za polem karnym, czy zaczynasz "kurczyć się" do linii?' },
-          1: { t: 'Jak często decydujesz się na ryzykowne rozegranie — podanie między zawodnikami, gra nogą pod presją — gdy sytuacja na to pozwala, zamiast automatycznie wybijać do autu?', ctx: 'Czy grasz to co jest najlepsze dla drużyny, czy to co jest najbezpieczniejsze dla Ciebie?' },
-          2: { t: 'Jak często w trudnym momencie meczu — niekorzystny wynik, presja rywala — aktywnie prosisz o piłkę i bierzesz odpowiedzialność za rozegranie, zamiast pozwalać żeby gra toczyła się obok Ciebie?', ctx: 'Czy w trudnych momentach jesteś aktywny i szukasz kontaktu z piłką, czy schowany i czekający?' },
-          3: { t: 'Jak często po nieudanej sytuacji bramkowej — chybienie, strata przy obronie — natychmiast szukasz kolejnej okazji, zamiast przez chwilę schodzić głębiej i unikać odpowiedzialności?', ctx: 'Czy po nieudanej próbie od razu szukasz kolejnej, czy przez chwilę "znikasz" z gry?' },
-        }
-      },
-      {
-        t: 'Jak często po popełnionym błędzie lub nieudanej akcji Twoje kolejne decyzje stają się bardziej zachowawcze?',
-        ctx: 'Grasz ostrożniej niż zwykle przez kilka kolejnych akcji?', dir: -1,
-        pos: {
-          0: { t: 'Jak często po interwencji która nie wyszła idealnie przez kilka następnych sytuacji grasz asekuracyjnie — zostajesz bliżej linii, nie wychodzisz do ryzykownych piłek?', ctx: 'Czy jeden błąd bramkarski zmienia Twój styl gry na bardziej pasywny przez resztę meczu?' },
-          1: { t: 'Jak często po tym gdy napastnik Cię ograł lub odskoknął — przez kilka kolejnych akcji cofasz się bardziej niż potrzeba, zamiast trzymać normalną linię?', ctx: 'Czy po tym gdy napastnik Cię przechytrzył, zaczynasz "szanować go" bardziej niż wynika z sytuacji?' },
-          2: { t: 'Jak często po stracie piłki — szczególnie w kiepskim momencie — przez kilka akcji wybierasz tylko najprostsze podania, zamiast grać tak jak zwykle?', ctx: 'Czy strata włącza Ci tryb "nie ryzykuj" który trwa kilka akcji dłużej niż powinien?' },
-          3: { t: 'Jak często po chybieniu lub stracie — przez kilka minut unikasz wchodzenia za linię obrony i schodzisz głębiej, zamiast dalej szukać przestrzeni za obrońcami?', ctx: 'Czy chybienie zmienia gdzie się pozycjonujesz przez kilka kolejnych akcji?' },
-        }
-      },
+      { t: 'Jak często w trudnym momencie meczu — gdy drużyna traci, popełniła błąd, jest pod presją — bierzesz na siebie odpowiedzialność za grę: prosisz o piłkę, podejmujesz decyzję, wychodzisz z inicjatywą?', ctx: 'Chodzi o to czy w trudnych momentach chcesz mieć wpływ na grę, czy wolisz zejść na dalszy plan i zostawić trudne decyzje innym.', dir: 1 },
+      { t: 'Jak często po błędzie grasz dalej równie odważnie jak wcześniej?', ctx: 'Chodzi o to czy błąd zmienia Twój sposób grania na resztę meczu, czy zostajesz przy tym samym poziomie odwagi.', dir: 1 },
     ]
   },
   {
     id: 'percepcja', name: 'PERCEPCJA', pillar: 'Filar 5 — Boiskowa mądrość', n: '12',
     qs: [
-      {
-        t: 'Jak często zanim dostaniesz piłkę, wiesz już gdzie ją zagrasz — bo rozejrzałeś się wcześniej i widziałeś co się dzieje dookoła?',
-        ctx: 'Czy masz gotowy plan zanim piłka dotrze do Ciebie, czy dopiero wtedy zaczynasz szukać opcji?', dir: 1,
-        pos: {
-          0: { t: 'Jak często zanim napastnik oddaje strzał lub dośrodkowanie leci w pole karne, masz już ustawione ciało w odpowiednim miejscu — bo wcześniej przeczytałeś jak akcja się rozwija?', ctx: 'Czy ustawiasz się z wyprzedzeniem na podstawie tego co widzisz, czy reagujesz dopiero gdy piłka już leci?' },
-          1: { t: 'Jak często wiesz gdzie pobiegnie napastnik zanim on to zrobi — na podstawie tego jak jest ustawiony, gdzie patrzy, jak się obraca?', ctx: 'Czy czytasz ruch napastnika z jego ciała zanim go wykona, czy reagujesz gdy już ruszył?' },
-          2: { t: 'Jak często zanim dostaniesz piłkę, wiesz już gdzie są rywale za Tobą i z boku — i przez to Twoja pierwsza akcja po przyjęciu jest już zaplanowana?', ctx: 'Czy masz obraz sytuacji dookoła zanim piłka do Ciebie dotrze, czy dopiero wtedy podnosisz głowę?' },
-          3: { t: 'Jak często wchodzisz za linię obrony we właściwym momencie — nie za wcześnie i nie za późno — bo wcześniej widziałeś ustawienie obrońców i wiedziałeś kiedy przestrzeń się otworzy?', ctx: 'Czy Twoje wejścia za obrońców wynikają z tego co wcześniej obserwowałeś, czy reagujesz na piłkę gdy już leci?' },
-        }
-      },
-      {
-        t: 'Jak często gdy rywal doskakuje do Ciebie, dopiero wtedy decydujesz co zrobić z piłką — zamiast wiedzieć to już wcześniej?',
-        ctx: 'Czy zaskakuje Cię to że rywal jest blisko, czy działasz zanim to nastąpi?', dir: -1,
-        pos: {
-          0: { t: 'Jak często przy dośrodkowaniach lub sytuacjach w polu karnym dopiero w trakcie akcji orientujesz się gdzie są rywale — zamiast wiedzieć to zanim ruszysz do piłki?', ctx: 'Czy wiesz gdzie są atakujący zanim wyjdziesz do piłki, czy orientujesz się dopiero w połowie akcji?' },
-          1: { t: 'Jak często dopiero gdy rywal jest przy Tobie i zaczyna Cię naciskać, decydujesz co zrobić z piłką — zamiast mieć to już gotowe przed jego dojściem?', ctx: 'Czy Twoja decyzja jest gotowa zanim rywal doskacze, czy podejmujesz ją gdy jest już blisko?' },
-          2: { t: 'Jak często gdy rywal skraca do Ciebie, dopiero wtedy szukasz gdzie zagrać — zamiast wiedzieć to już przed jego dojściem?', ctx: 'Czy Twoja decyzja wyprzedza nacisk rywala, czy jest spóźniona o tę samą chwilę co jego doskoczenie?' },
-          3: { t: 'Jak często przestrzeń za linią obrony znika zanim wbiegniesz — bo obrońca zdążył zareagować na Twój ruch zanim Ty go wykonałeś?', ctx: 'Czy Twój ruch za obrońców jest szybszy niż ich reakcja, czy robisz go w tym samym momencie co oni reagują?' },
-        }
-      },
+      { t: 'Jak często w spokojnej sytuacji na boisku — gdy masz czas i przestrzeń — rozglądasz się, żeby sprawdzić gdzie są rywale i partnerzy?', ctx: 'Chodzi o sam nawyk patrzenia dookoła w sytuacjach bez presji czasowej, nie o to co potem z tym robisz.', dir: 1 },
+      { t: 'Jak często rozglądasz się, żeby sprawdzić gdzie są rywale i partnerzy, również wtedy gdy rywal jest blisko i masz mało czasu?', ctx: 'Presja czasu często sprawia że zawodnicy przestają się rozglądać i skupiają wyłącznie na piłce. Chodzi o to czy Ty nadal to robisz w takich momentach.', dir: 1 },
     ]
   },
   {
     id: 'decyzja', name: 'SZYBK. DECYZJI', pillar: 'Filar 5 — Boiskowa mądrość', n: '13',
     qs: [
-      {
-        t: 'Jak często podejmujesz decyzję zanim rywal zdąży skrócić do Ciebie dystans?',
-        ctx: 'Działasz zanim rywal doskacze, czy dopiero gdy jest już przy Tobie?', dir: 1,
-        pos: {
-          0: { t: 'Jak często przy wyjściu jeden na jeden z napastnikiem decydujesz — wychodzę do piłki czy zostaję — zanim on zdąży zrozumieć co zamierzasz i zmienić swoje działanie?', ctx: 'Czy Twoja decyzja o wyjściu lub zostaniu jest podjęta tak wcześnie, że napastnik nie ma już czasu na jej wyminięcie?' },
-          1: { t: 'Jak często decydujesz — skracam do rywala czy cofam się — zanim ten znajdzie się w pozycji z której może Cię ominąć lub oddać strzał?', ctx: 'Czy decyzja defensywna jest podjęta zanim rywal ma przewagę, czy reagujesz gdy już ją ma?' },
-          2: { t: 'Jak często wiesz co zrobisz z piłką — kierunek, do kogo, jak — zanim rywal doskacze, tak że możesz zagrać w jednym kontakcie bez zatrzymywania?', ctx: 'Czy decyzja jest gotowa zanim piłka dotrze do nogi, czy podejmujesz ją gdy rywal jest już blisko?' },
-          3: { t: 'Jak często decydujesz o ruchu za linią obrony — wbiegnięcie w przestrzeń lub zmiana kierunku — zanim obrońca zdąży zablokować Ci drogę?', ctx: 'Czy Twój ruch bez piłki jest szybszy niż reakcja obrońcy, czy robisz go w tym samym momencie co on reaguje?' },
-        }
-      },
-      {
-        t: 'Jak często dobra okazja do zagrania znika zanim zdążysz ją wykorzystać — partner był wolny, ale gdy zagrałeś, już go kryli?',
-        ctx: 'Okno do zagrania otworzyło się i zamknęło zanim zdążyłeś je użyć.', dir: -1,
-        pos: {
-          0: { t: 'Jak często przy rozgrywaniu — gdy masz wolnego partnera i czas — piłka trafia do niego za późno i jest już pod presją, bo zbyt długo zwlekałeś z decyzją o zagraniu?', ctx: 'Czy Twoje podanie wychodzi na czas, czy partner jest już kryty gdy piłka do niego dociera?' },
-          1: { t: 'Jak często wolny partner — ten który na chwilę otworzył się przy wyprowadzaniu — jest już kryty zanim do niego zagrasz, bo potrzebowałeś za dużo czasu żeby go zauważyć lub zagrać?', ctx: 'Czy okna do podania przy wyprowadzaniu zamykają się zanim je wykorzystasz?' },
-          2: { t: 'Jak często partner który był wolny — otworzył się na chwilę w przestrzeni — jest już kryty zanim do niego zagrasz, bo za długo trzymałeś piłkę albo za późno go zauważyłeś?', ctx: 'Czy okna do zagrania otwierają się i zamykają szybciej niż Ty je wykorzystujesz?' },
-          3: { t: 'Jak często przestrzeń za linią obrony w którą chciałeś wbiec znika zanim zdążysz to zrobić — obrońca zdążył przesunąć się zanim Ty ruszyłeś?', ctx: 'Czy przestrzenie za obroną zamykają się zanim wbiegniesz, bo za późno podejmujesz decyzję o ruchu?' },
-        }
-      },
+      { t: 'Jak często w sytuacji którą już wcześniej wielokrotnie widziałeś, wiesz od razu jakie zagranie zwykle działa najlepiej?', ctx: 'Pomyśl o sytuacji która powtarza się w Twoich meczach — na przykład konkretny moment obronny albo ofensywny który zdarza się często. Czy masz do niej gotowe rozwiązanie, czy za każdym razem zaczynasz zastanawiać się od nowa?', dir: 1 },
+      { t: 'Jak często Twoje działanie — podanie, ruch, decyzja — jest już spóźnione, bo sytuacja zdążyła się zmienić zanim zdążyłeś je podjąć?', ctx: 'Chodzi o moment kiedy widzisz efekt spóźnienia — podanie trafia w miejsce gdzie już nikogo nie ma, ruch okazuje się o krok za późno. Nie musisz wiedzieć jaka byłaby lepsza opcja — wystarczy że zauważasz że Twoje działanie nie zdążyło.', dir: -1 },
     ]
   },
 ];
@@ -1648,25 +1595,497 @@ const SEGS_JUNIOR = [
 
 // Zależności przyczynowe z wagami (0.1–1.0)
 // Format: { segment: [ [bloker, waga], ... ] }
-const BLOCKERS_W = {
-  moc:          [['tolerancja', 0.8], ['regeneracja', 0.5]],
-  wytrzymalosc: [['tolerancja', 0.9], ['odzywianie', 0.8], ['regeneracja', 0.7]],
-  fizycznosc:   [['moc', 0.8], ['tolerancja', 0.7]],
-  techFund:     [['percepcja', 0.7], ['decyzja', 0.7], ['fizycznosc', 0.7], ['tolerancja', 0.5], ['mental', 0.4]],
-  techSpec:     [['decyzja', 0.9], ['techFund', 0.8], ['percepcja', 0.5], ['mental', 0.6]],
-  tolerancja:   [['regeneracja', 0.8], ['odzywianie', 0.7]],
-  regeneracja:  [['odzywianie', 0.9]],
-  odpornosc:    [['odzywianie', 0.6], ['regeneracja', 0.6]],
-  odzywianie:   [],
-  koncentracja: [['regeneracja', 0.8], ['odzywianie', 0.7]],
-  mental:       [],
-  percepcja:    [['koncentracja', 0.8]],
-  decyzja:      [['percepcja', 0.9], ['mental', 0.8], ['koncentracja', 0.5]],
+// ══════════════════════════════════════
+//  SIEĆ ZALEŻNOŚCI (v2) — zastępuje BLOCKERS_W
+//  Źródło: siec_zaleznosci_v2.docx — Krok 1-3, czerwiec 2026
+// ══════════════════════════════════════
+
+const DEPENDENCY_NETWORK = [
+  { from: 'wytrzymalosc', to: 'moc', weight: 0.7, type: 'mechanism', ai: 'Jeśli wynik Wytrzymałości i Mocy są oba niskie, rozważ że osłabiona Moc może być konsekwencją słabej Wytrzymałości, nie osobnym deficytem — sformułuj diagnozę wskazując na wspólną przyczynę zamiast dwóch niezależnych problemów.' },
+  { from: 'moc', to: 'wytrzymalosc', weight: 0.4, type: 'efficiency', ai: 'Jeśli wynik Mocy jest niski a Wytrzymałości też, rozważ czy niska Wytrzymałość nie jest częściowo pogłębiana przez nieekonomiczny ruch wynikający ze słabej Mocy — to może wzmacniać rekomendację pracy nad Mocą jako priorytetem.' },
+  { from: 'moc', to: 'fizycznosc', weight: 0.7, type: 'mechanism', ai: 'Jeśli Moc i Fizyczność są oba niskie, rozpoznaj to jako jeden, wspólny deficyt eksplozywności — nie opisuj ich jako dwóch niezależnych słabości, tylko jako dwa przejawy tego samego ograniczenia.' },
+  { from: 'fizycznosc', to: 'moc', weight: 0.7, type: 'mechanism', ai: 'Jeśli Moc i Fizyczność są oba niskie, rozpoznaj to jako jeden, wspólny deficyt eksplozywności — nie opisuj ich jako dwóch niezależnych słabości, tylko jako dwa przejawy tego samego ograniczenia.' },
+  { from: 'tolerancja', to: 'moc', weight: 0.3, type: 'efficiency', ai: 'Jeśli Moc spada w trakcie meczu w sytuacjach niezwiązanych z kontaktem fizycznym ani ze zmęczeniem energetycznym, a Tolerancja Obciążeń jest niska, rozważ że przyczyną może być podświadome ograniczanie maksymalnego wysiłku z powodu narastającego dyskomfortu mechanicznego.' },
+  { from: 'techFund', to: 'moc', weight: 0.3, type: 'efficiency', ai: 'Jeśli Moc jest niska a Technika Fundamentalna też, rozważ że pozornie słaba moc może wynikać z nieefektywnego, chaotycznego wykonania technicznego — zasugeruj pracę nad techniką jako pierwszy krok przed czystym treningiem siłowym.' },
+  { from: 'moc', to: 'tolerancja', weight: 0.8, type: 'mechanism', ai: 'Jeśli Moc nie rośnie mimo deklarowanego treningu siłowego i jednocześnie Tolerancja Obciążeń jest niska, wskaż to jako prawdopodobną przyczynę stagnacji — priorytetem powinna być praca nad tolerancją, nie zwiększanie intensywności treningu siłowego.' },
+  { from: 'tolerancja', to: 'moc', weight: 0.8, type: 'mechanism', ai: 'Jeśli Moc nie rośnie mimo deklarowanego treningu siłowego i jednocześnie Tolerancja Obciążeń jest niska, wskaż to jako prawdopodobną przyczynę stagnacji — priorytetem powinna być praca nad tolerancją, nie zwiększanie intensywności treningu siłowego.' },
+  { from: 'moc', to: 'regeneracja', weight: 0.6, type: 'mechanism', ai: 'Jeśli Moc jest niska a Regeneracja też, zasugeruj że przyczyną słabego rozwoju mocy może być niewystarczająca odbudowa między treningami, nie sam program siłowy.' },
+  { from: 'regeneracja', to: 'moc', weight: 0.6, type: 'mechanism', ai: 'Jeśli Moc jest niska a Regeneracja też, zasugeruj że przyczyną słabego rozwoju mocy może być niewystarczająca odbudowa między treningami, nie sam program siłowy.' },
+  { from: 'odzywianie', to: 'moc', weight: 0.5, type: 'mechanism', ai: 'Jeśli Moc jest niska a dbałość o białko w Odżywieniu też, wskaż że długoterminowy rozwój mocy może być ograniczany niedostatecznym budulcem do regeneracji mięśniowej, nie samym treningiem.' },
+  { from: 'odzywianie', to: 'moc', weight: 0.4, type: 'mechanism', ai: 'Jeśli Moc spada wyraźnie w końcówce meczu (np. słabszy wyskok czy start niż na początku), a poziom energii w Odżywieniu jest niski, rozważ że przyczyną może być niewystarczające odtwarzanie systemu energetycznego między wysiłkami, nie regres w samej sile — to jest różne od długoterminowego wpływu białka na budowę mięśni.' },
+  { from: 'odpornosc', to: 'moc', weight: 0.4, type: 'mechanism', ai: 'Jeśli Moc jest niska a częstotliwość chorowania w Odporności wysoka, rozważ że ograniczony rozwój mocy może wynikać z powtarzających się przerw w treningu, nie z samego planu — to zmienia rekomendację z "trenuj więcej" na "zadbaj o ciągłość".' },
+  { from: 'koncentracja', to: 'moc', weight: 0.3, type: 'efficiency', ai: 'Jeśli Moc jest niska a Koncentracja też, rozważ że rzeczywista zdolność siłowa może być lepsza niż sugeruje wynik — problemem może być moment jej uruchomienia, nie sama moc.' },
+  { from: 'mental', to: 'moc', weight: 0.4, type: 'efficiency', ai: 'Jeśli Moc jest niska a Stan Mentalny też, rozważ że deficyt mocy może być pochodną tego jak zawodnik emocjonalnie podchodzi do momentów wymagających eksplozywności, nie czystym deficytem fizycznym.' },
+  { from: 'mental', to: 'moc', weight: 0.3, type: 'mechanism', ai: 'Jeśli Moc rozwija się wolniej niż powinna mimo regularnego treningu siłowego, a Stan Mentalny jest słaby, rozważ że przyczyną może być podświadome niedociążanie treningu z lęku przed porażką lub kontuzją, nie sam program treningowy — to jest różne od wpływu na wykorzystanie mocy w meczu.' },
+  { from: 'percepcja', to: 'moc', weight: 0.4, type: 'efficiency', ai: 'Jeśli Moc jest niska a Percepcja też, rozważ że problemem może być kierunek i moment użycia mocy, wynikający ze słabego skanowania boiska, nie sama zdolność do jej wygenerowania.' },
+  { from: 'decyzja', to: 'moc', weight: 0.6, type: 'efficiency', ai: 'Jeśli Moc jest niska a Szybkość Decyzji też, rozpoznaj to jako potencjalnie jeden problem — spóźnione decyzje zmuszają do nieekonomicznego zużycia mocy. Zasugeruj pracę nad szybkością decyzji jako możliwy sposób na odciążenie wymagań wobec mocy.' },
+  { from: 'fizycznosc', to: 'wytrzymalosc', weight: 0.4, type: 'efficiency', ai: 'Jeśli Wytrzymałość jest niska a Fizyczność też, rozważ że część zmęczenia może pochodzić z dodatkowego wysiłku wymuszonego przez przegrywane starcia fizyczne, nie z samej wydolności tlenowej.' },
+  { from: 'techFund', to: 'wytrzymalosc', weight: 0.3, type: 'efficiency', ai: 'Jeśli Wytrzymałość jest niska a Technika Fundamentalna też, rozważ że część zmęczenia może wynikać z dodatkowego wysiłku po błędach technicznych, nie wyłącznie z wydolności.' },
+  { from: 'wytrzymalosc', to: 'tolerancja', weight: 0.7, type: 'mechanism', ai: 'Jeśli Wytrzymałość nie rośnie mimo treningu i jednocześnie Tolerancja Obciążeń jest niska, zasugeruj że przyczyną stagnacji może być zbyt szybkie tempo zwiększania obciążeń treningowych względem możliwości adaptacyjnych.' },
+  { from: 'tolerancja', to: 'wytrzymalosc', weight: 0.7, type: 'mechanism', ai: 'Jeśli Wytrzymałość nie rośnie mimo treningu i jednocześnie Tolerancja Obciążeń jest niska, zasugeruj że przyczyną stagnacji może być zbyt szybkie tempo zwiększania obciążeń treningowych względem możliwości adaptacyjnych.' },
+  { from: 'tolerancja', to: 'wytrzymalosc', weight: 0.4, type: 'mechanism', ai: 'Jeśli Wytrzymałość spada w końcówce meczu mimo dobrego wyniku w Odżywieniu, a Tolerancja Obciążeń jest niska, rozważ że przyczyną może być narastający dyskomfort mechaniczny w tkankach podczas gry, nie brak paliwa energetycznego — to jest mechanizm inny niż glikogenowy, wart odróżnienia w diagnozie.' },
+  { from: 'wytrzymalosc', to: 'regeneracja', weight: 0.6, type: 'mechanism', ai: 'Jeśli Wytrzymałość jest niska a Regeneracja też, zasugeruj że przyczyną słabego rozwoju wydolności może być niewystarczająca odbudowa między treningami.' },
+  { from: 'regeneracja', to: 'wytrzymalosc', weight: 0.6, type: 'mechanism', ai: 'Jeśli Wytrzymałość jest niska a Regeneracja też, zasugeruj że przyczyną słabego rozwoju wydolności może być niewystarczająca odbudowa między treningami.' },
+  { from: 'odzywianie', to: 'wytrzymalosc', weight: 0.8, type: 'mechanism', ai: 'Jeśli Wytrzymałość jest niska a poziom energii w Odżywieniu też, wskaż że spadek wydolności w końcówce meczu może mieć źródło w niedostatecznym odżywieniu, nie w samym wytrenowaniu — to zmienia rekomendację z "trenuj więcej" na "zadbaj o odżywienie przedmeczowe".' },
+  { from: 'odzywianie', to: 'wytrzymalosc', weight: 0.5, type: 'mechanism', ai: 'Jeśli Wytrzymałość nie rozwija się długoterminowo mimo regularnego treningu, a Odżywienie jest słabe, rozważ że przyczyną może być niedostateczne wsparcie żywieniowe dla adaptacji wytrzymałościowych — to jest różne od krótkoterminowego wpływu energii w trakcie samego meczu.' },
+  { from: 'odpornosc', to: 'wytrzymalosc', weight: 0.6, type: 'mechanism', ai: 'Jeśli Wytrzymałość jest niska a częstotliwość chorowania w Odporności wysoka, rozważ że ograniczona wydolność może wynikać z powtarzających się przerw w treningu wytrzymałościowym, który wymaga szczególnej regularności.' },
+  { from: 'koncentracja', to: 'wytrzymalosc', weight: 0.3, type: 'efficiency', ai: 'Jeśli Wytrzymałość jest niska w sposób nierównomierny w trakcie meczu (spadki niezwiązane z końcówką) a Koncentracja też jest słaba, rozważ że przyczyną mogą być momenty rozproszenia, nie ograniczona wydolność.' },
+  { from: 'mental', to: 'wytrzymalosc', weight: 0.5, type: 'efficiency', ai: 'Jeśli spadek Wytrzymałości koreluje z konkretnymi momentami emocjonalnymi meczu, a nie z czasem gry, i Stan Mentalny jest niski, rozpoznaj to jako możliwe odpuszczenie mentalne, nie ograniczenie fizyczne.' },
+  { from: 'mental', to: 'wytrzymalosc', weight: 0.3, type: 'mechanism', ai: 'Jeśli Wytrzymałość rozwija się wolniej niż powinna mimo regularnego treningu, a Stan Mentalny jest słaby, rozważ że przyczyną może być podświadome niedociążanie najcięższych fragmentów treningu z lęku przed porażką — to jest różne od wpływu na zaangażowanie w samym meczu.' },
+  { from: 'percepcja', to: 'wytrzymalosc', weight: 0.4, type: 'efficiency', ai: 'Jeśli Wytrzymałość jest niska a Percepcja też, rozważ że zawodnik może zużywać nadmiar energii na reaktywne bieganie zamiast na przewidujące, ekonomiczne pozycjonowanie — poprawa percepcji może odciążyć wymagania wobec wytrzymałości.' },
+  { from: 'decyzja', to: 'wytrzymalosc', weight: 0.5, type: 'efficiency', ai: 'Jeśli Wytrzymałość jest niska a Szybkość Decyzji też, rozważ że część zmęczenia może pochodzić z dodatkowego wysiłku wymuszanego przez spóźnione decyzje — poprawa szybkości decyzji może odciążyć wymagania wobec wytrzymałości.' },
+  { from: 'tolerancja', to: 'fizycznosc', weight: 0.5, type: 'mechanism', ai: 'Jeśli Fizyczność pogarsza się w trakcie meczu niezależnie od poziomu energii (Odżywienie w normie), a Tolerancja Obciążeń jest niska, rozważ że przyczyną może być narastający dyskomfort mechaniczny ograniczający pełne zaangażowanie w starcia, nie brak energii czy siły.' },
+  { from: 'techFund', to: 'fizycznosc', weight: 0.3, type: 'efficiency', ai: 'Jeśli Fizyczność jest niska a Technika Fundamentalna też, rozważ że zawodnik może instynktownie ograniczać zaangażowanie w kontakt fizyczny z obawy o utratę panowania nad piłką — to jest inny problem niż czysty brak siły.' },
+  { from: 'regeneracja', to: 'fizycznosc', weight: 0.4, type: 'mechanism', ai: 'Jeśli Fizyczność jest niska w okresie zagęszczonych obciążeń i Regeneracja jest słaba, rozważ że to może być tymczasowy efekt zmęczenia nerwowo-mięśniowego, nie stały deficyt siłowy.' },
+  { from: 'odpornosc', to: 'fizycznosc', weight: 0.4, type: 'mechanism', ai: 'Jeśli Fizyczność jest niska a częstotliwość chorowania w Odporności wysoka, rozważ że rozwój siły fizycznej może być ograniczany przez regularnie przerywaną ciągłość treningu.' },
+  { from: 'koncentracja', to: 'fizycznosc', weight: 0.4, type: 'efficiency', ai: 'Jeśli Fizyczność jest niska w sposób nierówny (nie każde starcie przegrywane) a Koncentracja też jest słaba, rozważ że przyczyną może być brak przygotowania ciała z powodu rozproszenia uwagi, nie stały deficyt siły.' },
+  { from: 'mental', to: 'fizycznosc', weight: 0.5, type: 'efficiency', ai: 'Jeśli Fizyczność pogarsza się w trakcie meczu (więcej przegranych starć w drugiej połowie niż w pierwszej, niezwiązane ze zmęczeniem) a Stan Mentalny jest niski, rozważ spiralę niepewności napędzaną wcześniejszymi porażkami w pojedynkach.' },
+  { from: 'mental', to: 'fizycznosc', weight: 0.3, type: 'mechanism', ai: 'Jeśli Fizyczność rozwija się wolniej niż powinna mimo regularnego udziału w treningu kontaktowym, a Stan Mentalny jest słaby, rozważ że przyczyną może być podświadome ograniczanie intensywności zaangażowania w ćwiczenia kontaktowe z lęku przed kontuzją lub porażką.' },
+  { from: 'percepcja', to: 'fizycznosc', weight: 0.6, type: 'efficiency', ai: 'Jeśli Fizyczność jest niska a Percepcja też, rozważ że zawodnik może przegrywać starcia głównie dlatego że nie widzi ich nadchodzących i nie zdąża się przygotować — to zmienia rekomendację z czystego treningu siłowego na pracę nad skanowaniem boiska.' },
+  { from: 'odzywianie', to: 'fizycznosc', weight: 0.6, type: 'mechanism', ai: 'Jeśli Fizyczność jest trwale niska mimo długotrwałego treningu siłowego i dbałość o białko w Odżywieniu też jest słaba, wskaż że fundament fizyczny mógł nie zostać w pełni zbudowany z powodu niedostatecznego odżywienia w okresie rozwoju, nie z powodu samego treningu.' },
+  { from: 'odzywianie', to: 'fizycznosc', weight: 0.4, type: 'mechanism', ai: 'Jeśli Fizyczność spada wyraźnie w końcówce meczu, a poziom energii w Odżywieniu jest niski, rozważ że przyczyną może być chwilowe ograniczenie energetyczne w konkretnych starciach, nie regres w budowie mięśniowej — to jest różne od długoterminowego wpływu białka na masę mięśniową.' },
+  { from: 'decyzja', to: 'fizycznosc', weight: 0.5, type: 'efficiency', ai: 'Jeśli Fizyczność jest niska mimo dobrego wyniku w Percepcji, a Szybkość Decyzji jest słaba, rozważ że zawodnik widzi nadchodzące starcia, ale zbyt wolno decyduje jak się do nich ustawić — to jest inny problem niż brak skanowania boiska.' },
+  { from: 'tolerancja', to: 'techFund', weight: 0.3, type: 'efficiency', ai: 'Jeśli Technika Fundamentalna pogorszyła się w okresie nawracających dolegliwości fizycznych i Tolerancja Obciążeń jest słaba, rozważ że przyczyną może być nieświadoma kompensacja bólowa, nie regres w samej umiejętności.' },
+  { from: 'regeneracja', to: 'techFund', weight: 0.4, type: 'mechanism', ai: 'Jeśli Technika Fundamentalna wypada gorzej niż zwykle nawet w spokojnych warunkach, a Regeneracja jest słaba, rozważ że przyczyną może być osłabiona koordynacja nerwowa z powodu zmęczenia, nie regres w umiejętności.' },
+  { from: 'regeneracja', to: 'techFund', weight: 0.3, type: 'mechanism', ai: 'Jeśli tempo nauki nowych elementów technicznych jest wolniejsze niż oczekiwano, a Regeneracja jest słaba, rozważ że przyczyną może być niedostateczna konsolidacja pamięci ruchowej podczas snu, nie trudność samego elementu — to jest różne od wpływu na wykonanie już wyuczonych umiejętności.' },
+  { from: 'odzywianie', to: 'techFund', weight: 0.4, type: 'mechanism', ai: 'Jeśli Technika Fundamentalna wyraźnie się pogarsza w końcówce meczu i poziom energii w Odżywieniu jest niski, rozważ że przyczyną może być spadek energii dostępnej dla mózgu, nie tylko zmęczenie mięśniowe.' },
+  { from: 'odpornosc', to: 'techFund', weight: 0.3, type: 'mechanism', ai: 'Jeśli Technika Fundamentalna pogorszyła się po okresie częstego chorowania, wskaż że przyczyną może być przerwana ciągłość treningu, nie utrata samej umiejętności — powrót do regularnych powtórzeń powinien przywrócić wcześniejszy poziom.' },
+  { from: 'techFund', to: 'koncentracja', weight: 0.5, type: 'efficiency', ai: 'Jeśli Technika Fundamentalna i Koncentracja są oba słabe, rozważ że mogą konkurować o ten sam zasób uwagi — poprawa jednego może częściowo poprawić drugi, bo zwalnia zasoby poznawcze.' },
+  { from: 'koncentracja', to: 'techFund', weight: 0.5, type: 'efficiency', ai: 'Jeśli Technika Fundamentalna i Koncentracja są oba słabe, rozważ że mogą konkurować o ten sam zasób uwagi — poprawa jednego może częściowo poprawić drugi, bo zwalnia zasoby poznawcze.' },
+  { from: 'mental', to: 'techFund', weight: 0.4, type: 'efficiency', ai: 'Jeśli Technika Fundamentalna wypada wyraźnie gorzej w sytuacjach stresowych niż na treningu, a Stan Mentalny jest słaby, rozpoznaj to jako spięcie wynikające z presji, nie jako prawdziwy deficyt techniczny.' },
+  { from: 'mental', to: 'techFund', weight: 0.3, type: 'mechanism', ai: 'Jeśli konkretny element Techniki Fundamentalnej rozwija się wolniej niż reszta mimo regularnego treningu, a Stan Mentalny jest słaby, rozważ że zawodnik może podświadomie unikać ćwiczenia tego trudniejszego dla siebie elementu z obawy przed oceną — to jest różne od wpływu presji na wykonanie w meczu.' },
+  { from: 'techFund', to: 'percepcja', weight: 0.5, type: 'efficiency', ai: 'Jeśli Technika Fundamentalna i Percepcja są oba słabe, rozważ że mogą się wzajemnie pogłębiać — brak wcześniejszej informacji zmusza do wykonania technicznego w gorszych warunkach, co dodatkowo zajmuje uwagę potrzebną do skanowania.' },
+  { from: 'percepcja', to: 'techFund', weight: 0.5, type: 'efficiency', ai: 'Jeśli Technika Fundamentalna i Percepcja są oba słabe, rozważ że mogą się wzajemnie pogłębiać — brak wcześniejszej informacji zmusza do wykonania technicznego w gorszych warunkach, co dodatkowo zajmuje uwagę potrzebną do skanowania.' },
+  { from: 'decyzja', to: 'techFund', weight: 0.4, type: 'efficiency', ai: 'Jeśli Technika Fundamentalna wypada gorzej w sytuacjach wymagających szybkiej decyzji niż w prostszych, a Szybkość Decyzji jest słaba, rozpoznaj to jako konflikt uwagi między wyborem działania i jego wykonaniem.' },
+  { from: 'techFund', to: 'techSpec', weight: 0.7, type: 'mechanism', ai: 'Jeśli Technika Specjalistyczna jest niska a Technika Fundamentalna też, wskaż że najpierw należy zautomatyzować podstawowe wykonanie techniczne — dopóki wymaga ono świadomej uwagi, zawodnik nie ma zasobów na tworzenie przewagi.' },
+  { from: 'regeneracja', to: 'techSpec', weight: 0.3, type: 'efficiency', ai: 'Jeśli Technika Specjalistyczna spada w okresach dużego zmęczenia treningowego, a Regeneracja jest słaba, rozważ że przyczyną może być zmęczenie poznawcze skłaniające do wyboru prostszych rozwiązań, nie utrata umiejętności.' },
+  { from: 'regeneracja', to: 'techSpec', weight: 0.3, type: 'mechanism', ai: 'Jeśli rozwój Techniki Specjalistycznej jest wolniejszy niż oczekiwano mimo regularnego treningu, a Regeneracja jest słaba, rozważ że przyczyną może być niedostateczna konsolidacja nowych wzorców decyzyjnych podczas snu, nie brak predyspozycji.' },
+  { from: 'odzywianie', to: 'techSpec', weight: 0.4, type: 'mechanism', ai: 'Jeśli Technika Specjalistyczna wyraźnie spada w drugiej połowie meczu i poziom energii w Odżywieniu jest niski, rozważ że przyczyną może być zmęczenie mózgu skłaniające do prostszych wyborów, nie utrata umiejętności czy odwagi.' },
+  { from: 'odpornosc', to: 'techSpec', weight: 0.3, type: 'mechanism', ai: 'Jeśli rozwój Techniki Specjalistycznej jest wolniejszy niż oczekiwano a częstotliwość chorowania w Odporności jest wysoka, rozważ że przyczyną może być przerywana ciągłość praktyki, nie brak zdolności.' },
+  { from: 'koncentracja', to: 'techSpec', weight: 0.4, type: 'efficiency', ai: 'Jeśli Technika Specjalistyczna jest niska mimo dobrej Percepcji, a Koncentracja jest słaba, rozważ że zawodnik może przegapiać okazje w konkretnych momentach rozproszenia, nie mieć ogólnego problemu z dostrzeganiem sytuacji.' },
+  { from: 'mental', to: 'techSpec', weight: 0.6, type: 'efficiency', ai: 'Jeśli Technika Specjalistyczna jest niska mimo dobrych wyników w Technice Fundamentalnej i Percepcji, a Stan Mentalny jest słaby, rozpoznaj to jako problem odwagi i strachu przed błędem, nie brak umiejętności technicznej — to jest jeden z najsilniejszych i najczęstszych wzorców w tym systemie.' },
+  { from: 'mental', to: 'techSpec', weight: 0.4, type: 'mechanism', ai: 'Jeśli repertuar zagrań tworzących przewagę jest wąski i nie rozwija się nawet w treningu, a Stan Mentalny jest słaby, rozważ że zawodnik może unikać eksperymentowania z nowymi rozwiązaniami z lęku przed błędem, nawet w bezpiecznym środowisku treningowym.' },
+  { from: 'percepcja', to: 'techSpec', weight: 0.7, type: 'efficiency', ai: 'Jeśli Technika Specjalistyczna jest niska mimo dobrej Techniki Fundamentalnej i Stanu Mentalnego, a Percepcja jest słaba, rozpoznaj to jako brak dostrzegania okazji, nie brak umiejętności czy odwagi — sprawdzenie Percepcji powinno być pierwszym krokiem przy diagnozowaniu tego deficytu.' },
+  { from: 'decyzja', to: 'techSpec', weight: 0.9, type: 'efficiency', ai: 'Jeśli Technika Specjalistyczna jest niska mimo dobrej Percepcji, a Szybkość Decyzji jest słaba, rozpoznaj to jako główną przyczynę — zawodnik widzi okazje ale zbyt wolno się na nie decyduje. Ta zależność jest jedną z najsilniejszych w całym systemie.' },
+  { from: 'tolerancja', to: 'techSpec', weight: 0.4, type: 'mechanism', ai: 'Jeśli Technika Specjalistyczna spada w drugiej połowie meczu mimo dobrych wyników w Percepcji i Stanie Mentalnym, a Tolerancja Obciążeń jest niska, rozważ że przyczyną może być mechaniczne zmęczenie ciała ograniczające zdolność do pełnego, odważnego zaangażowania ruchowego — to jest inny mechanizm niż brak dostrzegania okazji czy strach przed błędem.' },
+  { from: 'tolerancja', to: 'odpornosc', weight: 0.4, type: 'mechanism', ai: 'Jeśli Odporność jest słaba szczególnie w okresach intensywnego treningu, a Tolerancja Obciążeń jest niska, rozważ że przeciążenie mechaniczne może tymczasowo osłabiać odporność przez podwyższony poziom stresu fizjologicznego.' },
+  { from: 'tolerancja', to: 'koncentracja', weight: 0.3, type: 'efficiency', ai: 'Jeśli Koncentracja spada w momentach powiązanych z dyskomfortem fizycznym, a Tolerancja Obciążeń jest niska, rozważ że przyczyną rozproszenia może być ból odciągający uwagę, nie deficyt samej zdolności do koncentracji.' },
+  { from: 'tolerancja', to: 'mental', weight: 0.4, type: 'efficiency', ai: 'Jeśli Stan Mentalny jest słaby konkretnie w sytuacjach przypominających wcześniejsze kontuzje, a historia Tolerancji Obciążeń pokazuje powtarzające się urazy, rozważ że przyczyną może być wyuczony lęk przed ponownym urazem, nie ogólny deficyt odwagi.' },
+  { from: 'tolerancja', to: 'regeneracja', weight: 0.4, type: 'mechanism', ai: 'Jeśli Regeneracja jest słaba a Tolerancja Obciążeń też, rozważ że przyczyną wolniejszej regeneracji może być większy zakres uszkodzeń tkanek generowanych przy tym samym treningu, nie sam proces odbudowy.' },
+  { from: 'odzywianie', to: 'regeneracja', weight: 0.7, type: 'mechanism', ai: 'Jeśli Regeneracja jest słaba mimo dobrego snu, a Odżywienie też jest słabe, wskaż że przyczyną może być niedostateczne dostarczanie budulca i energii do procesu odbudowy — sam sen nie wystarczy bez odpowiedniego odżywienia.' },
+  { from: 'odpornosc', to: 'regeneracja', weight: 0.6, type: 'mechanism', ai: 'Jeśli Regeneracja jest słaba a Odporność też (częste choroby), rozważ że oba segmenty mogą się wzajemnie napędzać — organizm zajęty częstą walką z infekcjami ma mniej zasobów na pełną regenerację potreningową.' },
+  { from: 'mental', to: 'regeneracja', weight: 0.4, type: 'mechanism', ai: 'Jeśli Regeneracja pogorszyła się w okresie zwiększonego stresu lub presji, a Stan Mentalny jest słaby, rozważ że przewlekłe napięcie psychiczne może zakłócać jakość snu i regeneracji, nawet przy niezmienionej ilości godzin odpoczynku.' },
+  { from: 'odpornosc', to: 'odzywianie', weight: 0.3, type: 'efficiency', ai: 'Jeśli Odżywienie pogorszyło się w okresie częstego chorowania, a Odporność jest słaba, rozważ że przyczyną może być tymczasowy wpływ infekcji na apetyt i możliwość regularnego jedzenia, nie zmiana w podejściu do diety.' },
+  { from: 'mental', to: 'odzywianie', weight: 0.4, type: 'efficiency', ai: 'Jeśli Odżywienie pogorszyło się w okresie zwiększonego stresu lub presji, a Stan Mentalny jest słaby, rozważ że przyczyną trudności z regularnym odżywieniem mogą być czynniki emocjonalne, nie brak świadomości dietetycznej.' },
+  { from: 'mental', to: 'odzywianie', weight: 0.3, type: 'efficiency', ai: 'Jeśli Odżywienie jest generalnie dobre, ale zawodnik zgłasza trudności z jedzeniem w konkretne, szczególnie ważne dni meczowe, rozważ że to może być ostra, jednorazowa reakcja na presję, różna od przewlekłego wzorca związanego z ogólnym stanem mentalnym.' },
+  { from: 'mental', to: 'odpornosc', weight: 0.5, type: 'mechanism', ai: 'Jeśli Odporność jest słaba szczególnie w okresach zwiększonego stresu lub presji, a Stan Mentalny jest słaby, rozważ że przewlekłe napięcie psychiczne może osłabiać odporność przez ten sam mechanizm kortyzolowy co przeciążenie fizyczne — warto sprawdzić oba źródła stresu.' },
+  { from: 'mental', to: 'koncentracja', weight: 0.5, type: 'efficiency', ai: 'Jeśli Koncentracja jest słaba szczególnie w zakresie powrotu do skupienia po błędach, a Stan Mentalny jest słaby, rozważ że przyczyną może być emocjonalna trudność w "puszczeniu" błędu, nie deficyt samej zdolności do utrzymania uwagi.' },
+  { from: 'decyzja', to: 'mental', weight: 0.3, type: 'efficiency', ai: 'Jeśli Stan Mentalny jest słaby ogólnie, nie tylko w sytuacjach wymagających szybkich decyzji, a historia Szybkości Decyzji pokazuje długotrwałe trudności, rozważ że przyczyną może być szersza niepewność wyrosła z powtarzających się niepowodzeń decyzyjnych.' },
+  { from: 'decyzja', to: 'percepcja', weight: 0.2, type: 'efficiency', ai: 'Jeśli Percepcja i Szybkość Decyzji są oba słabe, priorytetowo rozważ najpierw wyjaśnienia z Segmentu Percepcji i Decyzji opisane w ich głównych częściach dokumentu — to jest dodatkowa, słabsza hipoteza uzupełniająca, nie podstawowy mechanizm.' },
+];
+
+const DEPENDENCY_CASCADES = [
+  { path: ['fizycznosc', 'moc', 'fizycznosc'], weight: 0.49, ai: 'Jeśli zarówno Moc jak i Fizyczność są słabe, nie traktuj ich jako dwóch osobnych problemów do naprawienia po kolei — to jest jeden, wzajemnie wzmacniający się deficyt fundamentu eksplozywnego. Rekomendacja treningowa powinna adresować obie jednocześnie, nie sekwencyjnie.' },
+  { path: ['tolerancja', 'wytrzymalosc', 'tolerancja'], weight: 0.49, ai: 'Jeśli zarówno Tolerancja Obciążeń jak i Wytrzymałość są słabe i nie poprawiają się mimo treningu, rozpoznaj to jako samonapędzające się błędne koło, nie dwa niezależne problemy. Punktem wyjścia do przełamania tej pętli jest zwykle praca nad tolerancją obciążeń zanim zwiększy się objętość treningu wytrzymałościowego.' },
+  { path: ['moc', 'regeneracja', 'wytrzymalosc', 'moc'], weight: 0.25, ai: 'Jeśli Moc, Wytrzymałość i Regeneracja są wszystkie słabe jednocześnie, rozważ regenerację jako punkt centralny interwencji — poprawa samej regeneracji może uwolnić pozytywne sprzężenie zwrotne poprawiające jednocześnie oba pozostałe segmenty.' },
+  { path: ['koncentracja', 'techFund', 'koncentracja'], weight: 0.25, ai: 'Jeśli Technika Fundamentalna i Koncentracja są oba na średnim lub niskim poziomie, rozważ że mogą się wzajemnie ograniczać przez współdzielenie tego samego zasobu uwagi.' },
+  { path: ['percepcja', 'techFund', 'percepcja'], weight: 0.25, ai: 'Jeśli Technika Fundamentalna i Percepcja są oba na średnim lub niskim poziomie, rozważ że mogą się wzajemnie ograniczać przez współdzielenie tego samego zasobu uwagi — sprawdzić czy problem pojawia się głównie w nowych sytuacjach (sugeruje TechFund) czy nawet w rutynowych (sugeruje ogólny problem z koncentracją/percepcją).' },
+  { path: ['decyzja', 'moc', 'wytrzymalosc', 'moc'], weight: 0.168, ai: 'Jeśli zawodnik ma słabą Szybkość Decyzji i jednocześnie obserwuje się postępujący spadek Mocy i Wytrzymałości w trakcie pojedynczego meczu, rozważ że to może być samonapędzająca się kaskada — każda spóźniona decyzja pogłębia zmęczenie, które pogłębia kolejne spóźnienia.' },
+];
+
+// ══════════════════════════════════════
+//  SIEĆ ZALEŻNOŚCI — dane + ranking
+//  Zastępuje: BLOCKERS_W, BLOCKERS
+//  Źródło: siec_zaleznosci_v2.docx (Krok 1-3, czerwiec 2026)
+// ══════════════════════════════════════
+
+// DEPENDENCY_NETWORK i DEPENDENCY_CASCADES wklejone z osobnych plików
+// (dependency_network.js, dependency_cascades.js) — 81 par + 6 kaskad.
+
+const CASCADE_DAMPING = 0.75; // osłabienie kaskad wielokrokowych względem par bezpośrednich (Krok 3)
+const THRESHOLD = 70;          // ten sam próg co dotychczasowy deficyt w kodzie
+
+/**
+ * Liczy wskaźnik istotności pojedynczej pary dla konkretnego zawodnika.
+ * wskaźnik = max(0, próg-wynikA) × max(0, próg-wynikB) × waga
+ */
+function pairSignificance(scores, from, to, weight) {
+  const a = scores[from];
+  const b = scores[to];
+  if (a === undefined || b === undefined) return 0;
+  const weakA = Math.max(0, THRESHOLD - a);
+  const weakB = Math.max(0, THRESHOLD - b);
+  return weakA * weakB * weight;
+}
+
+/**
+ * Liczy wskaźnik istotności kaskady (3-4 węzły) dla konkretnego zawodnika.
+ * Iloczyn słabości wszystkich węzłów na ścieżce (bez powtórzeń), razy waga kaskady,
+ * razy dodatkowy mnożnik osłabiający (mniej pewne niż para bezpośrednia).
+ */
+function cascadeSignificance(scores, path, weight) {
+  const uniqueNodes = [...new Set(path)];
+  let product = weight * CASCADE_DAMPING;
+  for (const node of uniqueNodes) {
+    const val = scores[node];
+    if (val === undefined) return 0;
+    const weak = Math.max(0, THRESHOLD - val);
+    if (weak === 0) return 0; // jeśli którykolwiek węzeł jest w normie, kaskada nieaktywna
+    product *= weak;
+  }
+  return product;
+}
+
+/**
+ * Zwraca posortowaną listę najistotniejszych powiązań (pary + kaskady) dla danego
+ * segmentu docelowego, na podstawie wyników zawodnika. Zastępuje dotychczasowe
+ * (BLOCKERS_W[id]||[]).filter(w>=0.6 && score<65) powtórzone w 4 miejscach kodu.
+ *
+ * @param {Object} scores - wyniki zawodnika { segmentId: 0-100, ... }
+ * @param {string} targetId - segment dla którego szukamy przyczyn (np. 'moc')
+ * @param {number} limit - ile najwyższych pozycji zwrócić (domyślnie 3)
+ * @returns {Array<{type:'pair'|'cascade', significance:number, from?, weight, ai, nodes:[string]}>}
+ */
+function getRankedInfluences(scores, targetId, limit = 3) {
+  const results = [];
+
+  // Pary bezpośrednie kończące się w targetId
+  for (const rec of DEPENDENCY_NETWORK) {
+    if (rec.to !== targetId) continue;
+    const sig = pairSignificance(scores, rec.from, rec.to, rec.weight);
+    if (sig > 0) {
+      results.push({
+        kind: 'pair', significance: sig, from: rec.from, to: rec.to,
+        weight: rec.weight, type: rec.type, ai: rec.ai, nodes: [rec.from, rec.to]
+      });
+    }
+  }
+
+  // Kaskady zawierające targetId (dowolna pozycja na ścieżce)
+  for (const casc of DEPENDENCY_CASCADES) {
+    if (!casc.path.includes(targetId)) continue;
+    const sig = cascadeSignificance(scores, casc.path, casc.weight);
+    if (sig > 0) {
+      results.push({
+        kind: 'cascade', significance: sig, weight: casc.weight,
+        ai: casc.ai, nodes: [...new Set(casc.path)]
+      });
+    }
+  }
+
+  results.sort((a, b) => b.significance - a.significance);
+  return results.slice(0, limit);
+}
+
+/**
+ * Funkcja kompatybilności wstecznej — odtwarza dawny format weightedBlockers
+ * ([[segmentId, weight], ...]) na wypadek gdyby część kodu tego jeszcze wymagała
+ * podczas stopniowej migracji czterech miejsc użycia.
+ */
+function getLegacyWeightedBlockers(scores, targetId) {
+  return getRankedInfluences(scores, targetId, 5)
+    .filter(r => r.kind === 'pair')
+    .map(r => [r.from, r.weight]);
+}
+
+// ══════════════════════════════════════
+//  WZGLĘDNE WYKRYWANIE DEFICYTÓW (mediana + odchylenie)
+//  Zastępuje sztywny próg "<70" — porównanie WYŁĄCZNIE do
+//  własnych wyników zawodnika, odporne na styl samooceny.
+// ══════════════════════════════════════
+
+/**
+ * Zwraca segmenty będące "względnym wąskim gardłem" DANEGO zawodnika —
+ * porównanie do jego WŁASNEJ mediany wyników, nie do sztywnego progu 70.
+ * Segment kwalifikuje się jako deficyt jeśli spełnia OBA warunki:
+ *  (1) statystyczne odchylenie: wynik < mediana - 0.5 × odchylenie_standardowe
+ *  (2) bezwzględna różnica: mediana - wynik >= 9 punktów
+ */
+function getRelativeDeficits(scores, limit = 4) {
+  const entries = Object.entries(scores);
+  const values = entries.map(([, v]) => v).sort((a, b) => a - b);
+  const n = values.length;
+  if (n === 0) return [];
+
+  const median = n % 2 === 0
+    ? (values[n / 2 - 1] + values[n / 2]) / 2
+    : values[(n - 1) / 2];
+
+  const variance = values.reduce((sum, v) => sum + Math.pow(v - median, 2), 0) / n;
+  const stdDev = Math.sqrt(variance);
+
+  const MIN_ABS_GAP = 9;
+  const DEV_MULTIPLIER = 0.5;
+
+  const deficits = entries.filter(([, score]) => {
+    const statisticallyLow = score < median - DEV_MULTIPLIER * stdDev;
+    const meaningfulGap = (median - score) >= MIN_ABS_GAP;
+    return statisticallyLow && meaningfulGap;
+  });
+
+  deficits.sort((a, b) => a[1] - b[1]);
+  return deficits.slice(0, limit);
+}
+
+/** Analogiczna funkcja dla mocnych stron — segment istotnie POWYŻEJ własnej mediany. */
+function getRelativeStrengths(scores, limit = 3) {
+  const entries = Object.entries(scores);
+  const values = entries.map(([, v]) => v).sort((a, b) => a - b);
+  const n = values.length;
+  if (n === 0) return [];
+
+  const median = n % 2 === 0
+    ? (values[n / 2 - 1] + values[n / 2]) / 2
+    : values[(n - 1) / 2];
+
+  const variance = values.reduce((sum, v) => sum + Math.pow(v - median, 2), 0) / n;
+  const stdDev = Math.sqrt(variance);
+
+  const MIN_ABS_GAP = 9;
+  const DEV_MULTIPLIER = 0.5;
+
+  const strengths = entries.filter(([, score]) => {
+    const statisticallyHigh = score > median + DEV_MULTIPLIER * stdDev;
+    const meaningfulGap = (score - median) >= MIN_ABS_GAP;
+    return statisticallyHigh && meaningfulGap;
+  });
+
+  strengths.sort((a, b) => b[1] - a[1]);
+  return strengths.slice(0, limit);
+}
+
+/**
+ * Rozpoznaje w którym z 3 scenariuszy jest dany zawodnik:
+ * 1 = realne, statystycznie istotne odchylenie (jest przynajmniej 1 deficyt)
+ * 2 = brak odchylenia, ale mamy pozycję + kartę profilową
+ * 3 = brak odchylenia i brak wystarczających danych — system powinien pytać
+ */
+function detectDiagnosisScenario(scores, positionId, positionProfiles) {
+  const deficits = getRelativeDeficits(scores, 4);
+  if (deficits.length > 0) return 1;
+  if (positionId && positionProfiles && positionProfiles[positionId]) return 2;
+  return 3;
+}
+
+// ══════════════════════════════════════
+//  PLAN A — segmenty spoza top-4 będące ukrytą przyczyną innych deficytów
+//  Segment z pozornie "OK" wynikiem może i tak być realną przyczyną
+//  problemu, jeśli silnie wpływa na segmenty które SĄ już wykrytymi
+//  deficytami. Bez tego takie ukryte przyczyny nigdy nie trafiały do
+//  diagnozy, bo same nie były wystarczająco odstające od własnej mediany.
+// ══════════════════════════════════════
+
+/**
+ * Zwraca segmenty spoza już wykrytych deficytów, które mimo to są silną,
+ * strukturalną przyczyną tych deficytów w sieci zależności — nawet jeśli
+ * ich własny wynik nie kwalifikuje ich jako względny deficyt.
+ *
+ * @param {Object} scores
+ * @param {Array<[string,number]>} knownDeficits - wynik getRelativeDeficits()
+ * @param {number} minWeight - minimalna waga relacji żeby liczyć się jako "silna przyczyna" (domyślnie 0.5)
+ * @returns {Array<{id, score, causesFor: [string], totalWeight}>} posortowane malejąco po totalWeight
+ */
+function getHiddenCauses(scores, knownDeficits, minWeight = 0.5) {
+  const deficitIds = new Set(knownDeficits.map(([id]) => id));
+  const candidateScores = {};
+
+  DEPENDENCY_NETWORK.forEach(rec => {
+    if (rec.weight < minWeight) return;
+    if (!deficitIds.has(rec.to)) return;      // wpływa na coś co JEST deficytem
+    if (deficitIds.has(rec.from)) return;     // sam nie jest już wykrytym deficytem
+    if (scores[rec.from] === undefined) return;
+
+    if (!candidateScores[rec.from]) {
+      candidateScores[rec.from] = { id: rec.from, score: scores[rec.from], causesFor: [], totalWeight: 0 };
+    }
+    candidateScores[rec.from].causesFor.push(rec.to);
+    candidateScores[rec.from].totalWeight += rec.weight;
+  });
+
+  return Object.values(candidateScores).sort((a, b) => b.totalWeight - a.totalWeight);
+}
+
+
+// Kompatybilność wsteczna — prosta lista ID blokerów (bez wag)
+const BLOCKERS = {};
+['moc','wytrzymalosc','fizycznosc','techFund','techSpec','tolerancja','regeneracja','odpornosc','odzywianie','koncentracja','mental','percepcja','decyzja'].forEach(id => {
+  BLOCKERS[id] = [...new Set(DEPENDENCY_NETWORK.filter(r => r.to === id).map(r => r.from))];
+});
+
+// ══════════════════════════════════════
+//  PROFILE POZYCYJNE — hierarchia ważności 13 segmentów per rola
+//  Źródło: profile_pozycyjne.docx, czerwiec 2026
+// ══════════════════════════════════════
+
+const POSITION_PROFILES = {
+  bramkarz: {
+    number: '1', name: 'BRAMKARZ',
+    tiers: {
+      mental: 'key',
+      koncentracja: 'key',
+      decyzja: 'key',
+      moc: 'key',
+      fizycznosc: 'important',
+      techFund: 'important',
+      percepcja: 'important',
+      regeneracja: 'important',
+      wytrzymalosc: 'minor',
+      techSpec: 'minor',
+      tolerancja: 'minor',
+      odzywianie: 'minor',
+      odpornosc: 'minor',
+    },
+    ai: 'Gdy diagnozujesz bramkarza: Stan Mentalny, Koncentracja i Szybkość Decyzji to segmenty o wyjątkowo wysokiej wadze dla tej pozycji — nawet umiarkowany deficyt w nich zasługuje na wyraźne podkreślenie w diagnozie, bardziej niż podobny deficyt w Wytrzymałości czy Technice Specjalistycznej, które są dla bramkarza drugorzędne.',
+  },
+  obronca_srodkowy: {
+    number: '4/5', name: 'ŚRODKOWY OBROŃCA',
+    tiers: {
+      percepcja: 'key',
+      decyzja: 'key',
+      fizycznosc: 'key',
+      mental: 'key',
+      moc: 'important',
+      koncentracja: 'important',
+      techFund: 'important',
+      tolerancja: 'important',
+      wytrzymalosc: 'minor',
+      techSpec: 'minor',
+      regeneracja: 'minor',
+      odzywianie: 'minor',
+      odpornosc: 'minor',
+    },
+    ai: 'Gdy diagnozujesz środkowego obrońcę: Percepcja, Szybkość Decyzji, Fizyczność i Stan Mentalny to segmenty o wyjątkowo wysokiej wadze dla tej pozycji. Deficyt w Percepcji szczególnie zasługuje na wyraźne podkreślenie, bo błędy w czytaniu gry na tej pozycji mają największe boiskowe konsekwencje.',
+  },
+  obronca_boczny: {
+    number: '2/3', name: 'BOCZNY OBROŃCA',
+    tiers: {
+      wytrzymalosc: 'key',
+      moc: 'key',
+      decyzja: 'key',
+      percepcja: 'important',
+      fizycznosc: 'important',
+      techFund: 'important',
+      tolerancja: 'important',
+      koncentracja: 'minor',
+      techSpec: 'minor',
+      mental: 'minor',
+      regeneracja: 'minor',
+      odzywianie: 'minor',
+      odpornosc: 'minor',
+    },
+    ai: 'Gdy diagnozujesz bocznego obrońcę: Wytrzymałość, Moc i Szybkość Decyzji to segmenty o wyjątkowo wysokiej wadze. Deficyt w Wytrzymałości szczególnie zasługuje na podkreślenie, bo ta pozycja wymaga najwyższej objętości pracy biegowej ze wszystkich ról defensywnych.',
+  },
+  pomocnik_defensywny: {
+    number: '6', name: 'DEFENSYWNY POMOCNIK',
+    tiers: {
+      percepcja: 'key',
+      decyzja: 'key',
+      koncentracja: 'key',
+      techFund: 'important',
+      fizycznosc: 'important',
+      wytrzymalosc: 'important',
+      mental: 'important',
+      moc: 'minor',
+      techSpec: 'minor',
+      tolerancja: 'minor',
+      regeneracja: 'minor',
+      odzywianie: 'minor',
+      odpornosc: 'minor',
+    },
+    ai: 'Gdy diagnozujesz defensywnego pomocnika: Percepcja, Szybkość Decyzji i Koncentracja to segmenty o wyjątkowo wysokiej wadze. Jeśli oba są słabe, rozważ czy to jeden problem (nie widzi) czy dwa osobne (widzi ale wolno decyduje) — rozróżnienie zmienia rekomendację.',
+  },
+  pomocnik_srodkowy: {
+    number: '8', name: 'ŚRODKOWY POMOCNIK',
+    tiers: {
+      wytrzymalosc: 'key',
+      decyzja: 'key',
+      techFund: 'key',
+      percepcja: 'important',
+      moc: 'important',
+      koncentracja: 'important',
+      fizycznosc: 'important',
+      techSpec: 'minor',
+      mental: 'minor',
+      tolerancja: 'minor',
+      regeneracja: 'minor',
+      odzywianie: 'minor',
+      odpornosc: 'minor',
+    },
+    ai: 'Gdy diagnozujesz środkowego pomocnika box-to-box: Wytrzymałość, Szybkość Decyzji i Technika Fundamentalna to segmenty o wyjątkowo wysokiej wadze — to najbardziej wszechstronna pozycja, więc żaden segment fizyczny czy techniczny nie powinien być traktowany jako drugorzędny bez wyraźnego powodu.',
+  },
+  pomocnik_ofensywny: {
+    number: '10', name: 'OFENSYWNY POMOCNIK',
+    tiers: {
+      techSpec: 'key',
+      decyzja: 'key',
+      percepcja: 'key',
+      mental: 'key',
+      techFund: 'important',
+      koncentracja: 'important',
+      moc: 'minor',
+      wytrzymalosc: 'minor',
+      fizycznosc: 'minor',
+      tolerancja: 'minor',
+      regeneracja: 'minor',
+      odzywianie: 'minor',
+      odpornosc: 'minor',
+    },
+    ai: 'Gdy diagnozujesz ofensywnego pomocnika: Technika Specjalistyczna, Szybkość Decyzji, Percepcja i Stan Mentalny to segmenty o wyjątkowo wysokiej wadze. Jeśli Technika Specjalistyczna jest słaba mimo dobrej Techniki Fundamentalnej, sprawdź najpierw Stan Mentalny jako możliwą przyczynę — to jest częsty wzorzec na tej pozycji.',
+  },
+  skrzydlowy: {
+    number: '7/11', name: 'SKRZYDŁOWY',
+    tiers: {
+      moc: 'key',
+      techSpec: 'key',
+      decyzja: 'key',
+      percepcja: 'important',
+      wytrzymalosc: 'important',
+      techFund: 'important',
+      mental: 'important',
+      fizycznosc: 'minor',
+      koncentracja: 'minor',
+      tolerancja: 'minor',
+      regeneracja: 'minor',
+      odzywianie: 'minor',
+      odpornosc: 'minor',
+    },
+    ai: 'Gdy diagnozujesz skrzydłowego: Moc, Technika Specjalistyczna i Szybkość Decyzji to segmenty o wyjątkowo wysokiej wadze. Jeśli zawodnik ma dobrą Moc ale słabą Technikę Specjalistyczną, podkreśl że fizyczna przewaga nie jest jeszcze wykorzystywana w pełni — to częsty i frustrujący dla zawodnika wzorzec na tej pozycji.',
+  },
+  napastnik: {
+    number: '9', name: 'NAPASTNIK',
+    tiers: {
+      decyzja: 'key',
+      techSpec: 'key',
+      fizycznosc: 'key',
+      mental: 'key',
+      moc: 'important',
+      percepcja: 'important',
+      techFund: 'important',
+      koncentracja: 'important',
+      wytrzymalosc: 'minor',
+      tolerancja: 'minor',
+      regeneracja: 'minor',
+      odzywianie: 'minor',
+      odpornosc: 'minor',
+    },
+    ai: 'Gdy diagnozujesz napastnika: Szybkość Decyzji, Technika Specjalistyczna, Fizyczność i Stan Mentalny to segmenty o wyjątkowo wysokiej wadze. Niska skuteczność wykończenia akcji może mieć źródło w każdym z trzech różnych miejsc (percepcja/technika/mentalność) — rozróżnienie zmienia całą rekomendację.',
+  },
 };
 
-// Kompatybilność wsteczna — zwykła lista blokerów
-const BLOCKERS = {};
-Object.entries(BLOCKERS_W).forEach(([k, v]) => { BLOCKERS[k] = v.map(([b]) => b); });
+// Tymczasowe mapowanie 4 ogólnych ról ankietowych (ctx.pos 0-3) na 8 kart
+// szczegółowych — do czasu rozbudowy ankiety o drugie, doprecyzowujące pytanie.
+const POSITION_MAP_TEMP = {
+  0: 'bramkarz',           // Bramkarz -> 1:1
+  1: 'obronca_srodkowy',   // Obrońca -> reprezentatywny wariant środkowy
+  2: 'pomocnik_srodkowy',  // Pomocnik -> reprezentatywny wariant box-to-box
+  3: 'napastnik',          // Napastnik -> 1:1 (środkowy)
+};
+
+function getPositionProfile(ctxPos) {
+  if (ctxPos === null || ctxPos === undefined || ctxPos === 4) return null;
+  const positionId = POSITION_MAP_TEMP[ctxPos];
+  return positionId ? POSITION_PROFILES[positionId] : null;
+}
 
 const SEG_NAMES = {};
 SEGS.forEach(s => SEG_NAMES[s.id] = s.name);
@@ -2177,11 +2596,14 @@ async function registerCoach() {
 // ======================================
 
 async function loadFeedbackAnalysis() {
-  // Pobierz ostatnie 30 dni negatywnych/mieszanych feedbacków
+  // Pobierz ostatnie 30 dni negatywnych/mieszanych feedbacków.
+  // UWAGA: przyciski feedbacku (submitFeedback) zapisują 'partial'/'off' (angielskie ID),
+  // NIE polskie frazy "częściowo trafna"/"nie trafna" — wcześniejszy filtr ich szukał
+  // i przez to funkcja zawsze zwracała pustą listę mimo istniejących danych. Naprawione.
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   try {
     const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/diagnostics?feedback_accuracy=in.(nie trafna,częściowo trafna)&created_at=gte.${since}&order=created_at.desc&limit=50`,
+      `${SUPABASE_URL}/rest/v1/diagnostics?feedback_accuracy=in.(off,partial)&created_at=gte.${since}&order=created_at.desc&limit=50`,
       { headers: { 'apikey': SUPABASE_KEY } }
     );
     const rows = await res.json();
@@ -2215,8 +2637,8 @@ async function loadFeedbackAnalysis() {
       total: rows.length,
       problemSegs,
       comments,
-      notRate: rows.filter(r=>r.feedback_accuracy==='nie trafna').length,
-      partialRate: rows.filter(r=>r.feedback_accuracy==='częściowo trafna').length,
+      notRate: rows.filter(r=>r.feedback_accuracy==='off').length,
+      partialRate: rows.filter(r=>r.feedback_accuracy==='partial').length,
     };
   } catch(e) { return null; }
 }
@@ -2240,6 +2662,29 @@ async function sendFeedbackDigest() {
     });
   } catch(e) { console.warn('Feedback digest send failed', e); }
 }
+
+// Wywołanie ręczne z panelu trenera — funkcja sendFeedbackDigest nie ma żadnego
+// automatycznego wyzwalacza (index.html to frontend, nie serwer cykliczny),
+// więc na razie uruchamiamy ją na żądanie zamiast automatycznie w tle.
+async function triggerFeedbackDigest(btn) {
+  const originalText = btn.textContent;
+  btn.textContent = 'Analizuję...';
+  btn.disabled = true;
+  try {
+    const data = await loadFeedbackAnalysis();
+    if (!data) {
+      btn.textContent = 'Brak nowych negatywnych ocen';
+      setTimeout(() => { btn.textContent = originalText; btn.disabled = false; }, 3000);
+      return;
+    }
+    await sendFeedbackDigest();
+    btn.textContent = `✓ Wysłano (${data.total} diagnoz)`;
+  } catch(e) {
+    btn.textContent = 'Błąd wysyłki';
+  }
+  setTimeout(() => { btn.textContent = originalText; btn.disabled = false; }, 3000);
+}
+
 
 async function loadParentView(token) {
   showScreen('screen-parent');
@@ -2290,8 +2735,8 @@ async function generateParentReport(row, el) {
   };
 
   const sorted = Object.entries(scores).sort((a,b) => b[1]-a[1]);
-  const strengths = sorted.slice(0,3).filter(([,v]) => v >= 55);
-  const deficits = sorted.slice().reverse().slice(0,3).filter(([,v]) => v < 65);
+  const strengths = getRelativeStrengths(scores, 3);
+  const deficits = getRelativeDeficits(scores, 3);
   const overall = Math.round(Object.values(scores).reduce((a,b)=>a+b,0) / Object.values(scores).length);
 
   const strengthsText = strengths.map(([id]) => SEG_NAMES_PL[id]).filter(Boolean).join(', ');
@@ -3631,8 +4076,7 @@ async function saveToSupabase(table, data) {
 }
 
 function buildDiagnosticsRecord(extras = {}) {
-  const sorted = cachedScores ? Object.entries(cachedScores).sort((a,b) => a[1]-b[1]) : [];
-  const deficits = sorted.slice(0,3).filter(([,v]) => v < 70).map(([id, score]) => {
+  const deficits = (cachedScores ? getRelativeDeficits(cachedScores, 3) : []).map(([id, score]) => {
     const seg = isJunior ? SEGS_JUNIOR.find(s=>s.id===id) : SEGS.find(s=>s.id===id);
     return `${seg ? seg.name : id} (${score})`;
   });
@@ -3951,8 +4395,8 @@ let _diagState = {
 // ======================================
 function _buildDiagData(scores) {
   const sorted = Object.entries(scores).sort((a,b) => a[1]-b[1]);
-  const deficits = sorted.filter(([,v]) => v < 70).slice(0, 4);
-  const strengths = sorted.slice(-3).filter(([,v]) => v >= 60);
+  const deficits = getRelativeDeficits(scores, 4);
+  const strengths = getRelativeStrengths(scores, 3);
 
   // Pozycyjne nazwy segmentów — mapowanie na język boiskowy
   const SEGMENT_LANGUAGE = {
@@ -3973,11 +4417,13 @@ function _buildDiagData(scores) {
 
   const deficitsData = deficits.map(([id, score]) => {
     const seg = isJunior ? SEGS_JUNIOR.find(s => s.id === id) : SEGS.find(s => s.id === id);
-    const weightedBlockers = (BLOCKERS_W[id] || [])
-      .filter(([b, w]) => w >= 0.6 && scores[b] !== undefined && scores[b] < 65)
-      .sort((a, b) => b[1] - a[1]);
-    const blockerStr = weightedBlockers.length
-      ? `przyczyna strukturalna: ${weightedBlockers.slice(0,2).map(([b]) => SEGMENT_LANGUAGE[b] || SEG_NAMES[b]).join(' i ')}`
+    const influences = getRankedInfluences(scores, id, 2);
+    const blockerStr = influences.length
+      ? `przyczyna strukturalna: ${influences.map(inf =>
+          inf.kind === 'cascade'
+            ? inf.nodes.filter(n => n !== id).map(n => SEGMENT_LANGUAGE[n] || SEG_NAMES[n]).join(' i ')
+            : (SEGMENT_LANGUAGE[inf.from] || SEG_NAMES[inf.from])
+        ).join(' i ')}`
       : 'deficyt samodzielny';
     return {
       id,
@@ -3985,13 +4431,25 @@ function _buildDiagData(scores) {
       name: seg ? seg.name : id,
       lang: SEGMENT_LANGUAGE[id] || (seg ? seg.name : id),
       blockerStr,
-      blockers: weightedBlockers,
+      blockers: influences,
     };
   });
 
   const strengthsData = strengths.map(([id, score]) => {
     const seg = isJunior ? SEGS_JUNIOR.find(s => s.id === id) : SEGS.find(s => s.id === id);
     return { id, score, name: seg ? seg.name : id, lang: SEGMENT_LANGUAGE[id] || (seg ? seg.name : id) };
+  });
+
+  // Plan A: segmenty spoza wykrytych deficytów, będące ich silną, strukturalną
+  // przyczyną — nawet jeśli ich własny wynik nie jest statystycznym odchyleniem.
+  const hiddenCauses = getHiddenCauses(scores, deficits, 0.5).slice(0, 2).map(hc => {
+    const seg = isJunior ? SEGS_JUNIOR.find(s => s.id === hc.id) : SEGS.find(s => s.id === hc.id);
+    return {
+      ...hc,
+      name: seg ? seg.name : hc.id,
+      lang: SEGMENT_LANGUAGE[hc.id] || (seg ? seg.name : hc.id),
+      causesForNames: [...new Set(hc.causesFor)].map(cid => SEGMENT_LANGUAGE[cid] || SEG_NAMES[cid] || cid),
+    };
   });
 
   const ctxText = ctx.level !== null
@@ -4011,7 +4469,11 @@ function _buildDiagData(scores) {
     ? 'Uwaga wewnętrzna: zawodnik odpowiadał głównie środkowymi wartościami (3-4) — możliwa niepewność w samoocenie lub tendencja do ostrożnych odpowiedzi. Diagnozuj z lekką rezerwą co do pewności wyników.'
     : '';
 
-  return { deficitsData, strengthsData, ctxText, patternNote };
+  // Rozpoznanie scenariusza diagnozy (1=deficyt względny, 2=profil wyrównany+pozycja, 3=brak danych)
+  const positionProfile = getPositionProfile(ctx.pos);
+  const scenario = detectDiagnosisScenario(scores, POSITION_MAP_TEMP[ctx.pos] || null, POSITION_PROFILES);
+
+  return { deficitsData, strengthsData, hiddenCauses, ctxText, patternNote, scenario, positionProfile };
 }
 
 // ======================================
@@ -4019,7 +4481,7 @@ function _buildDiagData(scores) {
 // ======================================
 async function generateAIDiagnosis(scores, situation = '') {
 
-  const { deficitsData, strengthsData, ctxText, patternNote } = _buildDiagData(scores);
+  const { deficitsData, strengthsData, hiddenCauses, ctxText, patternNote, scenario, positionProfile } = _buildDiagData(scores);
 
   // Zapisz stan
   _diagState.scores = scores;
@@ -4029,11 +4491,12 @@ async function generateAIDiagnosis(scores, situation = '') {
   _diagState.situation = situation;
   _diagState.limitation = '';
   _diagState.patternNote = patternNote;
+  _diagState.scenario = scenario;
   _diagState.topDeficitIds = deficitsData.map(d => d.id);
 
-  const deficitsText = deficitsData.map(d =>
-    `${d.name} (wynik ${d.score}/100) — ${d.lang} — ${d.blockerStr}`
-  ).join('\n');
+  const deficitsText = deficitsData.length
+    ? deficitsData.map(d => `${d.name} (wynik ${d.score}/100) — ${d.lang} — ${d.blockerStr}`).join('\n')
+    : '(brak — patrz SCENARIUSZ DIAGNOZY poniżej)';
 
   const strengthsText = strengthsData.length
     ? strengthsData.map(d => `${d.name} (wynik ${d.score}/100) — ${d.lang}`).join(', ')
@@ -4068,6 +4531,31 @@ Treningi własne: ${ctx.ownTrainings !== null ? CTX_LABELS.ownTrainings[ctx.ownT
   };
   const posCtx = posIdx !== null && posInstructions[posIdx] ? `\n${posInstructions[posIdx]}` : '';
 
+  // Hierarchia ważności segmentów dla tej pozycji (z kart profilowych) — wzbogaca
+  // jakościowy opis powyżej o konkretną wagę: co jest kluczowe/ważne/drugorzędne dla tej roli.
+  const positionHierarchyCtx = positionProfile ? `
+HIERARCHIA WAŻNOŚCI DLA TEJ POZYCJI (${positionProfile.name}):
+${Object.entries(positionProfile.tiers).map(([segId, tier]) => {
+  const tierLabel = tier === 'key' ? 'KLUCZOWE' : tier === 'important' ? 'WAŻNE' : 'drugorzędne';
+  return `${SEG_NAMES[segId] || segId}: ${tierLabel}`;
+}).join(', ')}
+Deficyt w segmencie oznaczonym jako KLUCZOWE dla tej pozycji zasługuje na wyraźniejsze podkreślenie w diagnozie niż deficyt tej samej wielkości w segmencie drugorzędnym.` : '';
+
+  // Plan A: segmenty spoza wykrytych deficytów będące ich ukrytą, strukturalną przyczyną
+  const hiddenCausesCtx = hiddenCauses && hiddenCauses.length ? `
+UKRYTE PRZYCZYNY (segmenty które same NIE są wykrytym deficytem, ale silnie wpływają na te które są):
+${hiddenCauses.map(hc => `${hc.name} (wynik ${hc.score}/100, pozornie w porządku) — wpływa na: ${hc.causesForNames.join(', ')}`).join('\n')}
+Jeśli jedna z tych ukrytych przyczyn realnie tłumaczy wykryty deficyt, rozważ zbudowanie diagnozy WOKÓŁ niej zamiast traktować deficyt jako izolowany — to jest często bardziej zaskakujący, wartościowy wgląd niż opisanie samego objawu.` : '';
+
+  // ── SCENARIUSZ DIAGNOZY (1=deficyt względny / 2=profil wyrównany+pozycja / 3=brak danych) ──
+  const scenarioInstructions = {
+    1: `SCENARIUSZ DIAGNOZY: 1 — WYKRYTO WZGLĘDNY DEFICYT. Zawodnik ma segment (lub kilka) istotnie słabszy od reszty JEGO WŁASNYCH wyników — to jest realne, statystycznie uzasadnione wąskie gardło, nie efekt ogólnie niskiej lub wysokiej samooceny. Buduj diagnozę wokół tego odchylenia, wykorzystując przyczyny strukturalne (blockerStr) i hierarchię pozycyjną powyżej.`,
+    2: `SCENARIUSZ DIAGNOZY: 2 — PROFIL WYRÓWNANY, REKOMENDACJA POZYCYJNA. Zawodnik NIE MA statystycznie istotnego odchylenia między swoimi segmentami — jego profil jest względnie wyrównany. TO JEST WARTOŚCIOWA, PRAWDZIWA INFORMACJA, nie porażka systemu — NIE WYMYŚLAJ sztucznego deficytu ani nie naciągaj żadnego wyniku na "wąskie gardło". Zamiast tego: powiedz to wprost i uczciwie ("Twój profil jest wyrównany, nie ma jednego wyraźnego problemu do zaatakowania"), a następnie wskaż KTÓRY segment z HIERARCHII WAŻNOŚCI DLA TEJ POZYCJI (powyżej) jest najbardziej kluczowy dla jego roli i wart inwestycji, nawet jeśli jego wynik w tym segmencie nie jest najsłabszy w jego profilu. To jest rekomendacja oparta na roli, nie diagnoza deficytu — sformułowanie musi to jasno odróżniać.`,
+    3: `SCENARIUSZ DIAGNOZY: 3 — BRAK WYSTARCZAJĄCYCH DANYCH. Zawodnik nie ma statystycznie istotnego odchylenia MIĘDZY swoimi segmentami, ANI nie podał pozycji (lub nie mamy dla niej karty). NIE WYMYŚLAJ deficytu ani rekomendacji na siłę. Zamiast tego powiedz uczciwie że profil jest wyrównany, i w sekcji [PYTANIE] zadaj pytanie które pomoże zebrać brakujący sygnał — np. co sam zawodnik uważa za swoją najsłabszą stronę, lub w jakiej sytuacji meczowej czuje się najmniej pewnie. To pytanie ma REALNIE zbierać dane, nie być tylko formalnością.`,
+  };
+  const scenarioCtx = `\n\n${scenarioInstructions[scenario]}`;
+
+
   const prompt = `Jesteś systemem diagnostycznym Gamechange — analizujesz wyniki ankiety piłkarskiej i piszesz diagnozę bezpośrednio do zawodnika. Piszesz po polsku, forma "Ty", język boiskowy a nie naukowy. Jesteś precyzyjny i konkretny — zero frazesów motywacyjnych, zero ogólników.
 
 DANE ZAWODNIKA:
@@ -4082,7 +4570,7 @@ ${deficitsText}
 
 MOCNE STRONY:
 ${strengthsText}
-${situationCtx}${posCtx}
+${situationCtx}${posCtx}${positionHierarchyCtx}${hiddenCausesCtx}${scenarioCtx}
 
 INSTRUKCJA KLUCZOWA — PORÓWNANIE WARSTW:
 Masz dwa niezależne źródła: samoopis zawodnika (co myśli o sobie) i wyniki ankiety (co zmierzono). Porównaj je:
@@ -4101,27 +4589,30 @@ ZASADY KTÓRYCH MUSISZ PRZESTRZEGAĆ:
 7. Jeśli zawodnik opisał konkretną sytuację z meczu — zidentyfikuj ją w sekcji [JAK TO WIDAC] i pokaż że wyniki to wyjaśniają.
 8. Sekcja [JAK SIE ZMIENI GRA] — konkretna, boiskowa, bez obietnic których nie da się zmierzyć.
 9. Sekcja [KIERUNEK] — jedno zdanie, obszar bez metody. Most do produktu.
-10. [PYTANIE] — sformułuj JEDNO pytanie zakotwiczające. Musi być inne niż pytanie o sytuację z meczu (zawodnik już ją opisał). Zapytaj o coś głębszego: jak długo ten problem trwa, czy ktoś z otoczenia to zauważył, co konkretnie zmieniłoby się w jego grze gdyby to naprawił.
+10. [PYTANIE] — sformułuj JEDNO pytanie zakotwiczające, DOSTOSOWANE DO SCENARIUSZA DIAGNOZY podanego wyżej:
+    - W Scenariuszu 1 (wykryty deficyt): pytanie pogłębiające już postawioną diagnozę — musi być inne niż pytanie o sytuację z meczu (zawodnik już ją opisał). Zapytaj o coś głębszego: jak długo ten problem trwa, czy ktoś z otoczenia to zauważył, co konkretnie zmieniłoby się w jego grze gdyby to naprawił.
+    - W Scenariuszu 2 (profil wyrównany + rekomendacja pozycyjna): pytanie sprawdzające czy zawodnik SAM odczuwa ten segment jako coś do rozwinięcia — np. "Czy zdarza Ci się czuć że właśnie [segment kluczowy dla pozycji] mogłoby dać Ci największą przewagę, gdybyś je rozwinął?"
+    - W Scenariuszu 3 (brak wystarczających danych): to pytanie MUSI AKTYWNIE ZBIERAĆ BRAKUJĄCY SYGNAŁ, nie być formalnością. Zapytaj wprost i konkretnie o to czego system nie wie: co sam zawodnik uważa za swoją najsłabszą stronę na boisku, w jakiej konkretnej sytuacji meczowej czuje się najmniej pewnie, albo co najbardziej frustruje go we własnej grze. Odpowiedź na to pytanie może w praktyce zastąpić brakującą diagnozę ilościową.
 
-FORMAT ODPOWIEDZI (zachowaj dokładnie te znaczniki):
+FORMAT ODPOWIEDZI (zachowaj dokładnie te znaczniki). TREŚĆ KAŻDEJ SEKCJI ZALEŻY OD SCENARIUSZA PODANEGO WYŻEJ:
 
 [SYTUACJA]
-(2-5 zdań opisujących gdzie jest zawodnik dziś. Język musi być piłkarski i boiskowy: używaj konkretnych określeń jak "doskakuje", "skraca dystans", "wchodzi w pressing", "zamknął opcję podania", "wychodzi na wolne pole", "kryje przy stałych fragmentach", "schodzi po piłkę" — nie "dopadł", "złapał", "dogonił". Odwołanie do mocnej strony jako zablokowanego potencjału. Jeśli samoopis się rozmija z wynikami — adresuj tę rozbieżność tutaj.)
+(2-5 zdań. W SCENARIUSZU 1: opisz gdzie jest zawodnik dziś na bazie wykrytego deficytu, z odwołaniem do mocnej strony jako zablokowanego potencjału. Jeśli samoopis się rozmija z wynikami — adresuj tę rozbieżność tutaj. W SCENARIUSZU 2: powiedz WPROST i UCZCIWIE że profil jest wyrównany — bez jednego wyraźnego problemu — a następnie przejdź do tego że mimo to, dla jego pozycji, jeden konkretny segment ma szczególne znaczenie i warto go rozwijać. W SCENARIUSZU 3: powiedz uczciwie że profil jest wyrównany i że potrzeba więcej informacji od samego zawodnika żeby wskazać konkretny kierunek — bez zmyślania problemu. Język zawsze piłkarski i boiskowy: "doskakuje", "skraca dystans", "wchodzi w pressing", "zamknął opcję podania" — nie "dopadł", "złapał", "dogonił".)
 
 [MECHANIZM]
-(2-3 zdania — dlaczego tak jest. Przyczyna, nie objaw. Bez żargonu technicznego. Używaj "prawdopodobnie" przy wnioskowaniu.)
+(2-3 zdania. W SCENARIUSZU 1: dlaczego tak jest — przyczyna, nie objaw, z "prawdopodobnie" przy wnioskowaniu. W SCENARIUSZU 2: dlaczego akurat ten segment ma kluczowe znaczenie dla jego pozycji — wyjaśnij mechanizm roli, nie mechanizm deficytu, bo deficytu nie ma. W SCENARIUSZU 3: krótko wyjaśnij że wyrównany profil bywa prawdziwym obrazem sytuacji, nie błędem pomiaru — i że dokładniejszy obraz wymaga jego własnej perspektywy, o którą pytasz w [PYTANIE].)
 
 [JAK TO WIDAC]
-(2-3 konkretne sytuacje boiskowe które zawodnik rozpozna ze swojej gry. Każda sytuacja to jedno zdanie opisujące konkretny moment w meczu — jak zawodnik reaguje, co robi, co się dzieje. Język piłkarski: "rywal doskakuje z prawej strony i zamknął Ci opcję środka", nie "rywal dopadł Cię". Jeśli zawodnik opisał sytuację z meczu — ta sytuacja musi tu być jako pierwsza.)
+(2-3 konkretne sytuacje boiskowe które zawodnik rozpozna ze swojej gry. W SCENARIUSZU 1: sytuacje ilustrujące wykryty deficyt — jeśli zawodnik opisał sytuację z meczu, ta sytuacja musi tu być jako pierwsza. W SCENARIUSZU 2: sytuacje pokazujące gdzie na boisku ten kluczowy dla pozycji segment ujawnia się w grze — nie jako problem, tylko jako miejsce z potencjałem do wzmocnienia. W SCENARIUSZU 3: możesz skrócić tę sekcję do 1 zdania lub pominąć konkretne sytuacje, bo nie masz jeszcze wystarczających danych — nie zmyślaj sytuacji których nie możesz uzasadnić wynikami.)
 
 [JAK SIE ZMIENI GRA]
-(2-3 zdania — konkretny obraz gry po naprawieniu. Piłkarski i mierzalny: "będziesz wiedział co zrobić zanim rywal doskakuje", "wejdziesz na wolne pole w odpowiednim momencie", "Twój pressing będzie skuteczny przez pełne 90 minut". Nie: "będziesz lepszy", "poprawisz się".)
+(2-3 zdania, konkretny obraz gry po pracy nad wskazanym obszarem. Piłkarski i mierzalny: "będziesz wiedział co zrobić zanim rywal doskakuje", nie "będziesz lepszy".)
 
 [KIERUNEK]
-(1 zdanie — obszar pracy bez metody. Nawiąż do tego co opisałeś wcześniej: "To znaczy że powinieneś pracować nad [obszar] — bo właśnie tam leży klucz do tego żeby [efekt który opisałeś w JAK SIE ZMIENI GRA].")
+(1 zdanie — obszar pracy bez metody, most do produktu. W SCENARIUSZU 2 jasno zaznacz że to rekomendacja wynikająca z pozycji, nie z wykrytego deficytu.)
 
 [PYTANIE]
-(1 pytanie zakotwiczające — inne niż pytanie o sytuację z meczu. Patrz zasada 10.)`;
+(1 pytanie zakotwiczające, dostosowane do scenariusza — patrz zasada 10.)`;
 
   try {
     const response = await fetch('/api/diagnose', {
@@ -4575,8 +5066,22 @@ function buildFallbackDiagnosis(scores, deficits) {
   };
 
   if (!deficits.length) {
+    // Scenariusz 2 (spójność z Call 2 AI): jeśli mamy kartę pozycyjną, rekomendujemy
+    // segment kluczowy dla roli zamiast czysto ogólnikowego komunikatu.
+    const positionProfile = getPositionProfile(ctx.pos);
+    let positionRecommendation = '';
+    if (positionProfile) {
+      const keySegments = Object.entries(positionProfile.tiers)
+        .filter(([, tier]) => tier === 'key')
+        .map(([segId]) => segId);
+      const candidateId = keySegments.find(id => scores[id] !== undefined);
+      if (candidateId) {
+        const lang = SEGMENT_LANGUAGE[candidateId] || candidateId;
+        positionRecommendation = ` Dla Twojej pozycji szczególnie warto inwestować w ${lang} — to jeden z fundamentów tej roli, niezależnie od tego że dziś nie jest to Twój najsłabszy punkt.`;
+      }
+    }
     return {
-      diagnosis: `Twój profil jest wyrównany — nie ma jednego wyraźnego miejsca które Cię blokuje. ${strengthSeg ? `Szczególnie widać to w ${SEGMENT_LANGUAGE[strengthSeg.id] || strengthSeg.name} — to jest Twoja realna przewaga.` : ''} Skup się na równomiernym podnoszeniu wszystkich obszarów.`,
+      diagnosis: `Twój profil jest wyrównany — nie ma jednego wyraźnego miejsca które Cię blokuje.${positionRecommendation} ${strengthSeg ? `Szczególnie widać to w ${SEGMENT_LANGUAGE[strengthSeg.id] || strengthSeg.name} — to jest Twoja realna przewaga.` : ''} Skup się na równomiernym podnoszeniu wszystkich obszarów.`,
       steps: [
         'Utrzymuj regularność treningów — przy wyrównanym profilu to konsekwencja robi różnicę.',
         'Co 4-6 tygodni wróć do ankiety i sprawdź czy wyniki się zmieniają.',
@@ -4587,9 +5092,13 @@ function buildFallbackDiagnosis(scores, deficits) {
 
   const top = deficits[0];
   const topSeg = isJunior ? SEGS_JUNIOR.find(s => s.id === top[0]) : SEGS.find(s => s.id === top[0]);
-  const weightedBlockers = (BLOCKERS_W[top[0]] || [])
-    .filter(([b, w]) => w >= 0.6 && scores[b] !== undefined && scores[b] < 65)
-    .sort((a, b) => b[1] - a[1]);
+  const influences = getRankedInfluences(scores, top[0], 3);
+  // Dla tekstu lokalnego (bez AI) potrzebujemy pojedynczych segmentów jako "primaryBlocker" —
+  // jeśli najwyżej rankowana pozycja to kaskada, bierzemy z niej pierwszy węzeł inny niż top[0].
+  const asSegment = (inf) => inf.kind === 'cascade'
+    ? inf.nodes.find(n => n !== top[0])
+    : inf.from;
+  const primaryBlockerList = influences.map(asSegment).filter(Boolean);
 
   const strengthDesc = strengthSeg && topStrength[1] >= 60
     ? `${SEGMENT_LANGUAGE[strengthSeg.id] || strengthSeg.name}` : null;
@@ -4597,8 +5106,8 @@ function buildFallbackDiagnosis(scores, deficits) {
   let diagnosis = '';
   let steps = [];
 
-  if (weightedBlockers.length) {
-    const primaryBlocker = weightedBlockers[0][0];
+  if (primaryBlockerList.length) {
+    const primaryBlocker = primaryBlockerList[0];
     const blockerLang = SEGMENT_LANGUAGE[primaryBlocker] || SEG_NAMES[primaryBlocker];
     const deficitLang = SEGMENT_LANGUAGE[top[0]] || (topSeg ? topSeg.name : top[0]);
 
@@ -4608,8 +5117,8 @@ function buildFallbackDiagnosis(scores, deficits) {
 
     steps = [
       BLOCKERS_LANGUAGE[primaryBlocker] || `Zacznij od poprawy: ${blockerLang}.`,
-      weightedBlockers.length > 1
-        ? `Drugim krokiem jest ${SEGMENT_LANGUAGE[weightedBlockers[1][0]] || SEG_NAMES[weightedBlockers[1][0]]} — to też ogranicza Twój wynik, choć w mniejszym stopniu.`
+      primaryBlockerList.length > 1
+        ? `Drugim krokiem jest ${SEGMENT_LANGUAGE[primaryBlockerList[1]] || SEG_NAMES[primaryBlockerList[1]]} — to też ogranicza Twój wynik, choć w mniejszym stopniu.`
         : `Gdy poczujesz poprawę — wróć do ankiety i sprawdź jak zmieniły się wyniki.`,
       'Daj sobie 3-4 tygodnie zanim ocenisz efekty — adaptacja nie jest natychmiastowa, ale będzie widoczna.',
     ];
@@ -4735,27 +5244,30 @@ function renderResults(scores) {
     `;
   }).join('');
 
-  // Deficits — z ważonymi blokerami
-  const deficits = sorted.slice(0, 4).filter(([,v]) => v < 70);
+  // Deficits — względem własnej mediany zawodnika, z ważonymi blokerami
+  const deficits = getRelativeDeficits(scores, 4);
   const dl = document.getElementById('deficits-list');
   dl.innerHTML = deficits.map(([id, score], i) => {
     const seg = isJunior
       ? SEGS_JUNIOR.find(s => s.id === id)
       : SEGS.find(s => s.id === id);
 
-    // Znajdź blokerów z wagą ≥ 0.6 którzy mają słaby wynik
-    const weightedBlockers = (BLOCKERS_W[id] || [])
-      .filter(([b, w]) => w >= 0.6 && scores[b] !== undefined && scores[b] < 65)
-      .sort((a, b) => b[1] - a[1]); // sortuj po wadze malejąco
+    // Najistotniejsze wpływy (pary + kaskady) wg mechanizmu rankingowego z Kroku 3
+    const influences = getRankedInfluences(scores, id, 3);
 
     let causeText;
-    if (weightedBlockers.length) {
-      const primary = weightedBlockers[0];
-      const rest = weightedBlockers.slice(1);
-      const primaryName = SEG_NAMES[primary[0]] || primary[0];
-      const strength = primary[1] >= 0.8 ? 'bezpośrednio' : 'wyraźnie';
+    if (influences.length) {
+      const primary = influences[0];
+      const rest = influences.slice(1);
+      const primaryName = primary.kind === 'cascade'
+        ? primary.nodes.filter(n => n !== id).map(n => SEG_NAMES[n]).join(' + ')
+        : (SEG_NAMES[primary.from] || primary.from);
+      const strength = primary.weight >= 0.8 ? 'bezpośrednio' : 'wyraźnie';
       if (rest.length) {
-        const restNames = rest.map(([b]) => SEG_NAMES[b] || b).join(', ');
+        const restNames = rest.map(r => r.kind === 'cascade'
+          ? r.nodes.filter(n => n !== id).map(n => SEG_NAMES[n]).join('+')
+          : (SEG_NAMES[r.from] || r.from)
+        ).join(', ');
         causeText = `Główna przyczyna: słabe <strong>${primaryName}</strong> ${strength} blokuje ten obszar. Dodatkowy wpływ: ${restNames}. Zacznij od fundamentów — poprawa przyczyny poprawi ten segment automatycznie.`;
       } else {
         causeText = `Główna przyczyna: słabe <strong>${primaryName}</strong> ${strength} blokuje ten obszar. To nie jest problem sam w sobie — to objaw. Zacznij od ${primaryName}.`;
@@ -4781,9 +5293,25 @@ function renderResults(scores) {
 }
 
 function renderProduct(scores) {
-  const sorted = Object.entries(scores).sort((a,b) => a[1]-b[1]);
-  const deficits = sorted.slice(0, 3).filter(([,v]) => v < 70);
+  let deficits = getRelativeDeficits(scores, 3);
   const pw = document.getElementById('product-wrap');
+
+  // Scenariusz 2: brak względnego deficytu, ale mamy kartę pozycyjną —
+  // rekomendujemy segment KLUCZOWY dla tej roli zamiast pokazywać pustkę.
+  let isPositionBasedRecommendation = false;
+  if (!deficits.length) {
+    const positionProfile = getPositionProfile(ctx.pos);
+    if (positionProfile) {
+      const keySegments = Object.entries(positionProfile.tiers)
+        .filter(([, tier]) => tier === 'key')
+        .map(([segId]) => segId);
+      const candidateId = keySegments.find(id => scores[id] !== undefined);
+      if (candidateId) {
+        deficits = [[candidateId, scores[candidateId]]];
+        isPositionBasedRecommendation = true;
+      }
+    }
+  }
   if (!deficits.length) { pw.innerHTML = ''; return; }
 
   const STRIPE_LINKS = {
@@ -4862,7 +5390,7 @@ function renderProduct(scores) {
 
     return `
     <div style="border:${isPrimary ? '2px solid #0e0d0b' : '1px solid #d8d3c8'};padding:32px;margin-bottom:16px;background:#fff;position:relative;">
-      ${isPrimary ? `<div style="position:absolute;top:-1px;left:32px;background:#0e0d0b;color:#E8432D;font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:0.15em;padding:4px 12px;">GŁÓWNY PRIORYTET</div>` : ''}
+      ${isPrimary ? `<div style="position:absolute;top:-1px;left:32px;background:#0e0d0b;color:#E8432D;font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:0.15em;padding:4px 12px;">${isPositionBasedRecommendation ? 'KLUCZOWE DLA TWOJEJ POZYCJI' : 'GŁÓWNY PRIORYTET'}</div>` : ''}
 
       <!-- Problem zawodnika — jego język -->
       <div style="margin-top:${isPrimary ? '12px' : '0'};margin-bottom:20px;padding:16px 20px;background:#f5f2ec;border-left:3px solid ${isPrimary ? '#0e0d0b' : '#d8d3c8'};">
@@ -5029,7 +5557,7 @@ function downloadPDF() {
   doc.line(margin, y, W - margin, y);
   y += 8;
 
-  const deficits = sorted.slice(0,4).filter(([,v])=>v<70);
+  const deficits = getRelativeDeficits(scores, 4);
   deficits.forEach(([id, score], i) => {
     checkPage(24);
     const seg = isJunior ? SEGS_JUNIOR.find(s=>s.id===id) : SEGS.find(s=>s.id===id);
@@ -5054,18 +5582,19 @@ function downloadPDF() {
     doc.text(stripPolishChars(`${score}/100`), W - margin, y, { align: 'right' });
     y += 7;
 
-    // Przyczyna
-    const weightedBlockers = (BLOCKERS_W[id]||[])
-      .filter(([b,w])=>w>=0.6 && scores[b]!==undefined && scores[b]<65)
-      .sort((a,b)=>b[1]-a[1]);
+    // Przyczyna — najistotniejsze wpływy (pary + kaskady) wg mechanizmu rankingowego z Kroku 3
+    const influences = getRankedInfluences(scores, id, 3);
 
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(100, 96, 88);
 
     let causeText = '';
-    if (weightedBlockers.length) {
-      const bNames = weightedBlockers.map(([b])=>SEG_NAMES[b]||b).join(', ');
+    if (influences.length) {
+      const bNames = influences.map(inf => inf.kind === 'cascade'
+        ? inf.nodes.filter(n => n !== id).map(n => SEG_NAMES[n]).join('+')
+        : (SEG_NAMES[inf.from] || inf.from)
+      ).join(', ');
       causeText = `Prawdopodobna przyczyna: ${bNames}`;
     } else {
       causeText = 'Samodzielny deficyt — wymaga bezpośredniej pracy.';
@@ -5583,6 +6112,10 @@ function restart() {
       <button onclick="downloadTeamPDF()"
         style="background:#E8432D;color:#0e0d0b;border:none;padding:12px 24px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:0.1em;cursor:pointer;">
         ↓ Pobierz PDF drużyny
+      </button>
+      <button id="feedback-digest-btn" onclick="triggerFeedbackDigest(this)"
+        style="background:transparent;border:1px solid rgba(255,255,255,0.25);color:rgba(255,255,255,0.7);padding:12px 24px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:0.1em;cursor:pointer;margin-left:8px;">
+        ✉ Wyślij raport feedbacków
       </button>
     </div>
 
