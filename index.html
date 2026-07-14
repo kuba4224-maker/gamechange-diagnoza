@@ -1357,11 +1357,11 @@ const SEGS = [
         pos: {
           0: { t: 'Jak często przy wyjściu do piłki — dośrodkowanie, wolny lub podanie za linię — docierasz do niej tak szybko, że zamykasz rywalowi drogę?', ctx: 'Czy Twoje wyjście jest na tyle szybkie, że rywal traci szansę zanim dotrze do piłki?' },
           1: { t: 'Jak często po tym jak napastnik zmienia kierunek lub zrywa się do biegu, odrabiasz stratę i wracasz do optymalnej pozycji defensywnej zanim on zagrozi?', ctx: 'Czy Twoja szybkość reakcji pozwala Ci utrzymać właściwe ustawienie mimo ruchu napastnika?' },
-          2: { t: 'Jak często w wyścigu z napastnikiem lub skrzydłowym rywala do piłki dogrywanej w Twój korytarz jesteś pierwszy — czy to broniąc dośrodkowania, czy odcinając podanie za plecy?', ctx: 'Boczny obrońca biega najwięcej ze wszystkich obrońców. Kto wygrywa wyścig na Twoim skrzydle — Ty czy rywal?' },
-          3: { t: 'Jak często jako pierwszy docierasz do luźnej piłki przed polem karnym lub do rywala wchodzącego w Twoją strefę — zanim zdąży się obrócić albo zagrać do przodu?', ctx: 'Defensywny pomocnik jest ostatnią linią przed obroną. Czy Twoje pierwsze metry wystarczają żeby przeciąć zagrożenie zanim ono dojrzeje?' },
+          2: { t: 'Jak często wygrywasz wyścig do piłki granej w Twój korytarz przy linii bocznej — docierasz do niej pierwszy?', ctx: 'Np. długie dośrodkowanie lub podanie za linię obrony na Twoją stronę boiska. Kto pierwszy dobiega do takiej piłki?' },
+          3: { t: 'Jak często docierasz pierwszy do luźnej piłki tuż przed polem karnym, zanim zdąży do niej rywal?', ctx: 'To Twoja strefa — piłka odbita, pogubiona, niczyja. Liczy się kto pierwszy ją zabierze.' },
           4: { t: 'Jak często w pressingu Twoje tempo dobiegnięcia jest na tyle duże, że rywal odczuwa realną presję — spieszy się, popełnia błąd lub wybiera gorsze zagranie?', ctx: 'Pressing działa gdy rywal czuje że nie ma czasu. Czy Twoje tempo mu to odbiera?' },
-          5: { t: 'Jak często wygrywasz wyścig do piłki odbitej lub prostopadłej podanej między liniami rywala — docierasz do niej pierwszy, zanim obrońca zdąży zareagować?', ctx: 'To moment w którym otwierasz się między liniami. Kto jest szybszy do tej piłki — Ty czy obrońca?' },
-          6: { t: 'Jak często wygrywasz wyścig do piłki granej w przestrzeń za plecami obrońcy — docierasz do niej pierwszy, zanim on zdąży Cię odciąć?', ctx: 'To Twoja podstawowa broń — bieg w wolną przestrzeń. Kto jest szybszy na starcie do tej piłki?' },
+          5: { t: 'Jak często wygrywasz wyścig do piłki podanej między liniami obrony rywala — docierasz do niej pierwszy?', ctx: 'To moment kiedy odsłaniasz się między obroną a pomocą rywala. Zdążysz do piłki, zanim obrońca zareaguje?' },
+          6: { t: 'Jak często wygrywasz wyścig do piłki granej w przestrzeń za plecami obrońcy?', ctx: 'Podobnie jak sprint na 30 metrów — liczy się kto pierwszy dobiegnie, Ty czy obrońca.' },
           7: { t: 'Jak często po zmianie kierunku lub nagłym odejściu od obrońcy jesteś w stanie utrzymać lub powiększyć przewagę — obrońca nie dogania Cię i zostajesz przy piłce lub w lepszej pozycji?', ctx: 'Czy Twoje przyspieszenie po ruchu jest wystarczające żeby obrońca nie zdążył wrócić na właściwe miejsce?' },
         }
       },
@@ -1371,11 +1371,11 @@ const SEGS = [
         pos: {
           0: { t: 'Po obronie w jedną stronę, jeśli piłka wraca i wymaga natychmiastowej drugiej interwencji w innym kierunku — czy reagujesz z pełną mocą, czy tracisz cenny ułamek sekundy zanim zdołasz się ponownie ustawić?', ctx: 'Klasyczna sytuacja: obrona, odbita piłka, drugi strzał z innej strony. Czy druga interwencja jest tak samo mocna jak pierwsza?' },
           1: { t: 'Jak często gdy ruszasz w jedną stronę a napastnik nagle zmienia kierunek, jesteś w stanie z tego samego rozpędu skręcić w nową stronę z pełną mocą — bez zatrzymania i ponownego rozpędzania się?', ctx: 'To moment w którym napastnik zmienia kierunek żeby Cię zgubić. Czy Twoje ciało nadąża bez utraty mocy?' },
-          2: { t: 'Jak często gdy ruszasz do przodu we wsparciu ataku, a gra nagle się odwraca i musisz wracać w przeciwnym kierunku, robisz to z pełną mocą — bez zauważalnej straty tempa w pierwszych krokach powrotu?', ctx: 'Boczny obrońca ciągle zmienia kierunek między atakiem a obroną. Czy powrót jest tak samo szybki jak wyjście do przodu?' },
-          3: { t: 'Jak często po przechwyceniu piłki lub ustawieniu się w jedną stronę, a rywal natychmiast zmienia kierunek ataku, jesteś w stanie z tego samego rozpędu skręcić i zareagować z pełną mocą?', ctx: 'Gra się odwraca u Ciebie najszybciej ze wszystkich pozycji. Czy Twoje ciało nadąża za zmianą kierunku ataku bez utraty mocy?' },
+          2: { t: 'Jak często gdy ruszasz w jedną stronę, żeby przeciąć podanie lub zablokować rywala, a piłka nagle trafia w przeciwną stronę, jesteś w stanie z tego samego rozpędu skręcić i zareagować z pełną mocą?', ctx: 'To moment kiedy broniłeś w jedną stronę, a atak rywala przenosi się na drugą — czy Twoje ciało nadąża za tą zmianą bez utraty mocy?' },
+          3: { t: 'Jak często po ruchu w jedną stronę, gdy rywal nagle odwraca atak w drugą, jesteś w stanie skręcić i zareagować z pełną mocą?', ctx: 'Gra zmienia u Ciebie kierunek najczęściej ze wszystkich pozycji. Czy Twoje ciało nadąża za tymi zwrotami bez tracenia mocy?' },
           4: { t: 'Jak często gdy wchodzisz w pressing w jedną stronę a piłka ucieka w inną, zmieniasz kierunek biegu z pełną mocą — bez zauważalnego spadku tempa w pierwszych krokach nowego biegu?', ctx: 'Pressing rzadko idzie w prostej linii. Czy zmiana kierunku kosztuje Cię moc w pierwszych metrach?' },
-          5: { t: 'Po zwodzie lub przyjęciu w jedną stronę, jak często jesteś w stanie natychmiast eksplodować w przeciwnym kierunku z pełną mocą — żeby wejść w linię obrony zanim się przegrupuje?', ctx: 'To moment tuż po przyjęciu piłki. Czy druga eksplozja w nową stronę jest tak samo mocna jak pierwszy ruch?' },
-          6: { t: 'Po zwodzie lub zmianie kierunku przy piłce, jak często eksplodujesz w nową stronę z taką samą mocą jak przed zwodem — bez utraty tempa w pierwszych krokach?', ctx: 'To jest Twoje główne narzędzie w 1v1. Czy zwód naprawdę Cię przyspiesza, czy tylko zmienia kierunek bez zysku tempa?' },
+          5: { t: 'Po przyjęciu piłki w jedną stronę, jak często eksplodujesz w przeciwnym kierunku z taką samą mocą jak pierwszy ruch?', ctx: 'To moment tuż po przyjęciu piłki, gdy zmieniasz kierunek żeby zaatakować przestrzeń.' },
+          6: { t: 'Po zwodzie jak często eksplodujesz w nową stronę z taką samą mocą jak przed zwodem?', ctx: 'Zwód, który tylko zmienia kierunek bez przyspieszenia, nie daje Ci przewagi nad obrońcą.' },
           7: { t: 'Po zwodzie lub ruchu w jedną stronę, jak często jesteś w stanie natychmiast eksplodować w przeciwnym kierunku z taką samą mocą jak pierwszy ruch?', ctx: 'To moment tuż po zwodzie. Czy druga eksplozja w nową stronę jest tak samo mocna jak pierwsza?' },
         }
       },
@@ -1394,11 +1394,11 @@ const SEGS = [
         pos: {
           0: { t: 'Jak często pod koniec meczu Twoje interwencje są mniej precyzyjne niż na początku, a Twoja aktywność w kierowaniu obroną — ustawianie linii, komunikacja z zawodnikami, korygowanie ich pozycji — jest rzadsza lub mniej wyraźna?', ctx: 'Bramkarz nie biega po całym boisku, ale cały czas organizuje defensywę głosem i ustawieniem. Czy zmęczenie sprawia że robisz to rzadziej lub mniej wyraźnie?' },
           1: { t: 'Jak często pod koniec meczu Twoje wybicia i podania są mniej precyzyjne niż na początku, a wracasz na swoją pozycję lub domykasz przestrzeń wolniej — zostawiasz partnera bez asekuracji, bo fizycznie nie zdążysz?', ctx: 'Chodzi zarówno o jakość zagrań z piłką, jak i o pracę bez piłki — powroty, domykanie, asekurację partnera.' },
-          2: { t: 'Jak często pod koniec meczu Twoje dośrodkowania i wsparcie ataku są rzadsze lub mniej precyzyjne niż na początku, a powrót do obrony po stracie jest wolniejszy — bo fizycznie brakuje Ci sił żeby robić oba te zadania bez przerwy?', ctx: 'Boczny obrońca pracuje na całej długości boiska. Czy zmęczenie odbiera Ci zarówno atak, jak i powroty defensywne?' },
-          3: { t: 'Jak często pod koniec meczu Twoje przechwyty i asekuracja obrony są rzadsze lub mniej skuteczne niż na początku, a pokrycie przestrzeni przed obroną jest wolniejsze — nie z braku chęci, ale dlatego że fizycznie brakuje Ci sił?', ctx: 'Ty jesteś tarczą przed obroną. Czy zmęczenie sprawia że ta tarcza słabnie w końcówce?' },
+          2: { t: 'Jak często pod koniec meczu rzadziej wspierasz atak, a Twój powrót do obrony jest wolniejszy niż na początku?', ctx: 'Chodzi wyłącznie o zmęczenie fizyczne, nie o brak chęci — czy siły starczają Ci na obie te role do samego końca meczu?' },
+          3: { t: 'Jak często pod koniec meczu Twoje przechwyty są rzadsze, a pokrycie przestrzeni przed obroną wolniejsze niż na początku?', ctx: 'Chodzi wyłącznie o zmęczenie fizyczne, nie o spadek koncentracji — czy ciało nadąża za tą pracą do samego końca?' },
           4: { t: 'Jak często pod koniec meczu Twoje podania są mniej precyzyjne niż na początku, a przełączanie się między obroną a atakiem jest wolniejsze — zostajesz w jednej fazie gry zamiast wracać do pomocy w drugiej?', ctx: 'Pomocnik pracuje w obie strony boiska. Czy zmęczenie sprawia że słabnie zarówno jakość podań, jak i praca przejściowa?' },
-          5: { t: 'Jak często pod koniec meczu Twoje podania decydujące i wejścia w pole karne są rzadsze lub mniej precyzyjne niż na początku, a szukanie wolnej przestrzeni między liniami jest mniej częste — bo brakuje Ci sił żeby ciągle się tam odnajdywać?', ctx: 'Ty tworzysz najwięcej sytuacji bramkowych. Czy zmęczenie odbiera Ci tę kreatywność w końcówce?' },
-          6: { t: 'Jak często pod koniec meczu Twoje dryblingi i wbiegnięcia za plecy obrońcy są rzadsze lub wolniejsze niż na początku, a wracasz do defensywy wolniej — bo fizycznie brakuje Ci sił żeby robić to bez przerwy przez cały mecz?', ctx: 'Skrzydłowy żyje z powtarzalnych sprintów w obie strony. Czy zmęczenie odbiera Ci tempo tych sprintów w końcówce?' },
+          5: { t: 'Jak często pod koniec meczu Twoje ostatnie podanie przed strzałem jest mniej precyzyjne niż na początku?', ctx: 'Chodzi wyłącznie o zmęczenie fizyczne, nie o brak pomysłu — czy nogi wykonują to podanie tak samo dokładnie jak w 10. minucie?' },
+          6: { t: 'Jak często pod koniec meczu Twoje sprinty za plecy obrońcy są rzadsze lub wolniejsze niż na początku?', ctx: 'Chodzi wyłącznie o zmęczenie fizyczne, nie o brak chęci — czy ostatni sprint w 85. minucie jest tak samo szybki jak pierwszy?' },
           7: { t: 'Jak często pod koniec meczu Twoje przyjęcia i wykończenia akcji są mniej precyzyjne niż na początku, a rzadziej z własnej woli podejmujesz inicjatywę — wychodzisz do wysokiego pressingu, atakujesz przestrzeń, wybiegasz za linię — bo brakuje Ci sił żeby robić to bez przerwy?', ctx: 'Napastnik traci nie tylko jakość wykończenia, ale też chęć do działania z własnej inicjatywy — mniej prób pressingu, mniej wybiegania w przestrzeń, więcej czekania zamiast atakowania. Czy zmęczenie odbiera Ci tę inicjatywę?' },
         }
       },
@@ -1411,14 +1411,14 @@ const SEGS = [
         t: 'Niezależnie czy trenujesz siłowo na siłowni czy w ramach treningu drużynowego — jak często masz poczucie że jesteś fizycznie silniejszy niż większość zawodników na Twojej pozycji, z którymi trenujesz lub grasz?',
         ctx: 'Nie musisz znać liczb czy wyników — chodzi o odczuwalną różnicę.', dir: 1,
         pos: {
-          0: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni bramkarze z którymi trenujesz — w wyskoku, sile rzutu, sile odbicia?', ctx: 'Chodzi o Twoją bazę siłową jako bramkarza, nie o pojedynek z rywalem.' },
-          1: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni obrońcy z którymi trenujesz — w przysiadach, pracy nóg, sile górnej części ciała?', ctx: 'To pytanie o bazę siłową, nie o starcie z konkretnym napastnikiem.' },
-          2: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni boczni obrońcy z którymi trenujesz — w pojedynkach 1v1, sile nóg, wytrzymałości siłowej?', ctx: 'To pytanie o Twoją bazę siłową na tle innych bocznych obrońców, nie o starcie z konkretnym rywalem.' },
-          3: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni defensywni pomocnicy z którymi trenujesz — w starciach o piłkę, stabilności w kontakcie, sile górnej części ciała?', ctx: 'Porównanie do innych zawodników na tej samej, mocno kontaktowej pozycji.' },
-          4: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni pomocnicy z którymi trenujesz — w sile nóg, stabilności tułowia, sile górnej części ciała?', ctx: 'Porównanie do innych pomocników w pracy siłowej.' },
-          5: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni ofensywni pomocnicy z którymi trenujesz — w utrzymaniu piłki pod presją, sile nóg, stabilności tułowia?', ctx: 'To pytanie o Twoją bazę siłową na tle innych kreatywnych pomocników.' },
-          6: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni skrzydłowi z którymi trenujesz — w sile nóg, wytrzymałości na sprint, stabilności przy zwodach?', ctx: 'Porównanie do innych skrzydłowych w pracy siłowej.' },
-          7: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni napastnicy z którymi trenujesz — w sile nóg, sile górnej części ciała, stabilności w kontakcie?', ctx: 'To pytanie o Twoją bazę fizyczną na tle innych napastników.' },
+          0: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni bramkarze z którymi trenujesz lub grasz w lidze — w wyskoku, sile rzutu, sile odbicia?', ctx: 'Chodzi o Twoją bazę siłową jako bramkarza, nie o pojedynek z rywalem.' },
+          1: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni obrońcy z którymi trenujesz lub grasz w lidze — w przysiadach, pracy nóg, sile górnej części ciała?', ctx: 'To pytanie o bazę siłową, nie o starcie z konkretnym napastnikiem.' },
+          2: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni boczni obrońcy, z którymi trenujesz lub grasz w lidze?', ctx: 'Nie musisz znać liczb ani wyników testów — chodzi o to co czujesz w bezpośrednim starciu, czy to na treningu, czy w meczu z rywalem na tej samej pozycji.' },
+          3: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni defensywni pomocnicy, z którymi trenujesz lub grasz w lidze?', ctx: 'Ta pozycja żyje z bezpośredniego kontaktu w środku pola — stąd pytanie akurat o siłę, nie o inne cechy.' },
+          4: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni pomocnicy z którymi trenujesz lub grasz w lidze — w sile nóg, stabilności tułowia, sile górnej części ciała?', ctx: 'Porównanie do innych pomocników w pracy siłowej.' },
+          5: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni ofensywni pomocnicy, z którymi trenujesz lub grasz w lidze?', ctx: 'Nie musisz znać liczb ani wyników testów — chodzi o to co czujesz, gdy walczysz o piłkę, czy to na treningu, czy w meczu z rywalem na tej samej pozycji.' },
+          6: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni skrzydłowi, z którymi trenujesz lub grasz w lidze?', ctx: 'Nie musisz znać liczb ani wyników testów — chodzi o to co czujesz w starciu, czy to na treningu, czy w meczu z rywalem na tej samej pozycji.' },
+          7: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni napastnicy z którymi trenujesz lub grasz w lidze — w sile nóg, sile górnej części ciała, stabilności w kontakcie?', ctx: 'To pytanie o Twoją bazę fizyczną na tle innych napastników.' },
         }
       },
       {
@@ -1427,11 +1427,11 @@ const SEGS = [
         pos: {
           0: { t: 'Przy wyjściu na dośrodkowanie, gdy napastnik wchodzi barkiem żeby zablokować Twój skok — jak często wygrywasz tę walkę o pozycję i docierasz do piłki?', ctx: 'Chodzi o wynik starcia w powietrzu — kto zdobywa pozycję do gry piłką.' },
           1: { t: 'Gdy biegniesz ramię w ramię z napastnikiem do piłki dogrywanej w przestrzeń, a on napiera barkiem żeby Cię wypchnąć z toru biegu — jak często wygrywasz tę walkę o pozycję i docierasz do piłki pierwszy?', ctx: 'To klasyczna sytuacja wyścigu z kontaktem. Kto broni swojego miejsca w biegu?' },
-          2: { t: 'Gdy skrzydłowy rywala wchodzi barkiem żeby minąć Cię od zewnątrz lub wygrać pojedynek przy linii bocznej, jak często wygrywasz tę walkę o pozycję i nie dajesz się minąć?', ctx: 'To codzienna sytuacja na Twoim skrzydle. Kto wygrywa starcie bark w bark — Ty czy skrzydłowy?' },
-          3: { t: 'Gdy wchodzisz w starcie o piłkę z rywalem w środku pola — obaj napieracie barkiem o pozycję — jak często wygrywasz ten pojedynek i odzyskujesz piłkę?', ctx: 'To jest Twoje główne zadanie — wygrywać starcia w środku pola. Kto góruje w tym kontakcie?' },
+          2: { t: 'Gdy rywal na Twoim skrzydle wchodzi barkiem, żeby przejąć Twoje miejsce przy linii bocznej, jak często wygrywasz tę walkę o pozycję?', ctx: 'Masz tam najmniej przestrzeni ze wszystkich obrońców — linia boczna kończy boisko, więc nie możesz się cofnąć.' },
+          3: { t: 'Gdy walczysz barkiem o piłkę z rywalem w środku pola, jak często wygrywasz to starcie?', ctx: 'Liczy się kto góruje w kontakcie, niezależnie co dzieje się z piłką zaraz potem — to Twoje najczęstsze starcie w meczu.' },
           4: { t: 'Gdy przyjmujesz piłkę, a rywal wchodzi barkiem od tyłu żeby ją odebrać — jak często wygrywasz tę walkę o pozycję i zatrzymujesz piłkę przy sobie?', ctx: 'To codzienna sytuacja w środku pola. Kto wygrywa starcie o piłkę?' },
-          5: { t: 'Gdy przyjmujesz piłkę plecami lub bokiem do rywala, który napiera barkiem żeby Cię zepchnąć z pozycji, jak często wygrywasz tę walkę i utrzymujesz piłkę?', ctx: 'Grasz często pod presją z tyłu. Kto wygrywa nacisk w tej sytuacji?' },
-          6: { t: 'Gdy obrońca wchodzi barkiem żeby zablokować Twój zwód lub wypchnąć Cię z linii biegu, jak często wygrywasz tę walkę o pozycję i zachowujesz przewagę?', ctx: 'To bezpośrednio wpływa na skuteczność Twoich dryblingów. Kto wygrywa kontakt w tym momencie?' },
+          5: { t: 'Gdy przyjmujesz piłkę z rywalem tuż za plecami, który napiera barkiem, jak często wygrywasz tę walkę i utrzymujesz piłkę?', ctx: 'Nie widzisz tego kontaktu, bo rywal jest poza Twoim polem widzenia — musisz wygrać starcie, którego nie widzisz na oczy.' },
+          6: { t: 'Gdy próbujesz zwodu, a obrońca wchodzi barkiem, żeby Cię zablokować, jak często wygrywasz tę walkę o pozycję?', ctx: 'Obrońca broni się wtedy kontaktem, nie samym ustawieniem nóg — to inny rodzaj oporu niż przy czystym wyścigu.' },
           7: { t: 'Gdy stoisz plecami do bramki i czekasz na piłkę, a obrońca napiera od tyłu żeby nie dać Ci się obrócić — jak często wygrywasz tę walkę o pozycję i zdobywasz przestrzeń do gry przodem?', ctx: 'To bezpośrednio z fizyki pojedynku — kto wygrywa nacisk plecy w plecy.' },
         }
       },
@@ -1446,11 +1446,11 @@ const SEGS = [
         pos: {
           0: { t: 'Jak często Twoje podstawowe interwencje — chwyt, wybicie, rozegranie nogą w spokojnej sytuacji — wychodzą tak jak zamierzasz, gdy nie ma presji czasu ani rywala w polu karnym?', ctx: 'Czy w standardowych, niezbyt trudnych interwencjach Twoja technika jest niezawodna?' },
           1: { t: 'Jak często Twoje podstawowe zagrania — przyjęcie, podanie, wybicie — wychodzą tak jak zamierzasz, gdy masz czas i przestrzeń, bez rywala napierającego z bliska?', ctx: 'Chodzi o spokojne sytuacje w obronie.' },
-          2: { t: 'Jak często Twoje podstawowe zagrania — przyjęcie, długie podanie wzdłuż linii, dośrodkowanie — wychodzą tak jak zamierzasz, gdy masz czas i przestrzeń na swoim skrzydle?', ctx: 'Chodzi o spokojne sytuacje na Twoim boku boiska, bez rywala napierającego z bliska.' },
-          3: { t: 'Jak często Twoje podstawowe zagrania — przyjęcie pod presją niskiej intensywności, proste podanie rozpoczynające akcję — wychodzą tak jak zamierzasz, gdy masz chwilę czasu przed pressingiem rywala?', ctx: 'To pytanie o spokojne momenty rozpoczynania akcji z głębi pola.' },
+          2: { t: 'Jak często Twoje podanie wzdłuż linii lub dośrodkowanie wychodzi dokładnie tak jak chciałeś, gdy masz czas i nikt Cię nie goni?', ctx: 'Chodzi o Twoje najczęstsze zagranie na tej pozycji — czy w spokojnej sytuacji, bez rywala obok, wychodzi ono niezawodnie.' },
+          3: { t: 'Jak często Twoje pierwsze podanie po odbiorze piłki wychodzi dokładnie tak jak chciałeś, gdy masz chwilę czasu zanim rywal doskoczy?', ctx: 'Chodzi o spokojne momenty rozpoczynania akcji, zanim pressing rywala zdąży się zorganizować.' },
           4: { t: 'Jak często Twoje podstawowe zagrania — przyjęcie, podanie na krótki i średni dystans — wychodzą tak jak zamierzasz, gdy masz czas na decyzję i nikt nie naciska?', ctx: 'To pytanie o spokojne fragmenty gry w środku pola.' },
-          5: { t: 'Jak często Twoje podstawowe zagrania — przyjęcie między liniami, proste podanie — wychodzą tak jak zamierzasz, gdy masz chwilę czasu zanim obrońca zdąży doskoczyć?', ctx: 'To pytanie o spokojne fragmenty gry w strefach ofensywnych.' },
-          6: { t: 'Jak często Twoje podstawowe zagrania — przyjęcie przy linii bocznej, pierwsze podanie po odbiorze — wychodzą tak jak zamierzasz, gdy masz przestrzeń i czas na start?', ctx: 'Chodzi o spokojne momenty zanim zaczniesz akcję 1v1.' },
+          5: { t: 'Jak często Twoje przyjęcie piłki między liniami wychodzi dokładnie tak jak chciałeś, gdy masz chwilę czasu zanim obrońca doskoczy?', ctx: 'Chodzi o spokojne fragmenty gry w strefach ofensywnych, zanim presja się pojawi.' },
+          6: { t: 'Jak często Twoje przyjęcie piłki przy linii bocznej wychodzi dokładnie tak jak chciałeś, gdy masz przestrzeń przed sobą?', ctx: 'Chodzi o spokojny moment tuż przed rozpoczęciem akcji 1v1, zanim obrońca się zbliży.' },
           7: { t: 'Jak często Twoje podstawowe zagrania — przyjęcie, uderzenie, prowadzenie piłki — wychodzą tak jak zamierzasz, gdy masz przestrzeń i czas, bez obrońcy tuż przy Tobie?', ctx: 'Chodzi o spokojne momenty przy piłce.' },
         }
       },
@@ -1460,11 +1460,11 @@ const SEGS = [
         pos: {
           0: { t: 'Jak często Twoje interwencje wychodzą tak samo dobrze gdy w polu karnym jest tłok i presja czasu, jak w spokojnej sytuacji bez rywali w pobliżu?', ctx: 'Czy technika wtedy się rozpada, czy zostaje taka sama?' },
           1: { t: 'Jak często Twoje zagrania wychodzą tak samo dobrze gdy napastnik napiera z bliska i nie masz czasu, jak w spokojnej sytuacji z przestrzenią?', ctx: 'Czy technika z poprzedniej, spokojnej sytuacji przetrwa taki nacisk?' },
-          2: { t: 'Jak często Twoje przyjęcia i podania wychodzą tak samo dobrze gdy skrzydłowy rywala napiera z bliska i odcina Ci czas, jak w spokojnej sytuacji z przestrzenią?', ctx: 'Czy technika ze spokojnej sytuacji przetrwa presję na Twoim skrzydle?' },
-          3: { t: 'Jak często Twoje przyjęcia i podania wychodzą tak samo dobrze gdy jesteś pod natychmiastowym pressingiem po odbiorze piłki, jak wtedy gdy masz czas na decyzję?', ctx: 'To jest codzienność defensywnego pomocnika — odbiór i natychmiastowy pressing. Czy technika to wytrzymuje?' },
+          2: { t: 'Jak często Twoje przyjęcie wychodzi tak samo dobrze, gdy rywal jest tuż przy Tobie na Twoim skrzydle, jak w spokojnej sytuacji?', ctx: 'Przy linii bocznej masz mniej miejsca na błąd niż w środku pola — presja przychodzi tam szybciej i częściej.' },
+          3: { t: 'Jak często Twoje pierwsze podanie wychodzi tak samo dobrze pod natychmiastowym pressingiem, jak wtedy gdy masz czas na decyzję?', ctx: 'Odbiór piłki i błyskawiczny pressing rywala to Twoja codzienność — czy technika wtedy działa tak samo jak bez presji?' },
           4: { t: 'Jak często Twoje podania wychodzą tak samo dobrze gdy jesteś pod pressingiem i musisz zagrać szybko, jak wtedy gdy masz czas na decyzję?', ctx: 'Czy Twoja technika przetrwa pressing, czy się psuje?' },
-          5: { t: 'Jak często Twoje przyjęcia i podania wychodzą tak samo dobrze gdy grasz plecami do bramki z obrońcą tuż za Tobą, jak w spokojnej sytuacji przodem do gry?', ctx: 'Czy Twoja technika przetrwa grę pod presją z tyłu, którą często musisz znosić?' },
-          6: { t: 'Jak często Twoje przyjęcia i pierwsze podanie po zwodzie wychodzą tak samo dobrze gdy obrońca jest tuż przy Tobie, jak w sytuacji z przestrzenią do dryblingu?', ctx: 'Czy technika ze spokojnej sytuacji przetrwa bezpośredni kontakt z obrońcą?' },
+          5: { t: 'Jak często Twoje przyjęcie wychodzi tak samo dobrze, gdy grasz plecami do bramki z obrońcą tuż za Tobą, jak w spokojnej sytuacji przodem do gry?', ctx: 'To trudniejsza wersja tego samego zagrania — nie widzisz rywala i musisz przyjąć piłkę mimo to.' },
+          6: { t: 'Jak często Twoje przyjęcie i pierwszy ruch po nim wychodzą tak samo dobrze, gdy obrońca stoi tuż przy Tobie, jak w sytuacji z przestrzenią?', ctx: 'To Twoja najczęstsza sytuacja na boisku — starcie 1v1 przy linii bocznej, gdzie obrońca stoi bardzo blisko.' },
           7: { t: 'Jak często Twoje zagrania wychodzą tak samo dobrze gdy obrońca jest tuż przy Tobie i wywiera presję, jak wtedy gdy masz przestrzeń?', ctx: 'Czy technika ze spokojnej sytuacji przetrwa taki nacisk?' },
         }
       },
@@ -1479,11 +1479,11 @@ const SEGS = [
         pos: {
           0: { t: 'Jak często Twoje rozegranie — krótkie podanie, wyrzut, zagranie nogą — daje partnerowi tyle czasu, że może przyjąć piłkę i od razu podjąć decyzję bez presji rywala?', ctx: 'Czy Twoje rozegranie buduje przewagę, czy tylko oddaje piłkę?' },
           1: { t: 'Jak często Twoje podanie przełamuje lub omija linię pressingu rywala — piłka ląduje za rywalem który Cię pressuje, nie przed nim?', ctx: 'Czy Twoje zagrania przełamują pressing?' },
-          2: { t: 'Jak często Twoje dośrodkowanie lub podanie w pole karne daje partnerowi realną szansę na strzał lub przyjęcie z przewagą — zamiast trafiać prosto w obrońcę?', ctx: 'Czy Twoje dośrodkowania tworzą przewagę, czy tylko oddają piłkę w stronę bramki?' },
-          3: { t: 'Jak często po odzyskaniu piłki Twoje pierwsze podanie od razu wyprowadza drużynę z presji — partner dostaje piłkę z czasem na decyzję, zamiast być od razu pressowany?', ctx: 'Czy Twoje rozegranie po przechwycie buduje przewagę, czy tylko przekazuje problem dalej?' },
+          2: { t: 'Jak często Twoje dośrodkowanie lub podanie w pole karne daje partnerowi wyraźnie lepszą sytuację do strzału, niż gdybyś po prostu oddał piłkę w kierunku bramki?', ctx: 'Chodzi o różnicę między zagraniem które tworzy realną szansę a takim, które tylko przenosi piłkę w stronę bramki.' },
+          3: { t: 'Jak często Twoje pierwsze podanie po odzyskaniu piłki daje partnerowi więcej czasu na decyzję niż miałeś Ty?', ctx: 'To moment zaraz po przechwycie, gdy drużyna jeszcze nie jest ustawiona do ataku — Twoje podanie decyduje czy zyskujecie chwilę spokoju.' },
           4: { t: 'Jak często po Twoim zagraniu Twój partner dostaje się w sytuację 1v1 lub z wolną przestrzenią przed sobą — zamiast od razu znowu być pod presją?', ctx: 'Czy widzisz i wykorzystujesz momenty gdy rywal jest źle ustawiony?' },
-          5: { t: 'Jak często Twoje podanie ostatnie przed strzałem daje partnerowi realną sytuację bramkową — czysty strzał lub sytuację sam na sam, zamiast dogrania pod obrońcę?', ctx: 'To jest Twoje główne zadanie — kreować sytuacje bramkowe. Czy Twoje podania to naprawdę robią?' },
-          6: { t: 'Jak często po Twoim dryblingu lub zwodzie partner dostaje piłkę w sytuacji z wyraźną przewagą — wolne pole lub przewaga liczebna, zamiast wracać do punktu wyjścia?', ctx: 'Czy Twój drybling faktycznie tworzy coś dla drużyny, czy kończy się na Tobie?' },
+          5: { t: 'Jak często Twoje ostatnie podanie przed strzałem daje partnerowi więcej czasu i przestrzeni niż miałeś Ty?', ctx: 'To Twoje najważniejsze zagranie w meczu — ostatnie podanie przed próbą zdobycia bramki.' },
+          6: { t: 'Jak często po Twoim dryblingu partner dostaje piłkę w sytuacji z większą przestrzenią niż miałeś Ty przed zwodem?', ctx: 'Drybling udany technicznie i drybling który realnie coś zmienia dla drużyny to dwie różne rzeczy — pytanie dotyczy tej drugiej.' },
           7: { t: 'Jak często Twój ruch bez piłki — odejście, zmiana kierunku, wyjście za linię — otwiera przestrzeń którą Twój partner może natychmiast wykorzystać?', ctx: 'Czy Twoje ruchy bez piłki coś tworzą dla drużyny?' },
         }
       },
@@ -1493,11 +1493,11 @@ const SEGS = [
         pos: {
           0: { t: 'Jak często gdy masz możliwość mądrego rozegrania które buduje grę od tyłu, wybierasz zamiast niego dalekie wybicie — bo krótkie rozegranie wydaje Ci się zbyt ryzykowne?', ctx: 'Im rzadziej wybijasz zamiast rozgrywać, tym lepiej.' },
           1: { t: 'Jak często gdy możesz zagrać podanie które przełamałoby pressing, wybierasz zamiast niego bezpieczne odegranie wzdłuż linii lub z powrotem?', ctx: 'Im rzadziej grasz zachowawczo gdy jest lepsza opcja, tym lepiej.' },
-          2: { t: 'Jak często gdy masz możliwość zagrania ryzykownego podania do środka lub włączenia się do ataku, wybierasz zamiast tego bezpieczne, proste podanie wzdłuż linii?', ctx: 'Im rzadziej rezygnujesz z odważniejszej opcji ofensywnej, tym lepiej.' },
-          3: { t: 'Jak często gdy masz możliwość zagrania prostopadłego podania otwierającego atak, wybierasz zamiast tego bezpieczne podanie do boku lub do tyłu?', ctx: 'Im rzadziej wybierasz bezpieczne rozegranie kiedy jest lepsza opcja otwierająca grę, tym lepiej.' },
+          2: { t: 'Jak często zamiast włączyć się do ataku, zostajesz w tyle i wybierasz bezpieczne podanie wzdłuż linii?', ctx: 'Włączenie się do ataku niesie ryzyko że zabraknie Cię w obronie — pytanie czy to ryzyko Cię blokuje częściej niż powinno.' },
+          3: { t: 'Jak często zamiast zagrać podanie które otwiera atak drużyny, wybierasz bezpieczne podanie do tyłu?', ctx: 'To Twój najczęstszy wybór w meczu — rozpoczynasz akcje z głębi pola, więc ten moment powtarza się dziesiątki razy.' },
           4: { t: 'Jak często gdy masz możliwość zagrania trudnego podania za linię obrony lub na wychodzącego partnera, wybierasz zamiast niego proste podanie do bliższego partnera?', ctx: 'Im rzadziej rezygnujesz z trudnego podania gdy jest ono właściwym wyborem, tym lepiej.' },
-          5: { t: 'Jak często gdy masz okazję na ryzykowne podanie w linię obrony lub przyjęcie w trudnej pozycji między rywalami, wybierasz zamiast tego bezpieczne, boczne rozegranie?', ctx: 'Im rzadziej rezygnujesz z podania które realnie mogłoby otworzyć obronę rywala, tym lepiej.' },
-          6: { t: 'Jak często gdy masz okazję do dryblingu 1v1 lub podania za linię obrony, wybierasz zamiast tego bezpieczne cofnięcie piłki?', ctx: 'Im rzadziej rezygnujesz z próby 1v1 gdy masz realną szansę, tym lepiej.' },
+          5: { t: 'Jak często zamiast spróbować trudnego podania w linię obrony, wybierasz bezpieczne, boczne rozegranie?', ctx: 'Trudne podanie w linię obrony częściej kończy się stratą piłki niż proste boczne granie — pytanie czy to ryzyko Cię powstrzymuje nawet gdy jest uzasadnione.' },
+          6: { t: 'Jak często zamiast spróbować dryblingu 1v1, cofasz piłkę do partnera?', ctx: 'Nieudany drybling często kończy się stratą piłki w niebezpiecznym miejscu — pytanie czy ten strach przed stratą trzyma Cię z dala od Twojego najmocniejszego atutu.' },
           7: { t: 'Jak często gdy masz okazję do strzału lub ryzykownego dryblingu, wybierasz zamiast niego odegranie piłki bo boisz się błędu?', ctx: 'Im rzadziej rezygnujesz z odważnej akcji gdy naprawdę masz szansę, tym lepiej.' },
         }
       },
@@ -2209,6 +2209,10 @@ function updateAgeFromYear(yearStr) {
   if (parentWrap) {
     parentWrap.style.display = age < 16 ? 'block' : 'none';
   }
+
+  // Odblokuj kolejną sekcję (treningi z drużyną) — bez tego progresja
+  // zatrzymywała się na wieku dopóki użytkownik nie kliknął czegoś innego.
+  setTimeout(ctxProgress, 50);
 }
 
 // Kolejność sekcji kontekstu
@@ -2400,6 +2404,7 @@ let cachedScores = null;
 let playerEmail = null;
 let playerHistory = [];
 let teamCode = null;
+let affiliateCode = null; // kod partnera polecającego (?ref=... w URL), zapisywany do każdego rekordu diagnostics
 let playerName = null;
 let hasPaidAccess = false; // false = bramka aktywna
 
@@ -4034,6 +4039,21 @@ function handleProductPurchaseReturn(productId) {
 window.addEventListener('load', () => {
   const urlParams = new URLSearchParams(window.location.search);
 
+  // Kod partnera polecającego — zapisywany raz przy wejściu z linku, trzyma się
+  // w localStorage przez cały proces (także po przekierowaniu do Stripe i z powrotem),
+  // żeby trafił do rekordu diagnostics niezależnie od tego kiedy zawodnik faktycznie
+  // wypełni ankietę lub dokona zakupu.
+  const refParam = urlParams.get('ref');
+  if (refParam) {
+    affiliateCode = refParam.toUpperCase();
+    try { localStorage.setItem('gc_affiliate_code', affiliateCode); } catch(e) {}
+  } else {
+    try {
+      const savedRef = localStorage.getItem('gc_affiliate_code');
+      if (savedRef) affiliateCode = savedRef;
+    } catch(e) {}
+  }
+
   // Rejestracja trenera
   if (urlParams.get('register') === 'coach') {
     showScreen('screen-coach-register');
@@ -4156,6 +4176,7 @@ function buildDiagnosticsRecord(extras = {}) {
       : null,
     email: playerEmail || extras.email || null,
     team_code: teamCode || null,
+    affiliate_code: affiliateCode || null,
     player_name: playerName || null,
     ...extras
   };
