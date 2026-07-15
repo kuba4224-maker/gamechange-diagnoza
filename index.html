@@ -223,6 +223,9 @@ body {
 }
 @media (max-width: 360px) {
   .scale-btn { height: 52px; }
+  .survey-top-logo { min-width: 0; font-size: 11px; }
+  .progress-info { min-width: 0; }
+  .survey-top { gap: 12px; padding: 0 16px; }
 }
 
 /* ── LOADING ── */
@@ -978,8 +981,8 @@ body {
 
       <!-- Email rodzica — pojawia się automatycznie gdy zawodnik ma < 16 lat -->
       <div id="parent-email-wrap" style="display:none;margin-bottom:32px;padding:20px;background:#fff8f0;border:1px solid #e8c87a;">
-        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:6px;font-weight:500;">Email rodzica lub opiekuna</div>
-        <p style="font-size:12px;color:#9a9488;font-weight:300;margin-bottom:12px;line-height:1.6;">Twój rodzic dostanie osobny raport — napisany dla niego, nie dla Ciebie. Zobaczy w czym jesteś dobry i co może zrobić żeby Ci pomóc. Możesz pominąć.</p>
+        <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:6px;font-weight:500;">Email rodzica lub opiekuna (opcjonalnie)</div>
+        <p style="font-size:12px;color:#9a9488;font-weight:300;margin-bottom:12px;line-height:1.6;">Jeśli podasz email rodzica lub opiekuna, dostanie osobny raport — napisany dla niego, nie dla Ciebie. Zobaczy w czym jesteś dobry i co może zrobić żeby Ci pomóc. Możesz to pominąć.</p>
         <input id="parent-email-input" type="email" placeholder="email@rodzica.pl"
           style="width:100%;padding:12px 16px;border:1px solid #d8d3c8;background:#fff;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;"
           onfocus="this.style.borderColor='#0e0d0b'"
@@ -1074,6 +1077,10 @@ body {
     <div class="survey-top-logo" id="survey-mode-label">Gamechange System</div>
     <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
     <div class="progress-info" id="prog-info">0%</div>
+    <a id="survey-report-bug-link" href="#" target="_blank" rel="noopener"
+      style="font-size:11px;color:#9a9488;text-decoration:underline;text-underline-offset:2px;white-space:nowrap;flex-shrink:0;">
+      Zgłoś błąd
+    </a>
   </div>
   <div style="max-width:680px;margin:0 auto;padding:24px 24px 0;border-bottom:1px solid #d8d3c8;margin-bottom:0;">
     <p style="font-size:13px;color:#9a9488;font-weight:300;line-height:1.7;padding-bottom:20px;">
@@ -2208,10 +2215,13 @@ function updateAgeFromYear(yearStr) {
   document.getElementById('age-label').textContent = label;
   document.getElementById('ctx-error').style.display = 'none';
 
-  // Pokaż pole email rodzica dla juniorów < 16 lat
+  // Pokaż pole email rodzica dla wszystkich wieków — to jest opcjonalne pole
+  // (można pominąć), a raport dla rodzica zawiera też CTA do zakupu programu,
+  // więc ograniczanie go tylko do młodszych zawodników niepotrzebnie zawężało
+  // główny kanał, przez który rodzic w ogóle dowiaduje się o ofercie.
   const parentWrap = document.getElementById('parent-email-wrap');
   if (parentWrap) {
-    parentWrap.style.display = age < 16 ? 'block' : 'none';
+    parentWrap.style.display = 'block';
   }
 
   // Odblokuj kolejną sekcję (treningi z drużyną) — bez tego progresja
@@ -2415,6 +2425,12 @@ let hasPaidAccess = false; // false = bramka aktywna
 // Kody bezpłatnego dostępu dla klubów i trenerów
 const FREE_ACCESS_CODES = ['GAMECHANGE', 'TRENER', 'PILOT', 'GAMECHANGE2025', 'LEGIA2025', 'PARASOL'];
 
+// Kody drużyn dla których sekcja produktowa (propozycja zakupu programu 97 zł)
+// jest całkowicie wyłączona — pilotaż w czystej formie "wszystko za darmo w
+// zamian za feedback", bez mieszania z testem skłonności do zakupu.
+// Rozszerzaj tę listę przy kolejnych pilotażach, jeśli mają być bezpłatne.
+const PILOT_NO_SALES_CODES = ['PARASOL'];
+
 // ======================================
 //  SURVEY RENDER
 // ======================================
@@ -2492,6 +2508,7 @@ function renderAllQuestions() {
   });
   body.innerHTML = html;
 
+  updateSurveyReportBugLink();
   updateProgressScroll();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -5491,34 +5508,61 @@ function renderResults(scores) {
 }
 
 /**
- * Buduje link WhatsApp z gotowym szablonem wiadomości do zgłaszania błędów.
- * NUMER_WHATSAPP poniżej to placeholder — podmień na prawdziwy numer w formacie
- * międzynarodowym bez plusa i spacji (np. 48600000000) przed wdrożeniem.
- * Treść wiadomości zawiera kontekst (pozycja, scenariusz diagnozy) żeby zgłoszenie
- * dało się od razu zdiagnozować bez dopytywania zawodnika co dokładnie widział.
+ * Buduje URL WhatsApp z gotowym szablonem wiadomości do zgłaszania błędów.
+ * Jedna, wspólna funkcja używana we wszystkich miejscach z przyciskiem
+ * "Zgłoś błąd" (ankieta, wyniki, panel trenera, raport rodzica) — numer
+ * telefonu i struktura wiadomości utrzymywane w jednym miejscu.
  */
-function updateReportBugLink(scenario, positionProfile) {
-  const NUMER_WHATSAPP = '48698999707';
-  const link = document.getElementById('report-bug-link');
-  if (!link) return;
-
-  const posLabel = positionProfile ? positionProfile.name : (ctx.pos !== null ? CTX_LABELS.pos[ctx.pos] : 'nie podano');
-  const scenarioLabel = scenario === 1 ? 'wykryty deficyt' : scenario === 2 ? 'profil wyrównany + pozycja' : 'brak danych';
-
+const NUMER_WHATSAPP_ZGLOSZENIA = '48698999707';
+function buildBugReportUrl(contextLine) {
   const template = [
     'Cześć, znalazłem błąd w Gamechange.',
     '',
     '[Opisz w 1-2 zdaniach co jest nie tak i dołącz screenshot]',
     '',
-    `— kontekst: pozycja ${posLabel}, scenariusz ${scenarioLabel}`,
+    `— kontekst: ${contextLine}`,
   ].join('\n');
+  return `https://wa.me/${NUMER_WHATSAPP_ZGLOSZENIA}?text=${encodeURIComponent(template)}`;
+}
 
-  link.href = `https://wa.me/${NUMER_WHATSAPP}?text=${encodeURIComponent(template)}`;
+/**
+ * Aktualizuje link zgłoszenia błędu na ekranie wyników — kontekst zawiera
+ * pozycję i scenariusz diagnozy, żeby zgłoszenie dało się od razu
+ * zdiagnozować bez dopytywania zawodnika co dokładnie widział.
+ */
+function updateReportBugLink(scenario, positionProfile) {
+  const link = document.getElementById('report-bug-link');
+  if (!link) return;
+
+  const posLabel = positionProfile ? positionProfile.name : (ctx.pos !== null ? CTX_LABELS.pos[ctx.pos] : 'nie podano');
+  const scenarioLabel = scenario === 1 ? 'wykryty deficyt' : scenario === 2 ? 'profil wyrównany + pozycja' : 'brak danych';
+  link.href = buildBugReportUrl(`ekran wyników, pozycja ${posLabel}, scenariusz ${scenarioLabel}`);
+}
+
+/**
+ * Aktualizuje link zgłoszenia błędu widoczny podczas wypełniania ankiety
+ * (sticky pasek na górze — zawsze widoczny niezależnie od tego, przy
+ * którym z 27 pytań zawodnik akurat jest, w przeciwieństwie do linku
+ * na ekranie wyników który jest dostępny dopiero po ukończeniu ankiety).
+ */
+function updateSurveyReportBugLink() {
+  const link = document.getElementById('survey-report-bug-link');
+  if (!link) return;
+  const posLabel = ctx.pos !== null ? CTX_LABELS.pos[ctx.pos] : 'nie podano';
+  const mode = isJunior ? 'junior' : 'senior';
+  link.href = buildBugReportUrl(`w trakcie ankiety (${mode}), pozycja ${posLabel}`);
 }
 
 function renderProduct(scores) {
-  let deficits = getRelativeDeficits(scores, 3);
   const pw = document.getElementById('product-wrap');
+
+  // Pilotaż bez elementów sprzedażowych — sekcja produktowa całkowicie pominięta
+  if (teamCode && PILOT_NO_SALES_CODES.includes(teamCode)) {
+    pw.innerHTML = '';
+    return;
+  }
+
+  let deficits = getRelativeDeficits(scores, 3);
 
   // Scenariusz 2: brak względnego deficytu, ale mamy kartę pozycyjną —
   // rekomendujemy segment KLUCZOWY dla tej roli zamiast pokazywać pustkę.
