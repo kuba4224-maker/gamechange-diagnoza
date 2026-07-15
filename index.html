@@ -1336,8 +1336,12 @@ body {
       </div>
     </div>
 
-    <div class="restart-wrap">
+    <div class="restart-wrap" style="display:flex;gap:20px;justify-content:center;align-items:center;flex-wrap:wrap;">
       <button class="btn-restart" onclick="restart()">Wypełnij ankietę ponownie</button>
+      <a id="report-bug-link" href="#" target="_blank" rel="noopener"
+        style="font-size:13px;color:#9a9488;text-decoration:underline;text-underline-offset:3px;">
+        Coś tu nie działa? Zgłoś błąd →
+      </a>
     </div>
 
   </div>
@@ -2409,7 +2413,7 @@ let playerName = null;
 let hasPaidAccess = false; // false = bramka aktywna
 
 // Kody bezpłatnego dostępu dla klubów i trenerów
-const FREE_ACCESS_CODES = ['GAMECHANGE', 'TRENER', 'PILOT', 'GAMECHANGE2025', 'LEGIA2025'];
+const FREE_ACCESS_CODES = ['GAMECHANGE', 'TRENER', 'PILOT', 'GAMECHANGE2025', 'LEGIA2025', 'PARASOL'];
 
 // ======================================
 //  SURVEY RENDER
@@ -3005,7 +3009,7 @@ async function loadTeamView(code) {
   showScreen('screen-team');
 
   // Weryfikuj kod — sprawdź zarówno hardcoded jak i dynamiczne z Supabase
-  const STATIC_CODES = ['GAMECHANGE', 'TRENER', 'PILOT', 'GAMECHANGE2025', 'LEGIA2025', 'MOCK'];
+  const STATIC_CODES = ['GAMECHANGE', 'TRENER', 'PILOT', 'GAMECHANGE2025', 'LEGIA2025', 'MOCK', 'PARASOL'];
   if (!STATIC_CODES.includes(code)) {
     try {
       const codeCheck = await fetch(
@@ -3940,7 +3944,13 @@ function downloadTeamPDF() {
 // ======================================
 function saveResultsToURL(scores) {
   try {
-    const data = { s: scores, j: isJunior ? 1 : 0, c: ctx };
+    const data = {
+      s: scores,
+      j: isJunior ? 1 : 0,
+      c: ctx,
+      d: _diagState.diagnosisText || '',   // surowa diagnoza AI, do pełnego odtworzenia przy powrocie
+      td: _diagState.topDeficitIds || [],  // do odtworzenia sekcji produktowej
+    };
     const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
     history.replaceState(null, '', '#' + encoded);
   } catch(e) {}
@@ -3960,8 +3970,74 @@ function loadResultsFromURL() {
     setTimeout(() => {
       document.querySelectorAll('.bar-fill, .seg-group-bar-fill').forEach(b => { b.style.width = b.dataset.w + '%'; });
     }, 100);
+
+    // Jeśli link zawiera pełną diagnozę (wygenerowaną wcześniej) — odtwórz ją
+    // od razu, w trybie tylko-do-odczytu, bez ponownego wywołania AI.
+    if (data.d) {
+      _diagState.diagnosisText = data.d;
+      _diagState.topDeficitIds = data.td || [];
+      document.getElementById('diagnosis-blur-wrap').style.filter = 'none';
+      document.getElementById('diagnosis-blur-wrap').style.pointerEvents = 'auto';
+      document.getElementById('diagnosis-unlocked-note').style.display = 'block';
+      const emailGateBox = document.getElementById('email-gate-box');
+      if (emailGateBox) emailGateBox.style.display = 'none';
+      renderDiagnosisV2Readonly(data.d, cachedScores);
+      _showProductSection(cachedScores);
+    }
     return true;
   } catch(e) { return false; }
+}
+
+/**
+ * Wersja renderDiagnosisV2 do odtwarzania zapisanej diagnozy przy powrocie
+ * z linku — pomija pytanie zakotwiczające i zbieranie feedbacku (to są
+ * jednorazowe interakcje powiązane z pierwszym wypełnieniem ankiety, nie
+ * mają sensu przy każdorazowym powrocie do tego samego wyniku).
+ */
+function renderDiagnosisV2Readonly(raw, scores) {
+  const get = (tag) => {
+    const m = raw.match(new RegExp(`\\[${tag}\\]([\\s\\S]*?)(?=\\[|$)`));
+    return m ? m[1].trim() : '';
+  };
+  const sytuacja  = get('SYTUACJA');
+  const mechanizm = get('MECHANIZM');
+  const jakWidac  = get('JAK TO WIDAC');
+  const gdyBedzie = get('JAK SIE ZMIENI GRA');
+  const kierunek  = get('KIERUNEK');
+
+  const el = document.getElementById('ai-diagnosis-text');
+  let html = '';
+  if (sytuacja) html += `<p style="font-size:15px;color:#3a3830;line-height:1.9;font-weight:300;margin-bottom:24px;">${sytuacja}</p>`;
+  if (mechanizm) html += `
+    <div style="margin-bottom:24px;">
+      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:10px;">Dlaczego tak jest</div>
+      <p style="font-size:14px;color:#3a3830;line-height:1.85;font-weight:300;margin:0;">${mechanizm}</p>
+    </div>`;
+  if (jakWidac) {
+    const sytuacje = jakWidac.split('\n').map(s => s.trim()).filter(s => s.length > 10);
+    if (sytuacje.length) {
+      html += `
+        <div style="margin-bottom:24px;">
+          <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Jak może wyglądać w Twojej grze</div>
+          ${sytuacje.map(s => `
+            <div style="display:flex;gap:12px;margin-bottom:10px;align-items:flex-start;">
+              <div style="width:4px;height:4px;border-radius:50%;background:#d8d3c8;flex-shrink:0;margin-top:9px;"></div>
+              <div style="font-size:14px;color:#3a3830;line-height:1.75;font-weight:300;">${s.replace(/^[-–•]\s*/,'')}</div>
+            </div>`).join('')}
+        </div>`;
+    }
+  }
+  if (gdyBedzie) html += `
+    <div style="margin-bottom:24px;padding:20px 24px;background:#f5f2ec;border-left:3px solid #0e0d0b;">
+      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:10px;">Jak może się zmienić Twoja gra, jeśli to poprawisz</div>
+      <p style="font-size:14px;color:#0e0d0b;line-height:1.85;font-weight:400;margin:0;">${gdyBedzie}</p>
+    </div>`;
+  if (kierunek) html += `
+    <div style="margin-bottom:8px;">
+      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;">Nad czym powinieneś pracować</div>
+      <p style="font-size:14px;color:#3a3830;line-height:1.8;font-weight:300;margin:0;">${kierunek}</p>
+    </div>`;
+  el.innerHTML = html;
 }
 
 function buyProduct(productId, stripeLink) {
@@ -4700,13 +4776,14 @@ FORMAT ODPOWIEDZI (zachowaj dokładnie te znaczniki). TREŚĆ KAŻDEJ SEKCJI ZAL
     const response = await fetch('/api/diagnose', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, maxTokens: 1800 })
+      body: JSON.stringify({ prompt, maxTokens: 2400 })
     });
     const data = await response.json();
     const raw = data.content?.filter(c => c.type === 'text').map(c => c.text || '').join('') || '';
     if (raw && raw.includes('[SYTUACJA]')) {
       _diagState.diagnosisText = raw;
       renderDiagnosisV2(raw, scores, deficitsData);
+      saveResultsToURL(scores); // zapisz ponownie — teraz z pełną diagnozą, żeby link do wyników ją zawierał
       // Wyślij raport do rodzica jeśli podano email
       if (window._parentEmail && playerEmail) {
         sendParentReport({ email: playerEmail }, window._parentEmail);
@@ -4815,14 +4892,22 @@ function renderDiagnosisV2(raw, scores, deficitsData) {
   // Feedback od razu po diagnozie
   document.getElementById('feedback-wrap').style.display = 'block';
 
-  // Pytanie zakotwiczające — zawsze z opóźnieniem
-  if (pytanie) {
+  // Pytanie zakotwiczające — pokazujemy tylko jeśli jest KOMPLETNYM zdaniem.
+  // Zabezpieczenie przed sytuacją gdy [PYTANIE] (ostatnia sekcja odpowiedzi AI)
+  // zostaje ucięte przez limit tokenów w połowie zdania — bez tej walidacji
+  // taki urwany tekst trafiał wprost na ekran zawodnika.
+  const isPytanieComplete = pytanie
+    && pytanie.length >= 10
+    && /[?.!]\s*$/.test(pytanie.trim());
+
+  if (isPytanieComplete) {
     setTimeout(() => {
       document.getElementById('anchor-question-text').textContent = pytanie;
       document.getElementById('anchor-question-wrap').style.display = 'block';
       document.getElementById('anchor-question-wrap').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, 800);
   } else {
+    if (pytanie) console.warn('Call 2: pytanie zakotwiczające wygląda na ucięte, pomijam:', pytanie);
     // Bez pytania — Call 3 bez historii
     generateBridge('');
   }
@@ -5401,6 +5486,34 @@ function renderResults(scores) {
 
   // Product — renderowane dopiero po odblokowaniu emailem
   document.getElementById('product-wrap').innerHTML = '';
+
+  updateReportBugLink(scenario, positionProfile);
+}
+
+/**
+ * Buduje link WhatsApp z gotowym szablonem wiadomości do zgłaszania błędów.
+ * NUMER_WHATSAPP poniżej to placeholder — podmień na prawdziwy numer w formacie
+ * międzynarodowym bez plusa i spacji (np. 48600000000) przed wdrożeniem.
+ * Treść wiadomości zawiera kontekst (pozycja, scenariusz diagnozy) żeby zgłoszenie
+ * dało się od razu zdiagnozować bez dopytywania zawodnika co dokładnie widział.
+ */
+function updateReportBugLink(scenario, positionProfile) {
+  const NUMER_WHATSAPP = '48698999707';
+  const link = document.getElementById('report-bug-link');
+  if (!link) return;
+
+  const posLabel = positionProfile ? positionProfile.name : (ctx.pos !== null ? CTX_LABELS.pos[ctx.pos] : 'nie podano');
+  const scenarioLabel = scenario === 1 ? 'wykryty deficyt' : scenario === 2 ? 'profil wyrównany + pozycja' : 'brak danych';
+
+  const template = [
+    'Cześć, znalazłem błąd w Gamechange.',
+    '',
+    '[Opisz w 1-2 zdaniach co jest nie tak i dołącz screenshot]',
+    '',
+    `— kontekst: pozycja ${posLabel}, scenariusz ${scenarioLabel}`,
+  ].join('\n');
+
+  link.href = `https://wa.me/${NUMER_WHATSAPP}?text=${encodeURIComponent(template)}`;
 }
 
 function renderProduct(scores) {
@@ -6210,6 +6323,13 @@ function restart() {
     <div style="max-width:680px;margin:0 auto;padding:32px 24px;" id="parent-content">
       <div style="padding:48px;text-align:center;color:#9a9488;">Ładowanie raportu...</div>
     </div>
+    <div style="max-width:680px;margin:0 auto;padding:0 24px 32px;text-align:center;">
+      <a href="https://wa.me/48698999707?text=Cze%C5%9B%C4%87%2C%20mam%20uwag%C4%99%20do%20raportu%20dla%20rodzica%20w%20Gamechange.%0A%0A%5BOpisz%20co%20jest%20nie%20tak%20i%20do%C5%82%C4%85cz%20screenshot%5D"
+        target="_blank" rel="noopener"
+        style="font-size:13px;color:#9a9488;text-decoration:underline;text-underline-offset:3px;">
+        Coś tu nie działa? Zgłoś błąd →
+      </a>
+    </div>
   </div>
 </div>
 
@@ -6228,6 +6348,11 @@ function restart() {
         style="background:transparent;border:1px solid rgba(255,255,255,0.25);color:rgba(255,255,255,0.7);padding:12px 24px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:0.1em;cursor:pointer;margin-left:8px;">
         ✉ Wyślij raport feedbacków
       </button>
+      <a href="https://wa.me/48698999707?text=Cze%C5%9B%C4%87%2C%20mam%20uwag%C4%99%20do%20panelu%20trenera%20Gamechange.%0A%0A%5BOpisz%20co%20jest%20nie%20tak%20i%20do%C5%82%C4%85cz%20screenshot%5D"
+        target="_blank" rel="noopener"
+        style="display:inline-block;color:rgba(255,255,255,0.4);padding:12px 16px;font-size:13px;text-decoration:underline;text-underline-offset:3px;margin-left:8px;">
+        Zgłoś błąd →
+      </a>
     </div>
 
     <div style="max-width:960px;margin:0 auto;padding:32px 24px;">
