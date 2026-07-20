@@ -673,14 +673,6 @@ body {
 .char-counter { font-size: 11px; color: #c8c4bc; text-align: right; margin-top: 4px; transition: color 0.2s; }
 .char-counter.good { color: #2a7a3a; }
 
-.survey-progress-bar { height: 3px; background: #e8e4dd; border-radius: 2px; margin-bottom: 28px; }
-.survey-progress-fill { height: 100%; background: #E8432D; border-radius: 2px; transition: width 0.5s ease; width: 0%; }
-
-.survey-q-wrap { transition: opacity 0.25s ease; }
-.survey-q-wrap.q-past { opacity: 0.45; }
-.survey-q-wrap.q-active { opacity: 1; }
-.survey-q-wrap.q-future { opacity: 0.45; }
-
 </style>
 </head>
 <body>
@@ -1290,7 +1282,7 @@ body {
     <div id="player-card-wrap" style="display:none;margin-top:40px;border-top:1px solid #d8d3c8;padding-top:32px;">
       <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;">Twoja karta zawodnika</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.02em;margin-bottom:8px;color:#0e0d0b;">Pobierz i pokaż znajomym</div>
-      <p style="font-size:13px;color:#9a9488;font-weight:300;line-height:1.7;margin-bottom:20px;">Twój pełny profil diagnostyczny w formacie karty — 13 obszarów, jeden wynik, jeden obraz.</p>
+      <p style="font-size:13px;color:#9a9488;font-weight:300;line-height:1.7;margin-bottom:20px;">Twoja karta uczestnictwa w systemie Gamechange — z Twoim imieniem i kształtem profilu, gotowa do udostępnienia.</p>
 
       <div style="margin-bottom:16px;">
         <label style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#3a3830;display:block;margin-bottom:8px;font-weight:500;">Twoje imię lub pseudonim na karcie</label>
@@ -1309,6 +1301,21 @@ body {
       <button onclick="downloadPlayerCard()"
         style="background:#0e0d0b;color:#f5f2ec;border:none;padding:14px 32px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:0.1em;cursor:pointer;display:inline-flex;align-items:center;gap:10px;">
         ↓ Pobierz kartę
+      </button>
+      <div style="font-size:12px;color:#9a9488;margin-top:8px;font-weight:300;">JPG · Gotowy do wrzucenia na Stories</div>
+    </div>
+
+    <div id="insight-card-wrap" style="display:none;margin-top:40px;border-top:1px solid #d8d3c8;padding-top:32px;">
+      <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;">Coś o Twojej grze</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.02em;margin-bottom:8px;color:#0e0d0b;">Warte pokazania</div>
+      <p style="font-size:13px;color:#9a9488;font-weight:300;line-height:1.7;margin-bottom:20px;" id="insight-card-desc">Jedna konkretna, mocna rzecz z Twojego profilu — gotowa do udostępnienia.</p>
+
+      <canvas id="insight-card-canvas" width="480" height="600"
+        style="display:block;max-width:280px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,0.18);"></canvas>
+
+      <button onclick="downloadInsightCard()"
+        style="background:#0e0d0b;color:#f5f2ec;border:none;padding:14px 32px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:0.1em;cursor:pointer;display:inline-flex;align-items:center;gap:10px;">
+        ↓ Pobierz
       </button>
       <div style="font-size:12px;color:#9a9488;margin-top:8px;font-weight:300;">JPG · Gotowy do wrzucenia na Stories</div>
     </div>
@@ -1363,31 +1370,31 @@ const SEGS = [
     id: 'moc', name: 'MOC', pillar: 'Filar 1 — Dominacja fizyczna', n: '01',
     qs: [
       {
-        t: 'Jak często wygrywasz wyścig do piłki z rywalem — docierasz do niej pierwszy zanim on zdąży Cię odciąć lub uprzedzić?',
-        ctx: 'Porównaj się do rywala — kto jest szybszy na starcie i kto przegrywa wyścig?', dir: 1,
+        t: 'Jak często wygrywasz wyścig do piłki z rywalem i docierasz do niej jako pierwszy?',
+        ctx: 'Porównaj się z rywalem. Kto częściej dociera do piłki jako pierwszy?', dir: 1,
         pos: {
-          0: { t: 'Jak często przy wyjściu do piłki — dośrodkowanie, wolny lub podanie za linię — docierasz do niej tak szybko, że zamykasz rywalowi drogę?', ctx: 'Czy Twoje wyjście jest na tyle szybkie, że rywal traci szansę zanim dotrze do piłki?' },
-          1: { t: 'Jak często po tym jak napastnik zmienia kierunek lub zrywa się do biegu, odrabiasz stratę i wracasz do optymalnej pozycji defensywnej zanim on zagrozi?', ctx: 'Czy Twoja szybkość reakcji pozwala Ci utrzymać właściwe ustawienie mimo ruchu napastnika?' },
-          2: { t: 'Jak często wygrywasz wyścig do piłki granej w Twój korytarz przy linii bocznej — docierasz do niej pierwszy?', ctx: 'Np. długie dośrodkowanie lub podanie za linię obrony na Twoją stronę boiska. Kto pierwszy dobiega do takiej piłki?' },
-          3: { t: 'Jak często docierasz pierwszy do luźnej piłki tuż przed polem karnym, zanim zdąży do niej rywal?', ctx: 'To Twoja strefa — piłka odbita, pogubiona, niczyja. Liczy się kto pierwszy ją zabierze.' },
-          4: { t: 'Jak często w pressingu Twoje tempo dobiegnięcia jest na tyle duże, że rywal odczuwa realną presję — spieszy się, popełnia błąd lub wybiera gorsze zagranie?', ctx: 'Pressing działa gdy rywal czuje że nie ma czasu. Czy Twoje tempo mu to odbiera?' },
-          5: { t: 'Jak często wygrywasz wyścig do piłki podanej między liniami obrony rywala — docierasz do niej pierwszy?', ctx: 'To moment kiedy odsłaniasz się między obroną a pomocą rywala. Zdążysz do piłki, zanim obrońca zareaguje?' },
-          6: { t: 'Jak często wygrywasz wyścig do piłki granej w przestrzeń za plecami obrońcy?', ctx: 'Podobnie jak sprint na 30 metrów — liczy się kto pierwszy dobiegnie, Ty czy obrońca.' },
-          7: { t: 'Jak często po zmianie kierunku lub nagłym odejściu od obrońcy jesteś w stanie utrzymać lub powiększyć przewagę — obrońca nie dogania Cię i zostajesz przy piłce lub w lepszej pozycji?', ctx: 'Czy Twoje przyspieszenie po ruchu jest wystarczające żeby obrońca nie zdążył wrócić na właściwe miejsce?' },
+          0: { t: 'Jak często przy wyjściu do piłki (po dośrodkowaniu, rzucie wolnym lub podaniu za linię obrony) docierasz do niej przed rywalem?', ctx: 'Czy Twoje wyjście jest na tyle szybkie, że rywal traci szansę, zanim dotrze do piłki?' },
+          1: { t: 'Jak często, gdy napastnik zmienia kierunek lub rusza do biegu, wracasz do właściwej pozycji, zanim stworzy zagrożenie?', ctx: 'Czy mimo ruchu napastnika potrafisz szybko wrócić do właściwego ustawienia?' },
+          2: { t: 'Jak często wygrywasz wyścig do piłki granej w Twój korytarz przy linii bocznej — docierasz do niej pierwszy?', ctx: 'Pomyśl o długim podaniu lub piłce zagranej za linię obrony na Twoją stronę. Kto częściej dociera do niej pierwszy?' },
+          3: { t: 'Jak często docierasz pierwszy do luźnej piłki tuż przed polem karnym, zanim zdąży do niej rywal?', ctx: 'To Twoja strefa – piłka odbita, niczyja albo taka, nad którą nikt nie ma kontroli. Liczy się, kto pierwszy ją przejmie.' },
+          4: { t: 'Jak często w pressingu dobiegasz do rywala na tyle szybko, że odbierasz mu czas na spokojne rozegranie piłki?', ctx: 'Pomyśl o sytuacjach, w których doskakujesz do rywala. Czy robisz to na tyle szybko, że nie ma czasu spokojnie zagrać piłki?' },
+          5: { t: 'Jak często wygrywasz wyścig do piłki podanej między liniami obrony rywala — docierasz do niej pierwszy?', ctx: 'Pomyśl o podaniu między liniami. Czy zazwyczaj docierasz do piłki, zanim obrońca zdąży zareagować?' },
+          6: { t: 'Jak często wygrywasz wyścig do piłki granej w przestrzeń za plecami obrońcy?', ctx: 'Pomyśl o piłce zagranej za plecy obrońcy. Kto częściej dociera do niej pierwszy – Ty czy obrońca?' },
+          7: { t: 'Jak często po zmianie kierunku lub nagłym odejściu od obrońcy zyskujesz przewagę, której obrońca nie jest w stanie od razu odrobić?', ctx: 'Pomyśl o pierwszych krokach po zmianie kierunku. Czy zazwyczaj dają Ci przewagę, której obrońca nie jest w stanie szybko zniwelować?' },
         }
       },
       {
-        t: 'Jak często po ruchu w jedną stronę jesteś w stanie natychmiast zmienić kierunek i eksplodować w drugą stronę z taką samą mocą — bez utraty energii przy zmianie kierunku?',
-        ctx: 'Nie chodzi o powtórzenie tego samego ruchu — chodzi o to, czy moc "przechodzi" płynnie w nowy kierunek, czy część jej się traci.', dir: 1,
+        t: 'Jak często po ruchu w jedną stronę jesteś w stanie natychmiast zmienić kierunek i dynamicznie ruszyć w drugą — bez wyraźnej utraty mocy?',
+        ctx: 'Nie chodzi o samą zmianę kierunku. Chodzi o to, czy po zmianie od razu potrafisz ponownie mocno przyspieszyć, czy wyraźnie tracisz moc.', dir: 1,
         pos: {
-          0: { t: 'Po obronie w jedną stronę, jeśli piłka wraca i wymaga natychmiastowej drugiej interwencji w innym kierunku — czy reagujesz z pełną mocą, czy tracisz cenny ułamek sekundy zanim zdołasz się ponownie ustawić?', ctx: 'Klasyczna sytuacja: obrona, odbita piłka, drugi strzał z innej strony. Czy druga interwencja jest tak samo mocna jak pierwsza?' },
-          1: { t: 'Jak często gdy ruszasz w jedną stronę a napastnik nagle zmienia kierunek, jesteś w stanie z tego samego rozpędu skręcić w nową stronę z pełną mocą — bez zatrzymania i ponownego rozpędzania się?', ctx: 'To moment w którym napastnik zmienia kierunek żeby Cię zgubić. Czy Twoje ciało nadąża bez utraty mocy?' },
-          2: { t: 'Jak często gdy ruszasz w jedną stronę, żeby przeciąć podanie lub zablokować rywala, a piłka nagle trafia w przeciwną stronę, jesteś w stanie z tego samego rozpędu skręcić i zareagować z pełną mocą?', ctx: 'To moment kiedy broniłeś w jedną stronę, a atak rywala przenosi się na drugą — czy Twoje ciało nadąża za tą zmianą bez utraty mocy?' },
-          3: { t: 'Jak często po ruchu w jedną stronę, gdy rywal nagle odwraca atak w drugą, jesteś w stanie skręcić i zareagować z pełną mocą?', ctx: 'Gra zmienia u Ciebie kierunek najczęściej ze wszystkich pozycji. Czy Twoje ciało nadąża za tymi zwrotami bez tracenia mocy?' },
-          4: { t: 'Jak często gdy wchodzisz w pressing w jedną stronę a piłka ucieka w inną, zmieniasz kierunek biegu z pełną mocą — bez zauważalnego spadku tempa w pierwszych krokach nowego biegu?', ctx: 'Pressing rzadko idzie w prostej linii. Czy zmiana kierunku kosztuje Cię moc w pierwszych metrach?' },
-          5: { t: 'Po przyjęciu piłki w jedną stronę, jak często eksplodujesz w przeciwnym kierunku z taką samą mocą jak pierwszy ruch?', ctx: 'To moment tuż po przyjęciu piłki, gdy zmieniasz kierunek żeby zaatakować przestrzeń.' },
-          6: { t: 'Po zwodzie jak często eksplodujesz w nową stronę z taką samą mocą jak przed zwodem?', ctx: 'Zwód, który tylko zmienia kierunek bez przyspieszenia, nie daje Ci przewagi nad obrońcą.' },
-          7: { t: 'Po zwodzie lub ruchu w jedną stronę, jak często jesteś w stanie natychmiast eksplodować w przeciwnym kierunku z taką samą mocą jak pierwszy ruch?', ctx: 'To moment tuż po zwodzie. Czy druga eksplozja w nową stronę jest tak samo mocna jak pierwsza?' },
+          0: { t: 'Po obronie w jedną stronę, jeśli piłka wraca i wymaga natychmiastowej drugiej interwencji w innym kierunku, czy reagujesz z pełną mocą, czy tracisz cenny ułamek sekundy, zanim zdołasz się ponownie ustawić?', ctx: 'Pomyśl o sytuacji: bronisz strzał, piłka wraca pod nogi rywala i od razu pada drugi strzał z innej strony. Czy druga interwencja jest równie dynamiczna jak pierwsza?' },
+          1: { t: 'Jak często, gdy ruszasz za napastnikiem, a on nagle zmienia kierunek, potrafisz od razu ruszyć za nim z pełną mocą — bez wyraźnego wyhamowania?', ctx: 'Pomyśl o momencie, w którym napastnik próbuje zgubić Cię nagłą zmianą kierunku. Czy jesteś w stanie od razu za nim ruszyć bez utraty dynamiki?' },
+          2: { t: 'Jak często gdy ruszasz w jedną stronę, żeby przeciąć podanie lub zablokować rywala, a piłka nagle trafia w przeciwną stronę, jesteś w stanie z tego samego rozpędu skręcić i zareagować z pełną mocą?', ctx: 'Bronisz jedną stronę, a piłka nagle trafia na drugą. Czy potrafisz natychmiast zmienić kierunek i ruszyć z pełną dynamiką?' },
+          3: { t: 'Jak często po ruchu w jedną stronę, gdy rywal nagle odwraca atak w drugą, jesteś w stanie skręcić i zareagować z pełną mocą?', ctx: 'Na Twojej pozycji kierunek gry zmienia się bardzo często. Czy po każdej zmianie potrafisz od razu ponownie przyspieszyć?' },
+          4: { t: 'Jak często, gdy zmieniasz kierunek pressingu, od razu przyspieszasz z taką samą dynamiką jak przed zmianą kierunku?', ctx: 'Pressing rzadko przebiega po prostej. Czy zmiana kierunku sprawia, że pierwsze kroki po niej są wolniejsze?' },
+          5: { t: 'Po przyjęciu piłki w jedną stronę, jak często eksplodujesz w przeciwnym kierunku z taką samą mocą jak pierwszy ruch?', ctx: 'To moment tuż po przyjęciu piłki, gdy zmieniasz kierunek, żeby zaatakować przestrzeń.' },
+          6: { t: 'Jak często po zwodzie od razu dynamicznie ruszasz w nowym kierunku z taką samą mocą jak przed zwodem?', ctx: 'Sam zwód nie daje przewagi. Liczy się to, czy po nim potrafisz natychmiast odskoczyć obrońcy.' },
+          7: { t: 'Jak często po zwodzie lub ruchu w jedną stronę od razu dynamicznie ruszasz w przeciwnym kierunku z taką samą mocą jak na początku akcji?', ctx: 'Pomyśl o pierwszych krokach po zwodzie. Czy właśnie wtedy tworzysz przewagę, czy potrzebujesz chwili, żeby ponownie się rozpędzić?' },
         }
       },
     ]
@@ -1396,21 +1403,31 @@ const SEGS = [
     id: 'wytrzymalosc', name: 'WYTRZYMAŁOŚĆ', pillar: 'Filar 1 — Dominacja fizyczna', n: '02',
     qs: [
       {
-        t: 'Jak często w ostatnich 15 minutach meczu czujesz się tak samo pełen energii jak na początku — bez uczucia zmęczenia, ciężkości w nogach czy wyczerpania?',
-        ctx: 'Nie chodzi o to ile biegasz czy ile walczysz o piłkę — chodzi o to jak się czujesz. Czy Twoje ciało ma jeszcze energię, czy jest już wyczerpane?', dir: 1,
+        t: 'Jak często w ostatnich 15 minutach meczu jesteś w stanie utrzymać taką samą intensywność gry jak na jego początku?',
+        ctx: 'Pomyśl o końcówkach meczów. Czy nadal równie często i intensywnie biegasz, przyspieszasz oraz włączasz się do gry, czy wyraźnie ograniczasz swoją aktywność z powodu zmęczenia?', dir: 1,
+        pos: {
+          0: { t: 'Jak często w ostatnich 15 minutach meczu jesteś w stanie utrzymać taką samą gotowość do interwencji i aktywność w organizowaniu obrony jak na początku meczu?', ctx: 'Pomyśl o końcówkach meczów. Czy nadal jesteś stale gotowy do interwencji i równie aktywnie kierujesz ustawieniem obrony?' },
+          1: { t: 'Jak często w ostatnich 15 minutach meczu utrzymujesz taką samą intensywność doskoków, powrotów i zabezpieczania przestrzeni jak na początku meczu?', ctx: 'Pomyśl o końcówce meczu. Czy nadal równie szybko doskakujesz do rywala, wracasz na pozycję i asekurujesz partnerów?' },
+          2: { t: 'Jak często w ostatnich 15 minutach meczu jesteś w stanie z taką samą intensywnością wspierać atak i wracać do obrony jak na początku meczu?', ctx: 'Czy pod koniec meczu nadal regularnie wykonujesz oba zadania, czy zaczynasz ograniczać jedno z nich z powodu zmęczenia?' },
+          3: { t: 'Jak często w ostatnich 15 minutach meczu utrzymujesz taką samą intensywność w odbiorze piłki i zabezpieczaniu przestrzeni przed linią obrony jak na początku meczu?', ctx: 'Czy nadal równie często doskakujesz do rywali, przechwytujesz piłki i zabezpieczasz przestrzeń przed obroną?' },
+          4: { t: 'Jak często w ostatnich 15 minutach meczu utrzymujesz taką samą intensywność gry w ataku i obronie jak na początku meczu?', ctx: 'Czy nadal równie często uczestniczysz w obu fazach gry, czy z powodu zmęczenia zaczynasz odpuszczać część swoich działań?' },
+          5: { t: 'Jak często w ostatnich 15 minutach meczu utrzymujesz taką samą intensywność wychodzenia do gry i tworzenia przewagi jak na początku meczu?', ctx: 'Czy nadal równie często pokazujesz się do gry, wychodzisz na pozycję i szukasz możliwości stworzenia okazji?' },
+          6: { t: 'Jak często w ostatnich 15 minutach meczu utrzymujesz taką samą intensywność sprintów, powrotów i pojedynków jak na początku meczu?', ctx: 'Czy nadal równie często wykonujesz sprinty do przodu i wracasz do obrony, czy wyraźnie ograniczasz swoją aktywność?' },
+          7: { t: 'Jak często w ostatnich 15 minutach meczu utrzymujesz taką samą intensywność pressingu, atakowania przestrzeni i wychodzenia do podań jak na początku meczu?', ctx: 'Czy nadal równie często inicjujesz pressing, wybiegasz za linię obrony i pokazujesz się do gry, czy robisz to coraz rzadziej z powodu zmęczenia?' },
+        }
       },
       {
-        t: 'Jak często pod koniec meczu Twoje decyzje i zagrania są gorszej jakości niż na początku, a praca bez piłki — powroty, ustawienie, asekuracja partnerów — jest mniej dokładna? Nie dlatego że się boisz lub nie chcesz, ale dlatego że fizycznie brakuje Ci sił.',
-        ctx: 'To nie pytanie o odwagę czy charakter — chodzi wyłącznie o to, czy zmęczenie fizyczne odbiera Ci jakość wykonania z piłką ORAZ dokładność pracy bez piłki: powrotów, ustawienia, asekuracji.', dir: -1,
+        t: 'Jak często pod koniec meczu jakość Twojej gry spada, ponieważ fizycznie brakuje Ci sił?',
+        ctx: 'Pomyśl o końcówkach meczów. Czy zmęczenie sprawia, że gorzej wykonujesz swoje działania z piłką i bez piłki, mimo że wiesz, co powinieneś zrobić?', dir: 1,
         pos: {
-          0: { t: 'Jak często pod koniec meczu Twoje interwencje są mniej precyzyjne niż na początku, a Twoja aktywność w kierowaniu obroną — ustawianie linii, komunikacja z zawodnikami, korygowanie ich pozycji — jest rzadsza lub mniej wyraźna?', ctx: 'Bramkarz nie biega po całym boisku, ale cały czas organizuje defensywę głosem i ustawieniem. Czy zmęczenie sprawia że robisz to rzadziej lub mniej wyraźnie?' },
-          1: { t: 'Jak często pod koniec meczu Twoje wybicia i podania są mniej precyzyjne niż na początku, a wracasz na swoją pozycję lub domykasz przestrzeń wolniej — zostawiasz partnera bez asekuracji, bo fizycznie nie zdążysz?', ctx: 'Chodzi zarówno o jakość zagrań z piłką, jak i o pracę bez piłki — powroty, domykanie, asekurację partnera.' },
-          2: { t: 'Jak często pod koniec meczu rzadziej wspierasz atak, a Twój powrót do obrony jest wolniejszy niż na początku?', ctx: 'Chodzi wyłącznie o zmęczenie fizyczne, nie o brak chęci — czy siły starczają Ci na obie te role do samego końca meczu?' },
-          3: { t: 'Jak często pod koniec meczu Twoje przechwyty są rzadsze, a pokrycie przestrzeni przed obroną wolniejsze niż na początku?', ctx: 'Chodzi wyłącznie o zmęczenie fizyczne, nie o spadek koncentracji — czy ciało nadąża za tą pracą do samego końca?' },
-          4: { t: 'Jak często pod koniec meczu Twoje podania są mniej precyzyjne niż na początku, a przełączanie się między obroną a atakiem jest wolniejsze — zostajesz w jednej fazie gry zamiast wracać do pomocy w drugiej?', ctx: 'Pomocnik pracuje w obie strony boiska. Czy zmęczenie sprawia że słabnie zarówno jakość podań, jak i praca przejściowa?' },
-          5: { t: 'Jak często pod koniec meczu Twoje ostatnie podanie przed strzałem jest mniej precyzyjne niż na początku?', ctx: 'Chodzi wyłącznie o zmęczenie fizyczne, nie o brak pomysłu — czy nogi wykonują to podanie tak samo dokładnie jak w 10. minucie?' },
-          6: { t: 'Jak często pod koniec meczu Twoje sprinty za plecy obrońcy są rzadsze lub wolniejsze niż na początku?', ctx: 'Chodzi wyłącznie o zmęczenie fizyczne, nie o brak chęci — czy ostatni sprint w 85. minucie jest tak samo szybki jak pierwszy?' },
-          7: { t: 'Jak często pod koniec meczu Twoje przyjęcia i wykończenia akcji są mniej precyzyjne niż na początku, a rzadziej z własnej woli podejmujesz inicjatywę — wychodzisz do wysokiego pressingu, atakujesz przestrzeń, wybiegasz za linię — bo brakuje Ci sił żeby robić to bez przerwy?', ctx: 'Napastnik traci nie tylko jakość wykończenia, ale też chęć do działania z własnej inicjatywy — mniej prób pressingu, mniej wybiegania w przestrzeń, więcej czekania zamiast atakowania. Czy zmęczenie odbiera Ci tę inicjatywę?' },
+          0: { t: 'Jak często pod koniec meczu jakość Twoich interwencji i kierowania obroną spada, ponieważ fizycznie brakuje Ci sił?', ctx: 'Czy zmęczenie sprawia, że Twoje interwencje, decyzje i komunikacja z obroną są mniej skuteczne niż na początku meczu?' },
+          1: { t: 'Jak często pod koniec meczu jakość Twoich podań, wybić oraz działań w obronie spada, ponieważ fizycznie brakuje Ci sił?', ctx: 'Czy zmęczenie sprawia, że gorzej zagrywasz piłkę oraz mniej skutecznie wracasz, domykasz przestrzeń i asekurujesz partnerów?' },
+          2: { t: 'Jak często pod koniec meczu jakość Twojej gry w ataku i obronie spada, ponieważ fizycznie brakuje Ci sił?', ctx: 'Czy zmęczenie sprawia, że gorzej wspierasz akcje ofensywne i mniej skutecznie wracasz do obrony?' },
+          3: { t: 'Jak często pod koniec meczu jakość Twojego odbioru piłki i zabezpieczania przestrzeni spada, ponieważ fizycznie brakuje Ci sił?', ctx: 'Czy zmęczenie sprawia, że rzadziej przechwytujesz piłki i gorzej kontrolujesz przestrzeń przed linią obrony?' },
+          4: { t: 'Jak często pod koniec meczu jakość Twoich podań oraz przechodzenia między obroną a atakiem spada, ponieważ fizycznie brakuje Ci sił?', ctx: 'Czy zmęczenie sprawia, że gorzej podajesz i wolniej przechodzisz między fazą ataku i obrony?' },
+          5: { t: 'Jak często pod koniec meczu jakość Twoich podań i działań tworzących okazje bramkowe spada, ponieważ fizycznie brakuje Ci sił?', ctx: 'Czy zmęczenie sprawia, że trudniej jest Ci wykonać dokładne ostatnie podanie i tworzyć przewagę dla zespołu?' },
+          6: { t: 'Jak często pod koniec meczu jakość Twoich sprintów, pojedynków i dośrodkowań spada, ponieważ fizycznie brakuje Ci sił?', ctx: 'Czy zmęczenie sprawia, że Twoje sprinty są mniej dynamiczne, a działania z piłką mniej skuteczne niż na początku meczu?' },
+          7: { t: 'Jak często pod koniec meczu jakość Twojego wykończenia akcji, gry bez piłki i pressingu spada, ponieważ fizycznie brakuje Ci sił?', ctx: 'Czy zmęczenie sprawia, że gorzej kończysz akcje, rzadziej atakujesz przestrzeń i mniej skutecznie naciskasz na rywali?' },
         }
       },
     ]
@@ -1419,31 +1436,31 @@ const SEGS = [
     id: 'fizycznosc', name: 'FIZYCZNOŚĆ', pillar: 'Filar 1 — Dominacja fizyczna', n: '03',
     qs: [
       {
-        t: 'Niezależnie czy trenujesz siłowo na siłowni czy w ramach treningu drużynowego — jak często masz poczucie że jesteś fizycznie silniejszy niż większość zawodników na Twojej pozycji, z którymi trenujesz lub grasz?',
-        ctx: 'Nie musisz znać liczb czy wyników — chodzi o odczuwalną różnicę.', dir: 1,
+        t: 'Jak często czujesz, że dzięki swojej sile fizycznej masz przewagę nad zawodnikami, z którymi najczęściej rywalizujesz?',
+        ctx: 'Pomyśl o zawodnikach, z którymi najczęściej trenujesz i grasz. Czy Twoja siła fizyczna daje Ci nad nimi wyraźną przewagę?', dir: 1,
         pos: {
-          0: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni bramkarze z którymi trenujesz lub grasz w lidze — w wyskoku, sile rzutu, sile odbicia?', ctx: 'Chodzi o Twoją bazę siłową jako bramkarza, nie o pojedynek z rywalem.' },
-          1: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni obrońcy z którymi trenujesz lub grasz w lidze — w przysiadach, pracy nóg, sile górnej części ciała?', ctx: 'To pytanie o bazę siłową, nie o starcie z konkretnym napastnikiem.' },
-          2: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni boczni obrońcy, z którymi trenujesz lub grasz w lidze?', ctx: 'Nie musisz znać liczb ani wyników testów — chodzi o to co czujesz w bezpośrednim starciu, czy to na treningu, czy w meczu z rywalem na tej samej pozycji.' },
-          3: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni defensywni pomocnicy, z którymi trenujesz lub grasz w lidze?', ctx: 'Ta pozycja żyje z bezpośredniego kontaktu w środku pola — stąd pytanie akurat o siłę, nie o inne cechy.' },
-          4: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni pomocnicy z którymi trenujesz lub grasz w lidze — w sile nóg, stabilności tułowia, sile górnej części ciała?', ctx: 'Porównanie do innych pomocników w pracy siłowej.' },
-          5: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni ofensywni pomocnicy, z którymi trenujesz lub grasz w lidze?', ctx: 'Nie musisz znać liczb ani wyników testów — chodzi o to co czujesz, gdy walczysz o piłkę, czy to na treningu, czy w meczu z rywalem na tej samej pozycji.' },
-          6: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni skrzydłowi, z którymi trenujesz lub grasz w lidze?', ctx: 'Nie musisz znać liczb ani wyników testów — chodzi o to co czujesz w starciu, czy to na treningu, czy w meczu z rywalem na tej samej pozycji.' },
-          7: { t: 'Jak często masz poczucie że jesteś fizycznie silniejszy niż inni napastnicy z którymi trenujesz lub grasz w lidze — w sile nóg, sile górnej części ciała, stabilności w kontakcie?', ctx: 'To pytanie o Twoją bazę fizyczną na tle innych napastników.' },
+          0: { t: 'Jak często czujesz, że dzięki swojej sile fizycznej masz przewagę nad innymi bramkarzami w sytuacjach wymagających dynamicznego odbicia, wyskoku i gry w powietrzu?', ctx: 'Pomyśl o sytuacjach typowych dla bramkarza. Czy Twoja siła fizyczna daje Ci wyraźną przewagę podczas interwencji?' },
+          1: { t: 'Jak często czujesz, że dzięki swojej sile fizycznej masz przewagę nad napastnikami, z którymi najczęściej rywalizujesz?', ctx: 'Pomyśl o pojedynkach z napastnikami. Czy czujesz, że trudno jest Cię przepchnąć lub zdominować fizycznie?' },
+          2: { t: 'Jak często czujesz, że dzięki swojej sile fizycznej masz przewagę nad skrzydłowymi, z którymi najczęściej rywalizujesz?', ctx: 'Pomyśl o pojedynkach przy linii bocznej. Czy Twoja siła pomaga Ci utrzymać pozycję i kontrolować rywala?' },
+          3: { t: 'Jak często czujesz, że dzięki swojej sile fizycznej masz przewagę nad zawodnikami, z którymi najczęściej walczysz w środku pola?', ctx: 'Pomyśl o najczęstszych kontaktowych sytuacjach w środku pola. Czy Twoja siła daje Ci w nich wyraźną przewagę?' },
+          4: { t: 'Jak często czujesz, że dzięki swojej sile fizycznej masz przewagę nad pomocnikami, z którymi najczęściej rywalizujesz?', ctx: 'Pomyśl o sytuacjach, w których walczysz o utrzymanie piłki lub miejsca na boisku. Czy Twoja siła jest wtedy Twoim atutem?' },
+          5: { t: 'Jak często czujesz, że dzięki swojej sile fizycznej masz przewagę nad zawodnikami próbującymi odebrać Ci piłkę?', ctx: 'Czy Twoja siła pomaga Ci utrzymać się przy piłce mimo presji rywala?' },
+          6: { t: 'Jak często czujesz, że dzięki swojej sile fizycznej masz przewagę nad obrońcami, z którymi najczęściej rywalizujesz?', ctx: 'Pomyśl o pojedynkach jeden na jednego. Czy Twoja siła pomaga Ci utrzymać przewagę mimo kontaktu z obrońcą?' },
+          7: { t: 'Jak często czujesz, że dzięki swojej sile fizycznej masz przewagę nad obrońcami, z którymi najczęściej rywalizujesz?', ctx: 'Pomyśl o walce o pozycję i utrzymaniu piłki. Czy Twoja siła jest jednym z Twoich największych atutów?' },
         }
       },
       {
-        t: 'Jak często w bezpośrednim starciu fizycznym z rywalem — walka barkiem o pozycję, o piłkę, o miejsce — wygrywasz ten pojedynek?',
-        ctx: 'Liczy się kto góruje w starciu — nie czas jego trwania, tylko końcowy wynik.', dir: 1,
+        t: 'Jak często w bezpośrednim pojedynku fizycznym z rywalem potrafisz wykorzystać swoją siłę, żeby zdobyć lub utrzymać przewagę?',
+        ctx: 'Pomyśl o sytuacjach, w których rywal próbuje Cię przepchnąć, wytrącić z równowagi lub odebrać Ci miejsce. Jak często to Ty wychodzisz z takiego starcia zwycięsko dzięki swojej sile?', dir: 1,
         pos: {
-          0: { t: 'Przy wyjściu na dośrodkowanie, gdy napastnik wchodzi barkiem żeby zablokować Twój skok — jak często wygrywasz tę walkę o pozycję i docierasz do piłki?', ctx: 'Chodzi o wynik starcia w powietrzu — kto zdobywa pozycję do gry piłką.' },
-          1: { t: 'Gdy biegniesz ramię w ramię z napastnikiem do piłki dogrywanej w przestrzeń, a on napiera barkiem żeby Cię wypchnąć z toru biegu — jak często wygrywasz tę walkę o pozycję i docierasz do piłki pierwszy?', ctx: 'To klasyczna sytuacja wyścigu z kontaktem. Kto broni swojego miejsca w biegu?' },
-          2: { t: 'Gdy rywal na Twoim skrzydle wchodzi barkiem, żeby przejąć Twoje miejsce przy linii bocznej, jak często wygrywasz tę walkę o pozycję?', ctx: 'Masz tam najmniej przestrzeni ze wszystkich obrońców — linia boczna kończy boisko, więc nie możesz się cofnąć.' },
-          3: { t: 'Gdy walczysz barkiem o piłkę z rywalem w środku pola, jak często wygrywasz to starcie?', ctx: 'Liczy się kto góruje w kontakcie, niezależnie co dzieje się z piłką zaraz potem — to Twoje najczęstsze starcie w meczu.' },
-          4: { t: 'Gdy przyjmujesz piłkę, a rywal wchodzi barkiem od tyłu żeby ją odebrać — jak często wygrywasz tę walkę o pozycję i zatrzymujesz piłkę przy sobie?', ctx: 'To codzienna sytuacja w środku pola. Kto wygrywa starcie o piłkę?' },
-          5: { t: 'Gdy przyjmujesz piłkę z rywalem tuż za plecami, który napiera barkiem, jak często wygrywasz tę walkę i utrzymujesz piłkę?', ctx: 'Nie widzisz tego kontaktu, bo rywal jest poza Twoim polem widzenia — musisz wygrać starcie, którego nie widzisz na oczy.' },
-          6: { t: 'Gdy próbujesz zwodu, a obrońca wchodzi barkiem, żeby Cię zablokować, jak często wygrywasz tę walkę o pozycję?', ctx: 'Obrońca broni się wtedy kontaktem, nie samym ustawieniem nóg — to inny rodzaj oporu niż przy czystym wyścigu.' },
-          7: { t: 'Gdy stoisz plecami do bramki i czekasz na piłkę, a obrońca napiera od tyłu żeby nie dać Ci się obrócić — jak często wygrywasz tę walkę o pozycję i zdobywasz przestrzeń do gry przodem?', ctx: 'To bezpośrednio z fizyki pojedynku — kto wygrywa nacisk plecy w plecy.' },
+          0: { t: 'Jak często przy wyjściu do piłki potrafisz wykorzystać swoją siłę, żeby wygrać walkę o pozycję i jako pierwszy zagrać piłkę?', ctx: 'Pomyśl o dośrodkowaniach i stałych fragmentach gry. Czy w kontakcie z napastnikiem to Ty przejmujesz kontrolę nad sytuacją?' },
+          1: { t: 'Jak często w bezpośrednim pojedynku z napastnikiem potrafisz wykorzystać swoją siłę, żeby utrzymać pozycję i wygrać walkę o piłkę?', ctx: 'Pomyśl o sytuacjach ramię w ramię lub plecy w plecy. Jak często wychodzisz z nich zwycięsko dzięki swojej sile?' },
+          2: { t: 'Jak często w pojedynku ze skrzydłowym potrafisz wykorzystać swoją siłę, żeby utrzymać pozycję i nie dać się przepchnąć?', ctx: 'Pomyśl o sytuacjach przy linii bocznej. Czy kontakt fizyczny pomaga Ci zatrzymać rywala?' },
+          3: { t: 'Jak często w walce o piłkę w środku pola potrafisz wykorzystać swoją siłę, żeby zdobyć lub utrzymać przewagę?', ctx: 'Pomyśl o kontaktowych pojedynkach w środku pola. Jak często dzięki swojej sile wychodzisz z nich zwycięsko?' },
+          4: { t: 'Jak często w kontakcie z rywalem potrafisz wykorzystać swoją siłę, żeby utrzymać piłkę lub swoją pozycję?', ctx: 'Pomyśl o przyjęciu piłki pod presją. Czy kontakt z rywalem częściej wygrywasz niż przegrywasz dzięki swojej sile?' },
+          5: { t: 'Jak często pod presją rywala potrafisz wykorzystać swoją siłę, żeby utrzymać piłkę i stworzyć sobie przestrzeń do dalszej gry?', ctx: 'Pomyśl o sytuacjach, gdy rywal naciska Cię od tyłu lub z boku. Czy Twoja siła pomaga Ci utrzymać kontrolę nad piłką?' },
+          6: { t: 'Jak często w kontakcie z obrońcą potrafisz wykorzystać swoją siłę, żeby utrzymać przewagę i kontynuować akcję?', ctx: 'Pomyśl o pojedynkach jeden na jednego. Czy mimo kontaktu fizycznego potrafisz utrzymać przewagę dzięki swojej sile?' },
+          7: { t: 'Jak często, grając tyłem do bramki, potrafisz wykorzystać swoją siłę, żeby utrzymać pozycję, ochronić piłkę i stworzyć sobie przestrzeń do dalszej gry?', ctx: 'Pomyśl o sytuacjach, gdy obrońca napiera na Ciebie od tyłu. Czy dzięki swojej sile potrafisz utrzymać piłkę i wygrać walkę o pozycję?' },
         }
       },
     ]
@@ -1452,31 +1469,31 @@ const SEGS = [
     id: 'techFund', name: 'TECHNIKA FUND.', pillar: 'Filar 2 — Efektywność techniczna', n: '04',
     qs: [
       {
-        t: 'Jak często Twoje podstawowe zagrania — przyjęcie, podanie, uderzenie — wychodzą tak jak zamierzasz, gdy masz czas i przestrzeń, bez presji rywala?',
-        ctx: 'To pytanie o podstawy, nie o wyjątkowe sytuacje.', dir: 1,
+        t: 'Jak często poprawnie wykonujesz swoje podstawowe zagrania, gdy masz czas i przestrzeń, bez presji rywala?',
+        ctx: 'Pomyśl o spokojnych sytuacjach w meczu lub na treningu, gdy nikt nie wywiera na Tobie presji. Czy Twoja technika jest wtedy pewna i powtarzalna?', dir: 1,
         pos: {
-          0: { t: 'Jak często Twoje podstawowe interwencje — chwyt, wybicie, rozegranie nogą w spokojnej sytuacji — wychodzą tak jak zamierzasz, gdy nie ma presji czasu ani rywala w polu karnym?', ctx: 'Czy w standardowych, niezbyt trudnych interwencjach Twoja technika jest niezawodna?' },
-          1: { t: 'Jak często Twoje podstawowe zagrania — przyjęcie, podanie, wybicie — wychodzą tak jak zamierzasz, gdy masz czas i przestrzeń, bez rywala napierającego z bliska?', ctx: 'Chodzi o spokojne sytuacje w obronie.' },
-          2: { t: 'Jak często Twoje podanie wzdłuż linii lub dośrodkowanie wychodzi dokładnie tak jak chciałeś, gdy masz czas i nikt Cię nie goni?', ctx: 'Chodzi o Twoje najczęstsze zagranie na tej pozycji — czy w spokojnej sytuacji, bez rywala obok, wychodzi ono niezawodnie.' },
-          3: { t: 'Jak często Twoje pierwsze podanie po odbiorze piłki wychodzi dokładnie tak jak chciałeś, gdy masz chwilę czasu zanim rywal doskoczy?', ctx: 'Chodzi o spokojne momenty rozpoczynania akcji, zanim pressing rywala zdąży się zorganizować.' },
-          4: { t: 'Jak często Twoje podstawowe zagrania — przyjęcie, podanie na krótki i średni dystans — wychodzą tak jak zamierzasz, gdy masz czas na decyzję i nikt nie naciska?', ctx: 'To pytanie o spokojne fragmenty gry w środku pola.' },
-          5: { t: 'Jak często Twoje przyjęcie piłki między liniami wychodzi dokładnie tak jak chciałeś, gdy masz chwilę czasu zanim obrońca doskoczy?', ctx: 'Chodzi o spokojne fragmenty gry w strefach ofensywnych, zanim presja się pojawi.' },
-          6: { t: 'Jak często Twoje przyjęcie piłki przy linii bocznej wychodzi dokładnie tak jak chciałeś, gdy masz przestrzeń przed sobą?', ctx: 'Chodzi o spokojny moment tuż przed rozpoczęciem akcji 1v1, zanim obrońca się zbliży.' },
-          7: { t: 'Jak często Twoje podstawowe zagrania — przyjęcie, uderzenie, prowadzenie piłki — wychodzą tak jak zamierzasz, gdy masz przestrzeń i czas, bez obrońcy tuż przy Tobie?', ctx: 'Chodzi o spokojne momenty przy piłce.' },
+          0: { t: 'Jak często poprawnie wykonujesz swoje podstawowe interwencje i rozegranie piłki, gdy nie jesteś pod presją rywali?', ctx: 'Pomyśl o standardowych, spokojnych sytuacjach. Czy Twoja technika jest wtedy pewna i powtarzalna?' },
+          1: { t: 'Jak często poprawnie wykonujesz przyjęcia, podania i wybicia, gdy masz czas i przestrzeń?', ctx: 'Pomyśl o spokojnym rozegraniu od własnej bramki lub sytuacjach bez pressingu. Czy Twoje podstawowe zagrania są wtedy pewne?' },
+          2: { t: 'Jak często poprawnie wykonujesz podania, dośrodkowania i przyjęcia piłki, gdy masz czas i przestrzeń?', ctx: 'Pomyśl o sytuacjach, w których możesz spokojnie przygotować zagranie. Czy wykonujesz je tak, jak planujesz?' },
+          3: { t: 'Jak często poprawnie wykonujesz pierwsze przyjęcie i podanie po odbiorze piłki, gdy nie jesteś pod presją?', ctx: 'Pomyśl o spokojnym rozpoczęciu akcji. Czy Twoje pierwsze zagranie jest wtedy pewne i dokładne?' },
+          4: { t: 'Jak często poprawnie wykonujesz przyjęcia i podania, gdy masz czas na podjęcie decyzji?', ctx: 'Pomyśl o spokojnych fragmentach gry. Czy Twoja technika jest wtedy powtarzalna i dokładna?' },
+          5: { t: 'Jak często poprawnie wykonujesz przyjęcie i pierwsze zagranie między liniami, gdy nie jesteś pod presją?', ctx: 'Pomyśl o sytuacjach, w których masz chwilę na działanie. Czy Twoja technika pozostaje wtedy pewna?' },
+          6: { t: 'Jak często poprawnie wykonujesz przyjęcie piłki i pierwszy kontakt z nią, gdy masz przed sobą czas i przestrzeń?', ctx: 'Pomyśl o sytuacjach przed rozpoczęciem pojedynku 1 na 1. Czy pierwszy kontakt z piłką jest wtedy pewny?' },
+          7: { t: 'Jak często poprawnie wykonujesz przyjęcie, prowadzenie piłki i uderzenie, gdy nie jesteś pod presją obrońcy?', ctx: 'Pomyśl o spokojnych sytuacjach pod bramką lub poza polem karnym. Czy Twoje podstawowe zagrania są wtedy pewne?' },
         }
       },
       {
-        t: 'Jak często Twoje przyjęcia i podania wychodzą tak samo dobrze gdy rywal jest tuż za plecami lub naciska, jak wtedy gdy masz spokój i czas?',
-        ctx: 'Chodzi o moment gdy rywal skraca dystans — czy wtedy technika Cię zawodzi?', dir: 1,
+        t: 'Jak często potrafisz utrzymać taką samą jakość swoich podstawowych zagrań, gdy rywal wywiera presję, jak wtedy gdy masz czas i przestrzeń?',
+        ctx: 'Pomyśl o sytuacjach, w których rywal skraca Ci czas i przestrzeń. Czy Twoja technika pozostaje wtedy równie skuteczna?', dir: 1,
         pos: {
-          0: { t: 'Jak często Twoje interwencje wychodzą tak samo dobrze gdy w polu karnym jest tłok i presja czasu, jak w spokojnej sytuacji bez rywali w pobliżu?', ctx: 'Czy technika wtedy się rozpada, czy zostaje taka sama?' },
-          1: { t: 'Jak często Twoje zagrania wychodzą tak samo dobrze gdy napastnik napiera z bliska i nie masz czasu, jak w spokojnej sytuacji z przestrzenią?', ctx: 'Czy technika z poprzedniej, spokojnej sytuacji przetrwa taki nacisk?' },
-          2: { t: 'Jak często Twoje przyjęcie wychodzi tak samo dobrze, gdy rywal jest tuż przy Tobie na Twoim skrzydle, jak w spokojnej sytuacji?', ctx: 'Przy linii bocznej masz mniej miejsca na błąd niż w środku pola — presja przychodzi tam szybciej i częściej.' },
-          3: { t: 'Jak często Twoje pierwsze podanie wychodzi tak samo dobrze pod natychmiastowym pressingiem, jak wtedy gdy masz czas na decyzję?', ctx: 'Odbiór piłki i błyskawiczny pressing rywala to Twoja codzienność — czy technika wtedy działa tak samo jak bez presji?' },
-          4: { t: 'Jak często Twoje podania wychodzą tak samo dobrze gdy jesteś pod pressingiem i musisz zagrać szybko, jak wtedy gdy masz czas na decyzję?', ctx: 'Czy Twoja technika przetrwa pressing, czy się psuje?' },
-          5: { t: 'Jak często Twoje przyjęcie wychodzi tak samo dobrze, gdy grasz plecami do bramki z obrońcą tuż za Tobą, jak w spokojnej sytuacji przodem do gry?', ctx: 'To trudniejsza wersja tego samego zagrania — nie widzisz rywala i musisz przyjąć piłkę mimo to.' },
-          6: { t: 'Jak często Twoje przyjęcie i pierwszy ruch po nim wychodzą tak samo dobrze, gdy obrońca stoi tuż przy Tobie, jak w sytuacji z przestrzenią?', ctx: 'To Twoja najczęstsza sytuacja na boisku — starcie 1v1 przy linii bocznej, gdzie obrońca stoi bardzo blisko.' },
-          7: { t: 'Jak często Twoje zagrania wychodzą tak samo dobrze gdy obrońca jest tuż przy Tobie i wywiera presję, jak wtedy gdy masz przestrzeń?', ctx: 'Czy technika ze spokojnej sytuacji przetrwa taki nacisk?' },
+          0: { t: 'Jak często potrafisz utrzymać taką samą jakość interwencji i rozegrania piłki, gdy jesteś pod presją czasu lub rywali?', ctx: 'Czy obecność rywali w polu karnym wpływa na jakość Twojej techniki, czy pozostaje ona na tym samym poziomie?' },
+          1: { t: 'Jak często potrafisz utrzymać taką samą jakość przyjęć, podań i wybić, gdy napastnik wywiera na Tobie presję?', ctx: 'Czy Twoja technika pozostaje równie skuteczna, gdy masz mało czasu na zagranie?' },
+          2: { t: 'Jak często potrafisz utrzymać taką samą jakość przyjęć, podań i dośrodkowań, gdy rywal wywiera na Tobie presję?', ctx: 'Pomyśl o sytuacjach przy linii bocznej. Czy presja rywala pogarsza jakość Twoich zagrań?' },
+          3: { t: 'Jak często potrafisz utrzymać taką samą jakość pierwszego przyjęcia i podania, gdy natychmiast doskakuje do Ciebie rywal?', ctx: 'Pomyśl o odbiorze piłki pod pressingiem. Czy Twoja technika pozostaje równie skuteczna?' },
+          4: { t: 'Jak często potrafisz utrzymać taką samą jakość przyjęć i podań, gdy grasz pod pressingiem?', ctx: 'Czy presja rywala wpływa na jakość Twoich podstawowych zagrań, czy pozostaje ona na tym samym poziomie?' },
+          5: { t: 'Jak często potrafisz utrzymać taką samą jakość przyjęcia i pierwszego zagrania, gdy obrońca wywiera na Tobie presję?', ctx: 'Pomyśl o grze między liniami z rywalem tuż za plecami. Czy Twoja technika pozostaje równie skuteczna?' },
+          6: { t: 'Jak często potrafisz utrzymać taką samą jakość pierwszego kontaktu z piłką, gdy obrońca wywiera na Tobie presję?', ctx: 'Pomyśl o pojedynkach 1 na 1 przy linii bocznej. Czy presja obrońcy pogarsza jakość Twojego pierwszego kontaktu z piłką?' },
+          7: { t: 'Jak często potrafisz utrzymać taką samą jakość przyjęcia, prowadzenia piłki i uderzenia, gdy obrońca wywiera na Tobie presję?', ctx: 'Pomyśl o sytuacjach, gdy obrońca ogranicza Ci czas i przestrzeń. Czy mimo tego Twoja technika pozostaje równie skuteczna?' },
         }
       },
     ]
@@ -1485,31 +1502,31 @@ const SEGS = [
     id: 'techSpec', name: 'TECHNIKA SPEC.', pillar: 'Filar 2 — Efektywność techniczna', n: '05',
     qs: [
       {
-        t: 'Jak często po Twoim zagraniu Twój partner dostaje piłkę lub wchodzi w sytuację w której ma wyraźnie więcej czasu lub przestrzeni niż miałeś Ty?',
-        ctx: 'Zagranie które tworzy przewagę to takie, które poprawia sytuację drużyny.', dir: 1,
+        t: 'Jak często Twoje zagrania dają partnerowi więcej czasu lub przestrzeni do dalszej gry?',
+        ctx: 'Pomyśl o sytuacjach, w których po Twoim zagraniu partner ma łatwiejszą grę niż miałeś Ty. Czy często tworzysz mu taką przewagę?', dir: 1,
         pos: {
-          0: { t: 'Jak często Twoje rozegranie — krótkie podanie, wyrzut, zagranie nogą — daje partnerowi tyle czasu, że może przyjąć piłkę i od razu podjąć decyzję bez presji rywala?', ctx: 'Czy Twoje rozegranie buduje przewagę, czy tylko oddaje piłkę?' },
-          1: { t: 'Jak często Twoje podanie przełamuje lub omija linię pressingu rywala — piłka ląduje za rywalem który Cię pressuje, nie przed nim?', ctx: 'Czy Twoje zagrania przełamują pressing?' },
-          2: { t: 'Jak często Twoje dośrodkowanie lub podanie w pole karne daje partnerowi wyraźnie lepszą sytuację do strzału, niż gdybyś po prostu oddał piłkę w kierunku bramki?', ctx: 'Chodzi o różnicę między zagraniem które tworzy realną szansę a takim, które tylko przenosi piłkę w stronę bramki.' },
-          3: { t: 'Jak często Twoje pierwsze podanie po odzyskaniu piłki daje partnerowi więcej czasu na decyzję niż miałeś Ty?', ctx: 'To moment zaraz po przechwycie, gdy drużyna jeszcze nie jest ustawiona do ataku — Twoje podanie decyduje czy zyskujecie chwilę spokoju.' },
-          4: { t: 'Jak często po Twoim zagraniu Twój partner dostaje się w sytuację 1v1 lub z wolną przestrzenią przed sobą — zamiast od razu znowu być pod presją?', ctx: 'Czy widzisz i wykorzystujesz momenty gdy rywal jest źle ustawiony?' },
-          5: { t: 'Jak często Twoje ostatnie podanie przed strzałem daje partnerowi więcej czasu i przestrzeni niż miałeś Ty?', ctx: 'To Twoje najważniejsze zagranie w meczu — ostatnie podanie przed próbą zdobycia bramki.' },
-          6: { t: 'Jak często po Twoim dryblingu partner dostaje piłkę w sytuacji z większą przestrzenią niż miałeś Ty przed zwodem?', ctx: 'Drybling udany technicznie i drybling który realnie coś zmienia dla drużyny to dwie różne rzeczy — pytanie dotyczy tej drugiej.' },
-          7: { t: 'Jak często Twój ruch bez piłki — odejście, zmiana kierunku, wyjście za linię — otwiera przestrzeń którą Twój partner może natychmiast wykorzystać?', ctx: 'Czy Twoje ruchy bez piłki coś tworzą dla drużyny?' },
+          0: { t: 'Jak często Twoje rozegranie daje partnerowi więcej czasu lub przestrzeni do rozpoczęcia akcji?', ctx: 'Pomyśl o podaniach, wyrzutach i rozegraniu nogą. Czy po Twoim zagraniu partner może spokojnie kontynuować grę?' },
+          1: { t: 'Jak często Twoje podania omijają pressing i dają partnerowi więcej czasu lub przestrzeni do dalszej gry?', ctx: 'Pomyśl o wyprowadzeniu piłki spod pressingu. Czy Twoje podania poprawiają sytuację partnera?' },
+          2: { t: 'Jak często Twoje dośrodkowania lub podania w pole karne tworzą partnerowi lepszą sytuację do zakończenia akcji?', ctx: 'Czy po Twoim zagraniu partner ma realnie większą szansę na stworzenie zagrożenia pod bramką?' },
+          3: { t: 'Jak często Twoje pierwsze podanie po odzyskaniu piłki daje partnerowi więcej czasu lub przestrzeni do rozpoczęcia ataku?', ctx: 'Pomyśl o momentach tuż po odbiorze piłki. Czy Twoje pierwsze zagranie ułatwia drużynie przejście do ataku?' },
+          4: { t: 'Jak często Twoje podania dają partnerowi więcej czasu, przestrzeni lub możliwość przyspieszenia akcji?', ctx: 'Czy Twoje zagrania sprawiają, że partner znajduje się w lepszej sytuacji niż przed otrzymaniem piłki?' },
+          5: { t: 'Jak często Twoje podania tworzą partnerowi dogodną sytuację do oddania strzału lub stworzenia kolejnej przewagi?', ctx: 'Pomyśl o ostatnich podaniach i zagraniach między liniami. Czy realnie poprawiają sytuację partnera?' },
+          6: { t: 'Jak często po Twoim dryblingu lub podaniu partner otrzymuje więcej czasu lub przestrzeni do dalszej gry?', ctx: 'Czy dzięki Twoim działaniom obrona rywala zostaje na tyle przesunięta, że partner ma łatwiejszą sytuację?' },
+          7: { t: 'Jak często Twój ruch bez piłki tworzy partnerowi więcej czasu lub przestrzeni do rozegrania lub zakończenia akcji?', ctx: 'Pomyśl o wybiegnięciach, odejściach i związaniu obrońców. Czy Twoje ruchy ułatwiają grę partnerom?' },
         }
       },
       {
-        t: 'Jak często gdy widzisz ryzykowne zagranie które mogłoby stworzyć przewagę, wybierasz zamiast niego bezpieczniejszą opcję — bo boisz się że ryzykowne nie wyjdzie?',
-        ctx: 'Im rzadziej rezygnujesz z odważnego zagrania, tym lepiej — Prawie nigdy to tutaj najlepsza odpowiedź.', dir: -1,
+        t: 'Jak często rezygnujesz z zagrania, które mogłoby stworzyć przewagę dla drużyny, wybierając bezpieczniejszą opcję?',
+        ctx: 'Pomyśl o sytuacjach, w których widzisz szansę na zagranie dające przewagę, ale wybierasz prostsze rozwiązanie. Jak często tak się dzieje?', dir: 1,
         pos: {
-          0: { t: 'Jak często gdy masz możliwość mądrego rozegrania które buduje grę od tyłu, wybierasz zamiast niego dalekie wybicie — bo krótkie rozegranie wydaje Ci się zbyt ryzykowne?', ctx: 'Im rzadziej wybijasz zamiast rozgrywać, tym lepiej.' },
-          1: { t: 'Jak często gdy możesz zagrać podanie które przełamałoby pressing, wybierasz zamiast niego bezpieczne odegranie wzdłuż linii lub z powrotem?', ctx: 'Im rzadziej grasz zachowawczo gdy jest lepsza opcja, tym lepiej.' },
-          2: { t: 'Jak często zamiast włączyć się do ataku, zostajesz w tyle i wybierasz bezpieczne podanie wzdłuż linii?', ctx: 'Włączenie się do ataku niesie ryzyko że zabraknie Cię w obronie — pytanie czy to ryzyko Cię blokuje częściej niż powinno.' },
-          3: { t: 'Jak często zamiast zagrać podanie które otwiera atak drużyny, wybierasz bezpieczne podanie do tyłu?', ctx: 'To Twój najczęstszy wybór w meczu — rozpoczynasz akcje z głębi pola, więc ten moment powtarza się dziesiątki razy.' },
-          4: { t: 'Jak często gdy masz możliwość zagrania trudnego podania za linię obrony lub na wychodzącego partnera, wybierasz zamiast niego proste podanie do bliższego partnera?', ctx: 'Im rzadziej rezygnujesz z trudnego podania gdy jest ono właściwym wyborem, tym lepiej.' },
-          5: { t: 'Jak często zamiast spróbować trudnego podania w linię obrony, wybierasz bezpieczne, boczne rozegranie?', ctx: 'Trudne podanie w linię obrony częściej kończy się stratą piłki niż proste boczne granie — pytanie czy to ryzyko Cię powstrzymuje nawet gdy jest uzasadnione.' },
-          6: { t: 'Jak często zamiast spróbować dryblingu 1v1, cofasz piłkę do partnera?', ctx: 'Nieudany drybling często kończy się stratą piłki w niebezpiecznym miejscu — pytanie czy ten strach przed stratą trzyma Cię z dala od Twojego najmocniejszego atutu.' },
-          7: { t: 'Jak często gdy masz okazję do strzału lub ryzykownego dryblingu, wybierasz zamiast niego odegranie piłki bo boisz się błędu?', ctx: 'Im rzadziej rezygnujesz z odważnej akcji gdy naprawdę masz szansę, tym lepiej.' },
+          0: { t: 'Jak często zamiast rozpocząć akcję rozegraniem dającym drużynie przewagę wybierasz prostsze wybicie piłki?', ctx: 'Chodzi o sytuacje, w których rozegranie mogłoby przynieść korzyść drużynie, ale decydujesz się na bezpieczniejsze rozwiązanie.' },
+          1: { t: 'Jak często zamiast zagrać podanie przełamujące pressing wybierasz prostsze podanie do najbliższego partnera?', ctx: 'Pomyśl o wyprowadzaniu piłki. Jak często wybierasz bezpieczniejsze rozwiązanie mimo możliwości stworzenia przewagi?' },
+          2: { t: 'Jak często zamiast podania lub wejścia, które mogłoby stworzyć przewagę, wybierasz prostsze rozegranie?', ctx: 'Pomyśl o momentach, w których możesz przyspieszyć akcję. Jak często decydujesz się na bezpieczniejszą opcję?' },
+          3: { t: 'Jak często zamiast podania otwierającego atak wybierasz bezpieczne zagranie do najbliższego partnera?', ctx: 'Pomyśl o pierwszym podaniu po odbiorze piłki. Jak często rezygnujesz z zagrania tworzącego przewagę?' },
+          4: { t: 'Jak często zamiast podania tworzącego przewagę wybierasz prostsze rozegranie do najbliższego partnera?', ctx: 'Pomyśl o sytuacjach, w których możesz przyspieszyć grę. Jak często wybierasz bezpieczniejszą opcję?' },
+          5: { t: 'Jak często zamiast podania otwierającego drogę do bramki wybierasz prostsze rozegranie?', ctx: 'Pomyśl o ostatnim podaniu. Jak często rezygnujesz z niego mimo możliwości stworzenia przewagi?' },
+          6: { t: 'Jak często zamiast dryblingu lub zagrania mogącego stworzyć przewagę wybierasz bezpieczne podanie?', ctx: 'Pomyśl o pojedynkach 1 na 1. Jak często wybierasz prostsze rozwiązanie zamiast spróbować stworzyć przewagę?' },
+          7: { t: 'Jak często zamiast strzału, ruchu za linię obrony lub odważnego zagrania wybierasz bezpieczniejsze rozwiązanie?', ctx: 'Pomyśl o sytuacjach, w których możesz stworzyć zagrożenie pod bramką. Jak często rezygnujesz z takiej próby na rzecz prostszego rozwiązania?' },
         }
       },
     ]
@@ -1517,58 +1534,109 @@ const SEGS = [
   {
     id: 'tolerancja', name: 'TOL. OBCIĄŻEŃ', pillar: 'Filar 3 — Trwałość organizmu', n: '06',
     qs: [
-      { t: 'Jak często po intensywnym tygodniu treningowym to samo miejsce w ciele — kolano, ścięgno, pachwina, inne — zaczyna dawać znać bólem lub napięciem, mimo że nie doszło do żadnego konkretnego urazu?', ctx: 'Chodzi o powtarzający się wzorzec w tym samym miejscu, który wraca przy podobnym obciążeniu.', dir: -1 },
-      { t: 'Po przerwie w treningach — choroba, drobny uraz, urlop — jak często wracając do pełnego obciążenia łapiesz nowe przeciążenie lub ból, zamiast płynnie wrócić do formy?', ctx: 'Czy ciało nadgania bezpiecznie, czy próba szybkiego powrotu kończy się kolejnym problemem?', dir: -1 },
+      {
+        t: 'Jak często po kilku dniach intensywnych treningów to samo miejsce w Twoim ciele znowu zaczyna sprawiać problemy?',
+        ctx: 'Może to być ból, sztywność, napięcie lub wyraźny dyskomfort. Nie chodzi o pojedynczy uraz, ale o miejsce, które regularnie odzywa się przy większych obciążeniach.', dir: -1,
+      },
+      {
+        t: 'Jak często po powrocie do regularnych treningów po dłuższej przerwie pojawia się nowe przeciążenie lub wraca wcześniejszy problem?',
+        ctx: 'Pomyśl o powrotach po chorobie, urlopie lub urazie. Czy Twoje ciało stopniowo przyzwyczaja się do obciążeń, czy szybko pojawiają się kolejne problemy?', dir: -1,
+      },
     ]
   },
   {
     id: 'regeneracja', name: 'REGENERACJA', pillar: 'Filar 3 — Trwałość organizmu', n: '07',
     qs: [
-      { t: 'Jak często zmęczenie po ciężkim treningu lub meczu znika zanim nadejdzie kolejne równie wymagające obciążenie?', ctx: 'Zmęczenie zaraz po wysiłku jest normalne, nie o to pytamy. Chodzi o to czy zdążysz dojść do siebie zanim przyjdzie kolejne duże obciążenie. Jeśli nie jesteś pewien — porównaj się do kolegów z drużyny: czy oni wracają do formy szybciej czy wolniej niż Ty w podobnych warunkach.', dir: 1 },
-      { t: 'Jak często śpisz wystarczająco długo i na tyle dobrze, że budzisz się rano faktycznie wypoczęty?', ctx: 'Chodzi o połączenie ilości i jakości snu — czy Twój sen, niezależnie czy to 6 czy 9 godzin, daje Ci realny wypoczynek, czy budzisz się i tak zmęczony.', dir: 1 },
+      {
+        t: 'Jak często przed kolejnym wymagającym treningiem lub meczem czujesz, że Twoje ciało jest gotowe do ponownego intensywnego wysiłku?',
+        ctx: 'Zmęczenie zaraz po treningu lub meczu jest czymś normalnym. Pomyśl o tym, czy przed kolejnym intensywnym treningiem lub meczem czujesz, że Twoje ciało jest gotowe do ponownego wysiłku.', dir: 1,
+      },
+      {
+        t: 'Jak często budzisz się rano wypoczęty i gotowy do normalnego funkcjonowania oraz treningu?',
+        ctx: 'Nie chodzi o liczbę godzin snu, ale o jego efekt. Czy po przebudzeniu czujesz, że naprawdę odpocząłeś i masz energię na nowy dzień?', dir: 1,
+      },
     ]
   },
   {
     id: 'odpornosc', name: 'ODPORNOŚĆ', pillar: 'Filar 3 — Trwałość organizmu', n: '08',
     qs: [
-      { t: 'Jak często w ciągu sezonu choroba — przeziębienie, grypa, infekcja — zmusza Cię do przerwania regularnych treningów?', ctx: 'Odpowiadaj na podstawie liczby razy w tym sezonie — 1-2 razy to rzadko; 4 lub więcej to często.', dir: -1 },
-      { t: 'Gdy już zdarzy Ci się zachorować, jak często wracasz do pełnej gotowości treningowej szybko — w ciągu kilku dni — zamiast być wyłączonym na dłużej lub trenować na pół gwizdka jeszcze długo po ustąpieniu objawów?', ctx: 'Wysoka odpowiedź oznacza że zazwyczaj wracasz szybko i sprawnie po chorobie.', dir: 1 },
+      {
+        t: 'Jak często w ciągu sezonu opuszczasz treningi z powodu przeziębienia, infekcji lub innej choroby?',
+        ctx: 'Pomyśl o całym sezonie. Nie chodzi o kontuzje, ale o choroby, które uniemożliwiły Ci normalne trenowanie lub udział w meczu.', dir: -1,
+      },
+      {
+        t: 'Gdy zachorujesz, jak często po powrocie do treningów szybko odzyskujesz swoją normalną formę?',
+        ctx: 'Pomyśl o ostatnich chorobach. Czy po powrocie do treningów szybko wracasz do swojej zwykłej dyspozycji, czy jeszcze przez dłuższy czas czujesz się słabszy niż przed chorobą?', dir: 1,
+      },
     ]
   },
   {
     id: 'odzywianie', name: 'ODŻYWIENIE', pillar: 'Filar 3 — Trwałość organizmu', n: '09',
     qs: [
-      { t: 'Jak często w ostatnich 15-20 minutach meczu Twoje nogi wciąż mają w sobie energię do sprintu na 100% swoich możliwości?', ctx: 'To pytanie o paliwo w baku, nie o chęci czy charakter. Nawet zawodnik z ogromną wolą walki, jeśli zabraknie mu energii, fizycznie nie przyspieszy tak jak chce — nogi po prostu nie zareagują. Odpowiadaj na podstawie tego co czujesz w mięśniach, nie na podstawie tego jak bardzo próbujesz.', dir: 1 },
-      { t: 'Jak często w drugiej połowie meczu lub w końcowej fazie intensywnego treningu zaczynają pojawiać się skurcze mięśni, zawroty głowy lub uczucie mgły w myśleniu — objawy których nie było jeszcze na początku tego samego wysiłku?', ctx: 'Liczy się wystąpienie któregokolwiek z tych objawów, nie wszystkich naraz. Odpowiadaj na podstawie tego jak często to się zdarza — jeśli praktycznie nigdy, zaznacz "Prawie nigdy".', dir: -1 },
-      { t: 'Jak często dbasz o to, żeby zjeść porcję białka — mięso, ryby, jaja, nabiał, rośliny strączkowe — wkrótce po treningu lub meczu, a nie dopiero przypadkowo w ciągu dnia?', ctx: 'Nie musisz znać dokładnych norm ani liczyć gramów. Chodzi o to czy świadomie zwracasz uwagę na to żeby zjeść coś z białkiem niedługo po wysiłku — czy raczej jesz przypadkowo, bez zastanowienia nad tym co i kiedy.', dir: 1 },
+      {
+        t: 'Jak często w końcowej fazie meczu nadal czujesz, że masz energię do wykonania sprintu z pełną intensywnością?',
+        ctx: 'Nie chodzi o motywację ani charakter. Pomyśl o tym, czy pod koniec meczu Twoje nogi nadal są w stanie przyspieszyć tak samo mocno jak na początku.', dir: 1,
+      },
+      {
+        t: 'Jak często podczas długiego lub intensywnego wysiłku pojawiają się objawy świadczące o tym, że organizmowi zaczyna brakować energii lub płynów?',
+        ctx: 'Mogą to być na przykład skurcze mięśni, zawroty głowy, wyraźny spadek energii lub trudności z koncentracją. Nie muszą wystąpić wszystkie naraz — liczy się, czy którykolwiek z tych objawów pojawia się podczas wysiłku.', dir: -1,
+      },
+      {
+        t: 'Jak często już od początku treningu lub meczu czujesz, że masz wystarczająco dużo energii do intensywnego wysiłku?',
+        ctx: 'Pomyśl o pierwszych minutach treningu lub meczu. Czy od początku czujesz się gotowy do intensywnej gry, czy masz wrażenie, że brakuje Ci energii lub potrzebujesz dużo czasu, żeby „wejść na odpowiednie obroty”?', dir: 1,
+      },
     ]
   },
   {
     id: 'koncentracja', name: 'KONCENTRACJA', pillar: 'Filar 4 — Mentalność', n: '10',
     qs: [
-      { t: 'Jak często po błędzie lub trudnym momencie w meczu Twoje myśli zostają przy tym co się stało — nie potrafisz w pełni skupić się na kolejnej akcji, mimo że gra toczy się dalej?', ctx: 'Chodzi o dowolny moment który Cię wytrąca — Twój błąd, gwizdy z trybun, krzyk trenera, sytuacja z rywalem. Zastanów się jak długo po takim momencie Twoje myśli wciąż tam wracają, zanim znów jesteś w pełni skupiony na grze.', dir: -1 },
-      { t: 'Jak często już od pierwszych minut meczu jesteś w pełni skoncentrowany — zamiast "wchodzić w mecz" dopiero po 10-15 minutach?', ctx: 'Zwróć uwagę na pierwsze 10-15 minut — czy zdarzają Ci się tam proste błędy które nie wynikają ze zmęczenia ani z poziomu rywala, tylko z tego że głowa jeszcze nie jest w pełni w meczu?', dir: 1 },
+      {
+        t: 'Jak często po błędzie lub innym trudnym momencie w meczu Twoje myśli nadal do niego wracają, przez co trudniej Ci w pełni skupić się na kolejnej akcji?',
+        ctx: 'Trudnym momentem może być Twój błąd, decyzja sędziego, krzyk trenera, prowokacja rywala lub reakcja kibiców. Pomyśl, czy szybko wracasz do pełnego skupienia, czy przez chwilę nadal myślisz o tym, co się wydarzyło.', dir: -1,
+      },
+      {
+        t: 'Jak często od pierwszego gwizdka jesteś w pełni skoncentrowany i gotowy do gry?',
+        ctx: 'Pomyśl o pierwszych minutach meczu. Czy od początku jesteś mentalnie obecny w grze, czy potrzebujesz kilku minut, żeby osiągnąć pełne skupienie?', dir: 1,
+      },
     ]
   },
   {
-    id: 'mental', name: 'STAN MENTALNY', pillar: 'Filar 4 — Mentalność', n: '11',
+    id: 'mental', name: 'ODWAGA W GRZE', pillar: 'Filar 4 — Mentalność', n: '11',
     qs: [
-      { t: 'Jak często w trudnym momencie meczu — gdy drużyna traci, popełniła błąd, jest pod presją — bierzesz na siebie odpowiedzialność za grę: prosisz o piłkę, podejmujesz decyzję, wychodzisz z inicjatywą?', ctx: 'Chodzi o to czy w trudnych momentach chcesz mieć wpływ na grę, czy wolisz zejść na dalszy plan i zostawić trudne decyzje innym.', dir: 1 },
-      { t: 'Jak często po błędzie grasz dalej równie odważnie jak wcześniej?', ctx: 'Chodzi o to czy błąd zmienia Twój sposób grania na resztę meczu, czy zostajesz przy tym samym poziomie odwagi.', dir: 1 },
+      {
+        t: 'Jak często w trudnych momentach meczu sam szukasz wpływu na grę — prosisz o piłkę, podejmujesz decyzje i wychodzisz z inicjatywą?',
+        ctx: 'Trudnym momentem może być strata bramki, Twój błąd, przewaga rywala lub duża presja wyniku. Pomyśl, czy wtedy chcesz mieć wpływ na przebieg gry, czy wolisz oddać inicjatywę innym zawodnikom.', dir: 1,
+      },
+      {
+        t: 'Jak często po popełnieniu błędu nadal podejmujesz te same odważne decyzje, zamiast zaczynać grać bardziej zachowawczo?',
+        ctx: 'Pomyśl, czy po błędzie nadal grasz swoim normalnym stylem, czy zaczynasz unikać trudniejszych podań, pojedynków lub innych odważnych decyzji.', dir: 1,
+      },
     ]
   },
   {
     id: 'percepcja', name: 'PERCEPCJA', pillar: 'Filar 5 — Boiskowa mądrość', n: '12',
     qs: [
-      { t: 'Jak często w spokojnej sytuacji na boisku — gdy masz czas i przestrzeń — rozglądasz się, żeby sprawdzić gdzie są rywale i partnerzy?', ctx: 'Chodzi o sam nawyk patrzenia dookoła w sytuacjach bez presji czasowej, nie o to co potem z tym robisz.', dir: 1 },
-      { t: 'Jak często rozglądasz się, żeby sprawdzić gdzie są rywale i partnerzy, również wtedy gdy rywal jest blisko i masz mało czasu?', ctx: 'Presja czasu często sprawia że zawodnicy przestają się rozglądać i skupiają wyłącznie na piłce. Chodzi o to czy Ty nadal to robisz w takich momentach.', dir: 1 },
+      {
+        t: 'Jak często, gdy masz czas i przestrzeń, sprawdzasz, co dzieje się wokół Ciebie, zanim podejmiesz decyzję z piłką?',
+        ctx: 'Chodzi o sprawdzanie, gdzie są partnerzy, rywale i wolna przestrzeń. Nie chodzi o to, co później zrobisz z tą informacją, ale o sam nawyk zbierania informacji z otoczenia.', dir: 1,
+      },
+      {
+        t: 'Jak często nadal sprawdzasz, co dzieje się wokół Ciebie, gdy rywal jest blisko i masz bardzo mało czasu na podjęcie decyzji?',
+        ctx: 'Pod presją wielu zawodników przestaje zwracać uwagę na otoczenie i skupia się wyłącznie na piłce. Pomyśl, czy Tobie również się to zdarza, czy nadal zbierasz informacje o tym, co dzieje się wokół Ciebie.', dir: 1,
+      },
     ]
   },
   {
     id: 'decyzja', name: 'SZYBK. DECYZJI', pillar: 'Filar 5 — Boiskowa mądrość', n: '13',
     qs: [
-      { t: 'Jak często w sytuacji którą już wcześniej wielokrotnie widziałeś, wiesz od razu jakie zagranie zwykle działa najlepiej?', ctx: 'Pomyśl o sytuacji która powtarza się w Twoich meczach — na przykład konkretny moment obronny albo ofensywny który zdarza się często. Czy masz do niej gotowe rozwiązanie, czy za każdym razem zaczynasz zastanawiać się od nowa?', dir: 1 },
-      { t: 'Jak często Twoje działanie — podanie, ruch, decyzja — jest już spóźnione, bo sytuacja zdążyła się zmienić zanim zdążyłeś je podjąć?', ctx: 'Chodzi o moment kiedy widzisz efekt spóźnienia — podanie trafia w miejsce gdzie już nikogo nie ma, ruch okazuje się o krok za późno. Nie musisz wiedzieć jaka byłaby lepsza opcja — wystarczy że zauważasz że Twoje działanie nie zdążyło.', dir: -1 },
+      {
+        t: 'Jak często w sytuacji, którą dobrze znasz z wcześniejszych meczów, od razu wiesz, co zrobić?',
+        ctx: 'Pomyśl o sytuacjach, które często powtarzają się podczas meczu. Czy od razu rozpoznajesz najlepsze rozwiązanie, czy za każdym razem musisz się nad nim zastanawiać?', dir: 1,
+      },
+      {
+        t: 'Jak często podejmujesz decyzję o ułamek sekundy za późno, przez co sytuacja na boisku zdąży się już zmienić?',
+        ctx: 'Może się zdarzyć, że podanie trafia tam, gdzie partnera już nie ma, albo ruszasz do piłki chwilę za późno. Nie chodzi o to, czy decyzja była dobra, ale czy została podjęta wystarczająco szybko.', dir: -1,
+      },
     ]
   },
 ];
@@ -2294,30 +2362,6 @@ function updateCharCounter(textarea) {
   }
 }
 
-function updateSurveyProgress() {
-  const total = activeSegs.reduce((sum, seg) => sum + seg.qs.length, 0);
-  const answered = Object.keys(ans).length;
-  const fill = document.getElementById('survey-progress-fill');
-  if (fill) fill.style.width = (total > 0 ? (answered / total) * 100 : 0) + '%';
-
-  // Wycisz pytania przed i po aktywnym
-  document.querySelectorAll('.survey-q-wrap').forEach(el => {
-    const qIdx = parseInt(el.dataset.qidx || '0');
-    const answeredIdxs = Object.keys(ans).map(k => parseInt(k));
-    const maxAnswered = answeredIdxs.length > 0 ? Math.max(...answeredIdxs) : -1;
-    if (qIdx <= maxAnswered) {
-      el.classList.remove('q-active', 'q-future');
-      el.classList.add('q-past');
-    } else if (qIdx === maxAnswered + 1) {
-      el.classList.remove('q-past', 'q-future');
-      el.classList.add('q-active');
-    } else {
-      el.classList.remove('q-past', 'q-active');
-      el.classList.add('q-future');
-    }
-  });
-}
-
 function ctxPick(field, idx, btn) {
   ctx[field] = idx;
   btn.parentElement.querySelectorAll('.ctx-btn').forEach(b => b.classList.remove('sel'));
@@ -2688,13 +2732,18 @@ async function loadFeedbackAnalysis() {
     const rows = await res.json();
     if (!rows.length) return null;
 
-    // Zlicz problemy per segment
+    // Zlicz problemy per segment — top_deficits zawiera już pełne, czytelne
+    // nazwy segmentów (nie id), więc zliczamy bezpośrednio po nazwie. Wcześniej
+    // kod próbował wyciągnąć "id" przez wzięcie pierwszego słowa z nazwy, co
+    // ucinało 5 z 13 wieloczłonowych nazw (np. "TECHNIKA SPEC." -> "TECHNIKA"),
+    // a późniejsze SEGS.find(s=>s.id===id) nigdy nie znajdowało dopasowania
+    // dla takich ucietych fragmentów.
     const deficitCounts = {};
     rows.forEach(r => {
       if (r.top_deficits) {
         r.top_deficits.split(',').forEach(d => {
-          const id = d.trim().split(' ')[0];
-          deficitCounts[id] = (deficitCounts[id] || 0) + 1;
+          const name = d.trim();
+          if (name) deficitCounts[name] = (deficitCounts[name] || 0) + 1;
         });
       }
     });
@@ -2702,10 +2751,7 @@ async function loadFeedbackAnalysis() {
     const problemSegs = Object.entries(deficitCounts)
       .sort((a,b) => b[1]-a[1])
       .slice(0,5)
-      .map(([id, count]) => {
-        const seg = SEGS.find(s=>s.id===id);
-        return `${seg ? seg.name : id}: ${count} diagnoz`;
-      });
+      .map(([name, count]) => `${name}: ${count} diagnoz`);
 
     const comments = rows
       .filter(r => r.feedback_comment && r.feedback_comment.trim())
@@ -2789,6 +2835,255 @@ async function loadParentView(token) {
   }
 }
 
+async function loadObservationResponseView(token) {
+  showScreen('screen-observation-response');
+  const el = document.getElementById('observation-content');
+
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/followups?response_token=eq.${encodeURIComponent(token)}&limit=1`,
+      { headers: { 'apikey': SUPABASE_KEY } }
+    );
+    const rows = await res.json();
+    if (!rows.length) {
+      el.innerHTML = '<div style="padding:48px;text-align:center;"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:#9a9488;margin-bottom:8px;">Nie znaleziono pytania</div><p style="font-size:13px;color:#9a9488;font-weight:300;">Link może być nieaktualny lub nieprawidłowy.</p></div>';
+      return;
+    }
+    const row = rows[0];
+
+    // Token jednorazowy — jeśli już odpowiedziano, pokaż podziękowanie
+    // zamiast formularza, żeby uniknąć przypadkowej wielokrotnej odpowiedzi.
+    if (row.responded_at) {
+      el.innerHTML = '<div style="padding:48px;text-align:center;"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:#0e0d0b;margin-bottom:8px;">Dziękujemy za odpowiedź</div><p style="font-size:13px;color:#9a9488;font-weight:300;">Już odpowiedziałeś/aś na to pytanie.</p></div>';
+      return;
+    }
+
+    let payload = {};
+    try { payload = JSON.parse(row.payload || '{}'); } catch(e) {}
+
+    if (row.message_type === 'checkin_21d') {
+      renderCheckinForm(token, payload);
+      return;
+    }
+    if (row.message_type === 'big_rediagnosis_90d') {
+      renderBigRediagnosisInvite(token);
+      return;
+    }
+
+    // Domyślnie — pojedyncze pytanie-hipoteza (trener/rodzic, mechanizm 3-w-1)
+    const question = payload.question || 'Czy zauważasz zmianę w zachowaniu?';
+
+    el.innerHTML = `
+      <div style="background:#fff;border:1px solid #d8d3c8;padding:32px 24px;">
+        <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:10px;">Gamechange · jedno pytanie</div>
+        <div style="font-size:19px;line-height:1.5;color:#0e0d0b;margin-bottom:24px;font-weight:500;">${esc(question)}</div>
+        <div style="display:flex;gap:10px;margin-bottom:10px;">
+          <button onclick="submitObservationResponse('${esc(token)}','yes',this)" style="flex:1;padding:14px 8px;border:1px solid #2a7a3a;color:#2a7a3a;background:#fff;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Tak, zauważam</button>
+          <button onclick="submitObservationResponse('${esc(token)}','no',this)" style="flex:1;padding:14px 8px;border:1px solid #E8432D;color:#E8432D;background:#fff;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Nie, raczej nie</button>
+        </div>
+        <button onclick="submitObservationResponse('${esc(token)}','unsure',this)" style="width:100%;padding:14px 8px;border:1px solid #d8d3c8;color:#9a9488;background:#fff;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;margin-bottom:16px;">Nie jestem pewien/pewna</button>
+        <textarea id="observation-comment" placeholder="Chcesz dodać coś więcej? (opcjonalnie)" style="width:100%;border:1px solid #d8d3c8;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;resize:none;height:60px;color:#3a3830;"></textarea>
+      </div>
+    `;
+  } catch(e) {
+    el.innerHTML = '<div style="padding:48px;text-align:center;color:#9a9488;">Błąd ładowania pytania.</div>';
+  }
+}
+
+/**
+ * Renderuje krótki check-in — pyta TYLKO o segmenty które były wykrytym
+ * deficytem (pytanie bazowe z SEGS, bez wariantu pozycyjnego — wystarczająco
+ * precyzyjne dla szybkiego sprawdzenia postępu). Niska bariera wejścia
+ * (1-4 pytania) w przeciwieństwie do pełnej ankiety (27 pytań) — to jest
+ * most między pełnymi diagnozami, nie ich zastępstwo.
+ */
+function renderCheckinForm(token, payload) {
+  const el = document.getElementById('observation-content');
+  const segIds = payload.deficit_segment_ids || [];
+  const relevantSegs = segIds.map(id => SEGS.find(s => s.id === id)).filter(Boolean);
+
+  if (!relevantSegs.length) {
+    el.innerHTML = '<div style="padding:48px;text-align:center;color:#9a9488;">Nie znaleziono pytań do sprawdzenia.</div>';
+    return;
+  }
+
+  const questionsHtml = relevantSegs.map((seg, i) => `
+    <div style="margin-bottom:20px;">
+      <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#9a9488;margin-bottom:6px;">${esc(seg.name)}</div>
+      <div style="font-size:15px;color:#0e0d0b;margin-bottom:10px;line-height:1.5;">${esc(seg.qs[0].t)}</div>
+      <div style="display:flex;gap:6px;" data-checkin-seg="${esc(seg.id)}">
+        ${['Prawie nigdy','Rzadko','Często','Prawie zawsze'].map((label, vi) => `
+          <button onclick="pickCheckinAnswer(this, ${vi + 1})" style="flex:1;padding:10px 4px;border:1px solid #d8d3c8;background:#fff;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;color:#3a3830;">${label}</button>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  el.innerHTML = `
+    <div style="background:#fff;border:1px solid #d8d3c8;padding:28px 24px;">
+      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:6px;">Gamechange · szybki check-in</div>
+      <p style="font-size:13px;color:#9a9488;font-weight:300;margin-bottom:24px;line-height:1.6;">Minęło 3 tygodnie od Twojej diagnozy. ${relevantSegs.length === 1 ? 'Jedno krótkie pytanie' : 'Kilka krótkich pytań'} o obszar który wtedy wykryliśmy — sprawdźmy razem czy coś się zmienia.</p>
+      ${questionsHtml}
+      <button id="checkin-submit-btn" onclick="submitCheckinAnswers('${esc(token)}')" style="width:100%;background:#0e0d0b;color:#f5f2ec;border:none;padding:14px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:0.1em;cursor:pointer;margin-top:8px;">Wyślij →</button>
+    </div>
+  `;
+}
+
+function pickCheckinAnswer(btn, value) {
+  const group = btn.closest('[data-checkin-seg]');
+  group.dataset.value = value;
+  Array.from(group.querySelectorAll('button')).forEach(b => {
+    b.style.background = b === btn ? '#0e0d0b' : '#fff';
+    b.style.color = b === btn ? '#f5f2ec' : '#3a3830';
+  });
+}
+
+async function submitCheckinAnswers(token) {
+  const el = document.getElementById('observation-content');
+  const groups = Array.from(el.querySelectorAll('[data-checkin-seg]'));
+  const answers = {};
+  groups.forEach(g => { if (g.dataset.value) answers[g.getAttribute('data-checkin-seg')] = g.dataset.value; });
+
+  const btn = document.getElementById('checkin-submit-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Zapisuję...'; }
+
+  try {
+    await fetch(
+      `${SUPABASE_URL}/rest/v1/followups?response_token=eq.${encodeURIComponent(token)}`,
+      {
+        method: 'PATCH',
+        headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          response_value: JSON.stringify(answers),
+          responded_at: new Date().toISOString(),
+        }),
+      }
+    );
+
+    // Zapisz jako insighty (source: 'player') — ten sam mechanizm co obserwacje
+    // trenera/rodzica, żeby przyszła diagnoza mogła zobaczyć czy zawodnik sam
+    // potwierdza poprawę w segmentach które były deficytem.
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/followups?response_token=eq.${encodeURIComponent(token)}&limit=1`,
+      { headers: { 'apikey': SUPABASE_KEY } }
+    );
+    const rows = await res.json();
+    if (rows.length) {
+      const payload = JSON.parse(rows[0].payload || '{}');
+      for (const [segId, val] of Object.entries(answers)) {
+        await savePlayerInsight({
+          playerEmail: rows[0].email,
+          source: 'player',
+          segmentId: segId,
+          question: 'Check-in po 21 dniach',
+          responseValue: val,
+        });
+      }
+    }
+
+    el.innerHTML = '<div style="padding:48px;text-align:center;"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:#0e0d0b;margin-bottom:8px;">Dzięki za check-in</div><p style="font-size:13px;color:#9a9488;font-weight:300;">To pomoże śledzić Twój postęp w czasie.</p></div>';
+  } catch(e) {
+    el.innerHTML = '<div style="padding:48px;text-align:center;color:#9a9488;">Błąd zapisu. Spróbuj ponownie później.</div>';
+  }
+}
+
+/**
+ * Zaproszenie do dużej re-diagnozy po 90 dniach — prosty ekran z linkiem
+ * do pełnej ankiety, nie formularz odpowiedzi (w przeciwieństwie do
+ * check-inu). Cel: aktywnie zaprosić do wypełnienia pełnej ankiety zamiast
+ * czekać aż zawodnik sam o tym pomyśli.
+ */
+function renderBigRediagnosisInvite(token) {
+  const el = document.getElementById('observation-content');
+  el.innerHTML = `
+    <div style="background:#fff;border:1px solid #d8d3c8;padding:32px 24px;text-align:center;">
+      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:10px;">Gamechange · 3 miesiące minęły</div>
+      <p style="font-size:15px;color:#0e0d0b;line-height:1.6;margin-bottom:24px;">Sporo się mogło zmienić od Twojej ostatniej diagnozy. Wypełnij ankietę ponownie — zobaczysz pełne porównanie z tym, co było wcześniej.</p>
+      <a href="/" style="display:inline-block;background:#0e0d0b;color:#f5f2ec;padding:14px 32px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:0.1em;text-decoration:none;">Wypełnij ponownie →</a>
+    </div>
+  `;
+}
+
+async function submitObservationResponse(token, value, btn) {
+  const el = document.getElementById('observation-content');
+  const commentEl = document.getElementById('observation-comment');
+  const comment = commentEl ? commentEl.value.trim() : '';
+
+  const buttons = el.querySelectorAll('button');
+  buttons.forEach(b => b.disabled = true);
+  if (btn) btn.textContent = 'Zapisuję...';
+
+  try {
+    await fetch(
+      `${SUPABASE_URL}/rest/v1/followups?response_token=eq.${encodeURIComponent(token)}`,
+      {
+        method: 'PATCH',
+        headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          response_value: value,
+          response_comment: comment || null,
+          responded_at: new Date().toISOString(),
+        }),
+      }
+    );
+
+    // Zapisz insight trwale, przypisany do WŁAŚCIWEGO ZAWODNIKA (nie rodzica) —
+    // bez tego odpowiedź rodzica trafiała tylko do followups, skąd nic jej
+    // nigdy nie odczytywało. Pobieramy payload ponownie po tokenie (nie
+    // polegamy na stanie z poprzedniego wywołania — działa nawet gdy
+    // użytkownik odświeżył stronę między wczytaniem pytania a odpowiedzią).
+    try {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/followups?response_token=eq.${encodeURIComponent(token)}&limit=1`,
+        { headers: { 'apikey': SUPABASE_KEY } }
+      );
+      const rows = await res.json();
+      if (rows.length) {
+        const payload = JSON.parse(rows[0].payload || '{}');
+        if (payload.player_email && payload.segment_id) {
+          await savePlayerInsight({
+            playerEmail: payload.player_email,
+            source: 'parent',
+            segmentId: payload.segment_id,
+            question: payload.question,
+            responseValue: value,
+            responseComment: comment,
+          });
+        }
+      }
+    } catch(e) { /* zapis insightu nie powinien blokować podziękowania rodzicowi */ }
+
+    el.innerHTML = '<div style="padding:48px;text-align:center;"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:#0e0d0b;margin-bottom:8px;">Dziękujemy za odpowiedź</div><p style="font-size:13px;color:#9a9488;font-weight:300;">To pomaga zbudować pełniejszy obraz.</p></div>';
+  } catch(e) {
+    el.innerHTML = '<div style="padding:48px;text-align:center;color:#9a9488;">Błąd zapisu odpowiedzi. Spróbuj ponownie później.</div>';
+  }
+}
+
+// Hipotezy do obserwacji domowej — mechanizm 3-w-1 (hipoteza -> potwierdzenie
+// -> opcjonalny opis) z koncepcji ulepszonej diagnozy. W przeciwieństwie do
+// PARENT_TIPS (rada co robić, wewnątrz generateParentReport) to jest PYTANIE
+// o konkretną, obserwowalną sytuację w domu, zgodne z 21 zasadami tworzenia
+// pytań: jeden konstrukt, obserwowalny efekt nie interpretacja, neutralne
+// sformułowanie bez sugerowania która odpowiedź jest "dobra". Globalna stała,
+// używana zarówno przy generowaniu treści zaplanowanego pytania
+// (scheduleParentObservationRequest) jak i docelowo przy renderowaniu
+// ekranu odpowiedzi rodzica.
+const HOME_OBSERVATION_HYPOTHESES = {
+  koncentracja: 'Czy zauważasz, że po słabszym treningu lub meczu wraca do domu i długo nie może "wyłączyć" myślenia o tym co się wydarzyło?',
+  mental: 'Czy zauważasz, że po gorszym meczu jest wieczorem małomówny lub wycofany bardziej niż zwykle?',
+  percepcja: 'Czy zauważasz, że ogląda mecze w telewizji lub śledzi je uważnie, nie tylko gra sam?',
+  decyzja: 'Czy zauważasz, że w innych sytuacjach życiowych (gry, decyzje domowe) też długo się waha zanim coś zrobi?',
+  moc: 'Czy zauważasz, że budzi się wypoczęty, czy raczej z trudem wstaje na trening lub do szkoły?',
+  wytrzymalosc: 'Czy zauważasz, że po całym dniu (szkoła, trening) jest wyraźnie bardziej zmęczony niż rówieśnicy w podobnej sytuacji?',
+  fizycznosc: 'Czy zauważasz, że unika sytuacji wymagających siły lub kontaktu fizycznego również poza boiskiem?',
+  techFund: 'Czy zauważasz, że sam z siebie ćwiczy w domu lub na podwórku, bez Twojej zachęty?',
+  techSpec: 'Czy zauważasz, że po nieudanej próbie czegoś nowego (nie tylko w piłce) szybko się zniechęca i nie próbuje ponownie?',
+  tolerancja: 'Czy zauważasz, że skarży się na ból lub zmęczenie częściej niż inni w jego wieku?',
+  regeneracja: 'Czy zauważasz, że wieczorem w dniu treningu jest wyraźnie bardziej rozdrażniony lub senny niż zwykle?',
+  odpornosc: 'Czy zauważasz, że choruje częściej niż rówieśnicy lub dłużej dochodzi do siebie po przeziębieniu?',
+  odzywianie: 'Czy zauważasz, że w dni meczowe je śniadanie, czy raczej wychodzi bez jedzenia lub z czymś niewielkim?',
+};
+
 async function generateParentReport(row, el) {
   el.innerHTML = inlineLoaderHTML('Przygotowuję raport');
 
@@ -2815,11 +3110,33 @@ async function generateParentReport(row, el) {
 
   const sorted = Object.entries(scores).sort((a,b) => b[1]-a[1]);
   const strengths = getRelativeStrengths(scores, 3);
-  const deficits = getRelativeDeficits(scores, 3);
+  let deficits = getRelativeDeficits(scores, 3);
   const overall = Math.round(Object.values(scores).reduce((a,b)=>a+b,0) / Object.values(scores).length);
+
+  // Ten sam fallback co w generateBridge/renderProduct: brak realnego deficytu
+  // (profil wyrównany) nie oznacza że system ma zmyślić problem — jeśli znamy
+  // pozycję zawodnika, rekomendujemy segment kluczowy dla tej roli. row.position
+  // to zapisana nazwa tekstowa (np. "Napastnik"), więc najpierw znajdujemy jej
+  // indeks w CTX_LABELS.pos żeby móc użyć getPositionProfile.
+  let isPositionBasedRecommendation = false;
+  if (!deficits.length && pos) {
+    const posIdx = CTX_LABELS.pos.indexOf(pos);
+    const positionProfile = posIdx >= 0 ? getPositionProfile(posIdx) : null;
+    if (positionProfile) {
+      const keySegments = Object.entries(positionProfile.tiers)
+        .filter(([, tier]) => tier === 'key')
+        .map(([segId]) => segId);
+      const candidateId = keySegments.find(id => scores[id] !== undefined);
+      if (candidateId) {
+        deficits = [[candidateId, scores[candidateId]]];
+        isPositionBasedRecommendation = true;
+      }
+    }
+  }
 
   const strengthsText = strengths.map(([id]) => SEG_NAMES_PL[id]).filter(Boolean).join(', ');
   const deficitsText = deficits.map(([id]) => SEG_NAMES_PL[id]).filter(Boolean).join(', ');
+  const profileIsBalanced = deficits.length === 0;
 
   // Wskazówki dla rodzica — co może zrobić poza boiskiem
   const PARENT_TIPS = {
@@ -2842,6 +3159,15 @@ async function generateParentReport(row, el) {
   const topStrengthId = strengths[0] ? strengths[0][0] : null;
   const parentTip = topDeficitId && PARENT_TIPS[topDeficitId] ? PARENT_TIPS[topDeficitId] : (topStrengthId && PARENT_TIPS[topStrengthId] ? PARENT_TIPS[topStrengthId] : '');
 
+  // Rozpoznanie scenariusza — ta sama logika co w głównej diagnozie zawodnika,
+  // żeby raport rodzica nie był zmuszony zmyślać "wąskie gardło" gdy go nie ma.
+  const parentScenario = isPositionBasedRecommendation ? 2 : (deficits.length > 0 ? 1 : 3);
+  const scenarioBlock = {
+    1: `SCENARIUSZ: wykryto realny obszar do pracy. W SEKCJI 2 opisz go jako konkretną sytuację boiskową którą rodzic mógł widzieć na trybunach — bez oceniania, z zapewnieniem że jest do naprawienia.`,
+    2: `SCENARIUSZ: profil dziecka jest wyrównany — nie ma jednego wyraźnego problemu, i to jest DOBRA, prawdziwa wiadomość, nie luka w diagnozie. W SEKCJI 2 powiedz to wprost i uczciwie rodzicowi ("profil Twojego dziecka jest wyrównany, nie ma jednego wyraźnego miejsca które go ogranicza"), a następnie napisz że mimo to, dla jego pozycji na boisku, jeden obszar (podany niżej jako "obszar który go teraz blokuje") jest szczególnie wart uwagi — bo to fundament tej roli, niezależnie od tego że dziś nie jest to jego najsłabszy wynik. NIE nazywaj tego "wąskim gardłem" ani problemem — to rekomendacja rozwojowa, nie diagnoza deficytu.`,
+    3: `SCENARIUSZ: profil dziecka jest wyrównany i nie znamy jego pozycji na boisku. W SEKCJI 2 NIE WYMYŚLAJ problemu — powiedz uczciwie że profil jest wyrównany, to dobra wiadomość, i że przy takim wyniku warto po prostu kontynuować regularną, różnorodną pracę na treningach. Nie sugeruj żadnego konkretnego obszaru do poprawy skoro go nie zidentyfikowaliśmy.`,
+  }[parentScenario];
+
   // Prompt dla AI — raport napisany dla rodzica
   const prompt = `Jesteś ekspertem od rozwoju młodych piłkarzy. Piszesz krótki raport dla rodzica zawodnika. Ton: ciepły, konkretny, wspierający — jak rozmowa z doświadczonym trenerem który ceni sobie czas rodzica.
 
@@ -2850,7 +3176,9 @@ Imię: ${name}
 Pozycja: ${pos || 'nie podano'}
 Wiek: ${age || 'nie podano'}
 Mocne strony (wg diagnozy): ${strengthsText || 'wynik wyrównany'}
-Obszar który go teraz blokuje: ${deficitsText || 'brak wyraźnego deficytu'}
+Obszar który go teraz blokuje: ${deficitsText || 'brak wyraźnego deficytu — profil wyrównany'}
+
+${scenarioBlock}
 
 Napisz raport w trzech krótkich sekcjach (każda 2-3 zdania):
 
@@ -2858,7 +3186,7 @@ SEKCJA 1 — "Co Twoje dziecko ma naprawdę dobre":
 Napisz o mocnych stronach w języku rodzica — co to oznacza w praktyce na boisku. Nie używaj terminologii technicznej. Rodzic powinien poczuć dumę i zrozumieć dlaczego to jest wartościowe.
 
 SEKCJA 2 — "Co go teraz blokuje":
-Jedno konkretne wąskie gardło — opisane jako sytuacja boiskowa którą rodzic mógł widzieć na trybunach, nie jako deficyt psychologiczny. Bez oceniania. Zakończ zdaniem że to jest do naprawienia.
+Zgodnie z SCENARIUSZEM podanym wyżej. Bez oceniania.
 
 SEKCJA 3 — "Jeden konkret który możesz zrobić":
 Jedna praktyczna rzecz którą rodzic może zrobić w tym miesiącu — nie treningowo, ale jako rodzic. Codzienna, realistyczna, bez kosztów.
@@ -3081,7 +3409,7 @@ function renderTeamTable(data) {
     techFund: 'Technika fund.', techSpec: 'Technika spec.',
     tolerancja: 'Tol. obciążeń', regeneracja: 'Regeneracja',
     odpornosc: 'Odporność', odzywianie: 'Odżywienie',
-    koncentracja: 'Koncentracja', mental: 'Stan mentalny',
+    koncentracja: 'Koncentracja', mental: 'Odwaga w grze',
     percepcja: 'Percepcja', decyzja: 'Szybk. decyzji',
   };
 
@@ -3133,9 +3461,6 @@ function renderTeamTable(data) {
 // Jedna konkretna podpowiedź treningowa dla trenera per zawodnik
 function _coachHintForPlayer(row, scores) {
   if (!scores) return '—';
-  const sorted = Object.entries(scores).sort((a,b) => a[1]-b[1]);
-  const top = sorted[0];
-  if (!top) return '—';
 
   const HINTS = {
     moc: 'Włącz do rozgrzewki krótkie starty 10m. Priorytet: pierwsze 3 metry.',
@@ -3153,7 +3478,28 @@ function _coachHintForPlayer(row, scores) {
     decyzja: 'Ćwiczenia z presją czasu. Jeden kontakt, dwa kontakty. Szybkość decyzji buduje się przez powtórzenia.',
   };
 
-  return HINTS[top[0]] || '—';
+  // Ten sam mechanizm co w raporcie rodzica i mostku do produktu: bierzemy
+  // realny statystyczny deficyt (względem WŁASNEJ mediany zawodnika), nie
+  // po prostu najniższy surowy wynik — bo przy wyrównanym profilu najniższy
+  // z segmentów w normie i tak "wygrywał" ten ranking, sugerując trenerowi
+  // fałszywy priorytet w miejscu które wcale nie odstaje od reszty.
+  const deficits = getRelativeDeficits(scores, 1);
+  if (deficits.length) {
+    return HINTS[deficits[0][0]] || '—';
+  }
+
+  // Profil wyrównany — fallback do segmentu kluczowego dla pozycji, jeśli ją znamy
+  const posIdx = row.position ? CTX_LABELS.pos.indexOf(row.position) : -1;
+  const positionProfile = posIdx >= 0 ? getPositionProfile(posIdx) : null;
+  if (positionProfile) {
+    const keySegments = Object.entries(positionProfile.tiers)
+      .filter(([, tier]) => tier === 'key')
+      .map(([segId]) => segId);
+    const candidateId = keySegments.find(id => scores[id] !== undefined);
+    if (candidateId && HINTS[candidateId]) return HINTS[candidateId];
+  }
+
+  return 'Profil wyrównany — brak pilnego priorytetu';
 }
 
 // ======================================
@@ -3174,7 +3520,7 @@ const SEG_ORDER_PANEL = [
   { id: 'odpornosc', name: 'ODPORNOŚĆ' },
   { id: 'odzywianie', name: 'ODŻYWIENIE' },
   { id: 'koncentracja', name: 'KONCENTRACJA' },
-  { id: 'mental', name: 'STAN MENTALNY' },
+  { id: 'mental', name: 'ODWAGA W GRZE' },
   { id: 'percepcja', name: 'PERCEPCJA' },
   { id: 'decyzja', name: 'SZYBK. DECYZJI' },
 ];
@@ -3232,10 +3578,14 @@ function openPlayerPanel(idx) {
   document.getElementById('pp-note-error').style.display = 'none';
   loadCoachNote(row);
 
-  // Reset pytań
+  // Reset pytań — ale najpierw sprawdź czy trener już wcześniej coś
+  // zaobserwował dla tego zawodnika (żeby nie dawać złudzenia że wcześniejsza
+  // praca zniknęła bez śladu)
   document.getElementById('pp-questions').innerHTML = '';
   document.getElementById('pp-questions-btn').style.display = 'block';
   document.getElementById('pp-enhanced-wrap').style.display = 'none';
+  showPreviousCoachInsight(row);
+  renderCoachValidation(row, scores);
 
   // Pokaż panel
   document.getElementById('player-panel-overlay').style.display = 'block';
@@ -3286,6 +3636,222 @@ async function saveCoachNote() {
   }
 }
 
+/**
+ * Zapisuje jedną, potwierdzoną obserwację o zawodniku do tabeli player_insights.
+ * To jest trwałe miejsce gromadzenia wiedzy z wielu źródeł (trener, rodzic,
+ * docelowo sam zawodnik po czasie) — w przeciwieństwie do coach_notes (wolny
+ * tekst, tylko dla trenera, nigdy nie wraca do diagnozy), insights są
+ * ustrukturyzowane per segment i SĄ odczytywane przy budowaniu kolejnej
+ * diagnozy (patrz _buildDiagData) — to jest różnica między "dane się
+ * zbierają" a "dane budują zrozumienie".
+ */
+/**
+ * Zapisuje jedną, potwierdzoną obserwację o zawodniku do tabeli player_insights.
+ * To jest trwałe miejsce gromadzenia wiedzy z wielu źródeł (trener, rodzic,
+ * docelowo sam zawodnik po czasie) — w przeciwieństwie do coach_notes (wolny
+ * tekst, tylko dla trenera, nigdy nie wraca do diagnozy), insights są
+ * ustrukturyzowane per segment i SĄ odczytywane przy budowaniu kolejnej
+ * diagnozy (patrz _buildDiagData) — to jest różnica między "dane się
+ * zbierają" a "dane budują zrozumienie".
+ *
+ * NADPISYWANIE: jeden insight na kombinację (email, source, segment) —
+ * nowa obserwacja tego samego źródła o tym samym segmencie ZASTĘPUJE
+ * poprzednią (Prefer: merge-duplicates, wymaga unikalnego indeksu w bazie
+ * na te 3 kolumny), zamiast pozwalać sprzecznym wpisom gromadzić się bez
+ * końca. Różne źródła (trener vs rodzic) o tym samym segmencie NIE nadpisują
+ * się nawzajem — to są różne, równie wartościowe perspektywy.
+ */
+async function savePlayerInsight({ playerEmail, source, segmentId, question, responseValue, responseComment }) {
+  if (!playerEmail || !segmentId) return;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/player_insights`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Prefer': 'resolution=merge-duplicates,return=minimal',
+      },
+      body: JSON.stringify({
+        player_email: playerEmail,
+        source, // 'coach' / 'parent' / 'player'
+        segment_id: segmentId,
+        question: question || null,
+        response_value: responseValue || null,
+        response_comment: responseComment || null,
+        created_at: new Date().toISOString(),
+      }),
+    });
+  } catch(e) { console.warn('savePlayerInsight failed', e); }
+}
+
+/**
+ * Wczytuje dotychczasowe, wciąż AKTUALNE insighty dla zawodnika (po emailu).
+ * "Aktualne" = nie starsze niż INSIGHT_MAX_AGE_DAYS (90 dni, mniej więcej
+ * długość jednej rundy sezonu) — starszy insight nie jest usuwany z bazy
+ * (to wciąż wartościowa historia), ale przestaje aktywnie wpływać na bieżącą
+ * diagnozę, żeby nieaktualna obserwacja z poprzedniego etapu rozwoju
+ * zawodnika nie ciążyła nad diagnozą w nieskończoność.
+ */
+const INSIGHT_MAX_AGE_DAYS = 90;
+async function loadPlayerInsights(playerEmail) {
+  if (!playerEmail) return [];
+  try {
+    const cutoff = new Date(Date.now() - INSIGHT_MAX_AGE_DAYS * 24 * 60 * 60 * 1000).toISOString();
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/player_insights?player_email=eq.${encodeURIComponent(playerEmail)}&created_at=gte.${encodeURIComponent(cutoff)}&order=created_at.desc&limit=20`,
+      { headers: { 'apikey': SUPABASE_KEY } }
+    );
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch(e) { return []; }
+}
+
+/**
+ * Pokazuje trenerowi widoczny ślad jego wcześniejszej obserwacji dla tego
+ * zawodnika (jeśli istnieje) — bez tego panel zawsze wyglądał tak jakby
+ * trener nigdy nic nie zapisał, co zniechęcało do ponownego zaangażowania.
+ * Rozróżnia "nigdy nic nie zapisano" od "obserwacja wygasła po 90 dniach"
+ * (loadPlayerInsights celowo pomija starsze — patrz INSIGHT_MAX_AGE_DAYS) —
+ * bez tego rozróżnienia trener mógłby pomyśleć że system zgubił jego pracę,
+ * zamiast że to jest zamierzone wygaśnięcie nieaktualnej już obserwacji.
+ */
+async function showPreviousCoachInsight(row) {
+  const el = document.getElementById('pp-previous-insight');
+  if (!el || !row.email) { if (el) el.innerHTML = ''; return; }
+
+  try {
+    const insights = await loadPlayerInsights(row.email);
+    const coachInsight = insights.find(i => i.source === 'coach');
+
+    if (!coachInsight) {
+      // Sprawdzamy czy istnieje WYGASŁA obserwacja (starsza niż limit), żeby
+      // odróżnić "nigdy nic nie było" od "było, ale już nieaktualne".
+      const allInsights = await fetch(
+        `${SUPABASE_URL}/rest/v1/player_insights?player_email=eq.${encodeURIComponent(row.email)}&source=eq.coach&order=created_at.desc&limit=1`,
+        { headers: { 'apikey': SUPABASE_KEY } }
+      ).then(r => r.json()).catch(() => []);
+
+      if (allInsights.length) {
+        el.innerHTML = `<div style="padding:10px 14px;background:#f5f2ec;margin-bottom:14px;"><div style="font-size:11px;color:#9a9488;font-weight:300;">Twoja wcześniejsza obserwacja tego zawodnika jest już nieaktualna (starsza niż ${INSIGHT_MAX_AGE_DAYS} dni) i nie wpływa na bieżącą diagnozę.</div></div>`;
+      } else {
+        el.innerHTML = '';
+      }
+      return;
+    }
+
+    const daysAgo = Math.round((Date.now() - new Date(coachInsight.created_at).getTime()) / (24 * 60 * 60 * 1000));
+    const whenText = daysAgo === 0 ? 'dziś' : daysAgo === 1 ? 'wczoraj' : `${daysAgo} dni temu`;
+    const segName = SEG_NAMES[coachInsight.segment_id] || coachInsight.segment_id;
+
+    el.innerHTML = `
+      <div style="padding:12px 14px;background:#f5f2ec;border-left:2px solid #2a7a3a;margin-bottom:14px;">
+        <div style="font-size:11px;color:#2a7a3a;font-weight:500;margin-bottom:4px;">Twoja ostatnia obserwacja (${whenText}, obszar: ${segName})</div>
+        <div style="font-size:12px;color:#3a3830;font-weight:300;line-height:1.6;">${esc((coachInsight.response_value || '').slice(0, 200))}</div>
+      </div>`;
+  } catch(e) { el.innerHTML = ''; }
+}
+
+/**
+ * Renderuje pytanie walidacyjne "czy diagnoza się zgadza" — jedno, konkretne
+ * pytanie o GŁÓWNY wykryty segment (ten sam wzorzec doboru co wszędzie:
+ * getRelativeDeficits z fallbackiem pozycyjnym, NIC jeśli Scenariusz 3 — nie
+ * zgadujemy). To jest ustrukturyzowany sygnał trafności (Tak/Trochę/Nie),
+ * jakościowo różny od swobodnych obserwacji trenera (generateCoachQuestions) —
+ * daje mierzalny, agregowalny wskaźnik czy system trafia w rzeczywistość,
+ * nie tylko kolejną obserwację do promptu.
+ */
+function renderCoachValidation(row, scores) {
+  const el = document.getElementById('pp-validation');
+  if (!el) return;
+
+  if (!scores) { el.innerHTML = '<div style="font-size:13px;color:#9a9488;">Brak danych do walidacji.</div>'; return; }
+
+  let deficits = getRelativeDeficits(scores, 1);
+  if (!deficits.length && row.position !== undefined && row.position !== null) {
+    // Fallback pozycyjny — ten sam mechanizm co scheduleParentObservationRequest/_buildDiagData
+    const posIdx = CTX_LABELS.pos.indexOf(row.position);
+    const positionProfile = posIdx >= 0 ? getPositionProfile(posIdx) : null;
+    if (positionProfile) {
+      const keySegments = Object.entries(positionProfile.tiers)
+        .filter(([, tier]) => tier === 'key').map(([segId]) => segId);
+      const candidateId = keySegments.find(id => scores[id] !== undefined);
+      if (candidateId) deficits = [[candidateId, scores[candidateId]]];
+    }
+  }
+
+  if (!deficits.length) {
+    // Scenariusz 3 — brak realnego deficytu i brak pozycji do fallbacku,
+    // nie zgadujemy o co pytać, zgodnie z zasadą stosowaną wszędzie indziej.
+    el.innerHTML = '<div style="font-size:13px;color:#9a9488;">Profil wyrównany — brak jednego, konkretnego obszaru do potwierdzenia.</div>';
+    return;
+  }
+
+  const segId = deficits[0][0];
+  const segName = SEG_NAMES[segId] || segId;
+
+  el.innerHTML = `
+    <div style="font-size:14px;color:#0e0d0b;margin-bottom:14px;line-height:1.5;">System wskazał <strong>${esc(segName)}</strong> jako główny obszar do pracy. Czy to się zgadza z Twoją oceną tego zawodnika?</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;" id="pp-validation-btns">
+      <button onclick="submitCoachValidation('${esc(segId)}','yes',this)" style="flex:1;padding:12px 6px;border:1px solid #2a7a3a;color:#2a7a3a;background:#fff;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Tak</button>
+      <button onclick="submitCoachValidation('${esc(segId)}','partial',this)" style="flex:1;padding:12px 6px;border:1px solid #e08020;color:#e08020;background:#fff;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Trochę</button>
+      <button onclick="submitCoachValidation('${esc(segId)}','no',this)" style="flex:1;padding:12px 6px;border:1px solid #C0392B;color:#C0392B;background:#fff;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Nie</button>
+    </div>
+    <div id="pp-validation-comment-wrap" style="display:none;">
+      <textarea id="pp-validation-comment" placeholder="Co Twoim zdaniem jest bliższe prawdy? (opcjonalnie, ale bardzo pomocne)" style="width:100%;border:1px solid #d8d3c8;padding:10px;font-family:'DM Sans',sans-serif;font-size:13px;resize:none;height:56px;color:#3a3830;margin-top:10px;"></textarea>
+      <button onclick="submitCoachValidationComment('${esc(row.email || '')}')" style="width:100%;background:#0e0d0b;color:#f5f2ec;border:none;padding:10px;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:0.1em;cursor:pointer;margin-top:8px;">Wyślij komentarz</button>
+    </div>
+  `;
+}
+
+let _pendingValidationSegId = null;
+
+async function submitCoachValidation(segId, value, btn) {
+  const el = document.getElementById('pp-validation');
+  const row = teamData[_currentPlayerIdx];
+  if (!row || !row.email) return;
+
+  const buttons = document.getElementById('pp-validation-btns').querySelectorAll('button');
+  buttons.forEach(b => { b.disabled = true; b.style.opacity = b === btn ? '1' : '0.4'; });
+
+  await savePlayerInsight({
+    playerEmail: row.email,
+    source: 'coach_validation',
+    segmentId: segId,
+    question: 'Czy diagnoza się zgadza?',
+    responseValue: value,
+  });
+
+  if (value === 'no' || value === 'partial') {
+    // Jeśli trener nie zgadza się w pełni, dajemy pole na wyjaśnienie —
+    // to jest najbardziej wartościowy sygnał do oceny jakości systemu.
+    _pendingValidationSegId = segId;
+    document.getElementById('pp-validation-comment-wrap').style.display = 'block';
+  } else {
+    const msg = document.createElement('div');
+    msg.style.cssText = 'font-size:12px;color:#2a7a3a;margin-top:10px;';
+    msg.textContent = '✓ Dziękujemy za potwierdzenie';
+    el.appendChild(msg);
+  }
+}
+
+async function submitCoachValidationComment(email) {
+  const commentEl = document.getElementById('pp-validation-comment');
+  const comment = commentEl ? commentEl.value.trim() : '';
+  if (!comment || !_pendingValidationSegId || !email) return;
+
+  await savePlayerInsight({
+    playerEmail: email,
+    source: 'coach_validation',
+    segmentId: _pendingValidationSegId,
+    question: 'Czy diagnoza się zgadza? — wyjaśnienie',
+    responseValue: 'comment',
+    responseComment: comment,
+  });
+
+  document.getElementById('pp-validation-comment-wrap').innerHTML = '<div style="font-size:12px;color:#2a7a3a;">✓ Dziękujemy za wyjaśnienie — to pomoże ocenić i poprawić system.</div>';
+}
+
 async function loadCoachNote(row) {
   try {
     const res = await fetch(
@@ -3304,33 +3870,48 @@ async function generateCoachQuestions() {
   const row = teamData[_currentPlayerIdx];
   const name = row.player_name || 'ten zawodnik';
   const scores = row.scores ? (() => { try { return JSON.parse(row.scores); } catch(e) { return null; } })() : null;
-  const deficits = row.top_deficits || '';
   const pos = row.position || 'nieznana pozycja';
-  const overall = row.overall_score || '—';
 
   const btn = document.getElementById('pp-questions-btn');
   const questionsEl = document.getElementById('pp-questions');
   btn.textContent = 'Generuję pytania...';
   btn.disabled = true;
 
-  // Prompt — pytania spersonalizowane pod tego zawodnika
-  const sorted = scores ? Object.entries(scores).sort((a,b)=>a[1]-b[1]).slice(0,3) : [];
-  const topDefStr = sorted.map(([id,val]) => `${id} (${val}/100)`).join(', ');
+  // Prawdziwy względny deficyt (nie najniższe surowe wyniki) — top_deficits
+  // w bazie jest już oczyszczone (nazwy bez liczb, patrz naprawa wcześniej
+  // dziś), z fallbackiem na getRelativeDeficits + segment kluczowy dla
+  // pozycji gdy profil wyrównany.
+  let topDefStr = row.top_deficits || '';
+  if (!topDefStr && scores) {
+    const deficits = getRelativeDeficits(scores, 3);
+    if (deficits.length) {
+      topDefStr = deficits.map(([id]) => SEG_NAMES[id] || id).join(', ');
+    } else {
+      const posIdx = row.position ? CTX_LABELS.pos.indexOf(row.position) : -1;
+      const positionProfile = posIdx >= 0 ? getPositionProfile(posIdx) : null;
+      if (positionProfile) {
+        const keySegments = Object.entries(positionProfile.tiers)
+          .filter(([, tier]) => tier === 'key').map(([segId]) => segId);
+        const candidateId = keySegments.find(id => scores[id] !== undefined);
+        if (candidateId) topDefStr = SEG_NAMES[candidateId] || candidateId;
+      }
+    }
+  }
+  topDefStr = topDefStr || 'profil wyrównany, brak jednego wyraźnego problemu';
 
   const prompt = `Jesteś systemem diagnostycznym Gamechange. Analizujesz profil zawodnika i generujesz pytania dla jego trenera. Pytania mają uzupełnić dane z ankiety o obserwacje trenera z boiska — żeby razem dały pełniejszy obraz zawodnika.
 
 PROFIL ZAWODNIKA:
 Imię: ${name}
 Pozycja: ${pos}
-Wynik ogólny: ${overall}/100
-Największe deficyty wg ankiety: ${topDefStr}
-Top deficyty (etykiety): ${deficits}
+Obszary do pracy wg ankiety: ${topDefStr}
 
 Wygeneruj dokładnie 4 pytania dla trenera. Każde pytanie musi:
 1. Być spersonalizowane pod pozycję i deficyty tego konkretnego zawodnika
 2. Pytać o to czego ankieta nie może zmierzyć — obserwacje z boiska, zachowanie pod presją, relacje z zespołem, reakcję na krytykę
 3. Być krótkie (jedno zdanie) i konkretne — trener odpowiada w 2-3 zdaniach
 4. Nie powtarzać tego co już zmierzono ankietą
+5. ZAKAZ używania liczb, wyników procentowych ani nazw segmentów systemu — pytaj o zachowania i sytuacje, nie o "wynik w tym obszarze"
 
 Format odpowiedzi — tylko JSON, bez żadnego dodatkowego tekstu:
 [
@@ -3399,9 +3980,30 @@ async function submitCoachAnswers() {
   enhanced.style.display = 'block';
   enhancedText.innerHTML = inlineLoaderHTML('Generuję ulepszoną diagnozę').replace('ai-loader-label', 'ai-loader-label" style="color:rgba(255,255,255,0.5)');
 
-  // Posortuj segmenty
-  const sorted = scores ? Object.entries(scores).sort((a,b)=>a[1]-b[1]).slice(0,4) : [];
-  const defStr = sorted.map(([id,val]) => `${id}: ${val}/100`).join(', ');
+  // Prawdziwy względny deficyt (nie najniższy surowy wynik) — z fallbackiem
+  // pozycyjnym gdy profil wyrównany, ten sam mechanizm co w pozostałych
+  // punktach AI systemu. Bez tego AI mogło dostać do opisania segment który
+  // wcale nie jest realnym problemem tego zawodnika, tylko przypadkowo
+  // najniższą liczbą w wyrównanym profilu.
+  let deficitsForCoach = scores ? getRelativeDeficits(scores, 4) : [];
+  let isPositionBasedForCoach = false;
+  if (scores && !deficitsForCoach.length) {
+    const posIdx = row.position ? CTX_LABELS.pos.indexOf(row.position) : -1;
+    const positionProfile = posIdx >= 0 ? getPositionProfile(posIdx) : null;
+    if (positionProfile) {
+      const keySegments = Object.entries(positionProfile.tiers)
+        .filter(([, tier]) => tier === 'key')
+        .map(([segId]) => segId);
+      const candidateId = keySegments.find(id => scores[id] !== undefined);
+      if (candidateId) {
+        deficitsForCoach = [[candidateId, scores[candidateId]]];
+        isPositionBasedForCoach = true;
+      }
+    }
+  }
+  const defStr = deficitsForCoach.length
+    ? deficitsForCoach.map(([id]) => SEG_NAMES[id] || id).join(', ')
+    : 'profil wyrównany, brak jednego wyraźnego problemu';
 
   const coachInput = qas.map(({q,a}) => `Pytanie: ${q}\nObserwacja trenera: ${a}`).join('\n\n');
 
@@ -3409,7 +4011,7 @@ async function submitCoachAnswers() {
 
 DANE Z ANKIETY:
 Zawodnik: ${name}, pozycja: ${pos}
-Główne deficyty wg systemu: ${defStr}
+${isPositionBasedForCoach ? 'Profil wyrównany — segment kluczowy dla tej pozycji warty uwagi' : 'Główne obszary do pracy wg systemu'}: ${defStr}
 
 OBSERWACJE TRENERA Z BOISKA:
 ${coachInput}
@@ -3420,6 +4022,7 @@ Napisz diagnozę w 4-5 zdaniach. Zasady:
 — Pisz konkretnie, językiem boiskowym
 — Zakończ jednym zdaniem rekomendacji dla trenera: co powinien priorytetyzować w pracy indywidualnej z tym zawodnikiem
 — Forma bezosobowa (nie "Ty" do zawodnika, bo to diagnoza dla trenera)
+— ZAKAZ używania liczb, wyników procentowych ani nazw segmentów systemu — pisz o zachowaniach i sytuacjach boiskowych, nie o "wyniku w tym obszarze"
 — Pisz po polsku`;
 
   try {
@@ -3433,6 +4036,24 @@ Napisz diagnozę w 4-5 zdaniach. Zasady:
     enhancedText.innerHTML = text
       ? `<p style="margin:0;">${text}</p>`
       : '<p style="color:rgba(255,255,255,0.4);">Nie udało się wygenerować diagnozy.</p>';
+
+    // Zapisz obserwacje trenera trwale — bez tego znikały bezpowrotnie po
+    // zamknięciu karty. Przypisane do głównego segmentu (ten sam który
+    // wyznaczyliśmy wyżej w tej funkcji), żeby przyszła diagnoza mogła
+    // je uwzględnić (patrz _buildDiagData).
+    if (row.email && text) {
+      const mainSegId = deficitsForCoach.length ? deficitsForCoach[0][0] : null;
+      if (mainSegId) {
+        savePlayerInsight({
+          playerEmail: row.email,
+          source: 'coach',
+          segmentId: mainSegId,
+          question: qas.map(x => x.q).join(' / '),
+          responseValue: qas.map(x => x.a).join(' | '),
+          responseComment: text,
+        });
+      }
+    }
   } catch(e) {
     enhancedText.innerHTML = '<p style="color:#C0392B;">Błąd połączenia.</p>';
   }
@@ -3459,7 +4080,7 @@ function loadMockTeamData() {
     });
     const overall = Math.round(Object.values(scores).reduce((a,b)=>a+b,0) / SEG_IDS.length);
     const sortedDef = Object.entries(scores).sort((a,b)=>a[1]-b[1]).slice(0,3);
-    const top_deficits = sortedDef.map(([id,v]) => `${id} (${v})`).join(', ');
+    const top_deficits = sortedDef.map(([id]) => SEG_NAMES[id] || id).join(', ');
 
     return {
       player_name: name,
@@ -3497,9 +4118,13 @@ function loadMockTeamData() {
 function renderTeamStats(data) {
   const scores = data.map(r => r.overall_score).filter(Boolean);
   const avg = scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : 0;
-  const best = scores.length ? Math.max(...scores) : 0;
-  const worst = scores.length ? Math.min(...scores) : 0;
   const below50 = scores.filter(s => s < 50).length;
+
+  // Opis stanu drużyny zamiast surowej średniej i rankingu "Najlepszy" —
+  // ten drugi dodatkowo rankingował zawodników liczbowo przeciwko sobie,
+  // co jest przeciwieństwem filozofii porównania każdego do własnej mediany.
+  const stateLabel = avg < 50 ? 'Wymaga pracy' : avg < 65 ? 'Solidna baza' : 'Dobry poziom';
+  const stateColor = avg < 50 ? '#C0392B' : avg < 65 ? '#e08020' : '#2a7a3a';
 
   const statsEl = document.getElementById('team-stats');
   const stat = (label, val, color) => `
@@ -3507,11 +4132,15 @@ function renderTeamStats(data) {
       <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:${color};margin-bottom:4px;">${val}</div>
       <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#9a9488;">${label}</div>
     </div>`;
+  const statText = (label, val, color) => `
+    <div style="background:#fff;border:1px solid #d8d3c8;padding:20px;text-align:center;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:${color};margin-bottom:4px;">${val}</div>
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#9a9488;">${label}</div>
+    </div>`;
 
   statsEl.innerHTML =
     stat('Zawodnicy', data.length, '#0e0d0b') +
-    stat('Śr. wynik', avg, avg < 50 ? '#C0392B' : avg < 65 ? '#e08020' : '#2a7a3a') +
-    stat('Najlepszy', best, '#2a7a3a') +
+    statText('Stan drużyny', stateLabel, stateColor) +
     stat('Wymaga uwagi', below50, below50 > 0 ? '#C0392B' : '#9a9488');
 }
 
@@ -3666,9 +4295,11 @@ function renderTeamHeatmap(data) {
     labelsSVG += '<text x="' + p.x + '" y="' + p.y + '" text-anchor="' + anchor + '" font-size="9" fill="#9a9488" font-family="Arial" letter-spacing="0.05em">' + shortName + '</text>';
   });
 
-  // Wynik ogólny w środku
+  // Stan drużyny w środku hexagonu — etykieta zamiast surowej liczby,
+  // spójne z renderTeamStats
   var teamAvg = Math.round(segAvgs.reduce(function(a, s) { return a + s.avg; }, 0) / segAvgs.length);
   var teamColor = teamAvg < 40 ? '#C0392B' : teamAvg < 55 ? '#e08020' : teamAvg < 70 ? '#c8b820' : '#2a7a3a';
+  var teamStateLabel = teamAvg < 40 ? 'WYMAGA PRACY' : teamAvg < 55 ? 'DO WZMOCNIENIA' : teamAvg < 70 ? 'SOLIDNA BAZA' : 'DOBRY POZIOM';
 
   html += '<div style="display:flex;align-items:flex-start;gap:32px;margin-bottom:28px;flex-wrap:wrap;">';
   html += '<svg viewBox="0 0 400 400" width="260" height="260" style="flex-shrink:0;">';
@@ -3681,8 +4312,8 @@ function renderTeamHeatmap(data) {
     html += '<circle cx="' + p.x + '" cy="' + p.y + '" r="3.5" fill="#0e0d0b"/>';
   });
   html += labelsSVG;
-  html += '<text x="200" y="196" text-anchor="middle" font-size="32" font-weight="bold" fill="' + teamColor + '" font-family="Arial">' + teamAvg + '</text>';
-  html += '<text x="200" y="214" text-anchor="middle" font-size="9" fill="#9a9488" font-family="Arial" letter-spacing="0.1em">SREDNI WYNIK</text>';
+  html += '<text x="200" y="196" text-anchor="middle" font-size="16" font-weight="bold" fill="' + teamColor + '" font-family="Arial">' + teamStateLabel + '</text>';
+  html += '<text x="200" y="214" text-anchor="middle" font-size="9" fill="#9a9488" font-family="Arial" letter-spacing="0.1em">STAN DRUZYNY</text>';
   html += '</svg>';
 
   // Legenda po prawej — top 3 deficyty i mocne strony
@@ -3900,8 +4531,8 @@ function downloadTeamPDF() {
   y = 38;
 
   // Nagłówki tabeli
-  const cols = [50, 28, 20, 55, 60, 24];
-  const headers = ['Zawodnik', 'Pozycja', 'Wynik', 'Główny deficyt', 'Pozostałe deficyty', 'Data'];
+  const cols = [50, 30, 26, 50, 55, 24];
+  const headers = ['Zawodnik', 'Pozycja', 'Stan', 'Główny obszar', 'Pozostałe obszary', 'Data'];
   let x = margin;
 
   doc.setFillColor(245,242,236);
@@ -3924,6 +4555,8 @@ function downloadTeamPDF() {
   teamData.forEach((row, ri) => {
     if (y > H - 20) { doc.addPage(); y = 20; }
     const overall = row.overall_score || 0;
+    // Etykieta stanu zamiast surowej liczby — ta sama logika co lvlLabel w renderTeamTable
+    const stateLabel = !row.overall_score ? '—' : overall < 40 ? 'Wymaga uwagi' : overall < 55 ? 'Ponizej sredniej' : overall < 70 ? 'Przecietny' : 'Dobry';
     const color = overall < 40 ? [214,60,47] : overall < 65 ? [224,128,32] : [42,122,58];
     const deficits = row.top_deficits ? row.top_deficits.split(', ') : [];
     const date = row.created_at ? new Date(row.created_at).toLocaleDateString('pl-PL') : '—';
@@ -3934,15 +4567,17 @@ function downloadTeamPDF() {
     doc.setTextColor(14,13,11);
     doc.text(stripPolishChars((row.player_name || row.email || 'Anonimowy').slice(0,22)), x, y); x += cols[0];
     doc.setTextColor(100,96,88);
-    doc.text(stripPolishChars((row.position || '—').slice(0,12)), x, y); x += cols[1];
+    doc.text(stripPolishChars((row.position || '—').slice(0,14)), x, y); x += cols[1];
     doc.setTextColor(...color);
     doc.setFont('helvetica','bold');
-    doc.text(stripPolishChars(`${overall}`), x, y); x += cols[2];
+    doc.setFontSize(7);
+    doc.text(stripPolishChars(stateLabel), x, y); x += cols[2];
+    doc.setFontSize(8);
     doc.setTextColor(214,60,47);
     doc.setFont('helvetica','normal');
-    doc.text(stripPolishChars((deficits[0] || '—').slice(0,28)), x, y); x += cols[3];
+    doc.text(stripPolishChars((deficits[0] || '—').slice(0,26)), x, y); x += cols[3];
     doc.setTextColor(100,96,88);
-    doc.text(stripPolishChars(deficits.slice(1).join(', ').slice(0,32) || '—'), x, y); x += cols[4];
+    doc.text(stripPolishChars(deficits.slice(1).join(', ').slice(0,30) || '—'), x, y); x += cols[4];
     doc.text(stripPolishChars(date), x, y);
 
     y += 8;
@@ -3967,6 +4602,7 @@ function saveResultsToURL(scores) {
       c: ctx,
       d: _diagState.diagnosisText || '',   // surowa diagnoza AI, do pełnego odtworzenia przy powrocie
       td: _diagState.topDeficitIds || [],  // do odtworzenia sekcji produktowej
+      ui: _diagState.usedInsights ? 1 : 0, // czy diagnoza uwzględniła obserwacje trenera/rodzica — zachowuje transparentność przy powrocie przez link
     };
     const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
     history.replaceState(null, '', '#' + encoded);
@@ -3998,7 +4634,7 @@ function loadResultsFromURL() {
       document.getElementById('diagnosis-unlocked-note').style.display = 'block';
       const emailGateBox = document.getElementById('email-gate-box');
       if (emailGateBox) emailGateBox.style.display = 'none';
-      renderDiagnosisV2Readonly(data.d, cachedScores);
+      renderDiagnosisV2Readonly(data.d, cachedScores, data.ui === 1);
       _showProductSection(cachedScores);
     }
     return true;
@@ -4011,7 +4647,7 @@ function loadResultsFromURL() {
  * jednorazowe interakcje powiązane z pierwszym wypełnieniem ankiety, nie
  * mają sensu przy każdorazowym powrocie do tego samego wyniku).
  */
-function renderDiagnosisV2Readonly(raw, scores) {
+function renderDiagnosisV2Readonly(raw, scores, usedInsights) {
   const get = (tag) => {
     const m = raw.match(new RegExp(`\\[${tag}\\]([\\s\\S]*?)(?=\\[|$)`));
     return m ? m[1].trim() : '';
@@ -4054,6 +4690,12 @@ function renderDiagnosisV2Readonly(raw, scores) {
       <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;">Nad czym powinieneś pracować</div>
       <p style="font-size:14px;color:#3a3830;line-height:1.8;font-weight:300;margin:0;">${kierunek}</p>
     </div>`;
+  if (usedInsights) {
+    html += `
+      <div style="margin-top:8px;padding:12px 16px;background:#f5f2ec;border-left:2px solid #9a9488;">
+        <p style="font-size:12px;color:#9a9488;font-weight:300;margin:0;line-height:1.6;">Ta diagnoza uwzględnia też obserwacje Twojego trenera lub rodzica, zebrane wcześniej w systemie.</p>
+      </div>`;
+  }
   el.innerHTML = html;
 }
 
@@ -4160,6 +4802,15 @@ window.addEventListener('load', () => {
     return;
   }
 
+  // Odpowiedź na pytanie-hipotezę (mechanizm 3-w-1) — rodzic lub zawodnik
+  // klika link z emaila wysłanego przez scheduler (gdy powstanie), trafia
+  // tutaj bez potrzeby logowania, tak samo jak przy panelu rodzica/trenera.
+  const respondParam = urlParams.get('respond');
+  if (respondParam) {
+    loadObservationResponseView(respondParam);
+    return;
+  }
+
   // Panel trenera
   const teamParam = urlParams.get('team');
   if (teamParam) {
@@ -4248,7 +4899,7 @@ async function saveToSupabase(table, data) {
 function buildDiagnosticsRecord(extras = {}) {
   const deficits = (cachedScores ? getRelativeDeficits(cachedScores, 3) : []).map(([id, score]) => {
     const seg = SEGS.find(s=>s.id===id);
-    return `${seg ? seg.name : id} (${score})`;
+    return seg ? seg.name : id;
   });
 
   return {
@@ -4414,29 +5065,132 @@ function renderHistoryComparison(history, currentScores) {
   '</div>';
 }
 
-async function scheduleFollowUpEmail(email, topDeficitId, topDeficitName) {
-  // Sprawdź czy follow-up dla tego emaila już istnieje (unikaj duplikatów)
+/**
+ * Ogólna funkcja planowania kontaktu odroczonego w czasie — wspólny fundament
+ * dla follow-up zawodnika, pytania do rodzica, i w przyszłości ewentualnego
+ * zapisu obserwacji trenera. Jedna tabela (followups), bo scheduler (gdy
+ * powstanie — Vercel Cron Job, poza zakresem index.html) i tak robi to samo
+ * niezależnie od odbiorcy: znajduje wiersze scheduled_for<=teraz AND sent=false,
+ * wysyła, oznacza sent=true. Rozróżnienie treści to kwestia payload +
+ * message_type, nie osobnej struktury danych.
+ *
+ * WAŻNE: to zapisuje TYLKO dane do przyszłej wysyłki. Sama wysyłka wymaga
+ * schedulera który dziś nie istnieje (świadomie odłożone do czasu po
+ * pilotażu w MKS Parasol — patrz notatka w pamięci).
+ */
+async function scheduleDelayedContact({ email, recipientType, messageType, payload, daysDelay = 14 }) {
+  // Unikaj nadmiernej częstotliwości — sprawdzamy nie tylko czy jest coś
+  // niewysłane w kolejce (sent=false), ale czy JAKIKOLWIEK kontakt tego typu
+  // (wysłany albo nie) był w ciągu ostatnich RECONTACT_COOLDOWN_DAYS. Bez tego
+  // zawodnik wypełniający ankietę częściej (np. testując narzędzie, albo
+  // regularnie w kolejnych tygodniach) mógłby zasypać rodzica pytaniami —
+  // dla zabieganego odbiorcy to prosta droga do zignorowania całego
+  // mechanizmu jako spamu.
+  const RECONTACT_COOLDOWN_DAYS = 30;
   try {
+    const cooldownCutoff = new Date(Date.now() - RECONTACT_COOLDOWN_DAYS * 24 * 60 * 60 * 1000).toISOString();
     const check = await fetch(
-      `${SUPABASE_URL}/rest/v1/followups?email=eq.${encodeURIComponent(email)}&sent=eq.false&limit=1`,
+      `${SUPABASE_URL}/rest/v1/followups?email=eq.${encodeURIComponent(email)}&recipient_type=eq.${encodeURIComponent(recipientType)}&message_type=eq.${encodeURIComponent(messageType)}&created_at=gte.${encodeURIComponent(cooldownCutoff)}&limit=1`,
       { headers: { 'apikey': SUPABASE_KEY } }
     );
     const existing = await check.json();
-    if (existing && existing.length > 0) return; // już zaplanowany
-  } catch(e) { /* ignoruj błąd sprawdzania */ }
+    if (existing && existing.length > 0) return; // kontakt tego typu był niedawno — nie dokładamy kolejnego
+  } catch(e) { /* ignoruj błąd sprawdzania — lepiej zaplanować duplikat niż nic */ }
 
-  const followUpDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString();
+  const scheduledFor = new Date(Date.now() + daysDelay * 24 * 60 * 60 * 1000).toISOString();
+  const responseToken = (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`);
   try {
     await saveToSupabase('followups', {
       email,
-      top_deficit_id: topDeficitId || null,
-      top_deficit_name: topDeficitName || null,
-      scheduled_for: followUpDate,
+      recipient_type: recipientType,
+      message_type: messageType,
+      payload: JSON.stringify(payload || {}),
+      response_token: responseToken,
+      scheduled_for: scheduledFor,
       sent: false,
       created_at: new Date().toISOString(),
     });
-  } catch(e) { console.warn('Follow-up schedule failed', e); }
+  } catch(e) { console.warn('scheduleDelayedContact failed', e); }
 }
+
+/**
+ * Planuje CHECK-IN — krótki, niski-próg-wejścia kontakt po 21 dniach,
+ * pytający TYLKO o segmenty które były wykrytym deficytem (nie całą
+ * ankietę), żeby sprawdzić czy kierunek pracy z diagnozy przynosi efekt.
+ * To jest most między pełnymi diagnozami — bez tego zawodnik nie miał
+ * żadnego powodu żeby wrócić do narzędzia poza własną inicjatywą.
+ */
+async function scheduleFollowUpEmail(email, topDeficitId, topDeficitName) {
+  const allDeficitIds = cachedScores ? getRelativeDeficits(cachedScores, 4).map(([id]) => id) : (topDeficitId ? [topDeficitId] : []);
+  await scheduleDelayedContact({
+    email,
+    recipientType: 'player',
+    messageType: 'checkin_21d',
+    payload: {
+      deficit_segment_ids: allDeficitIds,
+      top_deficit_name: topDeficitName || null,
+    },
+    daysDelay: 21,
+  });
+}
+
+/**
+ * Planuje DUŻĄ RE-DIAGNOZĘ po 90 dniach — zaproszenie do wypełnienia PEŁNEJ
+ * ankiety ponownie, żeby zobaczyć pełny, wiarygodny obraz zmiany (nie tylko
+ * punktowe segmenty z check-inów). 90 dni celowo pokrywa się z oknem
+ * wygasania insightów (INSIGHT_MAX_AGE_DAYS) — to jest naturalny moment na
+ * "duży reset" danych, spójny z resztą architektury czasowej systemu.
+ */
+async function scheduleBigRediagnosis(email) {
+  await scheduleDelayedContact({
+    email,
+    recipientType: 'player',
+    messageType: 'big_rediagnosis_90d',
+    payload: {},
+    daysDelay: 90,
+  });
+}
+
+/**
+ * Planuje pytanie-hipotezę do rodzica (mechanizm 3-w-1 z koncepcji ulepszonej
+ * diagnozy). Ten sam mechanizm doboru segmentu co w generateBridge/
+ * generateParentReport/_coachHintForPlayer: realny względny deficyt, z
+ * fallbackiem do segmentu kluczowego dla pozycji gdy profil wyrównany.
+ * Jeśli nawet fallback nie da segmentu (Scenariusz 3) — NIE zgadujemy,
+ * nic nie planujemy, zgodnie z zasadą stosowaną wszędzie indziej w systemie.
+ */
+async function scheduleParentObservationRequest(parentEmail, scores, posIdx, playerEmail) {
+  if (!parentEmail || !scores) return;
+
+  let deficits = getRelativeDeficits(scores, 1);
+  if (!deficits.length && posIdx !== null && posIdx !== undefined) {
+    const positionProfile = getPositionProfile(posIdx);
+    if (positionProfile) {
+      const keySegments = Object.entries(positionProfile.tiers)
+        .filter(([, tier]) => tier === 'key').map(([segId]) => segId);
+      const candidateId = keySegments.find(id => scores[id] !== undefined);
+      if (candidateId) deficits = [[candidateId, scores[candidateId]]];
+    }
+  }
+  if (!deficits.length) return; // Scenariusz 3 — brak danych, nie zgadujemy
+
+  const segId = deficits[0][0];
+  if (!HOME_OBSERVATION_HYPOTHESES[segId]) return; // zabezpieczenie: dziś wszystkie 13 segmentów ma hipotezę, warunek chroni przed przyszłym segmentem bez odpowiadającego wpisu
+
+  await scheduleDelayedContact({
+    email: parentEmail,
+    recipientType: 'parent',
+    messageType: 'home_observation_hypothesis',
+    payload: {
+      segment_id: segId,
+      segment_name: SEG_NAMES[segId] || segId,
+      question: HOME_OBSERVATION_HYPOTHESES[segId],
+      player_email: playerEmail || null, // do przypisania insightu po odpowiedzi — patrz submitObservationResponse
+    },
+    daysDelay: 10,
+  });
+}
+
 
 function submitEmail() {
   const email = document.getElementById('email-input').value.trim();
@@ -4480,10 +5234,17 @@ function submitEmail() {
 
   // Zaplanuj follow-up email po 14 dniach
   if (cachedScores) {
-    const sortedDefs = Object.entries(cachedScores).sort((a,b)=>a[1]-b[1]);
-    const topId = sortedDefs[0] ? sortedDefs[0][0] : null;
+    const followUpDeficits = getRelativeDeficits(cachedScores, 1);
+    const topId = followUpDeficits.length ? followUpDeficits[0][0] : null;
     const topSeg = topId ? (SEGS.find(s=>s.id===topId) || {name: topId}) : null;
     scheduleFollowUpEmail(email, topId, topSeg ? topSeg.name : null);
+    scheduleBigRediagnosis(email);
+
+    // Zaplanuj pytanie-hipotezę do rodzica po 10 dniach (mechanizm 3-w-1
+    // z koncepcji ulepszonej diagnozy), jeśli rodzic podał swój email.
+    if (window._parentEmail) {
+      scheduleParentObservationRequest(window._parentEmail, cachedScores, ctx.pos, email);
+    }
   }
 
   // Junior — generuj od razu
@@ -4564,7 +5325,7 @@ let _diagState = {
 // ======================================
 //  HELPER — buduje dane diagnostyczne
 // ======================================
-function _buildDiagData(scores) {
+async function _buildDiagData(scores, playerEmail) {
   const sorted = Object.entries(scores).sort((a,b) => a[1]-b[1]);
   const deficits = getRelativeDeficits(scores, 4);
   const strengths = getRelativeStrengths(scores, 3);
@@ -4644,7 +5405,44 @@ function _buildDiagData(scores) {
   const positionProfile = getPositionProfile(ctx.pos);
   const scenario = detectDiagnosisScenario(scores, POSITION_MAP_TEMP[ctx.pos] || null, POSITION_PROFILES);
 
-  return { deficitsData, strengthsData, hiddenCauses, ctxText, patternNote, scenario, positionProfile };
+  // Wcześniejsze, potwierdzone obserwacje trenera/rodzica (player_insights) —
+  // jeśli istnieją, diagnoza je uwzględnia zamiast zaczynać od zera przy
+  // każdym wypełnieniu ankiety. To jest różnica między "dane się zbierają"
+  // a "dane budują zrozumienie o zawodniku w czasie".
+  let insightsText = '';
+  if (playerEmail) {
+    const insights = await loadPlayerInsights(playerEmail);
+    if (insights.length) {
+      const lines = insights.slice(0, 5).map(ins => {
+        const who = ins.source === 'coach' ? 'Trener zaobserwował' : ins.source === 'parent' ? 'Rodzic zaobserwował' : 'Zawodnik potwierdził';
+        const segName = SEG_NAMES[ins.segment_id] || ins.segment_id;
+        const detail = ins.response_comment || ins.response_value || '';
+        return `- ${who} (obszar: ${segName}): ${detail}`.trim();
+      });
+      insightsText = lines.join('\n');
+    }
+  }
+
+  // Wcześniejszy samoopis i cel zawodnika z POPRZEDNICH wypełnień ankiety
+  // (diagnostics, przez loadPlayerHistory) — te dane już były zbierane, ale
+  // wcześniej nigdy nie wracały przy kolejnym wypełnieniu (presurvey to
+  // zmienna w pamięci, resetowana w nowej sesji). Pomijamy najnowszy wpis
+  // (to jest bieżące wypełnienie, już mamy je w presurvey) i bierzemy
+  // najnowszy WCZEŚNIEJSZY, jeśli ma treść.
+  let priorSelfText = '';
+  if (playerEmail) {
+    const history = await loadPlayerHistory(playerEmail);
+    const prior = history.find(h => h.self_description || h.player_goal);
+    if (prior) {
+      const parts = [];
+      if (prior.player_goal) parts.push(`cel na sezon: "${prior.player_goal}"`);
+      if (prior.self_description) parts.push(`samoopis: "${prior.self_description}"`);
+      const whenDate = prior.created_at ? new Date(prior.created_at).toLocaleDateString('pl-PL') : 'wcześniej';
+      priorSelfText = `Z poprzedniego wypełnienia ankiety (${whenDate}) — ${parts.join(', ')}. Jeśli to nadal aktualne lub się zmieniło, możesz się do tego odnieść.`;
+    }
+  }
+
+  return { deficitsData, strengthsData, hiddenCauses, ctxText, patternNote, scenario, positionProfile, insightsText, priorSelfText };
 }
 
 // ======================================
@@ -4652,7 +5450,7 @@ function _buildDiagData(scores) {
 // ======================================
 async function generateAIDiagnosis(scores, situation = '') {
 
-  const { deficitsData, strengthsData, hiddenCauses, ctxText, patternNote, scenario, positionProfile } = _buildDiagData(scores);
+  const { deficitsData, strengthsData, hiddenCauses, ctxText, patternNote, scenario, positionProfile, insightsText, priorSelfText } = await _buildDiagData(scores, playerEmail);
 
   // Zapisz stan
   _diagState.scores = scores;
@@ -4730,6 +5528,17 @@ Jeśli jedna z tych ukrytych przyczyn realnie tłumaczy wykryty deficyt, rozważ
   };
   const scenarioCtx = `\n\n${scenarioInstructions[scenario]}`;
 
+  // Wcześniejsze, potwierdzone obserwacje trenera/rodzica (patrz _buildDiagData) —
+  // jeśli istnieją, diagnoza je uwzględnia jako dodatkowe źródło obok samej ankiety.
+  const insightsCtx = insightsText ? `
+OBSERWACJE Z INNYCH ŹRÓDEŁ (potwierdzone wcześniej przez trenera lub rodzica, NIE z tej ankiety):
+${insightsText}
+Jeśli któraś z tych obserwacji potwierdza lub uzupełnia wykryty deficyt — wykorzystaj to jako dodatkowy dowód wzmacniający diagnozę ("to widać nie tylko w wynikach, ale też zauważa to Twój trener/rodzic"). Jeśli obserwacja PRZECZY wynikom ankiety — nie ignoruj tego, wspomnij o tej rozbieżności wprost jako coś wartego dalszej obserwacji.` : '';
+
+  // Samoopis/cel z poprzedniego wypełnienia ankiety (patrz _buildDiagData) —
+  // pozwala diagnozie zauważyć zmianę w czasie, nie tylko stan bieżący.
+  const priorSelfCtx = priorSelfText ? `\n\nHISTORIA: ${priorSelfText}` : '';
+
 
   const prompt = `Jesteś systemem diagnostycznym Gamechange — analizujesz wyniki ankiety piłkarskiej i piszesz diagnozę bezpośrednio do zawodnika. Piszesz po polsku, forma "Ty", język boiskowy a nie naukowy. Jesteś precyzyjny i konkretny — zero frazesów motywacyjnych, zero ogólników.
 
@@ -4745,7 +5554,7 @@ ${deficitsText}
 
 MOCNE STRONY:
 ${strengthsText}
-${situationCtx}${posCtx}${positionHierarchyCtx}${hiddenCausesCtx}${scenarioCtx}
+${situationCtx}${posCtx}${positionHierarchyCtx}${hiddenCausesCtx}${scenarioCtx}${insightsCtx}${priorSelfCtx}
 
 INSTRUKCJA KLUCZOWA — PORÓWNANIE WARSTW:
 Masz dwa niezależne źródła: samoopis zawodnika (co myśli o sobie) i wyniki ankiety (co zmierzono). Porównaj je:
@@ -4799,7 +5608,8 @@ FORMAT ODPOWIEDZI (zachowaj dokładnie te znaczniki). TREŚĆ KAŻDEJ SEKCJI ZAL
     const raw = data.content?.filter(c => c.type === 'text').map(c => c.text || '').join('') || '';
     if (raw && raw.includes('[SYTUACJA]')) {
       _diagState.diagnosisText = raw;
-      renderDiagnosisV2(raw, scores, deficitsData);
+      _diagState.usedInsights = !!insightsText;
+      renderDiagnosisV2(raw, scores, deficitsData, !!insightsText);
       saveResultsToURL(scores); // zapisz ponownie — teraz z pełną diagnozą, żeby link do wyników ją zawierał
       // Wyślij raport do rodzica jeśli podano email
       if (window._parentEmail && playerEmail) {
@@ -4826,7 +5636,7 @@ FORMAT ODPOWIEDZI (zachowaj dokładnie te znaczniki). TREŚĆ KAŻDEJ SEKCJI ZAL
 // ======================================
 //  RENDER DIAGNOZY V2
 // ======================================
-function renderDiagnosisV2(raw, scores, deficitsData) {
+function renderDiagnosisV2(raw, scores, deficitsData, usedInsights) {
   const get = (tag) => {
     const m = raw.match(new RegExp(`\\[${tag}\\]([\\s\\S]*?)(?=\\[|$)`));
     return m ? m[1].trim() : '';
@@ -4904,6 +5714,13 @@ function renderDiagnosisV2(raw, scores, deficitsData) {
       </div>`;
   }
 
+  if (usedInsights) {
+    html += `
+      <div style="margin-top:8px;padding:12px 16px;background:#f5f2ec;border-left:2px solid #9a9488;">
+        <p style="font-size:12px;color:#9a9488;font-weight:300;margin:0;line-height:1.6;">Ta diagnoza uwzględnia też obserwacje Twojego trenera lub rodzica, zebrane wcześniej w systemie.</p>
+      </div>`;
+  }
+
   el.innerHTML = html;
 
   // Feedback od razu po diagnozie
@@ -4955,10 +5772,7 @@ function skipAnchorAnswer() {
 // ======================================
 async function generateBridge(anchorStory) {
   const bridgeWrap = document.getElementById('bridge-wrap');
-  bridgeWrap.style.display = 'block';
-  document.getElementById('bridge-text').innerHTML = inlineLoaderHTML('Piszę podsumowanie');
 
-  const topDeficit = _diagState.topDeficitIds[0] || '';
   const PRODUCT_NAMES = {
     moc: 'Prawdziwa Eksplozywność', fizycznosc: 'Prawdziwa Eksplozywność',
     wytrzymalosc: 'Program Wytrzymałości Meczowej',
@@ -4968,7 +5782,37 @@ async function generateBridge(anchorStory) {
     koncentracja: 'Protokół Mentalny', mental: 'Protokół Mentalny',
     techFund: 'Program Techniki', techSpec: 'Program Techniki',
   };
-  const productName = PRODUCT_NAMES[topDeficit] || 'program dopasowany do Twoich wyników';
+
+  // Ten sam fallback co w renderProduct: jeśli brak wykrytego deficytu
+  // (Scenariusz 2/3, profil wyrównany), rekomendujemy segment kluczowy dla
+  // pozycji zamiast pokazywać pustkę — bez tego topDeficit był pustym
+  // stringiem, PRODUCT_NAMES['' ] dawało undefined, i prompt kazał AI
+  // napisać zdanie z NAZWĄ programu która nie istniała ("Przygotowałem
+  // [program dopasowany do Twoich wyników]") — AI zwykle dopisywało sobie
+  // wtedy jakąś brzmiącą wiarygodnie, ale fikcyjną nazwę.
+  let topDeficit = _diagState.topDeficitIds[0] || '';
+  if (!topDeficit) {
+    const positionProfile = getPositionProfile(ctx.pos);
+    if (positionProfile) {
+      const keySegments = Object.entries(positionProfile.tiers)
+        .filter(([, tier]) => tier === 'key')
+        .map(([segId]) => segId);
+      topDeficit = keySegments.find(id => PRODUCT_NAMES[id]) || '';
+    }
+  }
+
+  // Scenariusz 3: nadal brak dopasowanego produktu — nie zgadujemy, pomijamy
+  // sekcję mostka całkowicie zamiast ryzykować wymyśloną nazwę programu.
+  if (!topDeficit || !PRODUCT_NAMES[topDeficit]) {
+    bridgeWrap.style.display = 'none';
+    _showProductSection(_diagState.scores);
+    return;
+  }
+
+  bridgeWrap.style.display = 'block';
+  document.getElementById('bridge-text').innerHTML = inlineLoaderHTML('Piszę podsumowanie');
+
+  const productName = PRODUCT_NAMES[topDeficit];
   const hasStory = anchorStory && anchorStory.length > 10;
 
   // Wyciągnij kierunek z diagnozy — ostatnia sekcja przed pytaniem
@@ -5728,8 +6572,9 @@ function downloadPDF() {
   // Zapisz event pobrania PDF
   saveToSupabase('diagnostics', buildDiagnosticsRecord({ event: 'pdf_downloaded' }));
 
-  const sorted = Object.entries(scores).sort((a,b) => a[1]-b[1]);
-  const overall = Math.round(Object.values(scores).reduce((a,b)=>a+b,0) / Object.values(scores).length);
+  const positionProfile = getPositionProfile(ctx.pos);
+  const scenario = detectDiagnosisScenario(scores, POSITION_MAP_TEMP[ctx.pos] || null, POSITION_PROFILES);
+  const deficitsForHeader = getRelativeDeficits(scores, 4);
 
   // Funkcja pomocnicza — nowa strona gdy potrzeba
   function checkPage(needed = 10) {
@@ -5759,73 +6604,103 @@ function downloadPDF() {
     doc.text(stripPolishChars(ctxStr), margin, 36);
   }
 
-  // Wynik ogólny
+  // Wynik ogólny — opis zależny od scenariusza, bez surowej liczby
+  // (ta sama logika co overall-num na ekranie wyników)
+  let headerHeadline;
+  if (scenario === 1) {
+    headerHeadline = deficitsForHeader.length === 1 ? 'JEDNO WYRAŹNE WĄSKIE GARDŁO' : 'KILKA WYRAŹNYCH WĄSKICH GARDEŁ';
+  } else {
+    headerHeadline = 'PROFIL WYRÓWNANY';
+  }
   doc.setTextColor(200, 255, 0);
-  doc.setFontSize(28);
+  doc.setFontSize(13);
   doc.setFont('helvetica', 'bold');
-  doc.text(stripPolishChars(`${overall}`), W - margin - 20, 28, { align: 'right' });
-  doc.setFontSize(8);
-  doc.setFont('helvetica', 'normal');
-  doc.text(stripPolishChars('/100'), W - margin, 28, { align: 'right' });
+  const headlineLines = doc.splitTextToSize(stripPolishChars(headerHeadline), 65);
+  doc.text(headlineLines, W - margin, 22 - (headlineLines.length - 1) * 4, { align: 'right' });
 
   y = 52;
 
-  // ── WYNIKI SEGMENTÓW ──
+  // ── TWOJA GRA, OBSZAR PO OBSZARZE ── (bez surowych liczb, grupy jak na ekranie wyników)
   doc.setTextColor(14, 13, 11);
   doc.setFontSize(13);
   doc.setFont('helvetica', 'bold');
-  doc.text(stripPolishChars('WYNIKI SEGMENTÓW'), margin, y);
-  y += 6;
-
-  doc.setDrawColor(216, 211, 200);
-  doc.line(margin, y, W - margin, y);
-  y += 6;
-
-  sorted.forEach(([id, score]) => {
-    checkPage(8);
-    const seg = SEGS.find(s=>s.id===id);
-    const name = seg ? seg.name : id;
-
-    // Kolor wyniku
-    const color = score < 40 ? [214,60,47] : score < 65 ? [224,128,32] : [42,122,58];
-
-    doc.setTextColor(60, 56, 48);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.text(stripPolishChars(name), margin, y);
-
-    // Pasek
-    const barX = margin + 60;
-    const barW = contentW - 75;
-    const barH = 4;
-    doc.setFillColor(230, 225, 218);
-    doc.rect(barX, y - 3.5, barW, barH, 'F');
-    doc.setFillColor(...color);
-    doc.rect(barX, y - 3.5, barW * (score/100), barH, 'F');
-
-    // Liczba
-    doc.setTextColor(...color);
-    doc.setFont('helvetica', 'bold');
-    doc.text(stripPolishChars(`${score}`), W - margin, y, { align: 'right' });
-
-    y += 8;
-  });
-
-  y += 6;
-
-  // ── WĄSKIE GARDŁA ──
-  checkPage(20);
-  doc.setTextColor(14, 13, 11);
-  doc.setFontSize(13);
-  doc.setFont('helvetica', 'bold');
-  doc.text(stripPolishChars('KLUCZOWE WĄSKIE GARDŁA'), margin, y);
+  doc.text(stripPolishChars('TWOJA GRA, OBSZAR PO OBSZARZE'), margin, y);
   y += 6;
 
   doc.setDrawColor(216, 211, 200);
   doc.line(margin, y, W - margin, y);
   y += 8;
 
+  const { groups: pdfGroups, hasTiers: pdfHasTiers } = groupSegmentsForDisplay(scores, positionProfile, SEG_NAMES);
+
+  function renderPdfGroup(title, entries, color) {
+    if (!entries.length) return;
+    checkPage(14);
+    doc.setTextColor(...color);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text(stripPolishChars(title), margin, y);
+    y += 6;
+
+    entries.forEach(e => {
+      checkPage(8);
+      doc.setTextColor(60, 56, 48);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.text(stripPolishChars(e.name), margin + 4, y);
+
+      // Pasek relatywny (bez liczby obok) — ta sama logika co seg-group-bar-fill
+      const barX = margin + 70;
+      const barW = contentW - 74;
+      const barH = 3;
+      doc.setFillColor(230, 225, 218);
+      doc.rect(barX, y - 3, barW, barH, 'F');
+      doc.setFillColor(...color);
+      doc.rect(barX, y - 3, barW * (e.barW / 100), barH, 'F');
+
+      y += 7;
+    });
+    y += 4;
+  }
+
+  if (pdfHasTiers) {
+    renderPdfGroup('TU JEST TWOJA SZANSA', pdfGroups.g1, [214,60,47]);
+    renderPdfGroup('TWOJA PRZEWAGA', pdfGroups.g2, [42,122,58]);
+    renderPdfGroup('WARTO WZMOCNIC', pdfGroups.g3, [224,128,32]);
+    renderPdfGroup('SOLIDNE, DRUGORZEDNE', pdfGroups.g4, [154,148,136]);
+  } else {
+    renderPdfGroup('WASKIE GARDLA', pdfGroups.g1, [214,60,47]);
+    renderPdfGroup('MOCNE STRONY', pdfGroups.g2, [42,122,58]);
+    renderPdfGroup('W NORMIE', pdfGroups.g4, [154,148,136]);
+  }
+
+  y += 2;
+
+  // ── KLUCZOWE WĄSKIE GARDŁA / TWÓJ KIERUNEK PRACY ──
+  checkPage(20);
   const deficits = getRelativeDeficits(scores, 4);
+  const pdfDeficitsHeading = deficits.length ? 'KLUCZOWE WASKIE GARDLA' : 'TWOJ KIERUNEK PRACY';
+  doc.setTextColor(14, 13, 11);
+  doc.setFontSize(13);
+  doc.setFont('helvetica', 'bold');
+  doc.text(stripPolishChars(pdfDeficitsHeading), margin, y);
+  y += 6;
+
+  doc.setDrawColor(216, 211, 200);
+  doc.line(margin, y, W - margin, y);
+  y += 8;
+
+  if (!deficits.length) {
+    checkPage(16);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(60, 56, 48);
+    const balancedText = 'Nic wyraznie nie odstaje w Twoim profilu - to nie jest porazka systemu, to prawdziwa informacja o Twojej grze. Ponizej w diagnozie znajdziesz kierunek dopasowany do Twojej pozycji.';
+    const balancedLines = doc.splitTextToSize(stripPolishChars(balancedText), contentW);
+    doc.text(balancedLines, margin, y);
+    y += balancedLines.length * 5 + 8;
+  }
+
   deficits.forEach(([id, score], i) => {
     checkPage(24);
     const seg = SEGS.find(s=>s.id===id);
@@ -5839,15 +6714,11 @@ function downloadPDF() {
     doc.setFont('helvetica', 'bold');
     doc.text(stripPolishChars(`${i+1}`), margin + 4, y + 0.5, { align: 'center' });
 
-    // Nazwa i wynik
+    // Nazwa (bez liczby wyniku obok)
     doc.setTextColor(14, 13, 11);
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
     doc.text(stripPolishChars(name), margin + 12, y);
-
-    doc.setTextColor(214, 60, 47);
-    doc.setFontSize(14);
-    doc.text(stripPolishChars(`${score}/100`), W - margin, y, { align: 'right' });
     y += 7;
 
     // Przyczyna — najistotniejsze wpływy (pary + kaskady) wg mechanizmu rankingowego z Kroku 3
@@ -6093,11 +6964,96 @@ function quickTest(preset) {
 function showPlayerCard(scores) {
   document.getElementById('player-card-wrap').style.display = 'block';
   _drawPlayerCard(scores, '');
+
+  // Karta insightu — osobny, drugi materiał do udostępnienia (patrz getInsightForCard)
+  const positionProfile = getPositionProfile(ctx.pos);
+  const posLabel = ctx.pos !== null && ctx.pos < 8 ? CTX_LABELS.pos[ctx.pos] : null;
+  const insight = getInsightForCard(scores, positionProfile, posLabel);
+  if (insight) {
+    document.getElementById('insight-card-wrap').style.display = 'block';
+    _drawInsightCard(insight.text);
+  }
 }
 
 function updateCardPreview() {
   const name = document.getElementById('card-name-input').value || '';
   _drawPlayerCard(cachedScores, name);
+}
+
+/**
+ * Rysuje kartę wrapping długi tekst na kilka linii wewnątrz canvasu.
+ * Zwraca liczbę narysowanych linii (przydatne do wyśrodkowania bloku).
+ */
+function _wrapCanvasText(ctx, text, x, yStart, maxWidth, lineHeight) {
+  const words = text.split(' ');
+  let line = '';
+  let y = yStart;
+  const lines = [];
+  words.forEach(word => {
+    const testLine = line ? line + ' ' + word : word;
+    if (ctx.measureText(testLine).width > maxWidth && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = testLine;
+    }
+  });
+  if (line) lines.push(line);
+  lines.forEach((l, i) => ctx.fillText(l, x, y + i * lineHeight));
+  return lines.length;
+}
+
+function _drawInsightCard(insightText) {
+  const canvas = document.getElementById('insight-card-canvas');
+  if (!canvas || !insightText) return;
+  const ctx = canvas.getContext('2d');
+  const W = 480, H = 600;
+
+  // Tło — ten sam ciemny styl marki, ale bez hexagonu: to jest karta jednej
+  // myśli, nie profilu, więc wizualnie musi się różnić od karty przynależności.
+  const bg = ctx.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, '#0a0a0a');
+  bg.addColorStop(1, '#1f1a17');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.fillStyle = '#E8432D';
+  ctx.fillRect(0, 0, W, 4);
+
+  // Duży cudzysłów dekoracyjny
+  ctx.fillStyle = 'rgba(232,67,45,0.25)';
+  ctx.font = 'bold 90px Georgia';
+  ctx.textAlign = 'left';
+  ctx.fillText('"', 32, 140);
+
+  // Sam insight — centralny, duży tekst, zawijany
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '28px Arial';
+  ctx.textAlign = 'left';
+  const lineHeight = 40;
+  const lines = _wrapCanvasText(ctx, insightText, 40, 240, W - 80, lineHeight);
+
+  // Stopka — branding, spójny z kartą przynależności
+  ctx.fillStyle = 'rgba(255,255,255,0.12)';
+  ctx.fillRect(0, H - 52, W, 52);
+
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.font = '11px Arial';
+  ctx.textAlign = 'center';
+  ctx.fillText('gamechange-diagnoza.vercel.app', W/2, H - 24);
+
+  ctx.fillStyle = 'rgba(255,255,255,0.2)';
+  ctx.font = '10px Arial';
+  ctx.fillText('SYSTEM DIAGNOSTYCZNY · ' + new Date().getFullYear(), W/2, H - 10);
+}
+
+function downloadInsightCard() {
+  const canvas = document.getElementById('insight-card-canvas');
+  if (!canvas) return;
+  const link = document.createElement('a');
+  link.download = 'gamechange-insight.jpg';
+  link.href = canvas.toDataURL('image/jpeg', 0.92);
+  link.click();
 }
 
 function _drawPlayerCard(scores, playerName) {
@@ -6120,56 +7076,38 @@ function _drawPlayerCard(scores, playerName) {
     ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i + H, H); ctx.stroke();
   }
 
-  // Logo Gamechange — górny pasek
+  // Górny pasek — akcent marki
   ctx.fillStyle = '#E8432D';
   ctx.fillRect(0, 0, W, 4);
 
-  ctx.fillStyle = 'rgba(232,67,45,0.08)';
-  ctx.fillRect(0, 0, W, 56);
-
-  // Wczytaj logo PNG na kartę
+  // Logo Gamechange — teraz główny, centralny element karty zamiast wyniku
+  // liczbowego. Karta pokazuje przynależność do systemu, nie ocenę.
   const _logoOnCard = new Image();
   _logoOnCard.onload = function() {
     ctx.save();
-    const lh = 22;
+    const lh = 64;
     const lw = _logoOnCard.width * (lh / _logoOnCard.height);
     ctx.filter = 'brightness(0) invert(1)';
-    ctx.globalAlpha = 0.9;
-    ctx.drawImage(_logoOnCard, 20, 17, lw, lh);
+    ctx.globalAlpha = 0.95;
+    ctx.drawImage(_logoOnCard, W/2 - lw/2, 96, lw, lh);
     ctx.restore();
   };
   _logoOnCard.onerror = function() {
     ctx.fillStyle = '#E8432D';
-    ctx.font = 'bold 13px Arial';
-    ctx.textAlign = 'left';
-    ctx.letterSpacing = '0.2em';
-    ctx.fillText('GAMECHANGE', 24, 34);
-    ctx.fillStyle = 'rgba(255,255,255,0.3)';
-    ctx.font = '11px Arial';
-    ctx.fillText('DIAGNOSTIC SYSTEM', 24 + 115, 34);
+    ctx.font = 'bold 34px Arial';
+    ctx.textAlign = 'center';
+    ctx.letterSpacing = '0.15em';
+    ctx.fillText('GAMECHANGE', W/2, 140);
   };
   _logoOnCard.src = 'Logo_Gamechange.png';
-
-  // Wynik ogólny — centrum górne
-  const vals = Object.values(scores);
-  const overall = Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);
-
-  ctx.fillStyle = '#E8432D';
-  ctx.font = 'bold 96px Arial';
-  ctx.textAlign = 'center';
-  ctx.fillText(overall, W/2, 165);
-
-  ctx.fillStyle = 'rgba(255,255,255,0.35)';
-  ctx.font = '11px Arial';
-  ctx.letterSpacing = '0.2em';
-  ctx.fillText('WYNIK OGÓLNY', W/2, 188);
 
   // Imię zawodnika
   const displayName = playerName || '—';
   ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 22px Arial';
+  ctx.font = 'bold 24px Arial';
+  ctx.textAlign = 'center';
   ctx.letterSpacing = '0.05em';
-  ctx.fillText(displayName.toUpperCase(), W/2, 222);
+  ctx.fillText(displayName.toUpperCase(), W/2, 210);
 
   // Pozycja jeśli znana
   if (ctx.pos !== null && typeof CTX_LABELS !== 'undefined') {
@@ -6178,11 +7116,11 @@ function _drawPlayerCard(scores, playerName) {
     ctx.letterSpacing = '0.1em';
     const posLabel = (ctx.pos !== null && ctx.pos < 8 && CTX_LABELS.pos[ctx.pos])
       ? CTX_LABELS.pos[ctx.pos].toUpperCase() : '';
-    if (posLabel) ctx.fillText(posLabel, W/2, 242);
+    if (posLabel) ctx.fillText(posLabel, W/2, 232);
   }
 
   // Hexagon — środek
-  const CX = W/2, CY = 390, R = 130;
+  const CX = W/2, CY = 370, R = 150;
   const segIds = ['moc','wytrzymalosc','fizycznosc','techFund','techSpec',
                   'tolerancja','regeneracja','odpornosc','odzywianie',
                   'koncentracja','mental','percepcja','decyzja'];
@@ -6257,7 +7195,7 @@ function _drawPlayerCard(scores, playerName) {
 
   ctx.fillStyle = 'rgba(255,255,255,0.2)';
   ctx.font = '10px Arial';
-  ctx.fillText('13 SEGMENTÓW · DIAGNOSTYKA AI · ' + new Date().getFullYear(), W/2, H - 10);
+  ctx.fillText('SYSTEM DIAGNOSTYCZNY · ' + new Date().getFullYear(), W/2, H - 10);
 }
 
 function downloadPlayerCard() {
@@ -6268,6 +7206,95 @@ function downloadPlayerCard() {
   link.download = 'gamechange-karta-' + (name || 'zawodnik').toLowerCase().replace(/\s+/g,'-') + '.jpg';
   link.href = canvas.toDataURL('image/jpeg', 0.92);
   link.click();
+}
+
+// ======================================
+//  KARTA INSIGHTU — materiał do Stories, osobny od karty przynależności.
+//  Pokazuje jedną, zaskakującą lub budującą dumę obserwację o mocnej stronie
+//  zawodnika — nigdy słabość. Wybór z 3 kategorii, z gotowej puli szablonów
+//  (bez wywołania AI — szybkie, przewidywalne, darmowe).
+// ======================================
+
+// Nazwy segmentów w formie do wstawienia w zdanie (dopełniacz/mianownik dopasowany
+// do szablonów poniżej — sprawdź kontekst zdania przy rozszerzaniu).
+const SEG_INSIGHT_NAMES = {
+  moc: 'moc', wytrzymalosc: 'wytrzymałość', fizycznosc: 'fizyczność',
+  techFund: 'technika podstawowa', techSpec: 'technika specjalistyczna',
+  tolerancja: 'tolerancja obciążeń', regeneracja: 'regeneracja',
+  odpornosc: 'odporność', odzywianie: 'odżywienie',
+  koncentracja: 'koncentracja', mental: 'stan mentalny',
+  percepcja: 'percepcja', decyzja: 'szybkość decyzji',
+};
+
+// KATEGORIA A — rzadka kombinacja: mocna strona zawodnika jest segmentem
+// drugorzędnym ("minor") dla jego pozycji, czyli czymś czego typowo się na
+// tej roli nie oczekuje. {seg} = nazwa segmentu, {pos} = nazwa pozycji
+// (zawsze w mianowniku — szablony unikają odmiany żeby nie łamać gramatyki).
+const INSIGHT_TEMPLATES_RARE = [
+  'Na pozycji „{pos}" rzadko to wychodzi na pierwszy plan — u Ciebie {seg} jest jedną z mocniejszych stron.',
+  'To nietypowe połączenie: pozycja „{pos}" i wyraźna przewaga w obszarze: {seg}.',
+  'Niewielu graczy na pozycji „{pos}" wyróżnia się w tym akurat obszarze — {seg} jest Twoim atutem.',
+];
+
+// KATEGORIA B — napędowa korelacja: dwie mocne strony powiązane realnym
+// mechanizmem w sieci zależności. {seg1} napędza {seg2}.
+const INSIGHT_TEMPLATES_CORRELATION = [
+  'To nie przypadek: {seg1} i {seg2} idą u Ciebie w parze — jedno napędza drugie.',
+  'Nieprzypadkowo obie te rzeczy Ci wychodzą: {seg1} i {seg2} są ze sobą powiązane.',
+  'Masz rzadkie połączenie: {seg1} u Ciebie realnie wspiera {seg2}.',
+];
+
+// KATEGORIA C — wyjątkowa mocna strona, zawsze dostępny fallback.
+const INSIGHT_TEMPLATES_STRONG = [
+  '{seg} to obszar w którym wyraźnie wyróżniasz się na tle reszty swojej gry.',
+  'Jeśli miałbyś jedną rzecz do pokazania — to {seg}.',
+  'To jest Twój wyraźny atut: {seg}.',
+];
+
+function _pickTemplate(list) {
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+/**
+ * Wybiera spersonalizowany insight dla karty (b) — próbuje kategorie w
+ * kolejności A -> B -> C, zwraca pierwszą która da wynik. C zawsze działa
+ * jeśli jest choć jedna mocna strona (getRelativeStrengths).
+ */
+function getInsightForCard(scores, positionProfile, posLabel) {
+  const strengths = getRelativeStrengths(scores, 3);
+  if (!strengths.length) return null;
+  const strengthIds = strengths.map(s => s[0]);
+
+  // Kategoria A — rzadka kombinacja (wymaga znanej pozycji)
+  if (positionProfile) {
+    const rareId = strengthIds.find(id => positionProfile.tiers[id] === 'minor');
+    if (rareId) {
+      const segName = SEG_INSIGHT_NAMES[rareId];
+      const text = _pickTemplate(INSIGHT_TEMPLATES_RARE)
+        .replace('{seg}', segName)
+        .replace('{pos}', posLabel || 'Twojej pozycji');
+      return { category: 'rare', text };
+    }
+  }
+
+  // Kategoria B — napędowa korelacja między dwiema mocnymi stronami
+  const correlation = DEPENDENCY_NETWORK.find(r =>
+    strengthIds.includes(r.from) && strengthIds.includes(r.to) && r.weight >= 0.5
+  );
+  if (correlation) {
+    const seg1 = SEG_INSIGHT_NAMES[correlation.from];
+    const seg2 = SEG_INSIGHT_NAMES[correlation.to];
+    const text = _pickTemplate(INSIGHT_TEMPLATES_CORRELATION)
+      .replace('{seg1}', seg1).replace('{seg2}', seg2)
+      .replace('{seg1_mianownik}', seg1.charAt(0).toUpperCase() + seg1.slice(1));
+    return { category: 'correlation', text };
+  }
+
+  // Kategoria C — wyjątkowa mocna strona (zawsze dostępny fallback)
+  const topId = strengthIds[0];
+  const text = _pickTemplate(INSIGHT_TEMPLATES_STRONG)
+    .replace('{seg}', SEG_INSIGHT_NAMES[topId].charAt(0).toUpperCase() + SEG_INSIGHT_NAMES[topId].slice(1));
+  return { category: 'strong', text };
 }
 
 function restart() {
@@ -6373,6 +7400,18 @@ function restart() {
         style="font-size:13px;color:#9a9488;text-decoration:underline;text-underline-offset:3px;">
         Coś tu nie działa? Zgłoś błąd →
       </a>
+    </div>
+  </div>
+</div>
+
+<div id="screen-observation-response" class="screen">
+  <div style="min-height:100vh;background:#f5f2ec;">
+    <div style="background:#0e0d0b;padding:24px 32px;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:0.2em;color:rgba(255,255,255,0.4);margin-bottom:4px;">Gamechange System</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:#f5f2ec;letter-spacing:0.05em;" id="observation-title">Jedno pytanie o Twoje dziecko</div>
+    </div>
+    <div style="max-width:480px;margin:0 auto;padding:32px 24px;" id="observation-content">
+      <div style="padding:48px;text-align:center;color:#9a9488;">Ładowanie...</div>
     </div>
   </div>
 </div>
@@ -6507,8 +7546,15 @@ function restart() {
     </div>
 
     <div style="background:#fff;border:1px solid #d8d3c8;padding:20px;margin-bottom:20px;">
+      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:4px;">Czy diagnoza się zgadza?</div>
+      <p style="font-size:12px;color:#9a9488;font-weight:300;margin-bottom:14px;">Twoja ocena jako trenera to najbardziej wiarygodny sprawdzian tego czy system działa dobrze.</p>
+      <div id="pp-validation"></div>
+    </div>
+
+    <div style="background:#fff;border:1px solid #d8d3c8;padding:20px;margin-bottom:20px;">
       <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:4px;">Kilka pytań do Ciebie</div>
       <p style="font-size:12px;color:#9a9488;font-weight:300;margin-bottom:14px;">Twoje obserwacje z boiska połączone z wynikami ankiety dają pełniejszy obraz zawodnika.</p>
+      <div id="pp-previous-insight"></div>
       <div id="pp-questions"></div>
       <button id="pp-questions-btn" onclick="generateCoachQuestions()"
         style="background:#0e0d0b;color:#f5f2ec;border:none;padding:12px 24px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:0.1em;cursor:pointer;margin-top:12px;width:100%;">
