@@ -2464,7 +2464,18 @@ let playerHistory = [];
 let teamCode = null;
 let affiliateCode = null; // kod partnera polecającego (?ref=... w URL), zapisywany do każdego rekordu diagnostics
 let playerName = null;
-let hasPaidAccess = false; // false = bramka aktywna
+// W1 (04.08.2026) — ROZSTRZYGNIĘTE OSTATECZNIE 01.08.2026 (AUDYT SPOJNOSCI CALEGO PROJEKTU.md,
+// sekcja W1): diagnoza 19 zł i program 97 zł jako osobne, płatne produkty zostały CAŁKOWICIE
+// WYCOFANE — jedyny mechanizm płatności w systemie to abonament (Pakiet 11/K2). Pełna diagnoza
+// staje się darmowym pierwszym krokiem triala. Bramka (screen-paywall, submitAccessCode(),
+// goToStripePayment() — legacy Stripe Payment Link sprzed integracji K2, dziś nieużywany)
+// zostaje w kodzie nietknięta (najniższe ryzyko regresji), ale domyślnie otwarta — nikt już
+// przez nią nie przechodzi, startSurvey() poniżej też już jej nie sprawdza.
+// ŚWIADOMIE POZA ZAKRESEM tej zmiany: pełna konsekwencja z AUDYT-u ("konto e-mail+OTP jedynym
+// punktem wejścia, diagnoza jako pierwszy krok triala, nie osobne anonimowe narzędzie") — to
+// osobna, większa przebudowa lejka (co dzieje się z dzisiejszymi anonimowymi diagnozami, kodami
+// klubowymi, itd.), wymaga własnej, jawnej decyzji zakresu z Kubą, nie ukryta w tej poprawce.
+let hasPaidAccess = true; // było: false = bramka aktywna. Teraz zawsze true — diagnoza darmowa.
 
 // Kody bezpłatnego dostępu dla klubów i trenerów
 const FREE_ACCESS_CODES = ['GAMECHANGE', 'TRENER', 'PILOT', 'GAMECHANGE2025', 'LEGIA2025', 'PARASOL'];
