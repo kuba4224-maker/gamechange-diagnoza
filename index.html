@@ -747,100 +747,11 @@ body {
   </div>
 </div>
 
-<!-- ════ PAYWALL ════ -->
-<div id="screen-paywall" class="screen">
-  <div style="min-height:100vh;background:#0e0d0b;display:flex;align-items:center;justify-content:center;padding:40px 24px;">
-    <div style="max-width:520px;width:100%;">
-
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:0.25em;color:rgba(255,255,255,0.3);margin-bottom:32px;text-transform:uppercase;">Gamechange System</div>
-
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,6vw,56px);line-height:0.95;color:#f5f2ec;margin-bottom:24px;">
-        Dowiedz się co<br>naprawdę<br><span style="color:#E8432D;">hamuje Twój rozwój</span>
-      </div>
-
-      <p style="font-size:15px;color:rgba(255,255,255,0.5);font-weight:300;line-height:1.8;margin-bottom:32px;">
-        Większość zawodników trenuje ciężko i nie widzi efektów. Nie dlatego że źle pracują — dlatego że pracują nad objawem zamiast przyczyną. Ta diagnoza wskazuje dokładnie gdzie jest problem i od czego zacząć żeby efekt był najszybszy.
-      </p>
-
-      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);padding:24px;margin-bottom:24px;">
-        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:16px;">Co dostajesz za 19 zł</div>
-        <div style="display:flex;gap:12px;margin-bottom:10px;align-items:flex-start;">
-          <span style="color:#E8432D;flex-shrink:0;margin-top:2px;">✓</span>
-          <span style="font-size:14px;color:rgba(255,255,255,0.7);font-weight:300;">Pełny profil sportowy w 13 obszarach</span>
-        </div>
-        <div style="display:flex;gap:12px;margin-bottom:10px;align-items:flex-start;">
-          <span style="color:#E8432D;flex-shrink:0;margin-top:2px;">✓</span>
-          <span style="font-size:14px;color:rgba(255,255,255,0.7);font-weight:300;">Wskazanie wąskiego gardła które blokuje wszystkie inne</span>
-        </div>
-        <div style="display:flex;gap:12px;margin-bottom:10px;align-items:flex-start;">
-          <span style="color:#E8432D;flex-shrink:0;margin-top:2px;">✓</span>
-          <span style="font-size:14px;color:rgba(255,255,255,0.7);font-weight:300;">Spersonalizowana diagnoza dopasowana do Twojej pozycji i poziomu</span>
-        </div>
-        <div style="display:flex;gap:12px;margin-bottom:10px;align-items:flex-start;">
-          <span style="color:#E8432D;flex-shrink:0;margin-top:2px;">✓</span>
-          <span style="font-size:14px;color:rgba(255,255,255,0.7);font-weight:300;">Kierunek pracy — co poprawić żeby efekt był najszybszy</span>
-        </div>
-        <div style="display:flex;gap:12px;margin-bottom:0;align-items:flex-start;">
-          <span style="color:#E8432D;flex-shrink:0;margin-top:2px;">✓</span>
-          <span style="font-size:14px;color:rgba(255,255,255,0.7);font-weight:300;">Raport PDF który możesz pokazać trenerowi</span>
-        </div>
-      </div>
-
-      <button onclick="goToStripePayment()"
-        style="width:100%;background:#E8432D;color:#0e0d0b;border:none;padding:20px;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.1em;cursor:pointer;margin-bottom:12px;transition:all 0.15s;"
-        onmouseover="this.style.background='#d4ff00'"
-        onmouseout="this.style.background='#E8432D'">
-        Kup diagnozę — 19 zł →
-      </button>
-
-      <div style="text-align:center;margin-bottom:24px;">
-        <span style="font-size:12px;color:rgba(255,255,255,0.25);">Płatność przez Stripe · Bezpieczna transakcja</span>
-      </div>
-
-      <!-- Kod dostępu dla klubów -->
-      <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:20px;">
-        <div style="font-size:12px;color:rgba(255,255,255,0.25);margin-bottom:10px;text-align:center;">Masz kod dostępu od trenera lub klubu?</div>
-        <div style="display:flex;gap:8px;">
-          <input id="access-code-input" type="text" placeholder="Wpisz kod dostępu"
-            style="flex:1;padding:12px 16px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;text-transform:uppercase;"
-            onfocus="this.style.borderColor='rgba(255,255,255,0.4)'"
-            onblur="this.style.borderColor='rgba(255,255,255,0.15)'"
-            oninput="this.value=this.value.toUpperCase()"
-            onkeydown="if(event.key==='Enter') submitAccessCode()">
-          <button onclick="submitAccessCode()"
-            style="padding:12px 20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:#f5f2ec;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:0.1em;cursor:pointer;">
-            Użyj →
-          </button>
-        </div>
-        <div id="access-code-error" style="display:none;color:#ff6b6b;font-size:12px;margin-top:8px;text-align:center;">Nieprawidłowy kod. Sprawdź czy przepisałeś go poprawnie.</div>
-      </div>
-
-      <!-- DEV: szybki test — usuń przed produkcją lub zostaw, nie widać dla normalnych użytkowników -->
-      <div style="border-top:1px solid rgba(255,255,255,0.05);padding-top:16px;margin-top:8px;">
-        <div style="font-size:10px;color:rgba(255,255,255,0.15);margin-bottom:8px;text-align:center;letter-spacing:0.1em;text-transform:uppercase;">dev — szybki test</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;">
-          <button onclick="quickTest('percepcja')"
-            style="padding:6px 12px;background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.3);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;border-radius:2px;">
-            percepcja↓
-          </button>
-          <button onclick="quickTest('regeneracja')"
-            style="padding:6px 12px;background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.3);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;border-radius:2px;">
-            regeneracja↓
-          </button>
-          <button onclick="quickTest('mental')"
-            style="padding:6px 12px;background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.3);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;border-radius:2px;">
-            mental↓
-          </button>
-          <button onclick="quickTest('random')"
-            style="padding:6px 12px;background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.3);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;border-radius:2px;">
-            losowy
-          </button>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
+<!-- ════ PAYWALL — USUNIĘTA 05.08.2026 ════
+     Cała bramka płatnicza (ekran #screen-paywall, przycisk "Kup diagnozę — 19 zł",
+     kod dostępu, DEV quickTest) została trwale usunięta. Jedynym produktem systemu
+     jest aplikacja (abonament, Pakiet 11/K2) — diagnoza to darmowy pierwszy krok.
+     startSurvey() poniżej prowadzi teraz zawsze bezpośrednio do #screen-context. -->
 
 
 <div id="screen-context" class="screen">
@@ -1269,56 +1180,9 @@ body {
       </div>
     </div>
 
-    <!-- Bridge — Call 3, mostek do produktu -->
-    <div id="bridge-wrap" style="display:none;margin-bottom:32px;">
-      <div style="border-left:3px solid #0e0d0b;padding:24px 28px;background:#f5f2ec;">
-        <div id="bridge-text" style="font-size:15px;color:#0e0d0b;line-height:1.85;font-weight:300;"></div>
-      </div>
-    </div>
+    <!-- Bridge/produkt/karty zawodnika (mostek do produktu, sekcja 97 zł, karta zawodnika,
+         karta insightu) usunięte 05.08.2026 — jedynym produktem jest aplikacja. -->
 
-    <div id="product-wrap"></div>
-
-    <!-- KARTA ZAWODNIKA — do pobrania i udostępnienia -->
-    <div id="player-card-wrap" style="display:none;margin-top:40px;border-top:1px solid #d8d3c8;padding-top:32px;">
-      <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;">Twoja karta zawodnika</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.02em;margin-bottom:8px;color:#0e0d0b;">Pobierz i pokaż znajomym</div>
-      <p style="font-size:13px;color:#9a9488;font-weight:300;line-height:1.7;margin-bottom:20px;">Twoja karta uczestnictwa w systemie Gamechange — z Twoim imieniem i kształtem profilu, gotowa do udostępnienia.</p>
-
-      <div style="margin-bottom:16px;">
-        <label style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#3a3830;display:block;margin-bottom:8px;font-weight:500;">Twoje imię lub pseudonim na karcie</label>
-        <input id="card-name-input" type="text" placeholder="np. Mateusz K. / MK10 / Mateo"
-          maxlength="20"
-          style="width:100%;max-width:320px;padding:12px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;"
-          onfocus="this.style.borderColor='#0e0d0b'"
-          onblur="this.style.borderColor='#d8d3c8'"
-          oninput="updateCardPreview()">
-      </div>
-
-      <!-- Podgląd karty -->
-      <canvas id="player-card-canvas" width="480" height="600"
-        style="display:block;max-width:280px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,0.18);"></canvas>
-
-      <button onclick="downloadPlayerCard()"
-        style="background:#0e0d0b;color:#f5f2ec;border:none;padding:14px 32px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:0.1em;cursor:pointer;display:inline-flex;align-items:center;gap:10px;">
-        ↓ Pobierz kartę
-      </button>
-      <div style="font-size:12px;color:#9a9488;margin-top:8px;font-weight:300;">JPG · Gotowy do wrzucenia na Stories</div>
-    </div>
-
-    <div id="insight-card-wrap" style="display:none;margin-top:40px;border-top:1px solid #d8d3c8;padding-top:32px;">
-      <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;">Coś o Twojej grze</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.02em;margin-bottom:8px;color:#0e0d0b;">Warte pokazania</div>
-      <p style="font-size:13px;color:#9a9488;font-weight:300;line-height:1.7;margin-bottom:20px;" id="insight-card-desc">Jedna konkretna, mocna rzecz z Twojego profilu — gotowa do udostępnienia.</p>
-
-      <canvas id="insight-card-canvas" width="480" height="600"
-        style="display:block;max-width:280px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,0,0,0.18);"></canvas>
-
-      <button onclick="downloadInsightCard()"
-        style="background:#0e0d0b;color:#f5f2ec;border:none;padding:14px 32px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:0.1em;cursor:pointer;display:inline-flex;align-items:center;gap:10px;">
-        ↓ Pobierz
-      </button>
-      <div style="font-size:12px;color:#9a9488;margin-top:8px;font-weight:300;">JPG · Gotowy do wrzucenia na Stories</div>
-    </div>
     <div id="pdf-section-wrap" style="display:none;margin-top:32px;border-top:1px solid #d8d3c8;padding-top:32px;">
       <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;">Raport diagnostyczny</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.02em;margin-bottom:8px;color:#0e0d0b;">Pobierz swój raport PDF</div>
@@ -2464,54 +2328,23 @@ let playerHistory = [];
 let teamCode = null;
 let affiliateCode = null; // kod partnera polecającego (?ref=... w URL), zapisywany do każdego rekordu diagnostics
 let playerName = null;
-// W1 (04.08.2026) — ROZSTRZYGNIĘTE OSTATECZNIE 01.08.2026 (AUDYT SPOJNOSCI CALEGO PROJEKTU.md,
-// sekcja W1): diagnoza 19 zł i program 97 zł jako osobne, płatne produkty zostały CAŁKOWICIE
-// WYCOFANE — jedyny mechanizm płatności w systemie to abonament (Pakiet 11/K2). Pełna diagnoza
-// staje się darmowym pierwszym krokiem triala. Bramka (screen-paywall, submitAccessCode(),
-// goToStripePayment() — legacy Stripe Payment Link sprzed integracji K2, dziś nieużywany)
-// zostaje w kodzie nietknięta (najniższe ryzyko regresji), ale domyślnie otwarta — nikt już
-// przez nią nie przechodzi, startSurvey() poniżej też już jej nie sprawdza.
-// ŚWIADOMIE POZA ZAKRESEM tej zmiany: pełna konsekwencja z AUDYT-u ("konto e-mail+OTP jedynym
-// punktem wejścia, diagnoza jako pierwszy krok triala, nie osobne anonimowe narzędzie") — to
-// osobna, większa przebudowa lejka (co dzieje się z dzisiejszymi anonimowymi diagnozami, kodami
-// klubowymi, itd.), wymaga własnej, jawnej decyzji zakresu z Kubą, nie ukryta w tej poprawce.
-let hasPaidAccess = true; // było: false = bramka aktywna. Teraz zawsze true — diagnoza darmowa.
+// W1 (04.08.2026), DOKOŃCZONE 05.08.2026: diagnoza 19 zł i program 97 zł jako
+// osobne, płatne produkty zostały CAŁKOWICIE USUNIĘTE z kodu (nie tylko wyłączone) —
+// jedynym produktem systemu jest aplikacja (abonament, Pakiet 11/K2). Diagnoza jest
+// darmowym pierwszym krokiem triala. Usunięto: #screen-paywall, submitAccessCode(),
+// goToStripePayment(), quickTest() (DEV), sekcję produktową na wynikach (renderProduct/
+// buyProduct/STRIPE_LINKS), mostek "Call 3" do produktu (generateBridge — teraz no-op),
+// CTA "Kup program — 97 zł" w raporcie rodzica, oraz kartę zawodnika i kartę insightu.
 
-// Kody bezpłatnego dostępu dla klubów i trenerów
+// Kody drużyn/klubów — używane wyłącznie do oznaczania rekordów diagnostyki (teamCode),
+// np. przez link ?access=KOD. Nie mają już nic wspólnego z płatnością.
 const FREE_ACCESS_CODES = ['GAMECHANGE', 'TRENER', 'PILOT', 'GAMECHANGE2025', 'LEGIA2025', 'PARASOL'];
-
-// Kody drużyn dla których sekcja produktowa (propozycja zakupu programu 97 zł)
-// jest całkowicie wyłączona — pilotaż w czystej formie "wszystko za darmo w
-// zamian za feedback", bez mieszania z testem skłonności do zakupu.
-// Rozszerzaj tę listę przy kolejnych pilotażach, jeśli mają być bezpłatne.
-const PILOT_NO_SALES_CODES = ['PARASOL'];
 
 // ======================================
 //  SURVEY RENDER
 // ======================================
 function startSurvey() {
-  if (hasPaidAccess) {
-    showScreen('screen-context');
-  } else {
-    showScreen('screen-paywall');
-  }
-}
-
-function goToStripePayment() {
-  window.location.href = 'https://buy.stripe.com/8x228reuG9t4bn66VDdby0c';
-}
-
-function submitAccessCode() {
-  const code = document.getElementById('access-code-input').value.trim().toUpperCase();
-  const errEl = document.getElementById('access-code-error');
-  if (FREE_ACCESS_CODES.includes(code)) {
-    hasPaidAccess = true;
-    teamCode = code;
-    errEl.style.display = 'none';
-    showScreen('screen-context');
-  } else {
-    errEl.style.display = 'block';
-  }
+  showScreen('screen-context');
 }
 
 function esc(str) {
@@ -3281,44 +3114,7 @@ ZASADY: Pisz bezpośrednio do rodzica (forma "Twoje dziecko", "możesz", "warto"
       html += '</div>';
     }
 
-    // CTA — zakup programu
-    if (topDeficitId) {
-      const PRODUCT_NAMES = {
-        moc: 'Prawdziwa Eksplozywność', fizycznosc: 'Prawdziwa Eksplozywność',
-        wytrzymalosc: 'Program Wytrzymałości Meczowej', tolerancja: 'Protokół Tolerancji Obciążeń',
-        regeneracja: 'Protokół Regeneracji', odzywianie: 'Protokół Odżywienia Sportowca',
-        odpornosc: 'Protokół Odporności Sezonowej',
-        percepcja: 'Percepcja i Szybkość Decyzji', decyzja: 'Percepcja i Szybkość Decyzji',
-        koncentracja: 'Protokół Mentalny', mental: 'Protokół Mentalny',
-        techFund: 'Program Techniki', techSpec: 'Program Techniki',
-      };
-      const STRIPE_LINKS = {
-        moc: 'https://buy.stripe.com/cNibJ14U6bBc62M2Fndby09',
-        fizycznosc: 'https://buy.stripe.com/dRm5kDfyK20C76Qgwddby0b',
-        wytrzymalosc: 'https://buy.stripe.com/eVq3cv86icFg4YI1Bjdby01',
-        tolerancja: 'https://buy.stripe.com/9B68wP86iax81Mwfs9dby02',
-        regeneracja: 'https://buy.stripe.com/7sY3cv86ifRsbn693Ldby05',
-        odzywianie: 'https://buy.stripe.com/28E9ATcmy20C4YI1Bjdby07',
-        odpornosc: 'https://buy.stripe.com/bJebJ1fyKcFgezigwddby08',
-        percepcja: 'https://buy.stripe.com/fZu4gzgCOgVw3UEfs9dby06',
-        decyzja: 'https://buy.stripe.com/fZu4gzgCOgVw3UEfs9dby06',
-        koncentracja: 'https://buy.stripe.com/9B628r86i48K1Mw5Rzdby0a',
-        mental: 'https://buy.stripe.com/6oU4gz5Ya20C2QAgwddby04',
-        techFund: 'https://buy.stripe.com/7sY8wP9am20Caj26VDdby03',
-        techSpec: 'https://buy.stripe.com/7sY8wP9am20Caj26VDdby03',
-      };
-      const pName = PRODUCT_NAMES[topDeficitId];
-      const pLink = STRIPE_LINKS[topDeficitId];
-      if (pName && pLink) {
-        html += '<div style="background:#0e0d0b;padding:28px;margin-bottom:20px;">';
-        html += '<div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#E8432D;margin-bottom:8px;">Program dla ' + name + '</div>';
-        html += '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:#f5f2ec;letter-spacing:0.02em;margin-bottom:10px;">' + pName + '</div>';
-        html += '<div style="font-size:13px;color:rgba(255,255,255,0.7);font-weight:300;line-height:1.7;margin-bottom:20px;">Program stworzony bezpośrednio pod to co diagnoza wskazała jako największe wąskie gardło ' + name + '. Gotowy plan pracy — ' + name + ' wie co robić, Ty wiesz dlaczego to ważne.</div>';
-        html += '<a href="' + pLink + '" style="display:inline-block;background:#E8432D;color:#0e0d0b;padding:14px 32px;font-family:\'Bebas Neue\',sans-serif;font-size:17px;letter-spacing:0.1em;text-decoration:none;font-weight:700;">Kup program — 97 zł →</a>';
-        html += '<div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:10px;">Jednorazowy zakup · Program zostaje z ' + name + '</div>';
-        html += '</div>';
-      }
-    }
+    // CTA zakupu programu 97 zł usunięte 05.08.2026 — jedynym produktem jest aplikacja.
 
     // Stopka
     html += '<div style="text-align:center;padding:16px 0;font-size:11px;color:#9a9488;">Raport wygenerowany przez Gamechange System · ' + new Date().toLocaleDateString('pl-PL') + '</div>';
@@ -4710,77 +4506,8 @@ function renderDiagnosisV2Readonly(raw, scores, usedInsights) {
   el.innerHTML = html;
 }
 
-function buyProduct(productId, stripeLink) {
-  const emailInput = document.getElementById(`product-email-${productId}`);
-  const email = emailInput ? emailInput.value.trim() : (playerEmail || '');
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    if (emailInput) { emailInput.style.borderColor = '#C0392B'; emailInput.focus(); }
-    return;
-  }
-  playerEmail = email;
-  localStorage.setItem('gc_product_email', email);
-  localStorage.setItem('gc_product_id', productId);
-  window.location.href = stripeLink;
-}
-
-function handleProductPurchaseReturn(productId) {
-  const email = localStorage.getItem('gc_product_email') || playerEmail || '';
-  const PDF_DELIVERY = {
-    moc:          { title: 'Prawdziwa Eksplozywność',        file: 'Moc - System Gamechange.pdf' },
-    fizycznosc:   { title: 'Prawdziwa Eksplozywność',        file: 'Fizycznosc - System Gamechange.pdf' },
-    wytrzymalosc: { title: 'Program Wytrzymałości Meczowej', file: 'Wytrzymalosc - System Gamechange.pdf' },
-    tolerancja:   { title: 'Protokół Tolerancji Obciążeń',  file: 'Tolerancja obciazen - System Gamechange.pdf' },
-    regeneracja:  { title: 'Protokół Regeneracji',           file: 'Regeneracja - System Gamechange.pdf' },
-    odzywianie:   { title: 'Protokół Odżywienia Sportowca',  file: 'Odzywienie organizmu - System Gamechange.pdf' },
-    odpornosc:    { title: 'Protokół Odporności Sezonowej',  file: 'Odpornosc organizmu - System Gamechange.pdf' },
-    percepcja:    { title: 'Percepcja i Szybkość Decyzji',   file: 'Percepcja i szybkosc decyzji - System Gamechange.pdf' },
-    decyzja:      { title: 'Percepcja i Szybkość Decyzji',   file: 'Percepcja i szybkosc decyzji - System Gamechange.pdf' },
-    koncentracja: { title: 'Protokół Mentalny — Koncentracja', file: 'Koncentracja - System Gamechange.pdf' },
-    mental:       { title: 'Protokół Mentalny — Stan Mentalny', file: 'Stan mentalny - System Gamechange.pdf' },
-    techFund:     { title: 'Program Techniki',               file: 'Technika fundamentalna - System Gamechange.pdf' },
-    techSpec:     { title: 'Program Techniki',               file: 'Technika fundamentalna - System Gamechange.pdf' },
-  };
-
-  const product = PDF_DELIVERY[productId];
-  if (!product) return;
-
-  // Pokaż ekran potwierdzenia
-  const pw = document.getElementById('product-wrap');
-  pw.innerHTML = `
-    <div style="border:1px solid #2a7a3a;padding:32px;background:#f0f7f0;margin-bottom:16px;">
-      <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#2a7a3a;margin-bottom:12px;">✓ Zakup potwierdzony</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;margin-bottom:12px;color:#0e0d0b;">${product.title}</div>
-      <p style="font-size:14px;color:#3a3830;font-weight:300;line-height:1.8;margin-bottom:24px;">
-        Program jest gotowy do pobrania poniżej. Wysyłamy też kopię na ${email || 'Twój email'}.
-      </p>
-      <a href="${product.file}" download
-        style="display:inline-block;background:#0e0d0b;color:#f5f2ec;padding:16px 32px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;text-decoration:none;">
-        Pobierz program →
-      </a>
-    </div>
-  `;
-
-  // Wyślij email przez EmailJS jeśli mamy email
-  if (email) {
-    emailjs.send('service_7dxlxuq', 'template_ybc0bsq', {
-      email: email,
-      product_title: product.title,
-      pdf_link: window.location.origin + '/' + product.file,
-      date: new Date().toLocaleDateString('pl-PL'),
-    }).catch(e => console.warn('EmailJS delivery failed', e));
-  }
-
-  // Zapisz do Supabase
-  saveToSupabase('diagnostics', buildDiagnosticsRecord({
-    event: 'product_purchased',
-    email,
-    product_id: productId,
-    product_title: product.title,
-  }));
-
-  localStorage.removeItem('gc_product_email');
-  localStorage.removeItem('gc_product_id');
-}
+// buyProduct() i handleProductPurchaseReturn() (sekcja zakupu programu 97 zł)
+// usunięte 05.08.2026 — jedynym produktem jest aplikacja.
 
 window.addEventListener('load', () => {
   const urlParams = new URLSearchParams(window.location.search);
@@ -4829,29 +4556,14 @@ window.addEventListener('load', () => {
     return;
   }
 
-  // Sprawdź kod dostępu w URL — darmowy dostęp dla klubów
+  // Kod drużyny/klubu w URL — tylko oznaczenie rekordu (teamCode), bez płatności
   const accessParam = urlParams.get('access');
   if (accessParam && FREE_ACCESS_CODES.includes(accessParam.toUpperCase())) {
-    hasPaidAccess = true;
     teamCode = accessParam.toUpperCase();
   }
 
-  // Sprawdź czy opłacono (Stripe redirect)
-  if (urlParams.get('paid') === '1') {
-    hasPaidAccess = true;
-    // Sprawdź czy to powrót po zakupie programu (97 zł)
-    const productParam = urlParams.get('product');
-    if (productParam) {
-      // Powrót po zakupie programu — pokaż ekran wyników i dostarcz program
-      const savedEmail = localStorage.getItem('gc_product_email');
-      if (savedEmail) playerEmail = savedEmail;
-      // Pokaż ekran wyników (bez diagnozy) lub intro z informacją o dostawie
-      showScreen('screen-intro');
-      // Dostarcz program po chwili (ekran musi być widoczny)
-      setTimeout(() => handleProductPurchaseReturn(productParam), 300);
-      return;
-    }
-  }
+  // Obsługa ?paid=1 / ?product= (powrót ze Stripe po zakupie diagnozy/programu)
+  // usunięta 05.08.2026 razem z bramką płatniczą i sekcją produktową.
 
   // Sprawdź czy są wyniki w hashu
   if (!loadResultsFromURL()) {
@@ -5779,112 +5491,12 @@ function skipAnchorAnswer() {
 }
 
 // ======================================
-//  CALL 3 — MOSTEK DO PRODUKTU (zawsze)
+//  CALL 3 — MOSTEK DO PRODUKTU — usunięty 05.08.2026 razem z sekcją produktową
+//  (ten akapit AI zawsze kończył się zdaniem "Przygotowałem [nazwa programu]...",
+//  co po usunięciu płatnych programów byłoby po prostu nieprawdą). Funkcja
+//  zostaje jako no-op żeby nie dotykać trzech miejsc które ją wywołują.
 // ======================================
 async function generateBridge(anchorStory) {
-  const bridgeWrap = document.getElementById('bridge-wrap');
-
-  const PRODUCT_NAMES = {
-    moc: 'Prawdziwa Eksplozywność', fizycznosc: 'Prawdziwa Eksplozywność',
-    wytrzymalosc: 'Program Wytrzymałości Meczowej',
-    tolerancja: 'Protokół Tolerancji Obciążeń', regeneracja: 'Protokół Regeneracji',
-    odzywianie: 'Protokół Odżywienia Sportowca', odpornosc: 'Protokół Odporności Sezonowej',
-    percepcja: 'Percepcja i Szybkość Decyzji', decyzja: 'Percepcja i Szybkość Decyzji',
-    koncentracja: 'Protokół Mentalny', mental: 'Protokół Mentalny',
-    techFund: 'Program Techniki', techSpec: 'Program Techniki',
-  };
-
-  // Ten sam fallback co w renderProduct: jeśli brak wykrytego deficytu
-  // (Scenariusz 2/3, profil wyrównany), rekomendujemy segment kluczowy dla
-  // pozycji zamiast pokazywać pustkę — bez tego topDeficit był pustym
-  // stringiem, PRODUCT_NAMES['' ] dawało undefined, i prompt kazał AI
-  // napisać zdanie z NAZWĄ programu która nie istniała ("Przygotowałem
-  // [program dopasowany do Twoich wyników]") — AI zwykle dopisywało sobie
-  // wtedy jakąś brzmiącą wiarygodnie, ale fikcyjną nazwę.
-  let topDeficit = _diagState.topDeficitIds[0] || '';
-  if (!topDeficit) {
-    const positionProfile = getPositionProfile(ctx.pos);
-    if (positionProfile) {
-      const keySegments = Object.entries(positionProfile.tiers)
-        .filter(([, tier]) => tier === 'key')
-        .map(([segId]) => segId);
-      topDeficit = keySegments.find(id => PRODUCT_NAMES[id]) || '';
-    }
-  }
-
-  // Scenariusz 3: nadal brak dopasowanego produktu — nie zgadujemy, pomijamy
-  // sekcję mostka całkowicie zamiast ryzykować wymyśloną nazwę programu.
-  if (!topDeficit || !PRODUCT_NAMES[topDeficit]) {
-    bridgeWrap.style.display = 'none';
-    _showProductSection(_diagState.scores);
-    return;
-  }
-
-  bridgeWrap.style.display = 'block';
-  document.getElementById('bridge-text').innerHTML = inlineLoaderHTML('Piszę podsumowanie');
-
-  const productName = PRODUCT_NAMES[topDeficit];
-  const hasStory = anchorStory && anchorStory.length > 10;
-
-  // Wyciągnij kierunek z diagnozy — ostatnia sekcja przed pytaniem
-  const kierunekMatch = _diagState.diagnosisText.match(/\[KIERUNEK\]([\s\S]*?)(?=\[PYTANIE\]|$)/);
-  const kierunek = kierunekMatch ? kierunekMatch[1].trim() : '';
-
-  const promptWithStory = `Jesteś systemem diagnostycznym Gamechange. Zawodnik właśnie przeczytał diagnozę i opisał konkretną sytuację z własnej gry. Piszesz mostek — 3-4 zdania które potwierdzają jego doświadczenie i naturalnie pokazują że istnieje program który przeprowadza przez dokładnie ten obszar. Ton: spokojny, pewny, jak trener który widział to już wiele razy. Nie sprzedajesz — konstatujesz.
-
-DIAGNOZA (kierunek pracy):
-${kierunek}
-
-WŁASNE SŁOWA ZAWODNIKA:
-"${anchorStory}"
-
-PROGRAM: ${productName}
-
-ZASADY:
-1. Pierwsze zdanie: zacznij od jego słów — nie interpretacji, ale dosłownego powtórzenia sensu tego co napisał. "To co opisujesz..." albo "Ta sytuacja którą opisujesz..."
-2. Drugie zdanie: jedno zdanie które pokazuje że to co czuje na boisku ma konkretną przyczynę — i że ta przyczyna jest do naprawienia.
-3. Trzecie zdanie: "Właśnie dla tej sytuacji przygotowałem [${productName}] — przeprowadza dokładnie przez ten obszar, krok po kroku." Nazwę programu wstaw naturalnie, nie wyróżniaj.
-4. Opcjonalne czwarte zdanie jeśli pasuje: krótkie, konkretne, budujące pewność że to się da zmienić.
-5. Zero nagłówków. Zero list. Zero sprzedażowego tonu. Pisz po polsku, forma "Ty".`;
-
-  const promptWithoutStory = `Jesteś systemem diagnostycznym Gamechange. Zawodnik właśnie przeczytał diagnozę. Piszesz mostek — 2-3 zdania które podsumowują wniosek z diagnozy i naturalnie pokazują że istnieje program który przeprowadza przez ten obszar. Ton: pewny, konkretny, jak trener który stawia diagnozę i od razu wskazuje kierunek.
-
-DIAGNOZA (kierunek pracy):
-${kierunek}
-
-DEFICYT GŁÓWNY: ${topDeficit}
-PROGRAM: ${productName}
-
-ZASADY:
-1. Pierwsze zdanie: jedno konkretne zdanie które podsumowuje gdzie leży problem — nie cytuj diagnozy, sformułuj od nowa jednym ostrym zdaniem.
-2. Drugie zdanie: "Przygotowałem [${productName}] który przeprowadza dokładnie przez ten obszar." Nazwę wstaw naturalnie.
-3. Opcjonalne trzecie zdanie: krótkie, budujące pewność że to się da zmienić i że zmiana jest konkretna, nie abstrakcyjna.
-4. Zero nagłówków. Zero list. Pisz po polsku, forma "Ty".`;
-
-  try {
-    const response = await fetch('/api/diagnose', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        prompt: hasStory ? promptWithStory : promptWithoutStory,
-        maxTokens: 300
-      })
-    });
-    const data = await response.json();
-    const bridgeText = data.content?.filter(c => c.type === 'text').map(c => c.text || '').join('').trim() || '';
-
-    if (bridgeText) {
-      document.getElementById('bridge-text').innerHTML =
-        `<p style="font-size:15px;color:#0e0d0b;line-height:1.85;font-weight:300;margin:0;">${bridgeText}</p>`;
-    } else {
-      bridgeWrap.style.display = 'none';
-    }
-  } catch(e) {
-    console.error('Call 3 error:', e);
-    bridgeWrap.style.display = 'none';
-  }
-
-  // Pokaż produkt po moście
   _showProductSection(_diagState.scores);
 }
 
@@ -5988,11 +5600,8 @@ async function _saveFeedbackToSupabase(rating, comment) {
 //  HELPER — pokaż sekcję produktową
 // ======================================
 function _showProductSection(scores) {
-  renderProduct(scores);
+  // Sekcja produktowa i karta zawodnika usunięte 05.08.2026 — zostaje tylko PDF.
   setTimeout(() => {
-    // Karta zawodnika
-    showPlayerCard(scores);
-
     // Sekcja PDF
     const pdfSection = document.getElementById('pdf-section-wrap');
     if (pdfSection) {
@@ -6003,10 +5612,6 @@ function _showProductSection(scores) {
       if (hasEmail && document.getElementById('pdf-email-input')) {
         document.getElementById('pdf-email-input').value = playerEmail;
       }
-    }
-    const pw = document.getElementById('product-wrap');
-    if (pw && pw.innerHTML.trim()) {
-      pw.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }, 300);
 }
@@ -6356,9 +5961,6 @@ function renderResults(scores) {
   }).join('');
   }
 
-  // Product — renderowane dopiero po odblokowaniu emailem
-  document.getElementById('product-wrap').innerHTML = '';
-
   updateReportBugLink(scenario, positionProfile);
 }
 
@@ -6408,162 +6010,8 @@ function updateSurveyReportBugLink() {
   link.href = buildBugReportUrl(`w trakcie ankiety (${mode}), pozycja ${posLabel}`);
 }
 
-function renderProduct(scores) {
-  const pw = document.getElementById('product-wrap');
-
-  // Pilotaż bez elementów sprzedażowych — sekcja produktowa całkowicie pominięta
-  if (teamCode && PILOT_NO_SALES_CODES.includes(teamCode)) {
-    pw.innerHTML = '';
-    return;
-  }
-
-  let deficits = getRelativeDeficits(scores, 3);
-
-  // Scenariusz 2: brak względnego deficytu, ale mamy kartę pozycyjną —
-  // rekomendujemy segment KLUCZOWY dla tej roli zamiast pokazywać pustkę.
-  let isPositionBasedRecommendation = false;
-  if (!deficits.length) {
-    const positionProfile = getPositionProfile(ctx.pos);
-    if (positionProfile) {
-      const keySegments = Object.entries(positionProfile.tiers)
-        .filter(([, tier]) => tier === 'key')
-        .map(([segId]) => segId);
-      const candidateId = keySegments.find(id => scores[id] !== undefined);
-      if (candidateId) {
-        deficits = [[candidateId, scores[candidateId]]];
-        isPositionBasedRecommendation = true;
-      }
-    }
-  }
-  if (!deficits.length) { pw.innerHTML = ''; return; }
-
-  const STRIPE_LINKS = {
-    moc:          'https://buy.stripe.com/cNibJ14U6bBc62M2Fndby09',
-    fizycznosc:   'https://buy.stripe.com/dRm5kDfyK20C76Qgwddby0b',
-    wytrzymalosc: 'https://buy.stripe.com/eVq3cv86icFg4YI1Bjdby01',
-    tolerancja:   'https://buy.stripe.com/9B68wP86iax81Mwfs9dby02',
-    regeneracja:  'https://buy.stripe.com/7sY3cv86ifRsbn693Ldby05',
-    odzywianie:   'https://buy.stripe.com/28E9ATcmy20C4YI1Bjdby07',
-    odpornosc:    'https://buy.stripe.com/bJebJ1fyKcFgezigwddby08',
-    percepcja:    'https://buy.stripe.com/fZu4gzgCOgVw3UEfs9dby06',
-    decyzja:      'https://buy.stripe.com/fZu4gzgCOgVw3UEfs9dby06',
-    koncentracja: 'https://buy.stripe.com/9B628r86i48K1Mw5Rzdby0a',
-    mental:       'https://buy.stripe.com/6oU4gz5Ya20C2QAgwddby04',
-    techFund:     'https://buy.stripe.com/7sY8wP9am20Caj26VDdby03',
-    techSpec:     'https://buy.stripe.com/7sY8wP9am20Caj26VDdby03',
-  };
-
-  // Problem zawodnika — sformułowany jego językiem (nie tytuł programu)
-  const PROBLEM_STATEMENT = {
-    moc:          'Tracisz pierwsze metry do piłki i przegrywasz kontakty z rywalami których powinieneś wygrywać.',
-    fizycznosc:   'Rywale wypychają Cię z pozycji i nie możesz utrzymać piłki pod presją fizyczną.',
-    wytrzymalosc: 'W drugiej połowie tracisz intensywność — tempo spada, powroty są wolniejsze, błędy się mnożą.',
-    tolerancja:   'Regularnie tracisz tygodnie treningowe przez przeciążenia które wracają w kółko.',
-    regeneracja:  'Każdy trening zaczyna się od niższego poziomu niż poprzedni — zmęczenie nie znika.',
-    odzywianie:   'W 60-70. minucie energia spada — nie z wytrzymałości, ale dlatego że paliwo się kończy.',
-    odpornosc:    'Chorujesz regularnie w kluczowych momentach sezonu i tracisz tygodnie treningowe.',
-    percepcja:    'Dostajesz piłkę i dopiero wtedy zaczynaś szukać opcji — rywal ma już czas żeby Cię nakryć.',
-    decyzja:      'Widzisz okazję ale zanim podejmujesz decyzję, okno już się zamknęło.',
-    koncentracja: 'Po błędzie tracisz kilka minut efektywnej gry — ciało jest na boisku, ale głowa gdzie indziej.',
-    mental:       'Na treningach grasz dobrze, na meczach coś blokuje — wycofujesz się tam gdzie powinieneś atakować.',
-    techFund:     'Technika która działa na treningu rozpada się pod presją — w meczu zawodzi dokładnie wtedy kiedy jest potrzebna.',
-    techSpec:     'Grasz bezpiecznie ale przewidywalnie — rywal wie co zrobisz zanim to zrobisz.',
-  };
-
-  const PRODUCT_TITLES = {
-    moc: 'Prawdziwa Eksplozywność', fizycznosc: 'Prawdziwa Eksplozywność',
-    wytrzymalosc: 'Program Wytrzymałości Meczowej',
-    tolerancja: 'Protokół Tolerancji Obciążeń', regeneracja: 'Protokół Regeneracji',
-    odzywianie: 'Protokół Odżywienia Sportowca', odpornosc: 'Protokół Odporności Sezonowej',
-    percepcja: 'Percepcja i Szybkość Decyzji', decyzja: 'Percepcja i Szybkość Decyzji',
-    koncentracja: 'Protokół Mentalny', mental: 'Protokół Mentalny',
-    techFund: 'Program Techniki', techSpec: 'Program Techniki',
-  };
-
-  const PRODUCT_DESC = {
-    moc:          'Buduje moc w sposób który bezpośrednio przekłada się na boisko — szybszy start, mocniejszy kontakt, wyższy wyskok. Nie teoria — konkretny schemat treningowy z progresją tygodniową.',
-    fizycznosc:   'Uczy jak generować i utrzymywać przewagę fizyczną w kontakcie — przez siłę, pozycję ciała i mechanikę ruchu. Efekt widoczny już po 3-4 tygodniach regularnej pracy.',
-    wytrzymalosc: 'Buduje zdolność do utrzymywania intensywności i jakości przez pełne 90 minut. Trening dopasowany do wymagań piłki — nie bieganie, ale praca w rytmie meczu.',
-    tolerancja:   'Protokół który stopniowo podnosi próg tego co organizm znosi bez przeciążeń — i uczy jak wracać szybciej po każdej przerwie.',
-    regeneracja:  'System zarządzania zmęczeniem który sprawia że każdy trening zaczyna się od pełnej gotowości. Sen, odżywienie, rutyny — wszystko w jednym protokole.',
-    odzywianie:   'Konkretny plan żywieniowy dopasowany do rytmu treningów i meczów. Eliminuje spadki energii i przyspiesza odbudowę między wysiłkami.',
-    odpornosc:    'Protokół który pozwala przejść cały sezon bez przerw spowodowanych chorobami — nawet przy wysokich obciążeniach treningowych.',
-    percepcja:    'Uczy skanowania boiska i zbierania informacji zanim piłka dotrze — tak żeby decyzja była gotowa przed odbiorem, nie po nim.',
-    decyzja:      'Skraca czas między zobaczeniem sytuacji a podjęciem decyzji. Konkretne wzorce decyzyjne które działają automatycznie pod presją czasu.',
-    koncentracja: 'Buduje mechanizm resetu po błędzie i rutynę wejścia w skupienie — tak żeby każda akcja zaczynała się od pełnej obecności, nie od myślenia o poprzedniej.',
-    mental:       'Przeprowadza przez pracę nad relacją z błędem i presją — tak żeby forma z treningów przekładała się na mecze.',
-    techFund:     'Przeprowadza przez trzy etapy budowania techniki do automatyzmu — tak żeby działała pod presją, w końcówkach, na obcej murawie.',
-    techSpec:     'Uczy jak używać techniki żeby tworzyć przewagę, nie tylko żeby utrzymać piłkę. Konkretne wzorce decyzyjne dla Twojej pozycji.',
-  };
-
-  // Bierzemy top 1-2 deficyty, deduplikujemy po tytule
-  const seen = new Set();
-  const productCards = deficits.slice(0, 2).map(([id]) => {
-    const title = PRODUCT_TITLES[id];
-    if (!title || seen.has(title)) return null;
-    seen.add(title);
-    return { id, title };
-  }).filter(Boolean);
-
-  const cardsHTML = productCards.map((p, cardIndex) => {
-    const stripeLink = STRIPE_LINKS[p.id];
-    const problem = PROBLEM_STATEMENT[p.id] || '';
-    const desc = PRODUCT_DESC[p.id] || '';
-    const isPrimary = cardIndex === 0;
-
-    return `
-    <div style="border:${isPrimary ? '2px solid #0e0d0b' : '1px solid #d8d3c8'};padding:32px;margin-bottom:16px;background:#fff;position:relative;">
-      ${isPrimary ? `<div style="position:absolute;top:-1px;left:32px;background:#0e0d0b;color:#E8432D;font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:0.15em;padding:4px 12px;">${isPositionBasedRecommendation ? 'KLUCZOWE DLA TWOJEJ POZYCJI' : 'GŁÓWNY PRIORYTET'}</div>` : ''}
-
-      <!-- Problem zawodnika — jego język -->
-      <div style="margin-top:${isPrimary ? '12px' : '0'};margin-bottom:20px;padding:16px 20px;background:#f5f2ec;border-left:3px solid ${isPrimary ? '#0e0d0b' : '#d8d3c8'};">
-        <p style="font-size:14px;color:#0e0d0b;line-height:1.75;font-weight:400;margin:0;">${problem}</p>
-      </div>
-
-      <!-- Tytuł programu -->
-      <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:6px;">Program który to zmienia</div>
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:0.02em;margin-bottom:12px;color:#0e0d0b;">${p.title}</div>
-
-      <!-- Opis -->
-      <div style="font-size:14px;color:#3a3830;font-weight:300;line-height:1.8;margin-bottom:24px;">${desc}</div>
-
-      <!-- Email -->
-      <div style="margin-bottom:16px;">
-        <label style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#9a9488;display:block;margin-bottom:8px;">Wyślemy program na ten email</label>
-        <input id="product-email-${p.id}" type="email"
-          value="${playerEmail || ''}"
-          placeholder="twoj@email.pl"
-          style="width:100%;padding:12px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;"
-          onfocus="this.style.borderColor='#0e0d0b'"
-          onblur="this.style.borderColor='#d8d3c8'">
-      </div>
-
-      <!-- CTA -->
-      <div style="display:flex;flex-direction:column;gap:8px;">
-        <button onclick="buyProduct('${p.id}', '${stripeLink}')"
-          style="width:100%;background:${isPrimary ? '#0e0d0b' : '#3a3830'};color:#f5f2ec;border:none;padding:18px 32px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.1em;cursor:pointer;transition:opacity 0.15s;"
-          onmouseover="this.style.opacity='0.85'"
-          onmouseout="this.style.opacity='1'">
-          Kup za 97 zł →
-        </button>
-        <div style="text-align:center;font-size:12px;color:#9a9488;font-weight:300;">
-          Jednorazowy zakup · Pobierasz raz · Program zostaje z Tobą
-        </div>
-      </div>
-    </div>
-  `;
-  }).join('');
-
-  pw.innerHTML = `
-    <div id="product-anchor" style="scroll-margin-top:24px;">
-      <div style="margin-bottom:24px;">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:0.05em;margin-bottom:4px;">Co z tym zrobić</div>
-        <div style="font-size:13px;color:#9a9488;font-weight:300;">Program dopasowany bezpośrednio do Twojego wąskiego gardła</div>
-      </div>
-      ${cardsHTML}
-    </div>
-  `;
-}
+// renderProduct() (sekcja "Co z tym zrobić" — program 97 zł, karty produktowe,
+// STRIPE_LINKS) usunięta 05.08.2026 razem z resztą sekcji produktowej.
 
 // ======================================
 //  PDF EXPORT
@@ -6796,101 +6244,10 @@ function downloadPDF() {
   doc.save(`gamechange-diagnoza-${dateStr.replace(/\./g,'-')}.pdf`);
 }
 
-// ======================================
-//  WAITLIST & CONSULTATION
-// ======================================
-const leads = { waitlist: [], consultations: [] };
-
-function submitWaitlist(productId, productTitle) {
-  const emailEl = document.getElementById(`waitlist-email-${productId}`);
-  const errorEl = document.getElementById(`waitlist-error-${productId}`);
-  const formEl = document.getElementById(`waitlist-form-${productId}`);
-  const confirmEl = document.getElementById(`waitlist-confirm-${productId}`);
-  const email = emailEl.value.trim();
-
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    errorEl.style.display = 'block';
-    return;
-  }
-  errorEl.style.display = 'none';
-
-  // Zapisz lokalnie
-  leads.waitlist.push({
-    email,
-    product: productTitle,
-    productId,
-    timestamp: new Date().toISOString(),
-    ctx: { ...ctx },
-  });
-
-  // Zapisz do Supabase
-  saveToSupabase('diagnostics', buildDiagnosticsRecord({
-    event: 'waitlist_signup',
-    email,
-    product: productTitle
-  }));
-  // Powiadomienie email
-  sendEmailNotification('Zapis na listę oczekujących', { email, product: productTitle });
-
-  // Pokaż potwierdzenie
-  formEl.style.display = 'none';
-  confirmEl.style.display = 'block';
-}
-
-function submitConsultation() {
-  const name = document.getElementById('consult-name').value.trim();
-  const contact = document.getElementById('consult-contact').value.trim();
-  const note = document.getElementById('consult-note').value.trim();
-  const errorEl = document.getElementById('consult-error');
-  const confirmEl = document.getElementById('consult-confirm');
-  const submitBtn = document.getElementById('consult-submit-btn');
-
-  if (!name || !contact) {
-    errorEl.style.display = 'block';
-    return;
-  }
-  errorEl.style.display = 'none';
-
-  // Zapisz lokalnie
-  leads.consultations.push({
-    name,
-    contact,
-    note,
-    timestamp: new Date().toISOString(),
-    ctx: { ...ctx },
-    scores: cachedScores,
-  });
-
-  // Zapisz do Supabase
-  saveToSupabase('diagnostics', buildDiagnosticsRecord({
-    event: 'consultation_request',
-    name,
-    contact,
-    note
-  }));
-  // Powiadomienie email — pilne, high ticket
-  sendEmailNotification('🔴 NOWE ZGŁOSZENIE KONSULTACJI', { name, contact, note });
-
-  // Pokaż potwierdzenie, ukryj przycisk
-  submitBtn.style.display = 'none';
-  confirmEl.style.display = 'block';
-}
-
-function submitMonthly() {
-  const name = document.getElementById('monthly-name').value.trim();
-  const contact = document.getElementById('monthly-contact').value.trim();
-  const note = document.getElementById('monthly-note').value.trim();
-  const errorEl = document.getElementById('monthly-error');
-  const confirmEl = document.getElementById('monthly-confirm');
-  const submitBtn = document.getElementById('monthly-submit-btn');
-  if (!name || !contact) { errorEl.style.display = 'block'; return; }
-  errorEl.style.display = 'none';
-  leads.consultations.push({ type: 'monthly', name, contact, note, timestamp: new Date().toISOString() });
-  saveToSupabase('diagnostics', buildDiagnosticsRecord({ event: 'monthly_request', name, contact, note }));
-  sendEmailNotification('🟡 NOWE ZGŁOSZENIE — WSPÓŁPRACA MIESIĘCZNA', { name, contact, note });
-  submitBtn.style.display = 'none';
-  confirmEl.style.display = 'block';
-}
+// WAITLIST & CONSULTATION (submitWaitlist/submitConsultation/submitMonthly) —
+// usunięte 05.08.2026. Ten blok był już martwym kodem przed tą zmianą: żaden
+// element HTML w pliku go nie wywoływał (brak przycisków waitlist-*/consult-*/
+// monthly-*), więc porządkujemy przy okazji usuwania reszty sekcji produktowych.
 
 // ======================================
 //  UTILS
@@ -6904,409 +6261,10 @@ function showScreen(id) {
     setTimeout(ctxProgress, 100);
   }
 }
-// ======================================
-//  DEV — szybki test bez klikania przez ankietę
-//  Usuń ten blok przed produkcją lub zostaw — nie wpływa na działanie
-// ======================================
-function quickTest(preset) {
-  // Kontekst: środkowy pomocnik, seniorski klub amatorski, 20-25 lat
-  ctx = { level: 2, pos: 4, age: 3 };
-  isJunior = false;
-  activeSegs = SEGS;
-  hasPaidAccess = true;
-  playerEmail = 'test@gamechange.pl';
-
-  // Predefiniowane profile testowe
-  const profiles = {
-    percepcja: { moc:72, wytrzymalosc:68, fizycznosc:80, techFund:65, techSpec:55,
-                 tolerancja:70, regeneracja:66, odpornosc:74, odzywianie:62,
-                 koncentracja:60, mental:58, percepcja:32, decyzja:28 },
-    regeneracja: { moc:60, wytrzymalosc:55, fizycznosc:62, techFund:78, techSpec:72,
-                   tolerancja:30, regeneracja:28, odpornosc:58, odzywianie:40,
-                   koncentracja:68, mental:65, percepcja:62, decyzja:60 },
-    mental: { moc:65, wytrzymalosc:70, fizycznosc:68, techFund:72, techSpec:65,
-              tolerancja:74, regeneracja:68, odpornosc:72, odzywianie:66,
-              koncentracja:29, mental:25, percepcja:68, decyzja:62 },
-    random: null,
-  };
-
-  let scores;
-  if (preset === 'random' || !profiles[preset]) {
-    scores = {};
-    SEGS.forEach(s => { scores[s.id] = Math.floor(Math.random() * 60) + 20; });
-  } else {
-    scores = profiles[preset];
-  }
-
-  SEGS.forEach(s => {
-    const target = scores[s.id] || 50;
-    ans[s.id] = s.qs.map(() => Math.max(1, Math.min(6, Math.round(target / 20 + 0.5))));
-  });
-
-  // Wypełnij presurvey testowo
-  presurvey = {
-    goal: 1,
-    ownTypes: new Set(['technika', 'silownia']),
-    selfDesc: 'Jestem szybki fizycznie i wygrywam kontakty, ale pod koniec meczu tracę jakość. Chcę grać na wyższym poziomie.',
-  };
-
-  cachedScores = scores;
-  renderResults(scores);
-  showScreen('screen-results');
-
-  const blurWrap = document.getElementById('diagnosis-blur-wrap');
-  if (blurWrap) { blurWrap.style.filter = 'none'; blurWrap.style.pointerEvents = 'auto'; }
-  const emailGate = document.getElementById('email-gate-box');
-  if (emailGate) emailGate.style.display = 'none';
-  const unlockedNote = document.getElementById('diagnosis-unlocked-note');
-  if (unlockedNote) unlockedNote.style.display = 'block';
-
-  setTimeout(() => {
-    document.querySelectorAll('.bar-fill, .seg-group-bar-fill').forEach(b => { b.style.width = b.dataset.w + '%'; });
-    document.getElementById('ai-diagnosis-text').innerHTML = inlineLoaderHTML('Generuję Twoją diagnozę');
-    generateAIDiagnosis(scores, 'W 70. minucie dostałem piłkę w środku pola i nie wiedziałem co z nią zrobić — rywal mnie nakrył.');
-  }, 150);
-}
-
-// ======================================
-//  KARTA ZAWODNIKA — generowanie Canvas
-// ======================================
-
-function showPlayerCard(scores) {
-  document.getElementById('player-card-wrap').style.display = 'block';
-  _drawPlayerCard(scores, '');
-
-  // Karta insightu — osobny, drugi materiał do udostępnienia (patrz getInsightForCard)
-  const positionProfile = getPositionProfile(ctx.pos);
-  const posLabel = ctx.pos !== null && ctx.pos < 8 ? CTX_LABELS.pos[ctx.pos] : null;
-  const insight = getInsightForCard(scores, positionProfile, posLabel);
-  if (insight) {
-    document.getElementById('insight-card-wrap').style.display = 'block';
-    _drawInsightCard(insight.text);
-  }
-}
-
-function updateCardPreview() {
-  const name = document.getElementById('card-name-input').value || '';
-  _drawPlayerCard(cachedScores, name);
-}
-
-/**
- * Rysuje kartę wrapping długi tekst na kilka linii wewnątrz canvasu.
- * Zwraca liczbę narysowanych linii (przydatne do wyśrodkowania bloku).
- */
-function _wrapCanvasText(ctx, text, x, yStart, maxWidth, lineHeight) {
-  const words = text.split(' ');
-  let line = '';
-  let y = yStart;
-  const lines = [];
-  words.forEach(word => {
-    const testLine = line ? line + ' ' + word : word;
-    if (ctx.measureText(testLine).width > maxWidth && line) {
-      lines.push(line);
-      line = word;
-    } else {
-      line = testLine;
-    }
-  });
-  if (line) lines.push(line);
-  lines.forEach((l, i) => ctx.fillText(l, x, y + i * lineHeight));
-  return lines.length;
-}
-
-function _drawInsightCard(insightText) {
-  const canvas = document.getElementById('insight-card-canvas');
-  if (!canvas || !insightText) return;
-  const ctx = canvas.getContext('2d');
-  const W = 480, H = 600;
-
-  // Tło — ten sam ciemny styl marki, ale bez hexagonu: to jest karta jednej
-  // myśli, nie profilu, więc wizualnie musi się różnić od karty przynależności.
-  const bg = ctx.createLinearGradient(0, 0, W, H);
-  bg.addColorStop(0, '#0a0a0a');
-  bg.addColorStop(1, '#1f1a17');
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, W, H);
-
-  ctx.fillStyle = '#E8432D';
-  ctx.fillRect(0, 0, W, 4);
-
-  // Duży cudzysłów dekoracyjny
-  ctx.fillStyle = 'rgba(232,67,45,0.25)';
-  ctx.font = 'bold 90px Georgia';
-  ctx.textAlign = 'left';
-  ctx.fillText('"', 32, 140);
-
-  // Sam insight — centralny, duży tekst, zawijany
-  ctx.fillStyle = '#ffffff';
-  ctx.font = '28px Arial';
-  ctx.textAlign = 'left';
-  const lineHeight = 40;
-  const lines = _wrapCanvasText(ctx, insightText, 40, 240, W - 80, lineHeight);
-
-  // Stopka — branding, spójny z kartą przynależności
-  ctx.fillStyle = 'rgba(255,255,255,0.12)';
-  ctx.fillRect(0, H - 52, W, 52);
-
-  ctx.fillStyle = 'rgba(255,255,255,0.5)';
-  ctx.font = '11px Arial';
-  ctx.textAlign = 'center';
-  ctx.fillText('gamechange-diagnoza.vercel.app', W/2, H - 24);
-
-  ctx.fillStyle = 'rgba(255,255,255,0.2)';
-  ctx.font = '10px Arial';
-  ctx.fillText('SYSTEM DIAGNOSTYCZNY · ' + new Date().getFullYear(), W/2, H - 10);
-}
-
-function downloadInsightCard() {
-  const canvas = document.getElementById('insight-card-canvas');
-  if (!canvas) return;
-  const link = document.createElement('a');
-  link.download = 'gamechange-insight.jpg';
-  link.href = canvas.toDataURL('image/jpeg', 0.92);
-  link.click();
-}
-
-function _drawPlayerCard(scores, playerName) {
-  const canvas = document.getElementById('player-card-canvas');
-  if (!canvas || !scores) return;
-  const ctx = canvas.getContext('2d');
-  const W = 480, H = 600;
-
-  // Tło — gradientowe ciemne
-  const bg = ctx.createLinearGradient(0, 0, 0, H);
-  bg.addColorStop(0, '#0a0a0a');
-  bg.addColorStop(1, '#1a1a1a');
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, W, H);
-
-  // Subtelna tekstura — linia ukośna
-  ctx.strokeStyle = 'rgba(255,255,255,0.03)';
-  ctx.lineWidth = 1;
-  for (let i = -H; i < W + H; i += 24) {
-    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i + H, H); ctx.stroke();
-  }
-
-  // Górny pasek — akcent marki
-  ctx.fillStyle = '#E8432D';
-  ctx.fillRect(0, 0, W, 4);
-
-  // Logo Gamechange — teraz główny, centralny element karty zamiast wyniku
-  // liczbowego. Karta pokazuje przynależność do systemu, nie ocenę.
-  const _logoOnCard = new Image();
-  _logoOnCard.onload = function() {
-    ctx.save();
-    const lh = 64;
-    const lw = _logoOnCard.width * (lh / _logoOnCard.height);
-    ctx.filter = 'brightness(0) invert(1)';
-    ctx.globalAlpha = 0.95;
-    ctx.drawImage(_logoOnCard, W/2 - lw/2, 96, lw, lh);
-    ctx.restore();
-  };
-  _logoOnCard.onerror = function() {
-    ctx.fillStyle = '#E8432D';
-    ctx.font = 'bold 34px Arial';
-    ctx.textAlign = 'center';
-    ctx.letterSpacing = '0.15em';
-    ctx.fillText('GAMECHANGE', W/2, 140);
-  };
-  _logoOnCard.src = 'Logo_Gamechange.png';
-
-  // Imię zawodnika
-  const displayName = playerName || '—';
-  ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 24px Arial';
-  ctx.textAlign = 'center';
-  ctx.letterSpacing = '0.05em';
-  ctx.fillText(displayName.toUpperCase(), W/2, 210);
-
-  // Pozycja jeśli znana
-  if (ctx.pos !== null && typeof CTX_LABELS !== 'undefined') {
-    ctx.fillStyle = 'rgba(255,255,255,0.4)';
-    ctx.font = '12px Arial';
-    ctx.letterSpacing = '0.1em';
-    const posLabel = (ctx.pos !== null && ctx.pos < 8 && CTX_LABELS.pos[ctx.pos])
-      ? CTX_LABELS.pos[ctx.pos].toUpperCase() : '';
-    if (posLabel) ctx.fillText(posLabel, W/2, 232);
-  }
-
-  // Hexagon — środek
-  const CX = W/2, CY = 370, R = 150;
-  const segIds = ['moc','wytrzymalosc','fizycznosc','techFund','techSpec',
-                  'tolerancja','regeneracja','odpornosc','odzywianie',
-                  'koncentracja','mental','percepcja','decyzja'];
-  const N = segIds.length;
-
-  // Siatka hexagonu (koła referencyjne)
-  [0.25, 0.5, 0.75, 1.0].forEach(r => {
-    ctx.beginPath();
-    for (let i = 0; i < N; i++) {
-      const angle = (2 * Math.PI * i / N) - Math.PI/2;
-      const x = CX + R * r * Math.cos(angle);
-      const y = CY + R * r * Math.sin(angle);
-      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-    }
-    ctx.closePath();
-    ctx.strokeStyle = r === 1.0 ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.06)';
-    ctx.lineWidth = r === 1.0 ? 1.5 : 1;
-    ctx.stroke();
-  });
-
-  // Linie osi
-  for (let i = 0; i < N; i++) {
-    const angle = (2 * Math.PI * i / N) - Math.PI/2;
-    ctx.beginPath();
-    ctx.moveTo(CX, CY);
-    ctx.lineTo(CX + R * Math.cos(angle), CY + R * Math.sin(angle));
-    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-  }
-
-  // Wypełnienie profilu
-  ctx.beginPath();
-  segIds.forEach((id, i) => {
-    const val = (scores[id] || 0) / 100;
-    const angle = (2 * Math.PI * i / N) - Math.PI/2;
-    const x = CX + R * val * Math.cos(angle);
-    const y = CY + R * val * Math.sin(angle);
-    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-  });
-  ctx.closePath();
-  const grad = ctx.createRadialGradient(CX, CY, 0, CX, CY, R);
-  grad.addColorStop(0, 'rgba(232,67,45,0.5)');
-  grad.addColorStop(1, 'rgba(232,67,45,0.1)');
-  ctx.fillStyle = grad;
-  ctx.fill();
-  ctx.strokeStyle = '#E8432D';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-
-  // Punkty na hexagonie
-  segIds.forEach((id, i) => {
-    const val = (scores[id] || 0) / 100;
-    const angle = (2 * Math.PI * i / N) - Math.PI/2;
-    const x = CX + R * val * Math.cos(angle);
-    const y = CY + R * val * Math.sin(angle);
-    ctx.beginPath();
-    ctx.arc(x, y, 3, 0, Math.PI * 2);
-    ctx.fillStyle = '#E8432D';
-    ctx.fill();
-  });
-
-  // Stopka
-  ctx.fillStyle = 'rgba(255,255,255,0.12)';
-  ctx.fillRect(0, H - 52, W, 52);
-
-  ctx.fillStyle = 'rgba(255,255,255,0.5)';
-  ctx.font = '11px Arial';
-  ctx.textAlign = 'center';
-  ctx.letterSpacing = '0.05em';
-  ctx.fillText('gamechange-diagnoza.vercel.app', W/2, H - 24);
-
-  ctx.fillStyle = 'rgba(255,255,255,0.2)';
-  ctx.font = '10px Arial';
-  ctx.fillText('SYSTEM DIAGNOSTYCZNY · ' + new Date().getFullYear(), W/2, H - 10);
-}
-
-function downloadPlayerCard() {
-  const name = (document.getElementById('card-name-input').value || '').trim();
-  _drawPlayerCard(cachedScores, name);
-  const canvas = document.getElementById('player-card-canvas');
-  const link = document.createElement('a');
-  link.download = 'gamechange-karta-' + (name || 'zawodnik').toLowerCase().replace(/\s+/g,'-') + '.jpg';
-  link.href = canvas.toDataURL('image/jpeg', 0.92);
-  link.click();
-}
-
-// ======================================
-//  KARTA INSIGHTU — materiał do Stories, osobny od karty przynależności.
-//  Pokazuje jedną, zaskakującą lub budującą dumę obserwację o mocnej stronie
-//  zawodnika — nigdy słabość. Wybór z 3 kategorii, z gotowej puli szablonów
-//  (bez wywołania AI — szybkie, przewidywalne, darmowe).
-// ======================================
-
-// Nazwy segmentów w formie do wstawienia w zdanie (dopełniacz/mianownik dopasowany
-// do szablonów poniżej — sprawdź kontekst zdania przy rozszerzaniu).
-const SEG_INSIGHT_NAMES = {
-  moc: 'moc', wytrzymalosc: 'wytrzymałość', fizycznosc: 'fizyczność',
-  techFund: 'technika podstawowa', techSpec: 'technika specjalistyczna',
-  tolerancja: 'tolerancja obciążeń', regeneracja: 'regeneracja',
-  odpornosc: 'odporność', odzywianie: 'odżywienie',
-  koncentracja: 'koncentracja', mental: 'stan mentalny',
-  percepcja: 'percepcja', decyzja: 'szybkość decyzji',
-};
-
-// KATEGORIA A — rzadka kombinacja: mocna strona zawodnika jest segmentem
-// drugorzędnym ("minor") dla jego pozycji, czyli czymś czego typowo się na
-// tej roli nie oczekuje. {seg} = nazwa segmentu, {pos} = nazwa pozycji
-// (zawsze w mianowniku — szablony unikają odmiany żeby nie łamać gramatyki).
-const INSIGHT_TEMPLATES_RARE = [
-  'Na pozycji „{pos}" rzadko to wychodzi na pierwszy plan — u Ciebie {seg} jest jedną z mocniejszych stron.',
-  'To nietypowe połączenie: pozycja „{pos}" i wyraźna przewaga w obszarze: {seg}.',
-  'Niewielu graczy na pozycji „{pos}" wyróżnia się w tym akurat obszarze — {seg} jest Twoim atutem.',
-];
-
-// KATEGORIA B — napędowa korelacja: dwie mocne strony powiązane realnym
-// mechanizmem w sieci zależności. {seg1} napędza {seg2}.
-const INSIGHT_TEMPLATES_CORRELATION = [
-  'To nie przypadek: {seg1} i {seg2} idą u Ciebie w parze — jedno napędza drugie.',
-  'Nieprzypadkowo obie te rzeczy Ci wychodzą: {seg1} i {seg2} są ze sobą powiązane.',
-  'Masz rzadkie połączenie: {seg1} u Ciebie realnie wspiera {seg2}.',
-];
-
-// KATEGORIA C — wyjątkowa mocna strona, zawsze dostępny fallback.
-const INSIGHT_TEMPLATES_STRONG = [
-  '{seg} to obszar w którym wyraźnie wyróżniasz się na tle reszty swojej gry.',
-  'Jeśli miałbyś jedną rzecz do pokazania — to {seg}.',
-  'To jest Twój wyraźny atut: {seg}.',
-];
-
-function _pickTemplate(list) {
-  return list[Math.floor(Math.random() * list.length)];
-}
-
-/**
- * Wybiera spersonalizowany insight dla karty (b) — próbuje kategorie w
- * kolejności A -> B -> C, zwraca pierwszą która da wynik. C zawsze działa
- * jeśli jest choć jedna mocna strona (getRelativeStrengths).
- */
-function getInsightForCard(scores, positionProfile, posLabel) {
-  const strengths = getRelativeStrengths(scores, 3);
-  if (!strengths.length) return null;
-  const strengthIds = strengths.map(s => s[0]);
-
-  // Kategoria A — rzadka kombinacja (wymaga znanej pozycji)
-  if (positionProfile) {
-    const rareId = strengthIds.find(id => positionProfile.tiers[id] === 'minor');
-    if (rareId) {
-      const segName = SEG_INSIGHT_NAMES[rareId];
-      const text = _pickTemplate(INSIGHT_TEMPLATES_RARE)
-        .replace('{seg}', segName)
-        .replace('{pos}', posLabel || 'Twojej pozycji');
-      return { category: 'rare', text };
-    }
-  }
-
-  // Kategoria B — napędowa korelacja między dwiema mocnymi stronami
-  const correlation = DEPENDENCY_NETWORK.find(r =>
-    strengthIds.includes(r.from) && strengthIds.includes(r.to) && r.weight >= 0.5
-  );
-  if (correlation) {
-    const seg1 = SEG_INSIGHT_NAMES[correlation.from];
-    const seg2 = SEG_INSIGHT_NAMES[correlation.to];
-    const text = _pickTemplate(INSIGHT_TEMPLATES_CORRELATION)
-      .replace('{seg1}', seg1).replace('{seg2}', seg2)
-      .replace('{seg1_mianownik}', seg1.charAt(0).toUpperCase() + seg1.slice(1));
-    return { category: 'correlation', text };
-  }
-
-  // Kategoria C — wyjątkowa mocna strona (zawsze dostępny fallback)
-  const topId = strengthIds[0];
-  const text = _pickTemplate(INSIGHT_TEMPLATES_STRONG)
-    .replace('{seg}', SEG_INSIGHT_NAMES[topId].charAt(0).toUpperCase() + SEG_INSIGHT_NAMES[topId].slice(1));
-  return { category: 'strong', text };
-}
+// DEV quickTest() oraz cała sekcja "KARTA ZAWODNIKA" / "KARTA INSIGHTU" (Canvas:
+// showPlayerCard, updateCardPreview, _wrapCanvasText, _drawInsightCard,
+// downloadInsightCard, _drawPlayerCard, downloadPlayerCard, getInsightForCard i
+// szablony INSIGHT_TEMPLATES_*) usunięte 05.08.2026 — "usuwamy karty zawodnika".
 
 function restart() {
   ans = {}; cachedScores = null;
@@ -7326,7 +6284,7 @@ function restart() {
   };
 
   // Ukryj nowe sekcje
-  ['feedback-wrap','anchor-question-wrap','bridge-wrap'].forEach(id => {
+  ['feedback-wrap','anchor-question-wrap'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
   });
@@ -7337,11 +6295,6 @@ function restart() {
   if (fcc) fcc.style.display = 'none';
   const ft = document.getElementById('feedback-thanks');
   if (ft) ft.style.display = 'none';
-
-  const cardWrap = document.getElementById('player-card-wrap');
-  if (cardWrap) cardWrap.style.display = 'none';
-  const cardInput = document.getElementById('card-name-input');
-  if (cardInput) cardInput.value = '';
 
   document.querySelectorAll('.ctx-btn').forEach(b => b.classList.remove('sel'));
   history.replaceState(null, '', window.location.pathname);
@@ -7356,7 +6309,7 @@ function restart() {
 
       <div style="font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:0.2em;color:#9a9488;margin-bottom:8px;">Gamechange System</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#0e0d0b;letter-spacing:0.02em;margin-bottom:8px;">Panel trenera</div>
-      <p style="font-size:13px;color:#9a9488;font-weight:300;line-height:1.7;margin-bottom:32px;">Twoi zawodnicy wypełniają diagnozę z kodem drużyny i płacą sami. Ty dostajesz bezpłatny raport całej drużyny — automatycznie, bez żadnej pracy z Twojej strony.</p>
+      <p style="font-size:13px;color:#9a9488;font-weight:300;line-height:1.7;margin-bottom:32px;">Twoi zawodnicy wypełniają darmową diagnozę z kodem drużyny. Ty dostajesz bezpłatny raport całej drużyny — automatycznie, bez żadnej pracy z Twojej strony.</p>
 
       <div style="background:#fff;border:1px solid #d8d3c8;padding:28px;">
         <div style="margin-bottom:20px;">
