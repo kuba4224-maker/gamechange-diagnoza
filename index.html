@@ -1161,22 +1161,25 @@ body {
     <!-- Anchor question — pojawia się PO diagnozie i feedbacku -->
     <div id="anchor-question-wrap" style="display:none;margin-bottom:32px;">
       <div style="border:1px solid #d8d3c8;padding:32px;background:#fff;">
-        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;">Jeszcze jedno pytanie</div>
-        <div id="anchor-question-text" style="font-size:17px;line-height:1.5;margin-bottom:16px;color:#0e0d0b;word-break:break-word;overflow-wrap:break-word;">Kiedy ostatnio poczułeś to na boisku?</div>
-        <textarea id="anchor-answer" rows="3" placeholder="Opisz jedną konkretną sytuację z meczu lub treningu..."
-          style="width:100%;padding:14px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;resize:none;line-height:1.6;display:block;margin-bottom:16px;"
-          onfocus="this.style.borderColor='#0e0d0b'"
-          onblur="this.style.borderColor='#d8d3c8'"></textarea>
-        <div style="display:flex;gap:12px;align-items:center;">
-          <button onclick="submitAnchorAnswer()"
-            style="background:#0e0d0b;color:#f5f2ec;border:none;padding:14px 32px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:0.1em;cursor:pointer;">
-            Wyślij →
-          </button>
-          <button onclick="skipAnchorAnswer()"
-            style="background:transparent;border:none;font-size:13px;color:#9a9488;cursor:pointer;text-decoration:underline;text-underline-offset:3px;">
-            Pomiń
-          </button>
+        <div id="anchor-question-form">
+          <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;">Jeszcze jedno pytanie</div>
+          <div id="anchor-question-text" style="font-size:17px;line-height:1.5;margin-bottom:16px;color:#0e0d0b;word-break:break-word;overflow-wrap:break-word;">Kiedy ostatnio poczułeś to na boisku?</div>
+          <textarea id="anchor-answer" rows="3" placeholder="Opisz jedną konkretną sytuację z meczu lub treningu..."
+            style="width:100%;padding:14px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;resize:none;line-height:1.6;display:block;margin-bottom:16px;"
+            onfocus="this.style.borderColor='#0e0d0b'"
+            onblur="this.style.borderColor='#d8d3c8'"></textarea>
+          <div style="display:flex;gap:12px;align-items:center;">
+            <button onclick="submitAnchorAnswer()"
+              style="background:#0e0d0b;color:#f5f2ec;border:none;padding:14px 32px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:0.1em;cursor:pointer;">
+              Wyślij →
+            </button>
+            <button onclick="skipAnchorAnswer()"
+              style="background:transparent;border:none;font-size:13px;color:#9a9488;cursor:pointer;text-decoration:underline;text-underline-offset:3px;">
+              Pomiń
+            </button>
+          </div>
         </div>
+        <div id="anchor-question-thanks" style="display:none;font-size:13px;color:#2a7a3a;">✓ Dziękujemy — zapisaliśmy Twoją odpowiedź.</div>
       </div>
     </div>
 
@@ -5458,10 +5461,16 @@ function renderDiagnosisV2(raw, scores, deficitsData, usedInsights) {
     && /[?.!]\s*$/.test(pytanie.trim());
 
   if (isPytanieComplete) {
+    // Pojawia się z małym opóźnieniem (płynniej niż w tej samej klatce co
+    // feedback), ale BEZ wymuszonego scrollIntoView — 05.08.2026: to on,
+    // razem ze scrollem na końcu generateAIDiagnosis(), powodował że ekran
+    // "skakał" (do góry do diagnozy, potem w dół do pytania) i sprawiał
+    // wrażenie że już przeczytane fragmenty "wracają". Pytanie po prostu
+    // dochodzi na swoim miejscu, w dole strony — użytkownik dojdzie do niego
+    // scrollując naturalnie, tak jak do każdej kolejnej sekcji.
     setTimeout(() => {
       document.getElementById('anchor-question-text').textContent = pytanie;
       document.getElementById('anchor-question-wrap').style.display = 'block';
-      document.getElementById('anchor-question-wrap').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, 800);
   } else {
     if (pytanie) console.warn('Call 2: pytanie zakotwiczające wygląda na ucięte, pomijam:', pytanie);
@@ -5477,7 +5486,12 @@ function submitAnchorAnswer() {
   const answer = (document.getElementById('anchor-answer').value || '').trim();
   _diagState.anchorStory = answer;
   _saveAnchorToSupabase(answer);
-  document.getElementById('anchor-question-wrap').style.display = 'none';
+  // 05.08.2026: zamiast chować cały blok (display:none — nagłe zapadnięcie się
+  // strony), zostawiamy ramkę i podmieniamy formularz na krótkie potwierdzenie,
+  // tak samo jak przy "Jak trafna jest ta diagnoza?" niżej — strona tylko rośnie
+  // w dół, nic już pokazanego nie znika.
+  document.getElementById('anchor-question-form').style.display = 'none';
+  document.getElementById('anchor-question-thanks').style.display = 'block';
   // Call 3 zawsze — z historią lub bez
   generateBridge(answer);
 }
@@ -5485,7 +5499,8 @@ function submitAnchorAnswer() {
 function skipAnchorAnswer() {
   _diagState.anchorStory = '';
   _saveAnchorToSupabase('');
-  document.getElementById('anchor-question-wrap').style.display = 'none';
+  document.getElementById('anchor-question-form').style.display = 'none';
+  document.getElementById('anchor-question-thanks').style.display = 'block';
   // Call 3 bez historii — ogólny mostek
   generateBridge('');
 }
@@ -6295,6 +6310,14 @@ function restart() {
   if (fcc) fcc.style.display = 'none';
   const ft = document.getElementById('feedback-thanks');
   if (ft) ft.style.display = 'none';
+
+  // Reset formularza pytania zakotwiczającego (patrz submitAnchorAnswer/skipAnchorAnswer)
+  const aqf = document.getElementById('anchor-question-form');
+  if (aqf) aqf.style.display = 'block';
+  const aqt = document.getElementById('anchor-question-thanks');
+  if (aqt) aqt.style.display = 'none';
+  const aqa = document.getElementById('anchor-answer');
+  if (aqa) aqa.value = '';
 
   document.querySelectorAll('.ctx-btn').forEach(b => b.classList.remove('sel'));
   history.replaceState(null, '', window.location.pathname);
