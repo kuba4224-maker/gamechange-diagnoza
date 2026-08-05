@@ -1031,45 +1031,32 @@ body {
       <div class="scores-table" id="scores-table"></div>
     </div>
 
-    <!-- DIAGNOSIS GATE — blur + email unlock -->
-    <div style="position:relative;margin-bottom:48px;">
-
-      <!-- Blurred content -->
-      <div id="diagnosis-blur-wrap" style="filter:blur(6px);pointer-events:none;user-select:none;transition:filter 0.5s ease;">
-        <div class="section-head" style="margin-bottom:24px;" id="deficits-section-head">
-          <h3 id="deficits-heading">Kluczowe wąskie gardła</h3>
-          <p id="deficits-subheading">Tu powinieneś zacząć pracę</p>
-        </div>
-        <div id="deficits-list"></div>
-        <div style="margin-top:32px;border:1px solid #d8d3c8;padding:32px;background:#fff;">
-          <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Twoja diagnoza</div>
-          <div id="ai-diagnosis-text" style="font-size:15px;color:#3a3830;line-height:1.9;font-weight:300;">Generowanie diagnozy...</div>
-        </div>
+    <!-- DIAGNOSIS GATE — przebudowane 05.08.2026: email zbierany jest jako zwykła,
+         pierwsza sekcja w normalnym przepływie strony (nie nakładka position:absolute
+         wycentrowana na rozmytej treści). Sama diagnoza (deficits-list + ai-diagnosis-text,
+         patrz #diagnosis-blur-wrap niżej) zaczyna jako display:none i pojawia się dopiero
+         PONIŻEJ całej tej sekcji, dopiero po podaniu emaila — dzięki temu nigdy nie ma
+         efektu, że coś wyżej "wraca odkryte" po kliknięciu czegoś niżej. -->
+    <div id="email-gate-box" style="margin-bottom:48px;">
+      <div style="background:#fff;border:1px solid #d8d3c8;padding:40px;max-width:480px;width:100%;margin:0 auto;text-align:center;box-shadow:0 8px 48px rgba(0,0,0,0.08);">
+        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Odbierz pełną diagnozę</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1.1;letter-spacing:0.01em;margin-bottom:16px;">Widzisz swoje wyniki.<br>Teraz dowiedz się <em style="color:#C0392B;font-style:normal;">co z nimi zrobić.</em></div>
+        <p style="font-size:14px;color:#3a3830;font-weight:300;line-height:1.8;margin-bottom:28px;">Podaj email — wyślemy Ci diagnozę na podstawie Twoich wyników i zaproponujemy konkretne rozwiązania które poprawią Twoją grę.</p>
+        <input id="email-input" type="email" placeholder="twoj@email.com"
+          style="width:100%;padding:14px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:15px;color:#0e0d0b;outline:none;margin-bottom:12px;display:block;"
+          onfocus="this.style.borderColor='#0e0d0b'"
+          onblur="this.style.borderColor='#d8d3c8'"
+          onkeydown="if(event.key==='Enter') submitEmail()">
+        <button onclick="submitEmail()"
+          style="width:100%;background:#0e0d0b;color:#f5f2ec;border:none;padding:16px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;cursor:pointer;margin-bottom:10px;">
+          Odblokuj diagnozę →
+        </button>
+        <div id="email-error" style="color:#C0392B;font-size:13px;display:none;margin-bottom:8px;">Podaj poprawny adres email.</div>
+        <p style="font-size:11px;color:#9a9488;font-weight:300;">Bez spamu. Tylko Twoja diagnoza i materiały które mogą Ci pomóc.</p>
       </div>
-
-      <!-- Email gate overlay — chowa się po podaniu emaila -->
-      <div id="email-gate-box" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;">
-        <div style="background:#fff;border:1px solid #d8d3c8;padding:40px;max-width:480px;width:100%;text-align:center;box-shadow:0 8px 48px rgba(0,0,0,0.08);">
-          <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Odbierz pełną diagnozę</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1.1;letter-spacing:0.01em;margin-bottom:16px;">Widzisz swoje wyniki.<br>Teraz dowiedz się <em style="color:#C0392B;font-style:normal;">co z nimi zrobić.</em></div>
-          <p style="font-size:14px;color:#3a3830;font-weight:300;line-height:1.8;margin-bottom:28px;">Podaj email — wyślemy Ci diagnozę na podstawie Twoich wyników i zaproponujemy konkretne rozwiązania które poprawią Twoją grę.</p>
-          <input id="email-input" type="email" placeholder="twoj@email.com"
-            style="width:100%;padding:14px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:15px;color:#0e0d0b;outline:none;margin-bottom:12px;display:block;"
-            onfocus="this.style.borderColor='#0e0d0b'"
-            onblur="this.style.borderColor='#d8d3c8'"
-            onkeydown="if(event.key==='Enter') submitEmail()">
-          <button onclick="submitEmail()"
-            style="width:100%;background:#0e0d0b;color:#f5f2ec;border:none;padding:16px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;cursor:pointer;margin-bottom:10px;">
-            Odblokuj diagnozę →
-          </button>
-          <div id="email-error" style="color:#C0392B;font-size:13px;display:none;margin-bottom:8px;">Podaj poprawny adres email.</div>
-          <p style="font-size:11px;color:#9a9488;font-weight:300;">Bez spamu. Tylko Twoja diagnoza i materiały które mogą Ci pomóc.</p>
-        </div>
-      </div>
-
     </div>
 
-    <!-- Potwierdzenie emaila — pojawia się poza blur containerem po odblokowaniu -->
+    <!-- Potwierdzenie emaila — pojawia się poniżej, w miejscu gdzie był formularz -->
     <div id="email-confirm-box" style="display:none;margin-bottom:24px;background:#fff;border:1px solid #d8d3c8;padding:24px;text-align:center;">
       <div style="font-size:24px;margin-bottom:8px;">✓</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.02em;margin-bottom:8px;color:#0e0d0b;">Email zapisany</div>
@@ -1080,12 +1067,13 @@ body {
       </button>
     </div>
 
-    <!-- Unlocked note — poza blur containerem -->
+    <!-- Unlocked note -->
     <div id="diagnosis-unlocked-note" style="display:none;text-align:center;padding:12px 0 24px;">
       <span style="font-size:12px;color:#2a7a3a;letter-spacing:0.1em;text-transform:uppercase;">✓ Diagnoza odblokowana</span>
     </div>
 
-    <!-- Open questions — JEDNO pytanie po wynikach, przed diagnozą -->
+    <!-- Open questions — JEDNO pytanie po wynikach, przed diagnozą (tylko dorośli;
+         u juniorów ten krok jest pomijany, patrz submitEmail()) -->
     <div id="open-questions-wrap" style="display:none;margin-bottom:48px;">
       <div style="border:1px solid #d8d3c8;padding:32px;background:#fff;">
         <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;">Ostatni krok przed diagnozą</div>
@@ -1113,6 +1101,22 @@ body {
             Pomiń
           </button>
         </div>
+      </div>
+    </div>
+
+    <!-- Diagnoza — wąskie gardła + tekst diagnozy. Ukryta (display:none) do czasu
+         podania emaila; pojawia się TU, poniżej wszystkiego powyżej. Zobacz JS:
+         submitEmail() (junior), submitOpenQuestions() (dorosły), loadResultsFromURL()
+         (powrót do zapisanego linku z wynikami) — te trzy miejsca ją odsłaniają. -->
+    <div id="diagnosis-blur-wrap" style="display:none;margin-bottom:48px;">
+      <div class="section-head" style="margin-bottom:24px;" id="deficits-section-head">
+        <h3 id="deficits-heading">Kluczowe wąskie gardła</h3>
+        <p id="deficits-subheading">Tu powinieneś zacząć pracę</p>
+      </div>
+      <div id="deficits-list"></div>
+      <div style="margin-top:32px;border:1px solid #d8d3c8;padding:32px;background:#fff;">
+        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Twoja diagnoza</div>
+        <div id="ai-diagnosis-text" style="font-size:15px;color:#3a3830;line-height:1.9;font-weight:300;">Generowanie diagnozy...</div>
       </div>
     </div>
 
@@ -4439,8 +4443,7 @@ function loadResultsFromURL() {
     if (data.d) {
       _diagState.diagnosisText = data.d;
       _diagState.topDeficitIds = data.td || [];
-      document.getElementById('diagnosis-blur-wrap').style.filter = 'none';
-      document.getElementById('diagnosis-blur-wrap').style.pointerEvents = 'auto';
+      document.getElementById('diagnosis-blur-wrap').style.display = 'block';
       document.getElementById('diagnosis-unlocked-note').style.display = 'block';
       const emailGateBox = document.getElementById('email-gate-box');
       if (emailGateBox) emailGateBox.style.display = 'none';
@@ -4973,27 +4976,27 @@ function submitEmail() {
     }
   }
 
-  // Junior — generuj od razu
+  // Junior — generuj od razu. Diagnoza (dotąd display:none) pojawia się teraz
+  // PONIŻEJ potwierdzenia emaila, w normalnym przepływie strony — nic nie
+  // "wraca odkryte" wyżej.
   if (isJunior) {
-    document.getElementById('diagnosis-blur-wrap').style.filter = 'none';
-    document.getElementById('diagnosis-blur-wrap').style.pointerEvents = 'auto';
+    document.getElementById('diagnosis-blur-wrap').style.display = 'block';
     document.getElementById('diagnosis-unlocked-note').style.display = 'block';
     document.getElementById('ai-diagnosis-text').innerHTML = inlineLoaderHTML('Generuję Twoją diagnozę');
     generateAIDiagnosis(cachedScores, '');
     return;
   }
 
-  // Dorosły — pokaż pytania otwarte
+  // Dorosły — pokaż pytania otwarte (bez wymuszonego scrolla — pojawiają się
+  // po prostu poniżej potwierdzenia emaila, tak jak każda kolejna sekcja).
   document.getElementById('open-questions-wrap').style.display = 'block';
-  document.getElementById('open-questions-wrap').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function submitOpenQuestions(skip = false) {
   const situation = skip ? '' : (document.getElementById('oq-situation').value.trim());
 
   document.getElementById('open-questions-wrap').style.display = 'none';
-  document.getElementById('diagnosis-blur-wrap').style.filter = 'none';
-  document.getElementById('diagnosis-blur-wrap').style.pointerEvents = 'auto';
+  document.getElementById('diagnosis-blur-wrap').style.display = 'block';
   document.getElementById('diagnosis-unlocked-note').style.display = 'block';
   document.getElementById('ai-diagnosis-text').innerHTML = inlineLoaderHTML('Generuję Twoją diagnozę');
 
@@ -5350,13 +5353,12 @@ FORMAT ODPOWIEDZI (zachowaj dokładnie te znaczniki). TREŚĆ KAŻDEJ SEKCJI ZAL
     renderFallback(scores, deficitsData);
   }
 
-  // Odblokuj blur
-  document.getElementById('diagnosis-blur-wrap').style.filter = 'none';
-  document.getElementById('diagnosis-blur-wrap').style.pointerEvents = 'auto';
+  // Zabezpieczenie: diagnosis-blur-wrap i tak jest już odsłonięty (ustawia to
+  // submitEmail()/submitOpenQuestions() zanim ta funkcja w ogóle się zaczęła —
+  // użytkownik od razu patrzy w to miejsce, więc nie ma już tu potrzeby
+  // wymuszonego scrolla, który wcześniej "zabierał" go gdzie indziej).
+  document.getElementById('diagnosis-blur-wrap').style.display = 'block';
   document.getElementById('diagnosis-unlocked-note').style.display = 'block';
-
-  // Scroll do diagnozy
-  document.getElementById('diagnosis-blur-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ======================================
