@@ -2665,6 +2665,12 @@ async function registerCoach() {
 //  ANALIZA FEEDBACKÓW — cotygodniowy raport
 // ======================================
 
+// LEJEK R8 08.08.2026 — MARTWE (agent-N2): loadFeedbackAnalysis,
+// sendFeedbackDigest, triggerFeedbackDigest. Odczyt diagnostics kluczem anon
+// po P0-2 zawsze zwraca pustke, wiec "analiza" zawsze konczyla sie "Brak
+// nowych negatywnych ocen" niezaleznie od danych. Jedyny wyzwalacz (przycisk
+// w screen-team) wykomentowany. Docelowe miejsce takiej analizy: backend
+// z service-key, nie frontend z anon - do decyzji przy pilotazu.
 async function loadFeedbackAnalysis() {
   // Pobierz ostatnie 30 dni negatywnych/mieszanych feedbacków.
   // UWAGA: przyciski feedbacku (submitFeedback) zapisują 'partial'/'off' (angielskie ID),
@@ -2758,6 +2764,11 @@ async function triggerFeedbackDigest(btn) {
 }
 
 
+// LEJEK R8 08.08.2026 — MARTWE (legacy ?parent=): loadParentView,
+// generateParentReport (w tym pliku), sendParentReport. Czytnik po P0-2
+// zawsze widzi pustke; dispatch ?parent= pokazuje teraz uczciwy komunikat,
+// a zywa wysylka linku (po diagnozie) zostala wycieta. Raport rodzica
+// generuje backend: lib/parent-reports.js + raport-rodzica.html.
 async function loadParentView(token) {
   showScreen('screen-parent');
   const el = document.getElementById('parent-content');
@@ -3259,6 +3270,19 @@ async function sendParentReport(playerData, parentEmail) {
   } catch(e) { console.warn('EmailJS parent send failed', e); }
 }
 
+// ============================================================
+// LEJEK R8 08.08.2026 — MARTWY REGION (agent-N2): loadTeamView,
+// renderTeamTable, renderTeamStats, renderTeamDeficits, renderTeamHeatmap,
+// generateTeamAIRecommendation, downloadTeamPDF.
+// Po zdjeciu polityki anon SELECT na diagnostics (P0-2, na stale) te funkcje
+// zawsze dostaja pusta odpowiedz - dzialac nie beda. Jedyne wejscie
+// (dispatch ?team= w listenerze load) zostalo wyciete, wiec kod jest
+// NIEOSIAGALNY. Zastepstwo: widok "Diagnozy druzyny" w coach.html (runda 7).
+// Kod NIE jest owiniety w /* */ swiadomie: region zawiera wlasne komentarze
+// blokowe (m.in. okolice linii 3562-4513), wiec blokowy komentarz ucialby sie
+// na pierwszym */ i wywrocil caly <script>. Definicje zostaja jako zapis
+// logiki (progi, mediany), z ktorej czerpal widok w coach.html.
+// ============================================================
 async function loadTeamView(code) {
   document.getElementById('team-title').textContent = `Drużyna: ${code}`;
   showScreen('screen-team');
@@ -4590,10 +4614,21 @@ window.addEventListener('load', () => {
     return;
   }
 
-  // Panel rodzica
+  // LEJEK R8 08.08.2026 — legacy ?parent= WYCIETE (agent-N2 + P0-2).
+  // Czytnik (loadParentView) pobieral diagnostics po parent_token kluczem anon;
+  // po zdjeciu polityki anon SELECT (P0-2, NA STALE) zapytanie ZAWSZE zwraca
+  // pustke - kazdy link, takze swiezo wyslany, konczyl sie "Nie znaleziono
+  // raportu". Zamiast martwego czytnika: uczciwy komunikat. Bylo:
+  //   if (parentParam) { loadParentView(parentParam); return; }
+  // NIE przywracac bez polityki odczytu (czyli nigdy dla anon).
   const parentParam = urlParams.get('parent');
   if (parentParam) {
-    loadParentView(parentParam);
+    showScreen('screen-parent');
+    document.getElementById('parent-content').innerHTML =
+      '<div style="padding:48px;text-align:center;">' +
+      '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:24px;color:#9a9488;margin-bottom:8px;">Ten link ju\u017c nie dzia\u0142a</div>' +
+      '<p style="font-size:13px;color:#9a9488;font-weight:300;line-height:1.6;">Raporty dla rodzic\u00f3w wysy\u0142amy teraz bezpo\u015brednio e-mailem z systemu Gamechange \u2014<br>dla bezpiecze\u0144stwa danych zawodnik\u00f3w linki z otwartym dost\u0119pem zosta\u0142y wy\u0142\u0105czone.</p>' +
+      '</div>';
     return;
   }
 
@@ -4606,10 +4641,25 @@ window.addEventListener('load', () => {
     return;
   }
 
-  // Panel trenera
+  // LEJEK R8 08.08.2026 — widok druzyny po kodzie WYCIETY (agent-N2 + P0-2).
+  // loadTeamView czytal diagnostics po team_code kluczem anon; po zdjeciu
+  // polityki anon SELECT panel ZAWSZE pokazywal "Brak wynikow" - takze dla
+  // druzyn z kompletem diagnoz. Zastapiony widokiem "Diagnozy druzyny"
+  // w panelu trenera ZA LOGOWANIEM (gamechange-app/coach.html, runda 7).
+  // Bylo:
+  //   if (teamParam) { loadTeamView(teamParam.toUpperCase()); return; }
+  // NIE przywracac - to byl otwarty dostep do wynikow nieletnich po samym kodzie.
   const teamParam = urlParams.get('team');
   if (teamParam) {
-    loadTeamView(teamParam.toUpperCase());
+    showScreen('screen-team');
+    document.getElementById('team-loading').style.display = 'none';
+    var teamEmptyEl = document.getElementById('team-empty');
+    teamEmptyEl.style.display = 'block';
+    teamEmptyEl.innerHTML =
+      '<div style="padding:48px;text-align:center;">' +
+      '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:24px;color:#9a9488;margin-bottom:8px;">Ten panel przeni\u00f3s\u0142 si\u0119</div>' +
+      '<p style="font-size:13px;color:#9a9488;font-weight:300;line-height:1.6;">Diagnozy dru\u017cyny s\u0105 teraz w panelu trenera, za logowaniem \u2014 zak\u0142adka \u201eDiagnozy dru\u017cyny\u201d.<br>Dost\u0119p po samym kodzie dru\u017cyny zosta\u0142 wy\u0142\u0105czony dla bezpiecze\u0144stwa danych zawodnik\u00f3w.</p>' +
+      '</div>';
     return;
   }
 
@@ -5500,10 +5550,15 @@ FORMAT ODPOWIEDZI (zachowaj dokładnie te znaczniki). TREŚĆ KAŻDEJ SEKCJI ZAL
       _diagState.usedInsights = !!insightsText;
       renderDiagnosisV2(raw, scores, deficitsData, !!insightsText);
       saveResultsToURL(scores); // zapisz ponownie — teraz z pełną diagnozą, żeby link do wyników ją zawierał
-      // Wyślij raport do rodzica jeśli podano email
-      if (window._parentEmail && playerEmail) {
-        sendParentReport({ email: playerEmail }, window._parentEmail);
-      }
+      // LEJEK R8 08.08.2026 — wysylka linku ?parent= WYCIETA. Link byl
+      // deterministycznie martwy (czytnik po P0-2 zawsze widzi pustke), wiec
+      // rodzic dostawal mail "Kliknij zeby zobaczyc raport" prowadzacy do
+      // "Nie znaleziono raportu" - gorsze niz brak maila. Pytanie-hipoteza
+      // do rodzica (scheduleParentObservationRequest, ?respond=) ZOSTAJE.
+      // Bylo:
+      //   if (window._parentEmail && playerEmail) {
+      //     sendParentReport({ email: playerEmail }, window._parentEmail);
+      //   }
     } else {
       console.warn('Call 2: brak [SYTUACJA] w odpowiedzi. Raw:', raw.slice(0, 200));
       renderFallback(scores, deficitsData);
@@ -6715,14 +6770,22 @@ function restart() {
         <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:0.2em;color:rgba(255,255,255,0.4);margin-bottom:4px;">Gamechange System — Panel Trenera</div>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;color:#f5f2ec;letter-spacing:0.05em;" id="team-title">Drużyna</div>
       </div>
-      <button onclick="downloadTeamPDF()"
+      <!-- LEJEK R8 08.08.2026 — przycisk PDF druzyny WYKOMENTOWANY razem z martwym
+       widokiem (downloadTeamPDF sklada PDF z teamData, ktore po P0-2 jest zawsze
+       puste; na ekranie-nagrobku przycisk obiecywalby cos, czego nie ma).
+  <button data-disabled-r8 onclick="downloadTeamPDF()"
         style="background:#E8432D;color:#0e0d0b;border:none;padding:12px 24px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:0.1em;cursor:pointer;">
         ↓ Pobierz PDF drużyny
-      </button>
-      <button id="feedback-digest-btn" onclick="triggerFeedbackDigest(this)"
+      </button> -->
+      <!-- LEJEK R8 08.08.2026 — przycisk raportu feedbackow WYKOMENTOWANY:
+       loadFeedbackAnalysis czyta diagnostics kluczem anon, po P0-2 zawsze
+       dostaje pustke, wiec przycisk zawsze konczyl "Brak nowych negatywnych
+       ocen" niezaleznie od danych (cichy brak). Caly ekran-gospodarz
+       (screen-team) jest zreszta martwy - patrz naglowek przy loadTeamView.
+  <button data-disabled-r8 id="feedback-digest-btn" onclick="triggerFeedbackDigest(this)"
         style="background:transparent;border:1px solid rgba(255,255,255,0.25);color:rgba(255,255,255,0.7);padding:12px 24px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:0.1em;cursor:pointer;margin-left:8px;">
         ✉ Wyślij raport feedbacków
-      </button>
+      </button> -->
       <a href="https://wa.me/48698999707?text=Cze%C5%9B%C4%87%2C%20mam%20uwag%C4%99%20do%20panelu%20trenera%20Gamechange.%0A%0A%5BOpisz%20co%20jest%20nie%20tak%20i%20do%C5%82%C4%85cz%20screenshot%5D"
         target="_blank" rel="noopener"
         style="display:inline-block;color:rgba(255,255,255,0.4);padding:12px 16px;font-size:13px;text-decoration:underline;text-underline-offset:3px;margin-left:8px;">
