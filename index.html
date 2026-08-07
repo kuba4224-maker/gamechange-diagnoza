@@ -7,7 +7,26 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<script>emailjs.init('vGZdYdE5kgTt7b9pV');</script>
+<!-- LEJEK A 08.08.2026 — znalezisko A2 z rundy 1. Do tej pory ta linia brzmiała
+     `emailjs.init('...')` bez żadnego zabezpieczenia. Gdy CDN EmailJS nie wstanie
+     (adblock, firewall szkolny/klubowy, brak sieci, blokada jsdelivr), zmienna
+     `emailjs` w ogóle nie istnieje i już przy ładowaniu strony leci
+     `ReferenceError: emailjs is not defined`. Nie wywracało to reszty (to osobny,
+     samodzielny blok skryptu), ale było nieczystym błędem u każdego z adblockiem
+     i zaśmiecało konsolę przy diagnozowaniu prawdziwych błędów.
+     Wszystkie cztery wywołania `emailjs.send()` w tym pliku są już w try/catch —
+     brak init-u nie zabiera więc niczego poza samą wysyłką maila. -->
+<script>
+  try {
+    if (typeof emailjs !== 'undefined' && emailjs && typeof emailjs.init === 'function') {
+      emailjs.init('vGZdYdE5kgTt7b9pV');
+    } else {
+      console.warn('EmailJS niedostepny (CDN zablokowany?) - powiadomienia e-mail nie beda wysylane. Diagnoza i PDF dzialaja normalnie.');
+    }
+  } catch (e) {
+    console.warn('EmailJS init nie powiodl sie:', e);
+  }
+</script>
 <style>
 :root {
   --bg: #f5f2ec;
@@ -902,7 +921,7 @@ body {
       <div style="margin-top:32px;padding-top:24px;border-top:1px solid #d8d3c8;">
         <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;font-weight:500;">Kod drużyny (opcjonalnie)</div>
         <p style="font-size:12px;color:#9a9488;font-weight:300;margin-bottom:12px;">Jeśli trener dał Ci kod — wpisz go tutaj. Twoje wyniki trafią do jego raportu.</p>
-        <input id="team-code-input" type="text" placeholder="np. LEGIA2025"
+        <input id="team-code-input" type="text" placeholder="np. AKADEMIA2026"
           style="width:100%;padding:12px 16px;border:1px solid #d8d3c8;background:#fff;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;text-transform:uppercase;letter-spacing:0.05em;"
           onfocus="this.style.borderColor='#0e0d0b'"
           onblur="this.style.borderColor='#d8d3c8'"
@@ -1168,9 +1187,16 @@ body {
         <div id="anchor-question-form">
           <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;">Jeszcze jedno pytanie</div>
           <div id="anchor-question-text" style="font-size:17px;line-height:1.5;margin-bottom:16px;color:#0e0d0b;word-break:break-word;overflow-wrap:break-word;">Kiedy ostatnio poczułeś to na boisku?</div>
+          <!-- LEJEK A 08.08.2026 — `onfocus` i `oninput` przezbrajają timer auto-odsłonięcia
+               sekcji PDF na dłuższe okno (GC_PDF_AUTO_REVEAL_TYPING_MS). Dzięki temu zawodnikowi,
+               który faktycznie pisze odpowiedź, nic nie wyskakuje pod ręką w trakcie pisania,
+               a jednocześnie ktoś, kto zacznie i porzuci w połowie, i tak dostanie PDF.
+               Wywołania są miękkie (`typeof`), żeby pole działało normalnie nawet gdyby
+               ten blok JS z jakiegoś powodu się nie załadował. -->
           <textarea id="anchor-answer" rows="3" placeholder="Opisz jedną konkretną sytuację z meczu lub treningu..."
             style="width:100%;padding:14px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;resize:none;line-height:1.6;display:block;margin-bottom:16px;"
-            onfocus="this.style.borderColor='#0e0d0b'"
+            onfocus="this.style.borderColor='#0e0d0b'; if(typeof _armPdfAutoReveal==='function') _armPdfAutoReveal(GC_PDF_AUTO_REVEAL_TYPING_MS);"
+            oninput="if(typeof _armPdfAutoReveal==='function') _armPdfAutoReveal(GC_PDF_AUTO_REVEAL_TYPING_MS);"
             onblur="this.style.borderColor='#d8d3c8'"></textarea>
           <div style="display:flex;gap:12px;align-items:center;">
             <button onclick="submitAnchorAnswer()"
@@ -1189,6 +1215,74 @@ body {
 
     <!-- Bridge/produkt/karty zawodnika (mostek do produktu, sekcja 97 zł, karta zawodnika,
          karta insightu) usunięte 05.08.2026 — jedynym produktem jest aplikacja. -->
+
+    <!-- MOST DIAGNOZA 07.08.2026 — most z ekranu wyniku do appki mobilnej.
+         To NIE jest przywrócenie sekcji produktowej ani paywalla: diagnoza pozostaje
+         darmowa, tu nie ma ceny, nie ma Stripe'a i nie ma linku do Marketplace
+         (zamrożony 06.08.2026). Jedynym celem jest jedno oczywiste kliknięcie dalej —
+         konto w appce, z wynikiem diagnozy już powiązanym po adresie e-mail.
+         Umieszczone NAD sekcją PDF świadomie: brief wymaga CTA równorzędnego z
+         "Pobierz raport PDF" albo mocniejszego.
+         Odsłanianiem steruje _showAppBridge() — patrz JS. -->
+    <div id="app-bridge-wrap" style="display:none;margin-top:32px;border-top:1px solid #d8d3c8;padding-top:32px;">
+      <div style="background:#0e0d0b;color:#f5f2ec;padding:32px;">
+        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Następny krok</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1.15;letter-spacing:0.01em;margin-bottom:14px;">
+          Wiesz już, gdzie jest wąskie gardło.<br>
+          <em style="color:#E8432D;font-style:normal;">Aplikacja pokaże Ci, co z tym robić w tym tygodniu.</em>
+        </div>
+        <p style="font-size:14px;color:#d8d3c8;font-weight:300;line-height:1.8;margin:0 0 18px;">
+          Ta diagnoza jest już zapisana. W aplikacji Gamechange zamienia się w jeden konkretny cel
+          i tygodniowy plan pracy — bez wypełniania czegokolwiek drugi raz.
+        </p>
+
+        <!-- Uczciwe oczekiwanie — zawodnik dowiaduje się o tym TU, a nie dopiero
+             wewnątrz appki (ekran diagnoza.tsx), czyli za późno. Podstawa liczby:
+             cron `cron-onboard-diagnosis` chodzi raz na dobę (vercel.json, 0 4 * * *). -->
+        <div style="border-left:2px solid #9a9488;padding:10px 0 10px 16px;margin-bottom:22px;">
+          <p style="font-size:13px;color:#9a9488;font-weight:300;line-height:1.7;margin:0;">
+            Uczciwie: pierwsza rekomendacja nie pojawia się w tej samej sekundzie. System dopasowuje
+            ją do Twoich wyników i <strong style="color:#d8d3c8;font-weight:500;">może to potrwać do 24 godzin</strong>
+            od założenia konta. Diagnozę i raport PDF masz od razu.
+          </p>
+        </div>
+
+        <!-- Wariant A — e-mail znany (normalny przepływ po submitEmail()) -->
+        <div id="app-bridge-action">
+          <p id="app-bridge-email-note" style="font-size:13px;color:#d8d3c8;font-weight:300;line-height:1.7;margin:0 0 16px;"></p>
+          <a id="app-bridge-link" href="#" target="_blank" rel="noopener"
+            style="display:none;background:#E8432D;color:#f5f2ec;text-decoration:none;padding:16px 32px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;align-items:center;gap:10px;">
+            Załóż konto — ten sam e-mail →
+          </a>
+          <button id="app-bridge-btn" onclick="requestAppAccess()"
+            style="background:#E8432D;color:#f5f2ec;border:none;padding:16px 32px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;cursor:pointer;">
+            Chcę dostęp do aplikacji →
+          </button>
+        </div>
+
+        <!-- Wariant B — e-mail nieznany (wejście z zapisanego linku do wyników) -->
+        <div id="app-bridge-email-gate" style="display:none;">
+          <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#d8d3c8;margin-bottom:8px;font-weight:500;">Podaj e-mail, którym chcesz się logować</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <input id="app-bridge-email-input" type="email" placeholder="twoj@email.com"
+              style="flex:1;min-width:200px;padding:14px 16px;border:1px solid #3a3830;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;"
+              onkeydown="if(event.key==='Enter') requestAppAccess()">
+            <button onclick="requestAppAccess()"
+              style="background:#E8432D;color:#f5f2ec;border:none;padding:14px 28px;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:0.1em;cursor:pointer;">
+              Dalej →
+            </button>
+          </div>
+          <div id="app-bridge-email-error" style="display:none;color:#E8432D;font-size:12px;margin-top:8px;">Podaj poprawny adres email.</div>
+        </div>
+
+        <!-- Potwierdzenie po kliknięciu -->
+        <div id="app-bridge-done" style="display:none;">
+          <div style="font-size:20px;margin-bottom:6px;">✓</div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.02em;margin-bottom:8px;">Zapisane</div>
+          <p id="app-bridge-done-text" style="font-size:13px;color:#d8d3c8;font-weight:300;line-height:1.75;margin:0;"></p>
+        </div>
+      </div>
+    </div>
 
     <div id="pdf-section-wrap" style="display:none;margin-top:32px;border-top:1px solid #d8d3c8;padding-top:32px;">
       <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;">Raport diagnostyczny</div>
@@ -2345,7 +2439,9 @@ let playerName = null;
 
 // Kody drużyn/klubów — używane wyłącznie do oznaczania rekordów diagnostyki (teamCode),
 // np. przez link ?access=KOD. Nie mają już nic wspólnego z płatnością.
-const FREE_ACCESS_CODES = ['GAMECHANGE', 'TRENER', 'PILOT', 'GAMECHANGE2025', 'LEGIA2025', 'PARASOL'];
+// AUDYT 06.08.2026 — usunięto 'LEGIA2025' (cudza marka klubowa w kodzie produkcyjnym,
+// używana też jako przykład w placeholderze pola "Kod drużyny").
+const FREE_ACCESS_CODES = ['GAMECHANGE', 'TRENER', 'PILOT', 'GAMECHANGE2025', 'PARASOL'];
 
 // ======================================
 //  SURVEY RENDER
@@ -3167,9 +3263,14 @@ async function loadTeamView(code) {
   document.getElementById('team-title').textContent = `Drużyna: ${code}`;
   showScreen('screen-team');
 
-  // Weryfikuj kod — sprawdź zarówno hardcoded jak i dynamiczne z Supabase
-  const STATIC_CODES = ['GAMECHANGE', 'TRENER', 'PILOT', 'GAMECHANGE2025', 'LEGIA2025', 'MOCK', 'PARASOL'];
-  if (!STATIC_CODES.includes(code)) {
+  // Weryfikuj kod wyłącznie względem tabeli `teams`.
+  // AUDYT 06.08.2026 — usunięto listę STATIC_CODES ['GAMECHANGE','TRENER','PILOT',
+  // 'GAMECHANGE2025','LEGIA2025','MOCK','PARASOL'], która pozwalała wejść do panelu
+  // trenera z pominięciem jakiejkolwiek weryfikacji. To były łatwe do odgadnięcia słowa
+  // otwierające widok z imionami, e-mailami i pełnymi wynikami nieletnich.
+  // ⚠️ JEŚLI PANEL PRZESTAŁ DZIAŁAĆ dla Twojego kodu pilotażowego (np. PARASOL) —
+  // znaczy to, że tego kodu nie ma w tabeli `teams`. Dodaj go tam, nie przywracaj listy.
+  {
     try {
       const codeCheck = await fetch(
         `${SUPABASE_URL}/rest/v1/teams?code=eq.${encodeURIComponent(code)}&limit=1`,
@@ -3873,61 +3974,11 @@ Napisz diagnozę w 4-5 zdaniach. Zasady:
   }
 }
 
-function loadMockTeamData() {
-  const NAMES = ['Mateusz K.','Jakub W.','Piotr S.','Tomasz N.','Adrian L.',
-                 'Kamil R.','Dawid M.','Michał B.','Łukasz P.','Szymon G.',
-                 'Bartosz Z.','Krzysztof A.','Rafał D.','Marcin H.','Paweł J.'];
-  const POSITIONS = ['Bramkarz','Obrońca','Obrońca','Pomocnik','Pomocnik',
-                     'Pomocnik','Napastnik','Obrońca','Pomocnik','Napastnik',
-                     'Bramkarz','Obrońca','Pomocnik','Napastnik','Pomocnik'];
-  const SEG_IDS = ['moc','wytrzymalosc','fizycznosc','techFund','techSpec',
-                   'tolerancja','regeneracja','odpornosc','odzywianie',
-                   'koncentracja','mental','percepcja','decyzja'];
-
-  const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-
-  teamData = NAMES.map((name, i) => {
-    const scores = {};
-    const weakSeg = SEG_IDS[rand(0, SEG_IDS.length - 1)];
-    SEG_IDS.forEach(id => {
-      scores[id] = id === weakSeg ? rand(18, 38) : rand(42, 82);
-    });
-    const overall = Math.round(Object.values(scores).reduce((a,b)=>a+b,0) / SEG_IDS.length);
-    const sortedDef = Object.entries(scores).sort((a,b)=>a[1]-b[1]).slice(0,3);
-    const top_deficits = sortedDef.map(([id]) => SEG_NAMES[id] || id).join(', ');
-
-    return {
-      player_name: name,
-      email: `${name.toLowerCase().replace(/[\s.]/g,'')}.mock@test.pl`,
-      position: POSITIONS[i],
-      overall_score: overall,
-      scores: JSON.stringify(scores),
-      top_deficits,
-      team_code: 'MOCK',
-      created_at: new Date(Date.now() - rand(0, 14) * 86400000).toISOString(),
-    };
-  });
-
-  document.getElementById('team-empty').style.display = 'none';
-
-  setTimeout(() => {
-    renderTeamTable(teamData);
-    renderTeamStats(teamData);
-    renderTeamDeficits(teamData);
-
-    // Heatmapa jako ostatnia — dajemy więcej czasu żeby DOM był gotowy
-    setTimeout(() => {
-      renderTeamHeatmap(teamData);
-      // Weryfikacja
-      const el = document.getElementById('team-heatmap');
-      if (el && !el.innerHTML.trim()) {
-        console.warn('Heatmapa pusta po renderowaniu — próba ponowna');
-        setTimeout(() => renderTeamHeatmap(teamData), 200);
-      }
-      generateTeamAIRecommendation(teamData, 'Przykładowa drużyna');
-    }, 100);
-  }, 50);
-}
+// AUDYT 06.08.2026 — usunięto loadMockTeamData(): generowała 15 fikcyjnych zawodników
+// ('Mateusz K.', 'Jakub W.', ... , e-maile *.mock@test.pl, losowe wyniki) i podstawiała je
+// jako realne dane drużyny. Wywoływał ją widoczny przycisk 'Podgląd z przykładowymi danymi'
+// w pustym stanie panelu trenera — czyli dokładnie tam, gdzie trener czeka na pierwsze
+// prawdziwe wypełnienia. Przycisk usunięty razem z funkcją.
 
 function renderTeamStats(data) {
   const scores = data.map(r => r.overall_score).filter(Boolean);
@@ -4003,7 +4054,7 @@ function renderTeamHeatmap(data) {
     { id: 'odpornosc', name: 'ODPORNOŚĆ' },
     { id: 'odzywianie', name: 'ODŻYWIENIE' },
     { id: 'koncentracja', name: 'KONCENTRACJA' },
-    { id: 'mental', name: 'STAN MENTAL.' },
+    { id: 'mental', name: 'ODWAGA W GRZE' }, /* PODPOWIEDZI A 08.08.2026 — decyzja A1: nazwa segmentu wyrownana z pozostalymi dwiema mapami w tym pliku */
     { id: 'percepcja', name: 'PERCEPCJA' },
     { id: 'decyzja', name: 'SZYBK. DECYZJI' },
   ];
@@ -4604,6 +4655,115 @@ async function sendEmailNotification(eventType, extras = {}) {
 // ======================================
 const SUPABASE_URL = 'https://kqrbztsvepjtggjmmcdx.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_EoYRIZpDhUSdNSJDXWl4Ew_SG8aJABP';
+
+// ======================================
+//  MOST DIAGNOZA 07.08.2026 — KONFIGURACJA MOSTU DO APPKI
+// ======================================
+// Appka mobilna nie jest dziś w żadnym sklepie — dystrybucja idzie przez linki EAS
+// (.apk dla Androida, ad-hoc dla iPhone'a), a te zmieniają się przy każdym buildzie
+// (patrz claude/KROK_5_3_WYSYLKA_DO_TESTEROW_04_08_2026.md). Nie ma więc stałego URL-a,
+// który dałoby się tu wpisać na sztywno. Stąd dwa tryby, przełączane JEDNĄ stałą:
+//
+//   GC_APP_ACCESS_URL === ''   → tryb ZGŁOSZENIA (domyślny, działa dziś):
+//                                przycisk zapisuje zdarzenie do `diagnostics` i wysyła
+//                                powiadomienie mailem do Kuby; zawodnik dostaje jasną
+//                                instrukcję "zaloguj się dokładnie tym samym adresem".
+//   GC_APP_ACCESS_URL === URL  → tryb LINKU: przycisk staje się bezpośrednim linkiem,
+//                                z e-mailem doklejonym jako ?email= (strona docelowa może
+//                                go użyć albo zignorować — nic od niego nie zależy).
+//
+// Gdy pojawi się stały adres (sklep / landing / strona pobrania) — wystarczy wkleić go
+// niżej, nic więcej nie trzeba zmieniać.
+const GC_APP_ACCESS_URL = '';
+
+// Awaryjny wyłącznik. `false` = most w ogóle się nie pokazuje, reszta ekranu wyniku
+// (diagnoza, PDF) działa dokładnie tak jak przed 07.08.2026.
+const GC_APP_BRIDGE_ENABLED = true;
+
+// ======================================
+//  LEJEK A 08.08.2026 — AUTO-ODSŁONIĘCIE SEKCJI PDF (znalezisko A1 z rundy 1)
+// ======================================
+// PROBLEM: `_showProductSection()` — jedyne, co odsłania sekcję PDF — było wołane
+// wyłącznie z `submitAnchorAnswer()` / `skipAnchorAnswer()`, czyli dopiero po kliknięciu
+// "Wyślij" albo "Pomiń" pod pytaniem zakotwiczającym. Pytanie jest ostatnią rzeczą na
+// stronie, więc zignorowanie go jest naturalne — i taki zawodnik NIE WIDZIAŁ przycisku
+// PDF w ogóle. Ślepy zaułek na końcu całego lejka.
+//
+// WYBRANY WARIANT (decyzja Kuby, 08.08.2026): sekcja PDF odsłania się sama po upływie
+// czasu, jeśli zawodnik nie odpowie. Odpowiedź / "Pomiń" odsłania ją NATYCHMIAST,
+// dokładnie jak dotąd — ta ścieżka jest nietknięta.
+//
+// DOBÓR OPÓŹNIEŃ (uzasadnienie w raporcie, sekcja 3):
+// Timer nie jest jeden — są dwa, i to jest istota kompromisu:
+//
+//   1) GC_PDF_AUTO_REVEAL_MS = 60 s — liczone od momentu, w którym pytanie POKAZAŁO SIĘ
+//      na ekranie (nie od wyrenderowania diagnozy). Dotyczy zawodnika, który pytania
+//      w ogóle nie tknął. 60 s to z zapasem więcej, niż trwa przeczytanie pytania
+//      i podjęcie decyzji "odpowiadam / nie odpowiadam" — a jednocześnie mieści się
+//      w czasie, przez jaki ktoś jeszcze scrolluje stronę wyniku.
+//
+//   2) GC_PDF_AUTO_REVEAL_TYPING_MS = 120 s — timer restartowany przy KAŻDEJ interakcji
+//      z polem odpowiedzi (focus, pisanie). Dzięki temu zawodnik, który faktycznie pisze,
+//      nigdy nie zobaczy nowej sekcji wyskakującej mu pod ręką w trakcie pisania —
+//      a jeśli zacznie i porzuci w połowie, PDF i tak dojdzie do niego 2 minuty później.
+//
+// Ten podział jest właśnie tym, co pozwala trzymać krótki czas dla ignorujących (60 s),
+// nie karząc odpowiadających. Pojedynczy timer musiałby być kompromisem gorszym z obu
+// stron: albo za krótki dla piszących, albo za długi dla wychodzących.
+//
+// DLACZEGO TO NIE PSUJE ODPOWIEDZI, nawet gdy timer zdąży wystrzelić:
+// sekcja PDF leży w DOM PONIŻEJ pytania zakotwiczającego i mostu do appki, a
+// `_showProductSection()` nie robi żadnego scrolla ani focusa. Strona rośnie w dół,
+// nic już widocznego się nie przesuwa i nic nie zabiera focusu z pola tekstowego.
+// Formularz pytania zostaje otwarty i w pełni działający również PO auto-odsłonięciu.
+const GC_PDF_AUTO_REVEAL_MS = 60000;
+const GC_PDF_AUTO_REVEAL_TYPING_MS = 120000;
+
+// Awaryjny wyłącznik. `false` = zachowanie dokładnie sprzed 08.08.2026 (PDF wyłącznie
+// po "Wyślij"/"Pomiń"). Zostawiony świadomie — to zmiana zachowania lejka, więc musi
+// dać się cofnąć jedną linią, bez szukania po pliku.
+const GC_PDF_AUTO_REVEAL_ENABLED = true;
+
+// Uchwyt na aktywny timer — trzymany poza `_diagState`, bo `_diagState` jest resetowany
+// w kilku miejscach, a timer musi dać się skasować niezależnie od tego.
+let _gcPdfAutoRevealTimer = null;
+
+// LEJEK A 08.08.2026 — uzbrojenie/przezbrojenie timera.
+// Wołane: (a) w chwili pokazania pytania zakotwiczającego — z opóźnieniem bazowym,
+//         (b) przy focusie i przy każdym znaku w polu odpowiedzi — z opóźnieniem "piszę".
+// Całość w try/catch: awaria tego mechanizmu nie może dotknąć diagnozy ani PDF-a.
+function _armPdfAutoReveal(delayMs) {
+  try {
+    if (!GC_PDF_AUTO_REVEAL_ENABLED) return;
+    _cancelPdfAutoReveal();
+    _gcPdfAutoRevealTimer = setTimeout(() => {
+      _gcPdfAutoRevealTimer = null;
+      try {
+        // Jeśli sekcja PDF jest już widoczna (zawodnik zdążył kliknąć "Wyślij"/"Pomiń",
+        // albo diagnoza wróciła z zapisanego linku) — nie ma czego robić.
+        const pdfSection = document.getElementById('pdf-section-wrap');
+        if (pdfSection && pdfSection.style.display === 'block') return;
+        console.info('LEJEK A: brak reakcji na pytanie zakotwiczające — odsłaniam sekcję PDF automatycznie.');
+        _showProductSection(_diagState.scores);
+      } catch (e) {
+        console.warn('LEJEK A: auto-odsłonięcie sekcji PDF nie powiodło się', e);
+      }
+    }, delayMs);
+  } catch (e) {
+    console.warn('LEJEK A: nie udało się uzbroić timera sekcji PDF', e);
+  }
+}
+
+// LEJEK A 08.08.2026 — kasowanie timera. Wołane przy "Wyślij", "Pomiń" i przy resecie
+// diagnozy, żeby timer ze starego przebiegu nie odpalił się w nowym.
+function _cancelPdfAutoReveal() {
+  try {
+    if (_gcPdfAutoRevealTimer !== null) {
+      clearTimeout(_gcPdfAutoRevealTimer);
+      _gcPdfAutoRevealTimer = null;
+    }
+  } catch (e) { /* nic — kasowanie timera nie ma prawa nikomu zaszkodzić */ }
+}
 
 async function saveToSupabase(table, data) {
   try {
@@ -5420,25 +5580,15 @@ function renderDiagnosisV2(raw, scores, deficitsData, usedInsights) {
   }
 
   if (kierunek) {
-    // Budujemy nazwę produktu dla wprowadzenia
-    const topId = _diagState.topDeficitIds[0] || '';
-    const PRODUCT_SHORT = {
-      moc: 'Prawdziwą Eksplozywność', fizycznosc: 'Prawdziwą Eksplozywność',
-      wytrzymalosc: 'Program Wytrzymałości Meczowej',
-      tolerancja: 'Protokół Tolerancji Obciążeń', regeneracja: 'Protokół Regeneracji',
-      odzywianie: 'Protokół Odżywienia Sportowca', odpornosc: 'Protokół Odporności Sezonowej',
-      percepcja: 'Program Percepcji i Szybkości Decyzji', decyzja: 'Program Percepcji i Szybkości Decyzji',
-      koncentracja: 'Protokół Mentalny', mental: 'Protokół Mentalny',
-      techFund: 'Program Techniki', techSpec: 'Program Techniki',
-    };
-    const productIntro = PRODUCT_SHORT[topId]
-      ? ` Przygotowałem <strong>${PRODUCT_SHORT[topId]}</strong> — program który przeprowadza dokładnie przez ten obszar krok po kroku.`
-      : '';
-
+    // AUDYT 06.08.2026 — usunięto PRODUCT_SHORT i zdanie "Przygotowałem <nazwa programu>…".
+    // Powód: mostek do produktu został usunięty 05.08.2026 (generateBridge → no-op, sekcja
+    // produktowa wycięta), więc to zdanie obiecywało program, którego nie ma i do którego
+    // nie było czego kliknąć. Komentarz przy tamtym usuwaniu sam stwierdzał, że taka
+    // obietnica "byłaby po prostu nieprawdą" — zdanie zostało wtedy przeoczone.
     html += `
       <div style="margin-bottom:8px;">
         <div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;">Nad czym powinieneś pracować</div>
-        <p style="font-size:14px;color:#3a3830;line-height:1.8;font-weight:300;margin:0;">${kierunek}${productIntro}</p>
+        <p style="font-size:14px;color:#3a3830;line-height:1.8;font-weight:300;margin:0;">${kierunek}</p>
       </div>`;
   }
 
@@ -5473,18 +5623,35 @@ function renderDiagnosisV2(raw, scores, deficitsData, usedInsights) {
     setTimeout(() => {
       document.getElementById('anchor-question-text').textContent = pytanie;
       document.getElementById('anchor-question-wrap').style.display = 'block';
+      // LEJEK A 08.08.2026 — od tej chwili (a nie od wyrenderowania diagnozy) liczy się
+      // czas do automatycznego odsłonięcia sekcji PDF. Zawodnik, który pytanie zignoruje,
+      // i tak dojdzie do przycisku PDF. Patrz komentarz przy GC_PDF_AUTO_REVEAL_MS.
+      _armPdfAutoReveal(GC_PDF_AUTO_REVEAL_MS);
     }, 800);
   } else {
     if (pytanie) console.warn('Call 2: pytanie zakotwiczające wygląda na ucięte, pomijam:', pytanie);
     // Bez pytania — Call 3 bez historii
     generateBridge('');
   }
+
+  // MOST DIAGNOZA 07.08.2026 — most do appki pokazujemy ZAWSZE, gdy diagnoza jest
+  // już na ekranie, niezależnie od tego czy zawodnik odpowie na pytanie zakotwiczające.
+  // Przed tą zmianą jedynym wyjściem z ekranu wyniku było _showProductSection(),
+  // odpalane dopiero po kliknięciu "Wyślij"/"Pomiń" pod tym pytaniem — kto je zignorował,
+  // nie widział ani PDF-a, ani żadnego kroku dalej. Blok jest w DOM pod pytaniem
+  // zakotwiczającym, więc niczego nie zasłania i go nie kanibalizuje.
+  // (Sekcja PDF zostaje za starą bramką — decyzja Kuby, 07.08.2026.)
+  _showAppBridge();
 }
 
 // ======================================
 //  ANCHOR — odpowiedź na pytanie zakotwiczające
 // ======================================
 function submitAnchorAnswer() {
+  // LEJEK A 08.08.2026 — zawodnik zareagował, timer auto-odsłonięcia jest już zbędny.
+  // (Nawet gdyby zdążył wystrzelić wcześniej, `generateBridge()` niżej i tak odsłania
+  // sekcję PDF — kasowanie jest tu dla porządku, nie dla poprawności.)
+  _cancelPdfAutoReveal();
   const answer = (document.getElementById('anchor-answer').value || '').trim();
   _diagState.anchorStory = answer;
   _saveAnchorToSupabase(answer);
@@ -5499,6 +5666,8 @@ function submitAnchorAnswer() {
 }
 
 function skipAnchorAnswer() {
+  // LEJEK A 08.08.2026 — jak wyżej: PDF odsłania się natychmiast, timer niepotrzebny.
+  _cancelPdfAutoReveal();
   _diagState.anchorStory = '';
   _saveAnchorToSupabase('');
   document.getElementById('anchor-question-form').style.display = 'none';
@@ -5618,6 +5787,9 @@ async function _saveFeedbackToSupabase(rating, comment) {
 // ======================================
 function _showProductSection(scores) {
   // Sekcja produktowa i karta zawodnika usunięte 05.08.2026 — zostaje tylko PDF.
+  // MOST DIAGNOZA 07.08.2026 — dodatkowo most do appki (funkcja jest idempotentna,
+  // więc wywołanie jej i tu, i z renderDiagnosisV2() niczego nie dubluje).
+  _showAppBridge();
   setTimeout(() => {
     // Sekcja PDF
     const pdfSection = document.getElementById('pdf-section-wrap');
@@ -5631,6 +5803,122 @@ function _showProductSection(scores) {
       }
     }
   }, 300);
+}
+
+// ======================================
+//  MOST DIAGNOZA 07.08.2026 — MOST DO APPKI MOBILNEJ
+// ======================================
+// ZASADA (przeniesiona 1:1 z mostu appka → Marketplace, `INTEGRACJA_MOST_SESJI_MARKETPLACE.md`):
+// most ma wyłącznie USUWAĆ tarcie, nigdy nie może go dodać ani zablokować. Dlatego całość
+// jest w try/catch, a żaden błąd tutaj nie może dotknąć diagnozy ani pobrania PDF-a.
+//
+// Odsłania blok NIEZALEŻNIE od pytania zakotwiczającego (decyzja Kuby, 07.08.2026).
+// Powód: `_showProductSection()` odpala się dopiero po kliknięciu "Wyślij"/"Pomiń" pod
+// pytaniem zakotwiczającym — zawodnik, który zignoruje to pytanie, nie widział dotąd
+// NICZEGO po diagnozie. Sekcja PDF zostaje za tą bramką bez zmian; most nie.
+function _showAppBridge() {
+  try {
+    if (!GC_APP_BRIDGE_ENABLED) return;
+    const wrap = document.getElementById('app-bridge-wrap');
+    if (!wrap) return;
+    // Idempotencja — wywołań jest kilka (renderDiagnosisV2, _showProductSection,
+    // renderFallback przez _showProductSection); po pierwszym nic już nie przestawiamy,
+    // żeby nie cofnąć stanu "Zapisane".
+    if (wrap.dataset.gcShown === '1') return;
+    wrap.dataset.gcShown = '1';
+    wrap.style.display = 'block';
+
+    const hasEmail = !!playerEmail;
+    const note   = document.getElementById('app-bridge-email-note');
+    const action = document.getElementById('app-bridge-action');
+    const gate   = document.getElementById('app-bridge-email-gate');
+    const link   = document.getElementById('app-bridge-link');
+    const btn    = document.getElementById('app-bridge-btn');
+
+    if (!hasEmail) {
+      // Wejście z zapisanego linku do wyników — e-maila nie znamy, więc pytamy o niego
+      // tutaj. Bez tego przycisk nie miałby czego powiązać z diagnozą.
+      if (action) action.style.display = 'none';
+      if (gate) gate.style.display = 'block';
+      return;
+    }
+
+    if (note) {
+      note.innerHTML = `Loguj się w aplikacji <strong style="color:#f5f2ec;font-weight:500;">dokładnie tym samym adresem: ${_escapeHtmlLite(playerEmail)}</strong> — wtedy ta diagnoza jest już w środku i nie pytamy Cię o nic drugi raz.`;
+    }
+
+    if (GC_APP_ACCESS_URL) {
+      // Tryb LINKU — przycisk prowadzi wprost na stronę pobrania/rejestracji.
+      if (link) {
+        link.href = GC_APP_ACCESS_URL + (GC_APP_ACCESS_URL.indexOf('?') === -1 ? '?' : '&')
+          + 'email=' + encodeURIComponent(playerEmail);
+        link.style.display = 'inline-flex';
+      }
+      if (btn) btn.style.display = 'none';
+    } else {
+      // Tryb ZGŁOSZENIA — domyślny, patrz komentarz przy GC_APP_ACCESS_URL.
+      if (link) link.style.display = 'none';
+      if (btn) btn.style.display = 'inline-block';
+    }
+  } catch (e) {
+    // Cichy fallback — awaria mostu nie może zabrać zawodnikowi wyniku ani PDF-a.
+    console.warn('MOST DIAGNOZA: nie udało się pokazać mostu do appki', e);
+  }
+}
+
+// MOST DIAGNOZA 07.08.2026 — minimalny escape, żeby adres e-mail wstawiany przez
+// innerHTML nie mógł nic wykonać. (Reszta pliku wstawia dane AI bez escapowania —
+// to osobny, wcześniejszy temat, nie ruszam go w tej sesji.)
+function _escapeHtmlLite(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// MOST DIAGNOZA 07.08.2026 — kliknięcie CTA w trybie ZGŁOSZENIA.
+// Zapis jest "fire and forget": saveToSupabase()/sendEmailNotification() same łykają
+// swoje błędy, a potwierdzenie dla zawodnika pokazujemy niezależnie od nich — zgodnie
+// z zasadą mostu nie wolno mu pokazać ściany, jeśli backend akurat nie odpowie.
+function requestAppAccess() {
+  try {
+    let email = playerEmail;
+    if (!email) {
+      const input = document.getElementById('app-bridge-email-input');
+      const err = document.getElementById('app-bridge-email-error');
+      email = input ? input.value.trim() : '';
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        if (err) err.style.display = 'block';
+        return;
+      }
+      if (err) err.style.display = 'none';
+      playerEmail = email;
+    }
+
+    // Zdarzenie w `diagnostics` — ten sam wzorzec co 'pdf_email_submitted'.
+    // UWAGA: nowa wartość kolumny `event` ('app_access_requested'). Jeśli na tej
+    // kolumnie istnieje CHECK ograniczający listę wartości, zapis zostanie odrzucony
+    // po stronie bazy — dla zawodnika NIC się przez to nie zmienia (błąd jest łykany
+    // w saveToSupabase), ale zgłoszenie trafi wtedy tylko mailem. SQL do ewentualnego
+    // rozluźnienia CHECK-a jest w raporcie zwrotnym.
+    saveToSupabase('diagnostics', buildDiagnosticsRecord({ event: 'app_access_requested', email }));
+    sendEmailNotification('Prośba o dostęp do aplikacji', {
+      email,
+      note: 'Zawodnik kliknął CTA "Chcę dostęp do aplikacji" na ekranie wyniku diagnozy. Wyślij mu link instalacyjny i przypomnij, żeby zalogował się DOKŁADNIE tym adresem.',
+    });
+
+    const action = document.getElementById('app-bridge-action');
+    const gate = document.getElementById('app-bridge-email-gate');
+    const done = document.getElementById('app-bridge-done');
+    const doneText = document.getElementById('app-bridge-done-text');
+    if (action) action.style.display = 'none';
+    if (gate) gate.style.display = 'none';
+    if (doneText) {
+      doneText.innerHTML = `Wyślemy link do aplikacji na <strong style="color:#f5f2ec;font-weight:500;">${_escapeHtmlLite(email)}</strong>. W aplikacji zaloguj się <strong style="color:#f5f2ec;font-weight:500;">dokładnie tym samym adresem</strong> — Twoja diagnoza już tam na Ciebie czeka. Pierwsza rekomendacja może pojawić się do 24 godzin po założeniu konta.`;
+    }
+    if (done) done.style.display = 'block';
+  } catch (e) {
+    console.warn('MOST DIAGNOZA: requestAppAccess', e);
+  }
 }
 
 function downloadPDFWithEmail() {
@@ -6284,6 +6572,10 @@ function showScreen(id) {
 // szablony INSIGHT_TEMPLATES_*) usunięte 05.08.2026 — "usuwamy karty zawodnika".
 
 function restart() {
+  // LEJEK A 08.08.2026 — timer auto-odsłonięcia sekcji PDF musi zginąć razem ze starym
+  // przebiegiem. Bez tego timer uzbrojony w poprzedniej diagnozie odpalałby się w nowej
+  // (np. odsłaniając sekcję PDF w środku ponownie wypełnianej ankiety).
+  _cancelPdfAutoReveal();
   ans = {}; cachedScores = null;
   isJunior = false; activeSegs = [];
   ctx = { level: null, pos: null, age: null, clubTrainings: null, ownTrainings: null };
@@ -6312,6 +6604,17 @@ function restart() {
   if (fcc) fcc.style.display = 'none';
   const ft = document.getElementById('feedback-thanks');
   if (ft) ft.style.display = 'none';
+
+  // LEJEK A 08.08.2026 — sekcja PDF musi wrócić do stanu ukrytego (`display:none`, tak jak
+  // w HTML). Bez tego, po `restart()`, przycisk "Pobierz raport PDF" wisiał na ekranie
+  // wyniku NASTĘPNEJ diagnozy jeszcze zanim ta diagnoza w ogóle powstała — z danymi
+  // poprzedniego przebiegu. Błąd jest starszy niż ta sesja (dotyczył też ścieżki
+  // "Wyślij"/"Pomiń"), ale auto-odsłanianie sprawia, że trafia teraz każdego, kto
+  // wypełnia ankietę drugi raz. `app-bridge-wrap` świadomie NIE jest tu resetowany —
+  // patrz raport, sekcja 6 (znalezisko A6): to CTA z rundy 1, którego zakres tej sesji
+  // zabrania dotykać, a naprawa wymaga też wyzerowania `dataset.gcShown`.
+  const pdfw = document.getElementById('pdf-section-wrap');
+  if (pdfw) pdfw.style.display = 'none';
 
   // Reset formularza pytania zakotwiczającego (patrz submitAnchorAnswer/skipAnchorAnswer)
   const aqf = document.getElementById('anchor-question-form');
@@ -6467,11 +6770,7 @@ function restart() {
         <div id="team-loading" style="padding:48px;text-align:center;color:#9a9488;font-size:14px;font-weight:300;">Ładowanie danych drużyny...</div>
         <div id="team-empty" style="display:none;padding:48px;text-align:center;">
           <div style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:#9a9488;margin-bottom:8px;">Brak wyników</div>
-          <div style="font-size:13px;color:#9a9488;font-weight:300;margin-bottom:24px;">Żaden zawodnik nie wypełnił jeszcze ankiety z tym kodem drużyny.</div>
-          <button onclick="loadMockTeamData()"
-            style="background:#0e0d0b;color:#f5f2ec;border:none;padding:12px 28px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:0.1em;cursor:pointer;">
-            Podgląd z przykładowymi danymi →
-          </button>
+          <div style="font-size:13px;color:#9a9488;font-weight:300;">Żaden zawodnik nie wypełnił jeszcze ankiety z tym kodem drużyny.<br>Panel wypełni się sam, gdy pierwszy zawodnik przejdzie diagnozę z Twoim kodem.</div>
         </div>
       </div>
 
