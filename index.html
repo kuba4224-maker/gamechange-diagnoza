@@ -1732,6 +1732,26 @@ function playerMedianAndSpread(scores) {
   return { median, stdDev: Math.sqrt(variance) };
 }
 
+// ══════════════════════════════════════
+//  PRÓG ISTOTNOŚCI PRZYCZYNY (poprawka 12.08.2026)
+//  Te same dwie liczby, których getRelativeDeficits używa, żeby w ogóle nazwać
+//  segment wąskim gardłem. Wcześniej wystarczyło BYĆ PONIŻEJ MEDIANY o cokolwiek —
+//  przy profilu Moc 30 / reszta 77-81 lejek wskazywał jako "główną przyczynę"
+//  Szybkość Decyzji z wynikiem 77 na 100, czyli obszar w normie.
+//  Nie wprowadzamy nowego progu: używamy tego, któremu produkt już ufa.
+// ══════════════════════════════════════
+const CAUSE_MIN_ABS_GAP = 9;
+const CAUSE_DEV_MULTIPLIER = 0.5;
+
+/** Słabość segmentu liczona TYLKO wtedy, gdy jest istotna. Inaczej 0. */
+function meaningfulWeakness(score, median, stdDev) {
+  if (score === undefined || score === null) return 0;
+  const gap = median - score;
+  if (gap < CAUSE_MIN_ABS_GAP) return 0;
+  if (score >= median - CAUSE_DEV_MULTIPLIER * stdDev) return 0;
+  return gap;
+}
+
 /**
  * Liczy wskaźnik istotności pojedynczej pary dla konkretnego zawodnika.
  * WAŻNE: "słabość" segmentu liczona jest względem WŁASNEJ mediany zawodnika,
@@ -1746,8 +1766,11 @@ function pairSignificance(scores, from, to, weight) {
   const a = scores[from];
   const b = scores[to];
   if (a === undefined || b === undefined) return 0;
-  const { median } = playerMedianAndSpread(scores);
-  const weakA = Math.max(0, median - a);
+  const { median, stdDev } = playerMedianAndSpread(scores);
+  // PRZYCZYNA musi być istotnie słaba, nie tylko odrobinę poniżej mediany (12.08.2026).
+  const weakA = meaningfulWeakness(a, median, stdDev);
+  if (weakA === 0) return 0;
+  // SKUTEK zostaje liczony jak dotąd — to on nadaje wielkość, nie kwalifikuje przyczyny.
   const weakB = Math.max(0, median - b);
   return weakA * weakB * weight;
 }
@@ -1760,13 +1783,13 @@ function pairSignificance(scores, from, to, weight) {
  */
 function cascadeSignificance(scores, path, weight) {
   const uniqueNodes = [...new Set(path)];
-  const { median } = playerMedianAndSpread(scores);
+  const { median, stdDev } = playerMedianAndSpread(scores);
   let product = weight * CASCADE_DAMPING;
   for (const node of uniqueNodes) {
     const val = scores[node];
     if (val === undefined) return 0;
-    const weak = Math.max(0, median - val);
-    if (weak === 0) return 0; // jeśli którykolwiek węzeł jest w normie (lub powyżej mediany), kaskada nieaktywna
+    const weak = meaningfulWeakness(val, median, stdDev);
+    if (weak === 0) return 0; // węzeł w normie (albo słaby nieistotnie) => kaskada nieaktywna
     product *= weak;
   }
   return product;
@@ -1810,7 +1833,21 @@ function getRankedInfluences(scores, targetId, limit = 3) {
   }
 
   results.sort((a, b) => b.significance - a.significance);
-  return results.slice(0, limit);
+
+  // DEDUPLIKACJA (poprawka 12.08.2026). DEPENDENCY_NETWORK zawiera po kilka krawędzi
+  // między tą samą parą segmentów (różne wagi i typy). Bez tego ranking wypisywał
+  // zawodnikowi ten sam segment dwa razy: "Dodatkowy wpływ: Odżywienie, Odżywienie".
+  // Deduplikacja PO ŹRÓDLE PRZYCZYNY, z zachowaniem kolejności rankingu — nie zmienia,
+  // który segment wygrywa, usuwa wyłącznie powtórzenia z tekstu.
+  const widzianePrzyczyny = new Set();
+  const unikalne = [];
+  for (const inf of results) {
+    const klucz = inf.kind === 'cascade' ? 'k:' + inf.nodes.join('>') : 'p:' + inf.from;
+    if (widzianePrzyczyny.has(klucz)) continue;
+    widzianePrzyczyny.add(klucz);
+    unikalne.push(inf);
+  }
+  return unikalne.slice(0, limit);
 }
 
 // ══════════════════════════════════════
@@ -2388,6 +2425,7 @@ function startSurveyFromContext() {
 function startSurveyFromPresurvey(skip = false) {
   if (!skip) {
     presurvey.selfDesc = (document.getElementById('ps-selfDesc').value || '').trim();
+    gcMozeKryzys(presurvey.selfDesc); // PLAN-D-G: ekran pomocy, bez zapisu i bez blokowania
   } else {
     presurvey.goal = null;
     presurvey.ownTypes = new Set();
@@ -2793,21 +2831,151 @@ async function loadParentView(token) {
   }
 }
 
+/* ══════════════════════════════════════════════════════════════════════
+   PLAN-D-G 08.2026 — PUNKT POMOCY (warstwa 3 z R2a)
+
+   Czym to JEST: filtr słów kluczowych o wysokiej swoistości. Sprawdza, czy
+   w tekście padła fraza, która brzmi poważnie, i pokazuje JEDEN ekran
+   kierujący do ludzi.
+
+   Czym to NIE JEST i nigdy nie ma być:
+   - to NIE jest klasyfikator ryzyka. Nic nie ocenia, nie punktuje, nie
+     przewiduje. Metaanaliza 53 badań: PPV automatycznych klasyfikatorów
+     6–17%, czyli 5–25 fałszywych alarmów na jeden trafiony;
+   - NIE powiadamia nikogo — ani rodzica, ani trenera, ani nas. 34,4%
+     nastolatków nie ujawnia kryzysu właśnie z obawy przed rodzicem.
+     Produkt, który obiecuje donieść, przestaje być produktem, w którym
+     dziecko pisze prawdę;
+   - NIE zapisuje treści, która go uruchomiła. Nigdzie, także nie do logu;
+   - NIE blokuje żadnej funkcji. Zablokowanie ankiety po takim zdaniu
+     byłoby karą za szczerość.
+
+   Cena pomyłki jest z założenia jednym niepotrzebnym ekranem z numerem
+   telefonu — i to jedyny poziom kosztu, przy którym wolno się mylić
+   w 5 przypadkach na 6.
+   ══════════════════════════════════════════════════════════════════════ */
+
+// Frazy, nie pojedyncze słowa. „Zabić", „umieram", „koniec" same w sobie są
+// w piłce codziennością („zabić mecz", „umieram ze zmęczenia"), więc każda
+// pozycja musi nieść intencję wobec SIEBIE, nie wobec gry.
+const GC_FRAZY_POMOCY = [
+  'nie chce mi sie zyc', 'nie chce zyc', 'nie chcę żyć', 'nie chce mi się żyć',
+  'nie chcialbym zyc', 'nie chciałbym żyć',
+  'chce sie zabic', 'chcę się zabić', 'zabije sie', 'zabiję się',
+  'zabic sie', 'zabić się', 'odebrac sobie zycie', 'odebrać sobie życie',
+  'skonczyc ze soba', 'skończyć ze sobą', 'skonczyc z soba', 'skończyć z sobą',
+  'targnac sie na siebie', 'targnąć się na siebie',
+  // UWAGA: świadomie BEZ samego rdzenia „samobój" — w piłce „strzelić samobója"
+  // znaczy gol do własnej bramki i dawało fałszywy alarm (zmierzone 12.08.2026).
+  // …ani bez samego „samobójcz" — „gol samobójczy" też dawał fałszywy alarm.
+  'samobojstw', 'samobójstw',
+  'mysli samobojcz', 'myśli samobójcz', 'samobojcze mysli', 'samobójcze myśli',
+  'zamiary samobojcz', 'zamiary samobójcz',
+  'wolalbym nie zyc', 'wolałbym nie żyć', 'wolalabym nie zyc', 'wolałabym nie żyć',
+  'lepiej zebym nie zyl', 'lepiej żebym nie żył',
+  'nie chce sie budzic', 'nie chcę się budzić',
+  'chce zeby to sie skonczylo na zawsze', 'chcę żeby to się skończyło na zawsze',
+  'tne sie', 'tnę się', 'okaleczam sie', 'okaleczam się',
+  'sam sobie zrobie krzywde', 'sam sobie zrobię krzywdę',
+  'zrobie sobie krzywde', 'zrobię sobie krzywdę',
+  'nie widze sensu zycia', 'nie widzę sensu życia',
+  'wszystkim byloby lepiej beze mnie', 'wszystkim byłoby lepiej beze mnie',
+  'lepiej beze mnie', 'nikt by nie zauwazyl gdybym', 'nikt by nie zauważył gdybym',
+];
+
+function gcSprawdzKryzys(tekst) {
+  if (!tekst || typeof tekst !== 'string') return false;
+  // Normalizacja bez zapisu: same porównanie, wynik ginie razem z wywołaniem.
+  const t = (' ' + tekst.toLowerCase().replace(/\s+/g, ' ') + ' ');
+  return GC_FRAZY_POMOCY.some(f => t.indexOf(f) !== -1);
+}
+
+/**
+ * Jeden ekran. Bez zapisu, bez powiadomienia, bez blokowania — zamknięcie
+ * przywraca dokładnie to, co użytkownik robił.
+ */
+function gcPokazPunktPomocy() {
+  if (document.getElementById('gc-punkt-pomocy')) return;
+  const o = document.createElement('div');
+  o.id = 'gc-punkt-pomocy';
+  o.setAttribute('role', 'dialog');
+  o.setAttribute('aria-modal', 'true');
+  o.style.cssText = 'position:fixed;inset:0;background:rgba(14,13,11,0.92);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto;';
+  o.innerHTML = `
+    <div style="background:#f5f2ec;max-width:440px;width:100%;padding:32px 26px;font-family:'DM Sans',sans-serif;">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:0.04em;color:#0e0d0b;margin-bottom:14px;">To, co napisałeś, brzmi poważnie</div>
+      <p style="font-size:14px;line-height:1.65;color:#3a3830;font-weight:300;margin:0 0 8px;">Nie jestem człowiekiem i nie umiem tego ocenić. Nikt tutaj nie czyta tego na bieżąco.</p>
+      <p style="font-size:14px;line-height:1.65;color:#3a3830;font-weight:300;margin:0 0 20px;">Poniżej są ludzie, którzy to potrafią. Rozmowa jest bezpłatna i anonimowa, o każdej porze.</p>
+
+      <a href="tel:116111" style="display:block;background:#0e0d0b;color:#f5f2ec;text-decoration:none;padding:15px;margin-bottom:9px;text-align:center;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:23px;letter-spacing:0.09em;">116 111</div>
+        <div style="font-size:11px;opacity:0.75;font-weight:300;">Telefon zaufania dla dzieci i młodzieży · całą dobę</div>
+      </a>
+      <a href="https://116111.pl" target="_blank" rel="noopener" style="display:block;border:1px solid #d8d3c8;color:#0e0d0b;text-decoration:none;padding:11px;margin-bottom:14px;text-align:center;font-size:13px;">Wolisz pisać niż dzwonić? Czat na 116111.pl</a>
+
+      <a href="tel:800121212" style="display:block;background:#fff;border:1px solid #0e0d0b;color:#0e0d0b;text-decoration:none;padding:15px;margin-bottom:9px;text-align:center;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:23px;letter-spacing:0.09em;">800 12 12 12</div>
+        <div style="font-size:11px;color:#9a9488;font-weight:300;">Rzecznik Praw Dziecka · całą dobę</div>
+      </a>
+      <a href="https://czat.brpd.gov.pl" target="_blank" rel="noopener" style="display:block;border:1px solid #d8d3c8;color:#0e0d0b;text-decoration:none;padding:11px;margin-bottom:14px;text-align:center;font-size:13px;">Czat Rzecznika Praw Dziecka — bez logowania</a>
+
+      <a href="tel:112" style="display:block;background:#E8432D;color:#fff;text-decoration:none;padding:14px;margin-bottom:20px;text-align:center;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:21px;letter-spacing:0.09em;">112</div>
+        <div style="font-size:11px;opacity:0.9;font-weight:300;">Jeśli dzieje się coś, co zagraża życiu — teraz</div>
+      </a>
+
+      <p style="font-size:11px;line-height:1.6;color:#9a9488;font-weight:300;margin:0 0 18px;">Nic z tego, co napisałeś, nie zostało nigdzie zapisane w związku z tym ekranem i nikt nie został o tym powiadomiony. Możesz spokojnie wrócić do tego, co robiłeś.</p>
+
+      <button type="button" onclick="gcZamknijPunktPomocy()" style="width:100%;background:none;border:1px solid #d8d3c8;color:#3a3830;padding:13px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Wracam do tego, co robiłem</button>
+    </div>`;
+  document.body.appendChild(o);
+}
+
+function gcZamknijPunktPomocy() {
+  const o = document.getElementById('gc-punkt-pomocy');
+  if (o && o.parentNode) o.parentNode.removeChild(o);
+}
+
+/** Sprawdza i pokazuje ekran. Nic nie zwraca do przepływu — przepływ idzie dalej. */
+function gcMozeKryzys(tekst) {
+  try { if (gcSprawdzKryzys(tekst)) gcPokazPunktPomocy(); } catch(e) {}
+}
+
+/**
+ * PLAN-D-G 08.2026 — jedyna droga do danych o zawodniku dla niezalogowanego.
+ * Zamiast otwartej tabeli (klucz = adres e-mail, czyli rzecz do zgadnięcia)
+ * wołamy wąską funkcję bazy, która sama sprawdza uprawnienie po TOKENIE
+ * (rzecz, którą trzeba dostać). Wzorzec przeniesiony z get_parent_report.
+ *
+ * Odróżnia „nie udało się zapytać" (rpcOk === null) od „baza odmówiła"
+ * (obiekt z ok:false i polem powod) — dwa różne stany, dwa różne ekrany.
+ */
+async function gcRpc(fnName, body) {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fnName}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+      },
+      body: JSON.stringify(body || {}),
+    });
+    if (!res.ok) { console.warn('gcRpc', fnName, res.status); return null; }
+    return await res.json();
+  } catch(e) { console.warn('gcRpc', fnName, e); return null; }
+}
+
 async function loadObservationResponseView(token) {
   showScreen('screen-observation-response');
   const el = document.getElementById('observation-content');
 
   try {
-    const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/followups?response_token=eq.${encodeURIComponent(token)}&limit=1`,
-      { headers: { 'apikey': SUPABASE_KEY } }
-    );
-    const rows = await res.json();
-    if (!rows.length) {
+    const row = await gcRpc('followup_screen', { p_token: token });
+    if (!row || row.ok !== true) {
       el.innerHTML = '<div style="padding:48px;text-align:center;"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:#9a9488;margin-bottom:8px;">Nie znaleziono pytania</div><p style="font-size:13px;color:#9a9488;font-weight:300;">Link może być nieaktualny lub nieprawidłowy.</p></div>';
       return;
     }
-    const row = rows[0];
 
     // Token jednorazowy — jeśli już odpowiedziano, pokaż podziękowanie
     // zamiast formularza, żeby uniknąć przypadkowej wielokrotnej odpowiedzi.
@@ -2906,37 +3074,24 @@ async function submitCheckinAnswers(token) {
   if (btn) { btn.disabled = true; btn.textContent = 'Zapisuję...'; }
 
   try {
-    await fetch(
-      `${SUPABASE_URL}/rest/v1/followups?response_token=eq.${encodeURIComponent(token)}`,
-      {
-        method: 'PATCH',
-        headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          response_value: JSON.stringify(answers),
-          responded_at: new Date().toISOString(),
-        }),
-      }
-    );
+    // PLAN-D-G 08.2026 — zapis przez funkcję po tokenie zamiast PATCH na tabeli.
+    await gcRpc('respond_followup', {
+      p_token: token,
+      p_value: JSON.stringify(answers),
+    });
 
     // Zapisz jako insighty (source: 'player') — ten sam mechanizm co obserwacje
     // trenera/rodzica, żeby przyszła diagnoza mogła zobaczyć czy zawodnik sam
     // potwierdza poprawę w segmentach które były deficytem.
-    const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/followups?response_token=eq.${encodeURIComponent(token)}&limit=1`,
-      { headers: { 'apikey': SUPABASE_KEY } }
-    );
-    const rows = await res.json();
-    if (rows.length) {
-      const payload = JSON.parse(rows[0].payload || '{}');
-      for (const [segId, val] of Object.entries(answers)) {
-        await savePlayerInsight({
-          playerEmail: rows[0].email,
-          source: 'player',
-          segmentId: segId,
-          question: 'Check-in po 21 dniach',
-          responseValue: val,
-        });
-      }
+    // PLAN-D-G 08.2026 — adres zawodnika bierze się TERAZ z wiersza followups
+    // po stronie bazy, nie z odpowiedzi oddanej przeglądarce.
+    for (const [segId, val] of Object.entries(answers)) {
+      await gcRpc('record_player_insight', {
+        p_token: token,
+        p_segment_id: segId,
+        p_question: 'Check-in po 21 dniach',
+        p_value: val,
+      });
     }
 
     el.innerHTML = '<div style="padding:48px;text-align:center;"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:#0e0d0b;margin-bottom:8px;">Dzięki za check-in</div><p style="font-size:13px;color:#9a9488;font-weight:300;">To pomoże śledzić Twój postęp w czasie.</p></div>';
@@ -2972,42 +3127,31 @@ async function submitObservationResponse(token, value, btn) {
   if (btn) btn.textContent = 'Zapisuję...';
 
   try {
-    await fetch(
-      `${SUPABASE_URL}/rest/v1/followups?response_token=eq.${encodeURIComponent(token)}`,
-      {
-        method: 'PATCH',
-        headers: { 'apikey': SUPABASE_KEY, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          response_value: value,
-          response_comment: comment || null,
-          responded_at: new Date().toISOString(),
-        }),
-      }
-    );
+    // PLAN-D-G 08.2026 — zapis przez funkcję po tokenie zamiast PATCH na tabeli.
+    await gcRpc('respond_followup', {
+      p_token: token,
+      p_value: value,
+      p_comment: comment || null,
+    });
 
     // Zapisz insight trwale, przypisany do WŁAŚCIWEGO ZAWODNIKA (nie rodzica) —
     // bez tego odpowiedź rodzica trafiała tylko do followups, skąd nic jej
-    // nigdy nie odczytywało. Pobieramy payload ponownie po tokenie (nie
-    // polegamy na stanie z poprzedniego wywołania — działa nawet gdy
-    // użytkownik odświeżył stronę między wczytaniem pytania a odpowiedzią).
+    // nigdy nie odczytywało.
+    // PLAN-D-G 08.2026 — zawodnik i segment ustala teraz baza, czytając wiersz
+    // followups po tokenie. Przeglądarka nie podaje już czyjegokolwiek adresu,
+    // więc nie da się przez to okno dopisać obserwacji o cudzym dziecku.
     try {
-      const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/followups?response_token=eq.${encodeURIComponent(token)}&limit=1`,
-        { headers: { 'apikey': SUPABASE_KEY } }
-      );
-      const rows = await res.json();
-      if (rows.length) {
-        const payload = JSON.parse(rows[0].payload || '{}');
-        if (payload.player_email && payload.segment_id) {
-          await savePlayerInsight({
-            playerEmail: payload.player_email,
-            source: 'parent',
-            segmentId: payload.segment_id,
-            question: payload.question,
-            responseValue: value,
-            responseComment: comment,
-          });
-        }
+      const scr = await gcRpc('followup_screen', { p_token: token });
+      let payload = {};
+      try { payload = JSON.parse((scr && scr.payload) || '{}'); } catch(e) {}
+      if (payload.segment_id) {
+        await gcRpc('record_player_insight', {
+          p_token: token,
+          p_segment_id: payload.segment_id,
+          p_question: payload.question || null,
+          p_value: value,
+          p_comment: comment || null,
+        });
       }
     } catch(e) { /* zapis insightu nie powinien blokować podziękowania rodzicowi */ }
 
@@ -3600,28 +3744,18 @@ async function saveCoachNote() {
  * końca. Różne źródła (trener vs rodzic) o tym samym segmencie NIE nadpisują
  * się nawzajem — to są różne, równie wartościowe perspektywy.
  */
-async function savePlayerInsight({ playerEmail, source, segmentId, question, responseValue, responseComment }) {
-  if (!playerEmail || !segmentId) return;
-  try {
-    await fetch(`${SUPABASE_URL}/rest/v1/player_insights`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'Prefer': 'resolution=merge-duplicates,return=minimal',
-      },
-      body: JSON.stringify({
-        player_email: playerEmail,
-        source, // 'coach' / 'parent' / 'player'
-        segment_id: segmentId,
-        question: question || null,
-        response_value: responseValue || null,
-        response_comment: responseComment || null,
-        created_at: new Date().toISOString(),
-      }),
-    });
-  } catch(e) { console.warn('savePlayerInsight failed', e); }
+/**
+ * PLAN-D-G 08.2026 — WYCOFANA. Pisała wprost do tabeli, podając adres
+ * zawodnika z przeglądarki, więc każdy z kluczem publicznym mógł dopisać
+ * obserwację o dowolnym dziecku — a silnik rekomendacji wkłada treść tej
+ * tabeli do promptu modelu (patrz _buildDiagData). Zapisu pilnują teraz
+ * dwie funkcje bazy: record_player_insight (klucz: token follow-upu)
+ * i record_coach_insight (klucz: kod drużyny). Zostawiona wyłącznie po to,
+ * żeby ewentualne przeoczone wywołanie KRZYCZAŁO w konsoli, zamiast po
+ * cichu nic nie zapisać.
+ */
+async function savePlayerInsight() {
+  console.error('savePlayerInsight() jest wycofana — użyj record_player_insight (token) albo record_coach_insight (kod drużyny).');
 }
 
 /**
@@ -3753,12 +3887,15 @@ async function submitCoachValidation(segId, value, btn) {
   const buttons = document.getElementById('pp-validation-btns').querySelectorAll('button');
   buttons.forEach(b => { b.disabled = true; b.style.opacity = b === btn ? '1' : '0.4'; });
 
-  await savePlayerInsight({
-    playerEmail: row.email,
-    source: 'coach_validation',
-    segmentId: segId,
-    question: 'Czy diagnoza się zgadza?',
-    responseValue: value,
+  // PLAN-D-G 08.2026 — zapis przez funkcję bramkowaną KODEM DRUŻYNY.
+  // Baza sprawdza, że ten zawodnik naprawdę należy do tej drużyny.
+  await gcRpc('record_coach_insight', {
+    p_team_code: row.team_code || '',
+    p_player_email: row.email,
+    p_segment_id: segId,
+    p_source: 'coach_validation',
+    p_question: 'Czy diagnoza się zgadza?',
+    p_value: value,
   });
 
   if (value === 'no' || value === 'partial') {
@@ -3779,13 +3916,17 @@ async function submitCoachValidationComment(email) {
   const comment = commentEl ? commentEl.value.trim() : '';
   if (!comment || !_pendingValidationSegId || !email) return;
 
-  await savePlayerInsight({
-    playerEmail: email,
-    source: 'coach_validation',
-    segmentId: _pendingValidationSegId,
-    question: 'Czy diagnoza się zgadza? — wyjaśnienie',
-    responseValue: 'comment',
-    responseComment: comment,
+  // PLAN-D-G 08.2026 — kod drużyny bierzemy z aktualnie otwartego zawodnika,
+  // nie z parametru, żeby nie dokładać go do onclick w HTML-u.
+  const _row = teamData[_currentPlayerIdx] || {};
+  await gcRpc('record_coach_insight', {
+    p_team_code: _row.team_code || '',
+    p_player_email: email,
+    p_segment_id: _pendingValidationSegId,
+    p_source: 'coach_validation',
+    p_question: 'Czy diagnoza się zgadza? — wyjaśnienie',
+    p_value: 'comment',
+    p_comment: comment,
   });
 
   document.getElementById('pp-validation-comment-wrap').innerHTML = '<div style="font-size:12px;color:#2a7a3a;">✓ Dziękujemy za wyjaśnienie — to pomoże ocenić i poprawić system.</div>';
@@ -3983,13 +4124,15 @@ Napisz diagnozę w 4-5 zdaniach. Zasady:
     if (row.email && text) {
       const mainSegId = deficitsForCoach.length ? deficitsForCoach[0][0] : null;
       if (mainSegId) {
-        savePlayerInsight({
-          playerEmail: row.email,
-          source: 'coach',
-          segmentId: mainSegId,
-          question: qas.map(x => x.q).join(' / '),
-          responseValue: qas.map(x => x.a).join(' | '),
-          responseComment: text,
+        // PLAN-D-G 08.2026 — zapis przez funkcję bramkowaną kodem drużyny.
+        gcRpc('record_coach_insight', {
+          p_team_code: row.team_code || '',
+          p_player_email: row.email,
+          p_segment_id: mainSegId,
+          p_source: 'coach',
+          p_question: qas.map(x => x.q).join(' / '),
+          p_value: qas.map(x => x.a).join(' | '),
+          p_comment: text,
         });
       }
     }
@@ -5027,13 +5170,15 @@ async function scheduleDelayedContact({ email, recipientType, messageType, paylo
   // mechanizmu jako spamu.
   const RECONTACT_COOLDOWN_DAYS = 30;
   try {
-    const cooldownCutoff = new Date(Date.now() - RECONTACT_COOLDOWN_DAYS * 24 * 60 * 60 * 1000).toISOString();
-    const check = await fetch(
-      `${SUPABASE_URL}/rest/v1/followups?email=eq.${encodeURIComponent(email)}&recipient_type=eq.${encodeURIComponent(recipientType)}&message_type=eq.${encodeURIComponent(messageType)}&created_at=gte.${encodeURIComponent(cooldownCutoff)}&limit=1`,
-      { headers: { 'apikey': SUPABASE_KEY } }
-    );
-    const existing = await check.json();
-    if (existing && existing.length > 0) return; // kontakt tego typu był niedawno — nie dokładamy kolejnego
+    // PLAN-D-G 08.2026 — pytamy o SAM FAKT karencji. Funkcja zwraca boolean
+    // i nie oddaje ani jednego adresu ani treści odpowiedzi.
+    const active = await gcRpc('followup_cooldown_active', {
+      p_email: email,
+      p_recipient_type: recipientType,
+      p_message_type: messageType,
+      p_days: RECONTACT_COOLDOWN_DAYS,
+    });
+    if (active === true) return; // kontakt tego typu był niedawno — nie dokładamy kolejnego
   } catch(e) { /* ignoruj błąd sprawdzania — lepiej zaplanować duplikat niż nic */ }
 
   const scheduledFor = new Date(Date.now() + daysDelay * 24 * 60 * 60 * 1000).toISOString();
@@ -5204,6 +5349,7 @@ function submitEmail() {
 
 function submitOpenQuestions(skip = false) {
   const situation = skip ? '' : (document.getElementById('oq-situation').value.trim());
+  gcMozeKryzys(situation); // PLAN-D-G: ekran pomocy, bez zapisu i bez blokowania
 
   document.getElementById('open-questions-wrap').style.display = 'none';
   document.getElementById('diagnosis-blur-wrap').style.display = 'block';
@@ -5708,6 +5854,7 @@ function submitAnchorAnswer() {
   // sekcję PDF — kasowanie jest tu dla porządku, nie dla poprawności.)
   _cancelPdfAutoReveal();
   const answer = (document.getElementById('anchor-answer').value || '').trim();
+  gcMozeKryzys(answer); // PLAN-D-G: ekran pomocy, bez zapisu i bez blokowania
   _diagState.anchorStory = answer;
   _saveAnchorToSupabase(answer);
   // 05.08.2026: zamiast chować cały blok (display:none — nagłe zapadnięcie się
