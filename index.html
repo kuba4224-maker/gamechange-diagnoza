@@ -5060,91 +5060,33 @@ async function generateResults() {
 }
 
 function renderHistoryComparison(history, currentScores) {
-  if (!history.length) return '';
-  // history[0] to aktualna diagnoza (właśnie wygenerowana)
-  // history[1] to poprzednia — to z nią porównujemy
-  const prev = history[1] || history[0];
-  if (!prev || !prev.scores) return '';
-  let prevScores;
-  try { prevScores = JSON.parse(prev.scores); } catch(e) { return ''; }
-  // Nie porównuj z samym sobą
-  if (prev.created_at === history[0].created_at) return '';
-
-  const prevDate = new Date(prev.created_at).toLocaleDateString('pl-PL');
-  const SEG_IDS = ['moc','wytrzymalosc','fizycznosc','techFund','techSpec',
-    'tolerancja','regeneracja','odpornosc','odzywianie','koncentracja','mental','percepcja','decyzja'];
-
-  const changes = SEG_IDS.map(id => {
-    const curr = currentScores[id] || 0;
-    const prevVal = prevScores[id] || curr;
-    return { id, curr, prev: prevVal, diff: curr - prevVal };
-  }).filter(s => Math.abs(s.diff) >= 5).sort((a,b) => Math.abs(b.diff) - Math.abs(a.diff));
-
-  const avgCurr = Math.round(Object.values(currentScores).reduce((a,b)=>a+b,0) / SEG_IDS.length);
-  const avgPrev = Math.round(SEG_IDS.map(id => prevScores[id]||0).reduce((a,b)=>a+b,0) / SEG_IDS.length);
-  const avgDiff = avgCurr - avgPrev;
-  const diffColor = avgDiff >= 0 ? '#2a7a3a' : '#C0392B';
-  const diffSign  = avgDiff >= 0 ? '+' : '';
-  const diffLabel = avgDiff > 3 ? 'Widoczna poprawa' : avgDiff < -3 ? 'Wynik niższy' : 'Wynik podobny';
-
-  // SVG hexagon — dwa nałożone profile
-  const CX = 130, CY = 130, R = 100, N = SEG_IDS.length;
-  function pt(i, val) {
-    const v = isNaN(val) ? 0 : Math.min(100, Math.max(0, val));
-    const angle = (2 * Math.PI * i / N) - Math.PI / 2;
-    return (CX + R * (v/100) * Math.cos(angle)).toFixed(1) + ',' + (CY + R * (v/100) * Math.sin(angle)).toFixed(1);
-  }
-  const prevPts = SEG_IDS.map((id,i) => pt(i, prevScores[id]||0)).join(' ');
-  const currPts = SEG_IDS.map((id,i) => pt(i, currentScores[id]||0)).join(' ');
-
-  let gridSVG = '';
-  [0.25, 0.5, 0.75, 1].forEach(r => {
-    const pts = SEG_IDS.map((_,i) => {
-      const angle = (2 * Math.PI * i / N) - Math.PI / 2;
-      return (CX + R * r * Math.cos(angle)).toFixed(1) + ',' + (CY + R * r * Math.sin(angle)).toFixed(1);
-    }).join(' ');
-    gridSVG += '<polygon points="' + pts + '" fill="none" stroke="#d8d3c8" stroke-width="' + (r===1?'1.5':'0.8') + '"/>';
-  });
-
-  const changesHTML = changes.length ? changes.slice(0,4).map(s => {
-    const seg = SEGS.find(x => x.id === s.id);
-    const name = seg ? seg.name : s.id;
-    const c = s.diff > 0 ? '#2a7a3a' : '#C0392B';
-    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f0ede8;">' +
-      '<span style="font-size:12px;color:#3a3830;">' + name + '</span>' +
-      '<span style="font-size:13px;font-weight:600;color:' + c + ';">' + (s.diff>0?'↑ +':'↓ ') + s.diff + '</span>' +
-      '</div>';
-  }).join('') : '<div style="font-size:12px;color:#9a9488;padding:8px 0;">Brak wyraźnych zmian w poszczególnych obszarach.</div>';
-
-  return '<div style="border:1px solid #d8d3c8;background:#fff;margin-bottom:24px;overflow:hidden;">' +
-    '<div style="background:#f5f2ec;padding:14px 20px;border-bottom:1px solid #d8d3c8;display:flex;justify-content:space-between;align-items:center;">' +
-      '<div>' +
-        '<div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;">Twój postęp</div>' +
-        '<div style="font-size:12px;color:#3a3830;margin-top:2px;">Poprzednia diagnoza: <strong>' + prevDate + '</strong></div>' +
-      '</div>' +
-      '<div style="text-align:right;">' +
-        '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:28px;color:' + diffColor + ';">' + diffSign + avgDiff + '</div>' +
-        '<div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:' + diffColor + ';">' + diffLabel + '</div>' +
-      '</div>' +
-    '</div>' +
-    '<div style="display:flex;gap:0;flex-wrap:wrap;">' +
-      '<div style="flex:0 0 auto;padding:16px;">' +
-        '<svg viewBox="0 0 260 260" width="160" height="160">' +
-          gridSVG +
-          '<polygon points="' + prevPts + '" fill="rgba(180,180,180,0.15)" stroke="#bbbbbb" stroke-width="1.5" stroke-dasharray="4,3"/>' +
-          '<polygon points="' + currPts + '" fill="rgba(14,13,11,0.1)" stroke="#0e0d0b" stroke-width="2"/>' +
-        '</svg>' +
-        '<div style="display:flex;gap:12px;justify-content:center;margin-top:4px;">' +
-          '<div style="display:flex;align-items:center;gap:4px;font-size:10px;color:#9a9488;"><div style="width:14px;height:0;border-top:2px dashed #bbbbbb;"></div> ' + prevDate + '</div>' +
-          '<div style="display:flex;align-items:center;gap:4px;font-size:10px;color:#3a3830;"><div style="width:14px;height:2px;background:#0e0d0b;"></div> Teraz</div>' +
-        '</div>' +
-      '</div>' +
-      '<div style="flex:1;padding:16px 20px;min-width:160px;">' +
-        '<div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#9a9488;margin-bottom:10px;">Największe zmiany</div>' +
-        changesHTML +
-      '</div>' +
-    '</div>' +
-  '</div>';
+  // ══════════════════════════════════════════════════════════════════════
+  // WYŁĄCZONE 13.08.2026 — WYKONANIE DECYZJI KUBY Z 10.08.2026 (ustalenie A2)
+  // ══════════════════════════════════════════════════════════════════════
+  // Ta funkcja rysowała radar 13 osi z DWÓCH SAMOOCEN nałożonych na siebie,
+  // pod nagłówkiem „Twój postęp", z wielką liczbą średniej różnicy i etykietą
+  // „Widoczna poprawa" / „Wynik niższy" oraz listą „Największe zmiany".
+  //
+  // USTALENIE A2 (wizja v1.1, 10.08.2026) MÓWI WPROST: wykresu „moje
+  // umiejętności w czasie" liczonego z SAMOOCENY nie wolno pokazywać. Powód nie
+  // jest estetyczny. Postępu w sprawności nie da się zmierzyć samooceną w skali
+  // tygodni — a im lepiej zawodnik pracuje, tym ostrzej widzi własne braki, więc
+  // ten wykres pokazywałby czerwone strzałki w dół dokładnie temu, kto zrobił
+  // NAJWIĘKSZY postęp. Samoocena w tym produkcie jest materiałem do KALIBRACJI
+  // (czy trafnie oceniasz siebie), nigdy pomiarem umiejętności w czasie.
+  //
+  // ⚠️ DLACZEGO ZOSTAJE TU FUNKCJA, A NIE PUSTE MIEJSCE. Audyt zgodności
+  // z wizją (pas M, 12.08.2026) ustalił, że ten ekran NIE renderował się od
+  // 09.08.2026 — ale wyłącznie dlatego, że przy porządkach w RLS odcięto tabeli
+  // `diagnostics` politykę SELECT dla roli `anon`. Kod stał nietknięty i nic
+  // w nim nie ostrzegało, że JEDNA polityka w bazie przywraca na produkcję ekran
+  // zakazany decyzją. Zakaz, który obowiązuje przez przypadkowy skutek uboczny
+  // konfiguracji, nie jest zakazem. Teraz jest zapisany tam, gdzie działa.
+  //
+  // ⚠️ ZANIM KTOŚ TO WŁĄCZY Z POWROTEM: to nie jest defekt do naprawienia ani
+  // funkcja „do dokończenia". Włączenie wymaga zmiany decyzji A2 przez Kubę,
+  // z datą, w pamięci projektu — nie odkomentowania.
+  return '';
 }
 
 /**
@@ -5308,11 +5250,11 @@ function submitEmail() {
       if (confirmText) {
         confirmText.innerHTML = `Wyślemy diagnozę na ${email}. <span style="color:#2a7a3a;font-weight:500;">Witaj z powrotem — Twoja poprzednia diagnoza pochodzi z ${prevDate}.</span>`;
       }
-      const historyHtml = renderHistoryComparison(history, cachedScores);
-      if (historyHtml) {
-        const confirmBox = document.getElementById('email-confirm-box');
-        confirmBox.insertAdjacentHTML('afterend', historyHtml);
-      }
+      // 13.08.2026 — WYWOŁANIE USUNIĘTE (ustalenie A2, decyzja Kuby z 10.08.2026).
+      // Tu wstawiał się radar „Twój postęp" z dwóch samoocen. Powód zakazu i to,
+      // co dokładnie stąd zniknęło, opisuje `renderHistoryComparison` wyżej.
+      // Zdanie „Witaj z powrotem — Twoja poprzednia diagnoza pochodzi z…" ZOSTAJE:
+      // to jest fakt o dacie, nie ocena postępu.
     }
   });
 
