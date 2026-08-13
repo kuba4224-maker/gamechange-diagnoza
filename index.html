@@ -3759,25 +3759,90 @@ async function savePlayerInsight() {
 }
 
 /**
- * Wczytuje dotychczasowe, wciąż AKTUALNE insighty dla zawodnika (po emailu).
  * "Aktualne" = nie starsze niż INSIGHT_MAX_AGE_DAYS (90 dni, mniej więcej
  * długość jednej rundy sezonu) — starszy insight nie jest usuwany z bazy
  * (to wciąż wartościowa historia), ale przestaje aktywnie wpływać na bieżącą
  * diagnozę, żeby nieaktualna obserwacja z poprzedniego etapu rozwoju
  * zawodnika nie ciążyła nad diagnozą w nieskończoność.
+ *
+ * ⚠️ Ta sama liczba stoi w `gamechange-app/api/generate-recommendation.js`
+ * (`INSIGHT_MAX_AGE_DAYS`) i w funkcji bazy `get_coach_insight_for_team`
+ * (`v_prog`). Trzy miejsca, jedna wartość — zmiana w jednym jest defektem.
  */
 const INSIGHT_MAX_AGE_DAYS = 90;
-async function loadPlayerInsights(playerEmail) {
-  if (!playerEmail) return [];
-  try {
-    const cutoff = new Date(Date.now() - INSIGHT_MAX_AGE_DAYS * 24 * 60 * 60 * 1000).toISOString();
-    const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/player_insights?player_email=eq.${encodeURIComponent(playerEmail)}&created_at=gte.${encodeURIComponent(cutoff)}&order=created_at.desc&limit=20`,
-      { headers: { 'apikey': SUPABASE_KEY } }
-    );
-    const data = await res.json();
-    return Array.isArray(data) ? data : [];
-  } catch(e) { return []; }
+
+/**
+ * PLAN-D-K 08.2026 (13.08.2026) — WARIANT B, decyzja Kuby z 12.08 wieczorem.
+ * ⚠️ WYCOFANA. NIE PRZYWRACAĆ.
+ *
+ * BYŁO: `fetch(.../player_insights?player_email=eq.<adres z formularza>)`
+ * kluczem publicznym, przy polityce `Allow anon select on player_insights`
+ * z `USING (true)`. Dwie rzeczy naraz, obie złe:
+ *
+ *   1. WYCIEK — każdy, kto miał klucz publiczny (jest w źródle tej strony)
+ *      i adres e-mail dziecka, odczytywał wszystko, co trener i rodzic o nim
+ *      napisali. Adres e-mail nie jest sekretem; to rzecz do ZGADNIĘCIA.
+ *   2. ZŁAMANIE Z0 NA WEJŚCIU — `playerEmail` w tym pliku pochodzi WYŁĄCZNIE
+ *      z pola formularza (`submitEmail`, `requestAppAccess`,
+ *      `downloadPDFWithEmail` — sprawdzone grepem 13.08.2026, trzy miejsca
+ *      i ani jednego innego). Nikt w tej sesji nie potwierdził, że ten adres
+ *      należy do osoby siedzącej przed ekranem. Obserwacja o niepewnym
+ *      pochodzeniu podana modelowi jako fakt o zawodniku jest dokładnie
+ *      „prawdopodobnym podanym jako pewne".
+ *
+ * JEST: `wczytajObserwacjeZweryfikowane` — do promptu wchodzą wyłącznie
+ * obserwacje o adresie, który w TEJ sesji przeszedł weryfikację. Zostawione
+ * po to, żeby ewentualne przeoczone wywołanie KRZYCZAŁO w konsoli.
+ */
+async function loadPlayerInsights() {
+  console.error('loadPlayerInsights() jest wycofana (PLAN-D-K, wariant B) — użyj wczytajObserwacjeZweryfikowane() albo get_coach_insight_for_team (kod drużyny).');
+  return [];
+}
+
+/**
+ * PLAN-D-K 08.2026 — JEDYNA DROGA OBSERWACJI DO PROMPTU DIAGNOZY.
+ *
+ * ⚠️ FAIL CLOSED, I TU JEST TO WŁAŚCIWE. Zwykle zaciskanie przy braku danych
+ * ODBIERA zawodnikowi funkcję i dlatego jest w tym projekcie zakazane. Tutaj
+ * jest odwrotnie: niepewna obserwacja DOKŁADA modelowi treść o kimś. Koszt
+ * pomyłki nie rozkłada się symetrycznie, więc próg też nie może.
+ *
+ * Trzy stany, nigdy dwa — `powod` mówi, DLACZEGO obserwacji nie ma:
+ *   • `zweryfikowany` — token z e-maila; adres potwierdzony posiadaniem skrzynki;
+ *   • `niezweryfikowany` — adres wklepany w formularz; obserwacji NIE MA;
+ *   • `nie_odczytane` — baza nie odpowiedziała; obserwacji też NIE MA.
+ *
+ * ⚠️ ŚWIADOMIE PRZYJĘTY KOSZT (decyzja Kuby, 12.08): zawodnik wypełniający
+ * ankietę „na świeżo", bez potwierdzonego adresu, NIE dostanie diagnozy
+ * wzbogaconej o obserwacje trenera i rodzica. To jest dokładnie ta rzecz,
+ * która te obserwacje chroni. Wzbogaconą diagnozę dostaje w aplikacji, po
+ * zalogowaniu — tam obserwacje wiąże `player_insights.user_id`, czyli konto,
+ * a nie napis (`gamechange-app/api/generate-recommendation.js`,
+ * `fetchPlayerInsights`, filtr `.eq('user_id', userId)`).
+ */
+async function wczytajObserwacjeZweryfikowane(weryfikacja) {
+  const w = weryfikacja || {};
+  if (w.rodzaj !== 'token' || !w.token) {
+    return {
+      obserwacje: [],
+      powod: 'adres nie został potwierdzony w tej sesji — obserwacje trenera i rodzica nie wchodzą do diagnozy',
+    };
+  }
+  const odp = await gcRpc('get_player_insights_recent', {
+    p_token: w.token,
+    p_days: INSIGHT_MAX_AGE_DAYS,
+    p_limit: 20,
+  });
+  if (odp === null) {
+    return { obserwacje: [], powod: 'nie udało się odczytać obserwacji (baza nie odpowiedziała)' };
+  }
+  if (!odp || odp.ok !== true || !Array.isArray(odp.obserwacje)) {
+    return {
+      obserwacje: [],
+      powod: `baza odmówiła odczytu obserwacji: ${(odp && odp.powod) || 'nieznany powód'}`,
+    };
+  }
+  return { obserwacje: odp.obserwacje, powod: '' };
 }
 
 /**
@@ -3794,19 +3859,37 @@ async function showPreviousCoachInsight(row) {
   if (!el || !row.email) { if (el) el.innerHTML = ''; return; }
 
   try {
-    const insights = await loadPlayerInsights(row.email);
-    const coachInsight = insights.find(i => i.source === 'coach');
+    // PLAN-D-K 08.2026 — WARIANT B. Odczyt trenera rozstrzyga KOD DRUŻYNY,
+    // nie adres e-mail. Funkcja `get_coach_insight_for_team` ma dokładnie tę
+    // samą bramkę co `record_coach_insight` (zawodnik musi mieć w `diagnostics`
+    // wiersz z tym kodem drużyny) — asymetria między zapisem a odczytem byłaby
+    // dziurą samą w sobie. Kod drużyny trener MUSI DOSTAĆ; adres e-mail
+    // zawodnika da się zgadnąć.
+    //
+    // ⚠️ ZAKAZ ŚCIEŻKI ODZYSKU: wołamy DOKŁADNIE RAZ. Gdy odpowiedź jest
+    // odmowna albo jej nie ma, panel milczy i mówi to w konsoli — nie ma
+    // drugiej próby po adresie e-mail. Druga, cicha droga jest dokładnie tym,
+    // co ta runda zamyka.
+    const odp = await gcRpc('get_coach_insight_for_team', {
+      p_team_code: row.team_code || '',
+      p_player_email: row.email,
+    });
+
+    if (odp === null || !odp || odp.ok !== true) {
+      console.warn('PLAN-D-K: odczyt obserwacji trenera odmówiony albo nieudany —',
+        (odp && odp.powod) || 'baza nie odpowiedziała');
+      el.innerHTML = '';
+      return;
+    }
+
+    const coachInsight = odp.obserwacja || null;
 
     if (!coachInsight) {
-      // Sprawdzamy czy istnieje WYGASŁA obserwacja (starsza niż limit), żeby
-      // odróżnić "nigdy nic nie było" od "było, ale już nieaktualne".
-      const allInsights = await fetch(
-        `${SUPABASE_URL}/rest/v1/player_insights?player_email=eq.${encodeURIComponent(row.email)}&source=eq.coach&order=created_at.desc&limit=1`,
-        { headers: { 'apikey': SUPABASE_KEY } }
-      ).then(r => r.json()).catch(() => []);
-
-      if (allInsights.length) {
-        el.innerHTML = `<div style="padding:10px 14px;background:#f5f2ec;margin-bottom:14px;"><div style="font-size:11px;color:#9a9488;font-weight:300;">Twoja wcześniejsza obserwacja tego zawodnika jest już nieaktualna (starsza niż ${INSIGHT_MAX_AGE_DAYS} dni) i nie wpływa na bieżącą diagnozę.</div></div>`;
+      // "Nigdy nic nie było" i "było, ale wygasło po 90 dniach" to dwa różne
+      // zdania dla trenera. Rozstrzyga to baza (pole `wygasla`), a nie drugie
+      // zapytanie z przeglądarki.
+      if (odp.wygasla === true) {
+        el.innerHTML = `<div style="padding:10px 14px;background:#f5f2ec;margin-bottom:14px;"><div style="font-size:11px;color:#9a9488;font-weight:300;">Twoja wcześniejsza obserwacja tego zawodnika jest już nieaktualna (starsza niż ${odp.prog_dni || INSIGHT_MAX_AGE_DAYS} dni) i nie wpływa na bieżącą diagnozę.</div></div>`;
       } else {
         el.innerHTML = '';
       }
@@ -5352,7 +5435,16 @@ let _diagState = {
 // ======================================
 //  HELPER — buduje dane diagnostyczne
 // ======================================
-async function _buildDiagData(scores, playerEmail) {
+/**
+ * PLAN-D-K 08.2026 — trzeci argument NIE JEST opcjonalnym dodatkiem.
+ * `weryfikacja` opisuje, czy adres zawodnika został w TEJ sesji potwierdzony:
+ *   • `{ rodzaj: 'token', token }`  — kliknięcie linku z e-maila (follow-up);
+ *   • `{ rodzaj: 'brak', powod }`   — adres wklepany w formularz.
+ * Pominięcie argumentu daje `{rodzaj:'brak'}`, czyli stan bez obserwacji —
+ * i to jest właściwe domyślne zachowanie, bo pomyłka w tę stronę odbiera
+ * treść, a w drugą stronę dodaje modelowi cudze zdania o dziecku.
+ */
+async function _buildDiagData(scores, playerEmail, weryfikacja) {
   const sorted = Object.entries(scores).sort((a,b) => a[1]-b[1]);
   const deficits = getRelativeDeficits(scores, 4);
   const strengths = getRelativeStrengths(scores, 3);
@@ -5436,18 +5528,24 @@ async function _buildDiagData(scores, playerEmail) {
   // jeśli istnieją, diagnoza je uwzględnia zamiast zaczynać od zera przy
   // każdym wypełnieniu ankiety. To jest różnica między "dane się zbierają"
   // a "dane budują zrozumienie o zawodniku w czasie".
+  //
+  // ⚠️ PLAN-D-K 08.2026 — WARIANT B. Do promptu wchodzą WYŁĄCZNIE obserwacje
+  // o adresie zweryfikowanym w tej sesji. Obserwacja, której powiązania
+  // z zawodnikiem nie da się potwierdzić, NIE WCHODZI W OGÓLE — nie jest
+  // „prawdopodobnie jego". Powód braku jest zapisywany, nie połykany: cichy
+  // brak jest tu gorszy niż brak nazwany.
   let insightsText = '';
-  if (playerEmail) {
-    const insights = await loadPlayerInsights(playerEmail);
-    if (insights.length) {
-      const lines = insights.slice(0, 5).map(ins => {
-        const who = ins.source === 'coach' ? 'Trener zaobserwował' : ins.source === 'parent' ? 'Rodzic zaobserwował' : 'Zawodnik potwierdził';
-        const segName = SEG_NAMES[ins.segment_id] || ins.segment_id;
-        const detail = ins.response_comment || ins.response_value || '';
-        return `- ${who} (obszar: ${segName}): ${detail}`.trim();
-      });
-      insightsText = lines.join('\n');
-    }
+  const _obs = await wczytajObserwacjeZweryfikowane(weryfikacja);
+  if (_obs.obserwacje.length) {
+    const lines = _obs.obserwacje.slice(0, 5).map(ins => {
+      const who = ins.source === 'coach' ? 'Trener zaobserwował' : ins.source === 'parent' ? 'Rodzic zaobserwował' : 'Zawodnik potwierdził';
+      const segName = SEG_NAMES[ins.segment_id] || ins.segment_id;
+      const detail = ins.response_comment || ins.response_value || '';
+      return `- ${who} (obszar: ${segName}): ${detail}`.trim();
+    });
+    insightsText = lines.join('\n');
+  } else if (_obs.powod) {
+    console.info('PLAN-D-K: obserwacje nie weszły do promptu —', _obs.powod);
   }
 
   // Wcześniejszy samoopis i cel zawodnika z POPRZEDNICH wypełnień ankiety
@@ -5477,7 +5575,16 @@ async function _buildDiagData(scores, playerEmail) {
 // ======================================
 async function generateAIDiagnosis(scores, situation = '') {
 
-  const { deficitsData, strengthsData, hiddenCauses, ctxText, patternNote, scenario, positionProfile, insightsText, priorSelfText } = await _buildDiagData(scores, playerEmail);
+  // PLAN-D-K 08.2026 — WARIANT B. Ta ścieżka to ankieta wypełniana „na świeżo".
+  // Adres pochodzi z pola formularza (`submitEmail` / `requestAppAccess` /
+  // `downloadPDFWithEmail` — trzy miejsca, zmierzone grepem 13.08.2026) i nikt
+  // w tej sesji nie potwierdził, że należy do osoby przed ekranem. Dlatego
+  // stan weryfikacji jest tu JAWNIE ustawiony na „brak", a nie pominięty:
+  // pominięcie dałoby ten sam skutek, ale nie powiedziałoby, dlaczego.
+  const { deficitsData, strengthsData, hiddenCauses, ctxText, patternNote, scenario, positionProfile, insightsText, priorSelfText } = await _buildDiagData(scores, playerEmail, {
+    rodzaj: 'brak',
+    powod: 'adres podany w formularzu ankiety, nie potwierdzony w tej sesji',
+  });
 
   // Zapisz stan
   _diagState.scores = scores;
