@@ -943,12 +943,25 @@ body {
       <!-- Cel na sezon -->
       <div style="margin-bottom:28px;">
         <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:12px;font-weight:500;">Twój główny cel na ten sezon</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" id="goal-buttons">
-          <button class="ctx-btn" onclick="presurveyPick('goal',0,this)">Grać więcej minut</button>
-          <button class="ctx-btn" onclick="presurveyPick('goal',1,this)">Przejść na wyższy poziom</button>
-          <button class="ctx-btn" onclick="presurveyPick('goal',2,this)">Poprawić konkretny element</button>
-          <button class="ctx-btn" onclick="presurveyPick('goal',3,this)">Nie odpaść z drużyny</button>
-          <button class="ctx-btn" onclick="presurveyPick('goal',4,this)" style="grid-column:span 2;">Inny cel</button>
+        <!-- ── PLAN-D-Q 08.2026 (13.08.2026) — ETYKIETY CELU: CZTERY KOPIE JEDNEJ LISTY ──
+             Zmieniasz tutaj — zmień w POZOSTAŁYCH TRZECH, w tej samej kolejności:
+               • Asystent Gamechange/app/(tabs)/cele.tsx    — GOAL_DIRECTION_LABELS
+               • Asystent Gamechange/app/(tabs)/profil.tsx  — GOAL_DIRECTION_LABELS, kreator etap 2
+               • gamechange-app/asystent_app.html           — GOAL_DIRECTION_LABELS
+               • gamechange-diagnoza/index.html             — TEN BLOK + CTX_LABELS.goal + GOAL_DIRECTION_KEYS
+             KOLEJNOŚĆ JEST CZĘŚCIĄ DECYZJI: `zawodowo` PIERWSZE, `other` OSTATNIE. Nie sortuj.
+             Indeksy presurveyPick('goal',N) MUSZĄ iść 0..5 w tej samej kolejności co CTX_LABELS.goal —
+             lejek zapisuje INDEKS, a etykietę bierze z tablicy (player_goal, prompt diagnozy).
+             Jedna kolumna zamiast dwóch: te sześć pozycji to zdania, nie hasła.
+             Strażnik: Asystent Gamechange/lib/etykietyCelu.selftest.ts (porównuje ZBIORY KLUCZY).
+             12.08.2026 dokładnie ten kształt — jedna kopia zmieniona, trzy nie — zabił Mapę drogi. -->
+        <div style="display:grid;grid-template-columns:1fr;gap:8px;" id="goal-buttons">
+          <button class="ctx-btn" onclick="presurveyPick('goal',0,this)">Dojść do futbolu zawodowego</button>
+          <button class="ctx-btn" onclick="presurveyPick('goal',1,this)">Zajść tak wysoko, jak zdołam</button>
+          <button class="ctx-btn" onclick="presurveyPick('goal',2,this)">Być zawodnikiem, którego trudno pominąć</button>
+          <button class="ctx-btn" onclick="presurveyPick('goal',3,this)">Doprowadzić do końca jedną rzecz w swojej grze</button>
+          <button class="ctx-btn" onclick="presurveyPick('goal',4,this)">Zostać w grze na długo</button>
+          <button class="ctx-btn" onclick="presurveyPick('goal',5,this)">Coś innego — napiszę własnymi słowami</button>
         </div>
       </div>
 
@@ -2257,8 +2270,20 @@ const CTX_LABELS = {
   age:   ['Do 14 lat','Do 14 lat — z rodzicem/trenerem','15–19 lat','20–25 lat','26–30 lat','30+ lat'],
   clubTrainings: ['1x w tygodniu','2x w tygodniu','3x w tygodniu','4+ razy w tygodniu'],
   ownTrainings:  ['0 — tylko drużynowe','1x w tygodniu','2x w tygodniu','3+ razy w tygodniu'],
-  goal: ['Grać więcej minut','Przejść na wyższy poziom','Poprawić konkretny element','Nie odpaść z drużyny','Inny cel'],
+  // ── PLAN-D-Q 08.2026 (13.08.2026) — ETYKIETY CELU: CZTERY KOPIE JEDNEJ LISTY ──
+  // Pozostałe trzy: Asystent Gamechange/app/(tabs)/cele.tsx, .../profil.tsx (kreator,
+  // etap 2), gamechange-app/asystent_app.html — wszędzie GOAL_DIRECTION_LABELS.
+  // KOLEJNOŚĆ JEST CZĘŚCIĄ DECYZJI: `zawodowo` PIERWSZE, `other` OSTATNIE. Nie sortuj.
+  // Ta tablica MUSI iść równolegle do przycisków #goal-buttons (indeksy 0..5) i do
+  // GOAL_DIRECTION_KEYS niżej. Strażnik: Asystent Gamechange/lib/etykietyCelu.selftest.ts.
+  goal: ['Dojść do futbolu zawodowego','Zajść tak wysoko, jak zdołam','Być zawodnikiem, którego trudno pominąć','Doprowadzić do końca jedną rzecz w swojej grze','Zostać w grze na długo','Coś innego — napiszę własnymi słowami'],
 };
+
+// PLAN-D-Q 08.2026 — klucze celu, w tej samej kolejności co CTX_LABELS.goal.
+// Lejek zapisuje etykietę (player_goal) i indeks, nie klucz — ale bez tej tablicy
+// strażnik nie miałby czego porównać ze zbiorami kluczy z trzech pozostałych kopii,
+// a porównywanie napisów jest dokładnie tym, czego polecenie Q3 zabrania.
+const GOAL_DIRECTION_KEYS = ['zawodowo','najwyzej_jak_moge','nie_do_pominiecia','jedna_rzecz','w_grze_na_dlugo','other'];
 
 // Stan pre-survey (warstwa 2)
 let presurvey = {
