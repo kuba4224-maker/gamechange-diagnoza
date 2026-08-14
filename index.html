@@ -4,6 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gamechange System</title>
+<!-- PLAN-D-X 08.2026 — JEDNO ŹRÓDŁO ZASAD PRODUKTU DLA PIĘCIU PROMPTÓW AI TEGO LEJKA.
+     Skrypt jest SYNCHRONICZNY i stoi tu, przed całą resztą, celowo: wszystkie pięć
+     promptów AI budowanych w tym pliku odwołuje się do `ZASADY_PROMPTU` i bez niego
+     nie powstaje ani jeden z nich.
+     ⚠️ /zasady-promptu.js MUSI IŚĆ W TYM SAMYM COMMICIE CO index.html. Wypchnięcie
+     samego index.html zostawia lejek bez zasad — dlatego brak pliku NIE jest po cichu
+     obchodzony: nie ma żadnego zapasowego bloku ani `|| ''`. Prompt bez zasad produktu
+     jest gorszy niż widoczny błąd, bo diagnoza jest pierwszą rzeczą, jaką czyta zawodnik. -->
+<script src="/zasady-promptu.js"></script>
+<script>
+  if (typeof ZASADY_PROMPTU === 'undefined' || !ZASADY_PROMPTU || !ZASADY_PROMPTU.zawodnik) {
+    console.error('PLAN-D-X: /zasady-promptu.js nie wczytany. Prompty AI lejka nie moga powstac bez bloku zasad produktu — diagnoza zglosi blad zamiast zwrocic odpowiedz bez zasad.');
+  }
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -3298,6 +3312,8 @@ async function generateParentReport(row, el) {
   // Prompt dla AI — raport napisany dla rodzica
   const prompt = `Jesteś ekspertem od rozwoju młodych piłkarzy. Piszesz krótki raport dla rodzica zawodnika. Ton: ciepły, konkretny, wspierający — jak rozmowa z doświadczonym trenerem który ceni sobie czas rodzica.
 
+${ZASADY_PROMPTU.rodzic}
+
 DANE ZAWODNIKA:
 Imię: ${name}
 Pozycja: ${pos || 'nie podano'}
@@ -4089,6 +4105,8 @@ async function generateCoachQuestions() {
 
   const prompt = `Jesteś systemem diagnostycznym Gamechange. Analizujesz profil zawodnika i generujesz pytania dla jego trenera. Pytania mają uzupełnić dane z ankiety o obserwacje trenera z boiska — żeby razem dały pełniejszy obraz zawodnika.
 
+${ZASADY_PROMPTU.trener}
+
 PROFIL ZAWODNIKA:
 Imię: ${name}
 Pozycja: ${pos}
@@ -4196,6 +4214,8 @@ async function submitCoachAnswers() {
   const coachInput = qas.map(({q,a}) => `Pytanie: ${q}\nObserwacja trenera: ${a}`).join('\n\n');
 
   const prompt = `Jesteś systemem diagnostycznym Gamechange. Masz dane z ankiety zawodnika i obserwacje jego trenera. Napisz ulepszoną diagnozę która łączy obie perspektywy.
+
+${ZASADY_PROMPTU.trener}
 
 DANE Z ANKIETY:
 Zawodnik: ${name}, pozycja: ${pos}
@@ -4610,7 +4630,7 @@ async function generateTeamAIRecommendation(data, code) {
     tipsHTML += '</div>';
   });
 
-  const prompt = 'Jesteś ekspertem od diagnostyki piłkarskiej. Analizujesz dane drużyny i piszesz rekomendację dla trenera.\n\nDANE DRUŻYNY "' + code + '":\nLiczba zawodników: ' + data.length + '\nSkład pozycyjny: ' + (posStr || 'nie podano') + '\nŚredni wynik ogólny: ' + avgOverall + '/100\nNajwiększe deficyty drużyny: ' + top3Weak + '\nMocne strony drużyny: ' + top3Strong + '\n\nNapisz zwięzłą rekomendację dla trenera — 3-4 zdania. Mów konkretnie o grze drużyny, nie o liczbach. Powiedz: (1) co jest największym wspólnym problemem który wpływa na grę jako całości, (2) jaki jeden obszar treningowy dałby największy efekt jeśli zostałby wzmocniony, (3) co w tej drużynie działa dobrze i jak to wykorzystać. Pisz po polsku, bezpośrednio do trenera (forma "Twoja drużyna"), konkretnie i bez ogólników. ZAKAZ używania markdown, gwiazdek, nagłówków — tylko czysty tekst.';
+  const prompt = 'Jesteś ekspertem od diagnostyki piłkarskiej. Analizujesz dane drużyny i piszesz rekomendację dla trenera.\n\n' + ZASADY_PROMPTU.trener + '\n\nDANE DRUŻYNY "' + code + '":\nLiczba zawodników: ' + data.length + '\nSkład pozycyjny: ' + (posStr || 'nie podano') + '\nŚredni wynik ogólny: ' + avgOverall + '/100\nNajwiększe deficyty drużyny: ' + top3Weak + '\nMocne strony drużyny: ' + top3Strong + '\n\nNapisz zwięzłą rekomendację dla trenera — 3-4 zdania. Mów konkretnie o grze drużyny, nie o liczbach. Powiedz: (1) co jest największym wspólnym problemem który wpływa na grę jako całości, (2) jaki jeden obszar treningowy dałby największy efekt jeśli zostałby wzmocniony, (3) co w tej drużynie działa dobrze i jak to wykorzystać. Pisz po polsku, bezpośrednio do trenera (forma "Twoja drużyna"), konkretnie i bez ogólników. ZAKAZ używania markdown, gwiazdek, nagłówków — tylko czysty tekst.';
 
   try {
     const response = await fetch('/api/diagnose', {
@@ -5700,6 +5720,8 @@ Jeśli któraś z tych obserwacji potwierdza lub uzupełnia wykryty deficyt — 
 
 
   const prompt = `Jesteś systemem diagnostycznym Gamechange — analizujesz wyniki ankiety piłkarskiej i piszesz diagnozę bezpośrednio do zawodnika. Piszesz po polsku, forma "Ty", język boiskowy a nie naukowy. Jesteś precyzyjny i konkretny — zero frazesów motywacyjnych, zero ogólników.
+
+${ZASADY_PROMPTU.zawodnik}
 
 DANE ZAWODNIKA:
 ${ctxText}${trainingCtx}${goalCtx}${ownTypesCtx}
