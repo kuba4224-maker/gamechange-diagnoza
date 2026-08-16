@@ -54,6 +54,21 @@ function probuj(opis, fn) {
   catch (e) { fail++; bledy.push(biezacy + ' :: ' + opis + ' — WYJĄTEK: ' + (e && e.message ? e.message : String(e)));
     console.log('  FAIL ' + opis + ' — WYJĄTEK: ' + (e && e.message ? e.message : String(e))); }
 }
+/** PLAN-D-Y3 08.2026 — `registerCoach` jest `async`, więc jej pomiar URUCHOMIENIOWY
+ *  kończy się w mikrozadaniu. `probuj` by go przegapił: `podsumuj()` woła
+ *  `process.exit`, zanim `.then` zdąży się wykonać, i test „przechodziłby" pusty.
+ *  Obietnice są zbierane tu i domykane PRZED podsumowaniem. */
+const OCZEKUJACE = [];
+function probujAsync(opis, fn) {
+  const gdzie = biezacy;           // scenariusz z chwili REJESTRACJI, nie odrzucenia
+  let p;
+  try { p = Promise.resolve(fn()); }
+  catch (e) { p = Promise.reject(e); }
+  OCZEKUJACE.push(p.catch(e => {
+    fail++; bledy.push(gdzie + ' :: ' + opis + ' — WYJĄTEK: ' + (e && e.message ? e.message : String(e)));
+    console.log('  FAIL ' + opis + ' — WYJĄTEK: ' + (e && e.message ? e.message : String(e)));
+  }));
+}
 function podsumuj() {
   console.log('\n════════════════════════════════════════');
   console.log('  ok:   ' + ok);
@@ -198,6 +213,8 @@ function wytnij(nazwa) { const f = znajdz(nazwa); return f ? HTML.slice(f.od, f.
 /** ⚠️ Zamaskowanego źródła NIE wolno liczyć na wyciętym fragmencie — poza <script>
  *  maska kasuje wszystko, więc fragment wyszedłby pusty. Tniemy z gotowej maski. */
 function wytnijM(nazwa) { const f = znajdz(nazwa); return f ? M.slice(f.od, f.b) : ''; }
+/** Przeparsowanie DOWOLNEGO tekstu (bateria mutacji + sekcja 10 pasa Y3). */
+const przeparsuj = (t) => { const Mt = maskuj(t); const F = funkcje(t, Mt); for (const f of F) f.trescM = Mt.slice(f.a, f.b); return { Mt, F, znajdz: (n) => F.filter(x => x.nazwa === n).pop() || null }; };
 /** Treści literałów w zakresie [a,b): granice z MASKI (komentarze są w niej puste,
  *  więc zdanie zacytowane w komentarzu nie udaje literału), treść z ORYGINAŁU. */
 function literaly(a, b) {
@@ -296,7 +313,10 @@ scenario('3. reguła 1 — gałąź błędu przy odczycie musi mieć głos');
  *  inaczej to jest lista wymówek. Zapadka na RÓWNOŚĆ: kto naprawi którąkolwiek
  *  i nie skreśli — czerwień. Kto dołoży kolejną — też. */
 const DLUG_ZASTANY = {
-  'registerCoach': 'odczyt kontrolny „czy ten trener ma już kod" — cicha awaria wydaje DRUGI kod tej samej drużynie. ŻYWA ścieżka, ale ekran TRENERA, nie zawodnika; poza zakresem pasa Y1, wypisana w nocie',
+  /* ⛔ SKREŚLONE 16.08.2026 przez PLAN-D-Y3 (decyzja D6). `registerCoach` miał
+     pusty `catch` wokół odczytu „czy ten trener ma już kod" — awaria sieci szła
+     dalej do generatora i drużyna dostawała DRUGI kod. Dziś to trzeci stan (R5):
+     nie wiemy → nie wydajemy niczego i mówimy to wprost. Pomiar: sekcja 10f. */
   'triggerFeedbackDigest': 'MARTWY REGION (LEJEK R8, 08.08.2026) — jedyny wyzwalacz wykomentowany; `catch` mówi do przycisku, nie do konsoli',
   'loadFeedbackAnalysis': 'MARTWY REGION — po zdjęciu polityki anon SELECT (P0-2) odczyt zawsze pusty, wyzwalacz wycięty',
   'loadParentView': 'MARTWY REGION — dispatch `?parent=` pokazuje dziś uczciwy komunikat zamiast wołać tę funkcję',
@@ -662,8 +682,8 @@ scenario('8f. ⛔ wypełniacz 3.5 — nie wraca po cichu');
   const ZYWE = TRAFIENIA.filter(t => t.zywe);
   assertEq(ZYWE.length, 0,
     '⛔ wartości 3.5 NIE MA W WYKONYWANYM KODZIE' + (ZYWE.length ? ' — STOI w l. ' + ZYWE.map(t => t.linia + ' (' + t.ctx + ')').join(' | ') : ''));
-  assertEq(TRAFIENIA.length, 3,
-    'zapadka na RÓWNOŚĆ (O73): wystąpień „3.5" w całym pliku — wszystkie poza żywym kodem, każde wypisane niżej');
+  assertEq(TRAFIENIA.length, 4,
+    'zapadka na RÓWNOŚĆ (O73): wystąpień „3.5" w całym pliku (3 z pasa Y2 + 1 z komentarza pasa Y3) — wszystkie poza żywym kodem, każde wypisane niżej');
   TRAFIENIA.forEach(t => console.log('      · l. ' + t.linia + (t.zywe ? '  ⛔ ŻYWY KOD  ' : '  (poza kodem: literał albo komentarz)  ') + t.ctx));
   const calcM = wytnijM('calcScores');
   assert(!/3\.5/.test(calcM), '⛔ w ciele `calcScores` nie ma już wypełniacza');
@@ -758,6 +778,482 @@ scenario('8j. `activeSegs` a `SEGS` — dwa zbiory, jedna bramka');
   assert(/activeSegs/.test(wytnijM('brakiWAnkiecie')), '`brakiWAnkiecie` liczy po `activeSegs` — dlatego druga bramka jest konieczna, nie ozdobna');
 }
 
+
+/* ══════════════════════════════════════════════════════════════════════════
+   10. PLAN-D-Y3 08.2026 — LINK, KTÓRY NIESIE STARY WYNIK
+
+   Pas Y2 zamknął drzwi frontowe: z niepełnej ankiety nie wychodzi już wynik.
+   `loadResultsFromURL` był drzwiami bocznymi — brał liczby z ADRESU STRONY
+   i renderował je bez jednej kontroli, a `catch(e) { return false; }` sklejał
+   trzy różne rzeczy w jedno milczenie (R5 złamane w jednej linii).
+
+   ⚠️ CAŁA TA SEKCJA PYTA O WYNIK URUCHOMIENIA, nie o obecność słowa
+   „walidacja" w tekście funkcji (O90). Asercja tekstowa przepuściłaby pustą
+   kontrolę, która nic nie odrzuca.
+   ══════════════════════════════════════════════════════════════════════════ */
+scenario('10. Y3 — wejścia na ekran wyników i miejsca, w których POWSTAJE hash (O69)');
+
+/** ⭐ Wejścia na `screen-results` wykrywane po TREŚCI (O88), nie po nazwie funkcji.
+ *  Dwa kroki, bo sam spis wywołań `showScreen` byłby ślepy na drugi mechanizm:
+ *  1. czy `showScreen` JEST jedynym sposobem pokazania ekranu (nikt nie dopisuje
+ *     klasy `active` do `.screen` z palca),
+ *  2. które funkcje wołają je z argumentem `'screen-results'`. */
+{
+  /** ⚠️ `maskuj` CZYŚCI TREŚĆ LITERAŁÓW (`'screen-results'` → `'              '`),
+   *  więc szukanie po masce nie znalazłoby ani jednego wejścia. Szukamy w ORYGINALE,
+   *  a o ŻYWOTNOŚĆ pytamy maski: w komentarzu maska wyczyściła też `showScreen(`,
+   *  więc prefiks by się nie zgodził. */
+  const zywe = (i, prefiks) => M.slice(i, i + prefiks.length) === prefiks;
+
+  const WEJSCIA = [], MARTWE = [];
+  const re = /\bshowScreen\s*\(\s*'screen-results'\s*\)/g; let m;
+  while ((m = re.exec(HTML))) {
+    const f = najwezsza(FUN, m.index);
+    (zywe(m.index, 'showScreen(') ? WEJSCIA : MARTWE).push(f ? f.nazwa : '(top-level)');
+  }
+  assertEq(WEJSCIA.length, 2,
+    '⭐ zapadka na RÓWNOŚĆ (O73): wejść na ekran wyników w ŻYWYM kodzie — kto dołoży trzecie, musi je zabramkować tak samo (znaleziono: ' + WEJSCIA.join(', ') + ')');
+  assert(WEJSCIA.indexOf('generateResults') !== -1, 'pierwszym wejściem jest `generateResults` — bramkowane przez pas Y2');
+  assert(WEJSCIA.indexOf('loadResultsFromURL') !== -1, '⭐ drugim wejściem jest `loadResultsFromURL` — to ono omijało `calcScores`');
+
+  /* 2. czy ktoś nie pokazuje ekranu OBOK `showScreen` */
+  const DOPISKI = [];
+  const re2 = /classList\.add\(\s*'active'\s*\)/g; let m2;
+  while ((m2 = re2.exec(HTML))) {
+    if (!zywe(m2.index, 'classList.add(')) continue;
+    const f = najwezsza(FUN, m2.index); DOPISKI.push(f ? f.nazwa : '(top-level)');
+  }
+  const POZA = DOPISKI.filter(n => n !== 'showScreen');
+  assertEq(POZA.length, 2,
+    'zapadka na RÓWNOŚĆ (O73): dopisań klasy `active` POZA `showScreen` — obie w `ctxProgress` (kroki kontekstu, nie ekrany): ' + POZA.join(', '));
+  assert(POZA.every(n => n === 'ctxProgress'), 'i obie siedzą w `ctxProgress`, nie w lejku wyniku');
+  assert(/getElementById\(id\)\.classList\.add\('active'\)/.test(wytnij('showScreen')),
+    '`showScreen` jest jedynym miejscem, które przełącza WIDOCZNY EKRAN');
+  assertEq(ileWywolan('showScreen', wytnijM('renderResults')), 0,
+    '`renderResults` samo NIE pokazuje ekranu — rysowanie i pokazywanie to dwie różne czynności');
+}
+
+/** ⭐ Miejsca, w których POWSTAJE hash z wynikiem (Y3.1 pkt 5) — tam i tylko tam
+ *  ma prawo stanąć znacznik wersji. Zapadka na RÓWNOŚĆ: gdyby hash zaczął powstawać
+ *  w dwóch miejscach, znacznik w jednym z nich byłby fikcją. */
+{
+  const zywe = (i, prefiks) => M.slice(i, i + prefiks.length) === prefiks;
+  const BUDUJACE = [], CZYSZCZACE = [];
+  const re = /\bhistory\.(replaceState|pushState)\s*\(/g; let m;
+  while ((m = re.exec(HTML))) {
+    if (!zywe(m.index, 'history.')) continue;
+    const k = dopasuj(M, M.indexOf('(', m.index), '(', ')');
+    const arg = HTML.slice(m.index, k + 1);          // ⚠️ granice z MASKI, treść z ORYGINAŁU
+    const f = najwezsza(FUN, m.index);
+    (/'#'|`#|"#"/.test(arg) ? BUDUJACE : CZYSZCZACE).push((f ? f.nazwa : '(top-level)') + ': ' + arg.replace(/\s+/g, ' '));
+  }
+  const PRZYPISANIA_HASHA = [];
+  const re2 = /\blocation\.hash\s*=[^=]/g; let m2;
+  while ((m2 = re2.exec(HTML))) {
+    if (!zywe(m2.index, 'location.hash')) continue;
+    const f = najwezsza(FUN, m2.index); PRZYPISANIA_HASHA.push(f ? f.nazwa : '(top-level)');
+  }
+  assertEq(BUDUJACE.length + PRZYPISANIA_HASHA.length, 1,
+    '⭐ zapadka na RÓWNOŚĆ (O73): miejsc, w których POWSTAJE hash z wynikiem — dokładnie jedno (' + BUDUJACE.concat(PRZYPISANIA_HASHA).join(' | ') + ')');
+  assert(/saveResultsToURL/.test(BUDUJACE[0] || ''), 'tym jedynym miejscem jest `saveResultsToURL`');
+  assertEq(CZYSZCZACE.length, 1, 'zapadka na RÓWNOŚĆ (O73): miejsc, które hash KASUJĄ (`restart`) — jedno: ' + CZYSZCZACE.join(' | '));
+  assert(/GC_WERSJA_WYNIKU_W_LINKU/.test(wytnijM('saveResultsToURL')),
+    '⭐ D4 — znacznik wersji stawiany jest DOKŁADNIE tam, gdzie hash powstaje');
+}
+
+scenario('10a. O76 — funkcje pasa Y3 ISTNIEJĄ (brak = FAIL z nazwą, nigdy „POMINIĘTE")');
+['loadResultsFromURL', 'saveResultsToURL', 'ocenWynikZLinku', 'renderLinkOdrzucony',
+ 'oznaczLinkSprzedPoprawki', 'registerCoach', 'showScreen', 'esc'].forEach(n => {
+  assert(wytnij(n).length > 0, 'funkcja `' + n + '` istnieje w `index.html`');
+});
+['gc-link-odrzucony', 'gc-link-sprzed-poprawki'].forEach(id => {
+  assert(new RegExp('id="' + id + '"').test(HTML), 'w źródle strony stoi gniazdo `#' + id + '`');
+});
+const STALE_Y3 = ['GC_WERSJA_WYNIKU_W_LINKU', 'ZDANIE_LINK_NIE_DO_ODCZYTANIA', 'ZDANIE_LINK_NIEPELNY_WYNIK',
+                  'ZDANIE_LINK_SPRZED_POPRAWKI', 'ZDANIE_NIE_UDALO_SIE_SPRAWDZIC_KODU', 'ETYKIETA_SPRAWDZ_WASKIE_GARDLO'];
+STALE_Y3.forEach(n => assert(new RegExp('const\\s+' + n + '\\s*=').test(M), 'stała `' + n + '` jest zadeklarowana — brzmienie ma JEDNO źródło'));
+{
+  const wart = (/const\s+ETYKIETA_SPRAWDZ_WASKIE_GARDLO\s*=\s*'([^']*)'/.exec(HTML) || [])[1];
+  assert(!!wart, 'stała `ETYKIETA_SPRAWDZ_WASKIE_GARDLO` ma wartość');
+  const PRZYCISK_INTRO = (/<button onclick="startSurvey\(\)"[\s\S]{0,600}?<\/button>/.exec(HTML) || [''])[0];
+  assert(PRZYCISK_INTRO.indexOf(wart) !== -1,
+    '⭐ D7 — „' + wart + '" jest WZIĘTE z żywego przycisku `screen-intro`, nie wymyślone (porównanie ze źródłem, nie z kopią w teście)');
+  ['ZDANIE_LINK_NIE_DO_ODCZYTANIA', 'ZDANIE_LINK_NIEPELNY_WYNIK', 'ZDANIE_LINK_SPRZED_POPRAWKI', 'ZDANIE_NIE_UDALO_SIE_SPRAWDZIC_KODU'].forEach(n => {
+    const i = M.indexOf('const ' + n + ' =');
+    assert(i !== -1 && /DO PRZEJRZENIA — Y3/.test(HTML.slice(Math.max(0, i - 1400), i)),
+      '`' + n + '` jest oznaczone `⚠️ DO PRZEJRZENIA — Y3` — nikt go nie przemyci jako uzgodnione');
+  });
+}
+
+scenario('10b. O71 — ciało `loadResultsFromURL` pytane OSOBNO, instrukcja po instrukcji');
+{
+  const lrM = wytnijM('loadResultsFromURL');
+  assert(lrM.length > 0, 'jest funkcja `loadResultsFromURL`');
+  assert(!/catch\s*\([^)]*\)\s*\{\s*return\s+false\s*;?\s*\}/.test(lrM),
+    '⛔ zniknął `catch(e) { return false; }` — jedna linia, która sklejała trzy różne stany w jedno milczenie (R5)');
+  const IFY = warunkiIf('loadResultsFromURL');
+  assert(IFY.some(x => /!hash/.test(x)), 'stan BRAK (adres bez hasha) jest pytany osobno — i tylko on ma prawo milczeć');
+  assert(IFY.some(x => /!\s*ocena\.pelny/.test(x)), '⭐ stan NIEPEŁNY jest pytany osobno, po orzeczeniu `ocenWynikZLinku`');
+  assert(/zglosBladOdczytu\s*\(/.test(lrM), 'awaria odczytu hasha ma GŁOS (O80)');
+  assert(ileWywolan('renderLinkOdrzucony', lrM) >= 2, 'obie odrzucone drogi kończą się ekranem, który coś MÓWI');
+  assert(/ocenWynikZLinku\s*\(/.test(lrM), 'kontrola kompletności jest naprawdę wołana, nie tylko zdefiniowana');
+}
+
+const WERSJA_Z_PLIKU = Number((/const\s+GC_WERSJA_WYNIKU_W_LINKU\s*=\s*(\d+)/.exec(HTML) || [])[1]);
+scenario('10c. ⭐ D2 URUCHOMIONE — `ocenWynikZLinku` bierze prawdę z `SEGS`, nie z wpisanej liczby');
+/** ⭐ Źródło budowane Z DOWOLNEGO TEKSTU, nie tylko z prawdziwego pliku — dzięki
+ *  temu bateria mutacji (sekcja 9) URUCHAMIA zmutowaną kontrolę zamiast pytać
+ *  o jej wygląd. Detektor tekstowy przepuściłby kontrolę, która nic nie odrzuca. */
+function zrodloLinkuZ(t) {
+  const P = przeparsuj(t);
+  const tnij = (n) => { const f = P.znajdz(n); return f ? t.slice(f.od, f.b) : ''; };
+  return [
+    (/const\s+GC_WERSJA_WYNIKU_W_LINKU\s*=\s*\d+\s*;/.exec(t) || [''])[0],
+    ...['ZDANIE_LINK_NIE_DO_ODCZYTANIA', 'ZDANIE_LINK_NIEPELNY_WYNIK', 'ZDANIE_LINK_SPRZED_POPRAWKI', 'ETYKIETA_SPRAWDZ_WASKIE_GARDLO']
+        .map(n => (new RegExp('const\\s+' + n + "\\s*=\\s*'[^']*';").exec(t) || [''])[0]),
+    tnij('esc'), tnij('showScreen'),
+    tnij('ocenWynikZLinku'), tnij('renderLinkOdrzucony'), tnij('oznaczLinkSprzedPoprawki'),
+    tnij('loadResultsFromURL'),
+  ].join('\n');
+}
+const ZRODLO_LINKU = zrodloLinkuZ(HTML);
+
+/** Atrapa DOM-u: tyle, ile trzeba, żeby `showScreen` NAPRAWDĘ przełączał ekran
+ *  i żeby dało się przeczytać, CO STOI w gnieździe — nie żeby udawać przeglądarkę. */
+const EKRANY_ATRAPY = ['screen-intro', 'screen-results', 'screen-survey', 'screen-loading', 'screen-context'];
+function atrapaDomu() {
+  const wezly = {};
+  const nowy = (id, klasa) => {
+    const el = { id: id, innerHTML: '', textContent: '', style: {}, _k: new Set(klasa ? [klasa] : []) };
+    el.classList = { add: (c) => el._k.add(c), remove: (c) => el._k.delete(c), contains: (c) => el._k.has(c) };
+    return el;
+  };
+  EKRANY_ATRAPY.forEach(id => wezly[id] = nowy(id, 'screen'));
+  ['gc-link-odrzucony', 'gc-link-sprzed-poprawki', 'scores-table', 'overall-num',
+   'diagnosis-blur-wrap', 'diagnosis-unlocked-note', 'email-gate-box'].forEach(id => wezly[id] = nowy(id));
+  return {
+    wezly: wezly,
+    document: {
+      getElementById: (id) => wezly[id] || null,
+      querySelectorAll: (s) => (s === '.screen' ? EKRANY_ATRAPY.map(i => wezly[i]) : []),
+      querySelector: () => null,
+    },
+  };
+}
+function odpalLinkZ(zrodlo, hash, kod) {
+  const dom = atrapaDomu();
+  const zapis = { render: [], glosy: [], ostrzezenia: [] };
+  const c = {
+    document: dom.document,
+    window: { location: { hash: hash }, scrollTo() {} },
+    JSON: JSON, Math: Math, Object: Object, isFinite: isFinite, Array: Array,
+    atob: (s) => Buffer.from(s, 'base64').toString('binary'),
+    escape: escape, unescape: unescape,
+    decodeURIComponent: decodeURIComponent, encodeURIComponent: encodeURIComponent,
+    setTimeout: () => 0,
+    console: { warn: (...a) => zapis.ostrzezenia.push(a.join(' ')), error: () => {}, log: () => {} },
+    zglosBladOdczytu: (gdzie) => zapis.glosy.push(gdzie),
+    renderResults: (s) => { zapis.render.push(s); dom.wezly['scores-table'].innerHTML = '<wiersze>' + Object.keys(s || {}).length + '</wiersze>'; },
+    renderDiagnosisV2Readonly: () => {}, _showProductSection: () => {},
+    _diagState: {}, cachedScores: null, isJunior: false, ctx: {},
+    SEGS: (kod && kod.SEGS) || SEGS_Z_PLIKU,
+  };
+  vm.createContext(c);
+  vm.runInContext('var cachedScores = null, isJunior = false, ctx = {}, _diagState = {};\n' + zrodlo, c);
+  const zwrot = c.loadResultsFromURL();
+  const widoczny = EKRANY_ATRAPY.filter(id => dom.wezly[id]._k.has('active'));
+  return {
+    zwrot: zwrot,
+    ekran: widoczny.length === 1 ? widoczny[0] : '(' + widoczny.length + ' EKRANÓW)',
+    skrzynka: dom.wezly['gc-link-odrzucony'].innerHTML,
+    ostrzezenieD4: dom.wezly['gc-link-sprzed-poprawki'].innerHTML,
+    tabela: dom.wezly['scores-table'].innerHTML,
+    cached: c.cachedScores,
+    render: zapis.render.length,
+    glosy: zapis.glosy, ostrzezenia: zapis.ostrzezenia,
+    dom: EKRANY_ATRAPY.concat(['gc-link-odrzucony', 'gc-link-sprzed-poprawki', 'scores-table'])
+           .map(id => id + '|' + dom.wezly[id].innerHTML + '|' + [...dom.wezly[id]._k].sort().join(',')).join('\n'),
+  };
+}
+const odpalLink = (hash, kod) => odpalLinkZ(ZRODLO_LINKU, hash, kod);
+const doHasha = (o) => '#' + Buffer.from(JSON.stringify(o), 'utf8').toString('base64');
+
+probuj('`ocenWynikZLinku` daje się URUCHOMIĆ i liczy po `SEGS`', () => {
+  if (!SEGS_Z_PLIKU) throw new Error('brak `SEGS` — nie ma na czym uruchomić');
+  const c = { Object: Object, Array: Array, isFinite: isFinite, SEGS: SEGS_Z_PLIKU };
+  vm.createContext(c); vm.runInContext(wytnij('ocenWynikZLinku'), c);
+  const ID = SEGS_Z_PLIKU.map(s => s.id);
+  const pelny = {}; ID.forEach((id, i) => pelny[id] = 30 + i);
+
+  assertEq(c.ocenWynikZLinku(pelny).pelny, true, '⭐ ASERCJA ODWROTNA: wynik ze WSZYSTKIMI ' + ID.length + ' obszarami przechodzi');
+
+  /* ⭐ liczba obszarów NIE JEST wpisana — dowodzi tego uruchomienie na PODMIENIONYM `SEGS` */
+  const c2 = { Object: Object, Array: Array, isFinite: isFinite, SEGS: SEGS_Z_PLIKU.concat([{ id: 'obszarKtoregoNieMa', qs: [{}] }]) };
+  vm.createContext(c2); vm.runInContext(wytnij('ocenWynikZLinku'), c2);
+  assertEq(c2.ocenWynikZLinku(pelny).pelny, false,
+    '⭐ D2 — po dołożeniu CZTERNASTEGO obszaru do `SEGS` ten sam wynik przestaje być pełny; gdyby w kontroli stało wpisane „13", nic by się nie zmieniło');
+  const pelny14 = Object.assign({ obszarKtoregoNieMa: 50 }, pelny);
+  assertEq(c2.ocenWynikZLinku(pelny14).pelny, true, 'a wynik z czternastoma obszarami — przechodzi. Prawda idzie za `SEGS`');
+
+  /* DWANAŚCIE z trzynastu */
+  const dwanascie = {}; ID.slice(0, ID.length - 1).forEach((id, i) => dwanascie[id] = 30 + i);
+  const o12 = c.ocenWynikZLinku(dwanascie);
+  assertEq(o12.pelny, false, '⭐ D2 — wynik z ' + (ID.length - 1) + ' obszarami zamiast ' + ID.length + ' jest ODRZUCONY');
+  assertEq(o12.brakujace.join(','), ID[ID.length - 1], 'orzeczenie MÓWI, którego obszaru brakuje — do konsoli, nie do zgadywania');
+
+  /* TRZYNAŚCIE, ale jeden `null` */
+  const zNullem = Object.assign({}, pelny); zNullem[ID[10]] = null;
+  const oN = c.ocenWynikZLinku(zNullem);
+  assertEq(oN.pelny, false, '⭐ D2 — wynik z ' + ID.length + ' obszarami, ale jednym `null`, też jest ODRZUCONY');
+  assertEq(oN.nieliczby.join(','), ID[10], 'orzeczenie mówi, KTÓRY obszar nie ma liczby');
+
+  /* liczby spoza 0–100 i kształty, które nie są wynikiem */
+  [[-1, 'ujemna'], [101, 'powyżej 100'], [NaN, 'NaN'], [Infinity, 'nieskończoność'], ['55', 'napis'], [undefined, 'undefined']].forEach(([w, opis]) => {
+    const z = Object.assign({}, pelny); z[ID[0]] = w;
+    assertEq(c.ocenWynikZLinku(z).pelny, false, 'wartość odrzucona: ' + opis);
+  });
+  [null, undefined, 42, 'wynik', [30, 40], []].forEach(w => {
+    assertEq(c.ocenWynikZLinku(w).pelny, false, 'kształt odrzucony: ' + JSON.stringify(w));
+  });
+  const zNadmiarem = Object.assign({ obszarZPrzyszlosci: 50 }, pelny);
+  assertEq(c.ocenWynikZLinku(zNadmiarem).pelny, false, 'wynik z NIEZNANYM obszarem jest odrzucony — nie wiemy, czym jest, więc go nie renderujemy');
+});
+
+scenario('10d. ⭐ D1 + D3 URUCHOMIONE — cztery hashe przez PRAWDZIWĄ `loadResultsFromURL`');
+probuj('`loadResultsFromURL` daje się odpalić z atrapą DOM-u na czterech hashach', () => {
+  if (!SEGS_Z_PLIKU) throw new Error('brak `SEGS`');
+  const ID = SEGS_Z_PLIKU.map(s => s.id);
+  const pelny = {}; ID.forEach((id, i) => pelny[id] = 30 + (i * 3) % 60);
+  const trzy = {}; ID.slice(0, 3).forEach((id, i) => trzy[id] = 50 + i);
+
+  /* (a) BRAK hasha — milczenie jest tu POPRAWNE */
+  const a = odpalLink('');
+  assertEq(a.zwrot, false, '(a) adres BEZ hasha: `loadResultsFromURL` oddaje `false` — wołający pokazuje ekran startowy sam');
+  assertEq(a.ekran, '(0 EKRANÓW)', '(a) nic nie zostało pokazane przez tę funkcję');
+  assertEq(a.skrzynka, '', '(a) ⭐ zawodnik NIE czyta zdania o linku — bo żadnego linku nie było (Z0)');
+  assertEq(a.cached, null, '(a) `cachedScores` zostaje puste');
+
+  /* (b) hash USZKODZONY */
+  const b = odpalLink('#to-nie-jest-base64!!!###');
+  assertEq(b.ekran, 'screen-intro', '(b) uszkodzony hash: ⛔ zawodnik NIE ląduje na ekranie wyników (D3)');
+  assertEq(b.render, 0, '(b) `renderResults` nie zostało wołane ANI RAZU');
+  assertEq(b.cached, null, '(b) ⭐ `cachedScores` zostaje `null` — nic z uszkodzonego linku nie weszło do stanu');
+  assert(b.skrzynka.length > 0, '(b) ⭐ zawodnik CZYTA zdanie o tym, co się stało z linkiem');
+  assert(b.glosy.length > 0, '(b) awaria ma GŁOS w konsoli (O80): ' + b.glosy.join(' | '));
+
+  /* (c) hash POPRAWNY, ale TRZY obszary z trzynastu */
+  const c3 = odpalLink(doHasha({ s: trzy, j: 0, v: 2 }));
+  assertEq(c3.ekran, 'screen-intro', '(c) trzy obszary z ' + ID.length + ': ⛔ ekran wyników NIE JEST pokazany (D3)');
+  assertEq(c3.render, 0, '(c) `renderResults` nie zostało wołane — do 16.08.2026 rysowało tabelę z trzech liczb');
+  assertEq(c3.tabela, '', '(c) ⭐ w DOM-ie NIE MA tabeli wyników');
+  assertEq(c3.cached, null, '(c) ⭐ `cachedScores` zostaje `null` — trzy liczby nie stają się profilem zawodnika');
+  assert(c3.skrzynka.length > 0, '(c) zawodnik CZYTA zdanie o niepełnym linku');
+  assert(c3.ostrzezenia.some(o => /LINK ODRZUCONY/.test(o) && ID.slice(3).every(id => o.indexOf(id) !== -1)),
+    '(c) konsola dostaje LISTĘ brakujących obszarów, nie samo „coś nie tak"');
+
+  /* (c2) trzynaście obszarów, jeden `null` — druga twarz tej samej dziury */
+  const zNullem = Object.assign({}, pelny); zNullem[ID[10]] = null;
+  const cN = odpalLink(doHasha({ s: zNullem, j: 0, v: 2 }));
+  assertEq(cN.ekran, 'screen-intro', '(c2) ' + ID.length + ' obszarów z jednym `null`: ⛔ ekran wyników NIE JEST pokazany');
+  assertEq(cN.cached, null, '(c2) ⭐ `null` NIE wchodzi do `cachedScores` — inaczej `getRelativeDeficits` ogłasza NIEOCENIONY obszar wąskim gardłem zawodnika');
+
+  /* ⭐ D1 — trzy stany, TRZY RÓŻNE odpowiedzi */
+  assert(b.skrzynka !== c3.skrzynka,
+    '⭐ D1 — zdanie przy „uszkodzony hash" RÓŻNI SIĘ od zdania przy „niekompletny wynik" (R5: trzy wartości, nie dwie)');
+  assert(a.skrzynka !== b.skrzynka && a.skrzynka !== c3.skrzynka,
+    '⭐ D1 — stan BRAK nie wygląda jak żaden z dwóch pozostałych');
+  assertEq(b.zwrot, true, '(b) funkcja oddaje `true` — ekran jest już obsłużony, wołający nie nadpisze go ekranem startowym');
+  assertEq(c3.zwrot, true, '(c) jw.');
+
+  /* ⭐ P0 — wyjście stoi W TEJ SAMEJ skrzynce, nie trzeba go szukać */
+  const ETY = (/const\s+ETYKIETA_SPRAWDZ_WASKIE_GARDLO\s*=\s*'([^']*)'/.exec(HTML) || [])[1];
+  [b, c3].forEach((w, i) => {
+    assert(w.skrzynka.indexOf('startSurvey()') !== -1, 'P0 — skrzynka ' + (i ? '(c)' : '(b)') + ' niesie WYJŚCIE: `startSurvey()`');
+    assert(w.skrzynka.indexOf(ETY) !== -1, 'P0 — wyjście ma etykietę „' + ETY + '"');
+    assert(!/nie odpowiedziałeś|nie wypełniłeś|musisz|Twoja wina|oszuk/i.test(w.skrzynka),
+      'N1 — zdanie mówi o LINKU, nie obwinia zawodnika: „' + w.skrzynka.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() + '"');
+  });
+
+  /* (d) hash POPRAWNY i PEŁNY, BEZ znacznika wersji → renderuje się I niesie ostrzeżenie */
+  const d = odpalLink(doHasha({ s: pelny, j: 0 }));
+  assertEq(d.ekran, 'screen-results', '⭐ D4 (d) link BEZ znacznika wersji RENDERUJE SIĘ — nie unieważniamy cudzego linku');
+  assertEq(d.render, 1, '(d) `renderResults` zostało wołane dokładnie raz');
+  assertEq(Object.keys(d.cached).length, ID.length, '(d) `cachedScores` ma komplet ' + ID.length + ' obszarów');
+  assert(d.ostrzezenieD4.length > 0, '⭐ D4 (d) nad wynikiem STOI zdanie o tym, że link powstał przed poprawką');
+  const ZD_STARY = (/const\s+ZDANIE_LINK_SPRZED_POPRAWKI\s*=\s*'([^']*)'/.exec(HTML) || [])[1];
+  assert(d.ostrzezenieD4.indexOf(ZD_STARY) !== -1, '(d) to jest DOKŁADNIE zdanie ze stałej, nie kopia w teście');
+  assert(!/oszuk|na pewno|z pewnością|pewnie nie oceniłeś/i.test(d.ostrzezenieD4),
+    'Z0 + N1 — zdanie mówi „nie mamy jak sprawdzić", a nie „ten wynik jest fałszywy"');
+
+  /* (e) hash POPRAWNY, PEŁNY i ZE znacznikiem → ⭐ ASERCJA ODWROTNA D5 */
+  const e = odpalLink(doHasha({ s: pelny, j: 0, v: WERSJA_Z_PLIKU }));
+  assertEq(e.ekran, 'screen-results', '⭐ ASERCJA ODWROTNA D5: pełny link ZE znacznikiem renderuje się jak przed pasem');
+  assertEq(e.render, 1, '(e) `renderResults` wołane raz');
+  assertEq(e.ostrzezenieD4, '', '⭐ D4 (e) link ZE znacznikiem NIE NIESIE ani jednego dodatkowego zdania');
+  assertEq(e.skrzynka, '', '(e) skrzynka odrzucenia zostaje pusta');
+  assertEq(JSON.stringify(e.cached), JSON.stringify(pelny), '(e) `cachedScores` to CO DO ZNAKU liczby z linku');
+  assertEq(e.glosy.length, 0, '(e) nic nie trafia do konsoli — ścieżka, która działa, jest CICHA i to jest poprawne');
+
+  /* ⭐ D5 CO DO ZNAKU: jedyna różnica w całym DOM-ie między (d) a (e) to gniazdo ostrzeżenia */
+  const roznice = d.dom.split('\n').filter((w, i) => w !== e.dom.split('\n')[i]);
+  assertEq(roznice.length, 1, '⭐ D5 — DOM po (d) i po (e) różni się DOKŁADNIE JEDNYM węzłem (' + roznice.map(r => r.split('|')[0]).join(', ') + ')');
+  assertEq((roznice[0] || '').split('|')[0], 'gc-link-sprzed-poprawki', '⭐ D5 — a tym węzłem jest gniazdo ostrzeżenia, nic więcej');
+});
+
+scenario('10e. ⭐ D4 — znacznik wersji NAPRAWDĘ ląduje w hashu (`saveResultsToURL` uruchomione)');
+probuj('`saveResultsToURL` daje się uruchomić, a z hasha da się odzyskać znacznik', () => {
+  assert(Number.isFinite(WERSJA_Z_PLIKU), 'stała `GC_WERSJA_WYNIKU_W_LINKU` jest liczbą: ' + WERSJA_Z_PLIKU);
+  const ID = SEGS_Z_PLIKU.map(s => s.id);
+  const pelny = {}; ID.forEach((id, i) => pelny[id] = 30 + i);
+  let zapisany = null;
+  const c = {
+    JSON: JSON, Object: Object,
+    btoa: (s) => Buffer.from(s, 'binary').toString('base64'),
+    unescape: unescape, encodeURIComponent: encodeURIComponent,
+    history: { replaceState: (a, b, h) => { zapisany = h; } },
+    isJunior: false, ctx: { pos: 3 }, _diagState: { diagnosisText: '', topDeficitIds: [], usedInsights: false },
+    zglosBladOdczytu: () => {},
+  };
+  vm.createContext(c);
+  vm.runInContext('var isJunior = false, ctx = { pos: 3 }, _diagState = { diagnosisText: "", topDeficitIds: [], usedInsights: false };\n'
+    + (/const\s+GC_WERSJA_WYNIKU_W_LINKU\s*=\s*\d+\s*;/.exec(HTML) || [''])[0] + '\n' + wytnij('saveResultsToURL'), c);
+  c.saveResultsToURL(pelny);
+  assert(typeof zapisany === 'string' && zapisany[0] === '#', 'hash NAPRAWDĘ powstał: ' + String(zapisany).slice(0, 24) + '…');
+  const odczytany = JSON.parse(Buffer.from(zapisany.slice(1), 'base64').toString('utf8'));
+  assertEq(odczytany.v, WERSJA_Z_PLIKU, '⭐ D4 — każdy NOWY link niesie znacznik wersji ' + WERSJA_Z_PLIKU);
+  assertEq(JSON.stringify(odczytany.s), JSON.stringify(pelny), 'ASERCJA ODWROTNA: liczby w linku są nietknięte');
+  /* ⭐ pętla domknięta: to, co zapisał `saveResultsToURL`, przechodzi kontrolę `loadResultsFromURL` */
+  const zpetli = odpalLink(zapisany);
+  assertEq(zpetli.ekran, 'screen-results', '⭐ PĘTLA DOMKNIĘTA: link zbudowany przez `saveResultsToURL` przechodzi kontrolę i renderuje wynik');
+  assertEq(zpetli.ostrzezenieD4, '', '⭐ …i NIE dostaje ostrzeżenia o starym linku — bo stary nie jest');
+});
+
+/** ⚠️ `wytnij` tnie od słowa `function`, więc gubi przedrostek `async` —
+ *  a bez niego ciała `registerCoach` NIE DA SIĘ uruchomić (`await` poza `async`).
+ *  Przedrostek czytamy ze źródła, nie dopisujemy go w ciemno. */
+function wytnijZAsync(nazwa) {
+  const f = znajdz(nazwa); if (!f) return '';
+  const przed = HTML.slice(Math.max(0, f.od - 10), f.od);
+  return (/\basync\s*$/.test(przed) ? 'async ' : '') + HTML.slice(f.od, f.b);
+}
+scenario('10f. ⭐ D6 URUCHOMIONE — `registerCoach` po AWARII ODCZYTU nie wydaje kodu');
+{
+  const rcM = wytnijM('registerCoach');
+  assert(rcM.length > 0, 'jest funkcja `registerCoach`');
+  assert(!/catch\s*\([^)]*\)\s*\{\s*\}/.test(rcM), '⛔ zniknął pusty `catch` wokół odczytu „czy ten trener ma już kod"');
+  assert(/zglosBladOdczytu\s*\(/.test(rcM), 'awaria tego odczytu ma GŁOS (O80)');
+  /** ⚠️ `warunkiIf` czyta MASKĘ, a maska czyści treść literałów — `'nieudane'`
+   *  wychodzi z niej jako `'        '`. Warunki tej jednej funkcji tniemy z ORYGINAŁU
+   *  (granice nawiasów z maski, treść z pliku), inaczej pytalibyśmy o puste napisy. */
+  const IFY = (() => {
+    const f = znajdz('registerCoach'); if (!f) return [];
+    const w = []; const re = /\bif\s*\(/g; let mi;
+    const cialoM = M.slice(f.od, f.b);
+    while ((mi = re.exec(cialoM))) {
+      const nw = cialoM.indexOf('(', mi.index);
+      const k = dopasuj(cialoM, nw, '(', ')');
+      if (k !== -1) w.push(HTML.slice(f.od + nw + 1, f.od + k));
+    }
+    return w;
+  })();
+  assert(IFY.some(x => /stanSprawdzenia\s*===\s*'nieudane'/.test(x)), 'stan „nie udało się sprawdzić" jest pytany OSOBNO (R5)');
+  assert(IFY.some(x => /stanSprawdzenia\s*===\s*'jest'/.test(x)), 'stan „kod istnieje" jest pytany osobno');
+  assert(IFY.length >= 5, 'ciało `registerCoach` rozgałęzia się na tyle stanów, ile ich naprawdę jest (warunków: ' + IFY.length + ')');
+  assert(/!dup\.ok|dup\.ok\s*===\s*false/.test(rcM), '⛔ HTTP 500 z ciałem `[]` nie udaje już „nie ma takiego trenera"');
+}
+probujAsync('`registerCoach` odpalona z PADNIĘTYM odczytem nie woła niczego, co wydaje kod', () => {
+  const wezly = {};
+  const el = (id, v) => (wezly[id] = { id: id, value: v || '', style: {}, textContent: '', innerHTML: '' });
+  el('coach-name-input', 'Jan Trener'); el('coach-email-input', 'jan@klub.pl'); el('coach-club-input', 'KS Testowy');
+  el('coach-register-error'); el('coach-code-display'); el('coach-panel-link'); el('coach-register-success');
+  const slady = { fetch: [], mail: 0, losowania: 0 };
+  const c = {
+    document: { getElementById: (id) => wezly[id] || null, querySelector: () => ({ style: {} }) },
+    window: { location: { origin: 'https://x', pathname: '/' } },
+    SUPABASE_URL: 'https://baza', SUPABASE_KEY: 'klucz',
+    JSON: JSON, Date: Date, Array: Array, Error: Error,
+    encodeURIComponent: encodeURIComponent,
+    Math: Object.assign(Object.create(Math), { random: () => { slady.losowania++; return 0.5; }, floor: Math.floor }),
+    // ⛔ ODCZYT PADA. Dokładnie ten stan, który do 16.08.2026 wydawał DRUGI kod.
+    fetch: (u, o) => { slady.fetch.push({ u: String(u), m: (o && o.method) || 'GET' }); return Promise.reject(new Error('sieć padła')); },
+    emailjs: { send: () => { slady.mail++; return Promise.resolve(); } },
+    zglosBladOdczytu: () => {},
+    console: { error: () => {}, warn: () => {}, log: () => {} },
+  };
+  vm.createContext(c);
+  vm.runInContext((new RegExp("const\\s+ZDANIE_NIE_UDALO_SIE_SPRAWDZIC_KODU\\s*=\\s*'[^']*';").exec(HTML) || [''])[0] + '\n'
+    + (/const\s+ETYKIETA_SPROBUJ_PONOWNIE\s*=\s*'[^']*';/.exec(HTML) || [''])[0] + '\n'
+    + wytnijZAsync('registerCoach'), c);
+  return c.registerCoach().then(() => {
+    const zapisy = slady.fetch.filter(f => f.m !== 'GET');
+    assertEq(zapisy.length, 0, '⭐ D6 — po padniętym odczycie NIE POWSTAJE nowy rekord drużyny (zapisów HTTP: ' + zapisy.length + ')');
+    assertEq(slady.mail, 0, '⭐ D6 — i nie wychodzi mail z nowym kodem');
+    assertEq(slady.losowania, 0, '⭐ D6 — generator kodu (`Math.random`) nie został nawet uruchomiony');
+    assertEq(wezly['coach-code-display'].textContent, '', 'na ekranie NIE pojawia się żaden kod');
+    assert(wezly['coach-register-success'].style.display !== 'block', 'ekran sukcesu NIE jest pokazany');
+    const ZD = (/const\s+ZDANIE_NIE_UDALO_SIE_SPRAWDZIC_KODU\s*=\s*'([^']*)'/.exec(HTML) || [])[1];
+    assert(wezly['coach-register-error'].textContent.indexOf(ZD) !== -1,
+      '⭐ D6 — trener CZYTA, że nie udało się sprawdzić: „' + wezly['coach-register-error'].textContent + '"');
+    assert(wezly['coach-register-error'].style.display === 'block', 'to zdanie jest WIDOCZNE, nie tylko wpisane');
+  });
+});
+probujAsync('⭐ ASERCJA ODWROTNA D6 — przy DZIAŁAJĄCYM odczycie i pustej bazie kod NADAL powstaje', () => {
+  const wezly = {};
+  const el = (id, v) => (wezly[id] = { id: id, value: v || '', style: {}, textContent: '', innerHTML: '' });
+  el('coach-name-input', 'Jan Trener'); el('coach-email-input', 'jan@klub.pl'); el('coach-club-input', 'KS Testowy');
+  el('coach-register-error'); el('coach-code-display'); el('coach-panel-link'); el('coach-register-success');
+  const slady = { zapisy: 0, mail: 0 };
+  const c = {
+    document: { getElementById: (id) => wezly[id] || null, querySelector: () => ({ style: {} }) },
+    window: { location: { origin: 'https://x', pathname: '/' } },
+    SUPABASE_URL: 'https://baza', SUPABASE_KEY: 'klucz',
+    JSON: JSON, Date: Date, Array: Array, Error: Error, Math: Math, encodeURIComponent: encodeURIComponent,
+    fetch: (u, o) => {
+      if (o && o.method === 'POST') { slady.zapisy++; return Promise.resolve({ ok: true, status: 201 }); }
+      return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve([]) });   // baza pusta
+    },
+    emailjs: { send: () => { slady.mail++; return Promise.resolve(); } },
+    zglosBladOdczytu: () => {}, console: { error: () => {}, warn: () => {}, log: () => {} },
+  };
+  vm.createContext(c);
+  vm.runInContext((new RegExp("const\\s+ZDANIE_NIE_UDALO_SIE_SPRAWDZIC_KODU\\s*=\\s*'[^']*';").exec(HTML) || [''])[0] + '\n'
+    + (/const\s+ETYKIETA_SPROBUJ_PONOWNIE\s*=\s*'[^']*';/.exec(HTML) || [''])[0] + '\n'
+    + wytnijZAsync('registerCoach'), c);
+  return c.registerCoach().then(() => {
+    assertEq(slady.zapisy, 1, '⭐ ASERCJA ODWROTNA: gdy odczyt DZIAŁA i trenera nie ma w bazie, kod powstaje jak przed pasem');
+    assertEq(slady.mail, 1, 'i mail z kodem wychodzi');
+    assert(wezly['coach-code-display'].textContent.length > 0, 'kod jest pokazany na ekranie: ' + wezly['coach-code-display'].textContent);
+    assertEq(wezly['coach-register-success'].style.display, 'block', 'ekran sukcesu jest pokazany');
+  });
+});
+probujAsync('⭐ ASERCJA ODWROTNA D6 — gdy trener MA już kod, dostaje TEN SAM, nie nowy', () => {
+  const wezly = {};
+  const el = (id, v) => (wezly[id] = { id: id, value: v || '', style: {}, textContent: '', innerHTML: '' });
+  el('coach-name-input', 'Jan Trener'); el('coach-email-input', 'jan@klub.pl'); el('coach-club-input', 'KS Testowy');
+  el('coach-register-error'); el('coach-code-display'); el('coach-panel-link'); el('coach-register-success');
+  const slady = { zapisy: 0, mail: 0 };
+  const c = {
+    document: { getElementById: (id) => wezly[id] || null, querySelector: () => ({ style: {} }) },
+    window: { location: { origin: 'https://x', pathname: '/' } },
+    SUPABASE_URL: 'https://baza', SUPABASE_KEY: 'klucz',
+    JSON: JSON, Date: Date, Array: Array, Error: Error, Math: Math, encodeURIComponent: encodeURIComponent,
+    fetch: (u, o) => {
+      if (o && o.method === 'POST') { slady.zapisy++; return Promise.resolve({ ok: true, status: 201 }); }
+      return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve([{ code: 'KSTESTOWY1234' }]) });
+    },
+    emailjs: { send: () => { slady.mail++; return Promise.resolve(); } },
+    zglosBladOdczytu: () => {}, console: { error: () => {}, warn: () => {}, log: () => {} },
+  };
+  vm.createContext(c);
+  vm.runInContext((new RegExp("const\\s+ZDANIE_NIE_UDALO_SIE_SPRAWDZIC_KODU\\s*=\\s*'[^']*';").exec(HTML) || [''])[0] + '\n'
+    + (/const\s+ETYKIETA_SPROBUJ_PONOWNIE\s*=\s*'[^']*';/.exec(HTML) || [''])[0] + '\n'
+    + wytnijZAsync('registerCoach'), c);
+  return c.registerCoach().then(() => {
+    assertEq(slady.zapisy, 0, '⭐ ASERCJA ODWROTNA: trener z kodem NIE dostaje drugiego rekordu');
+    assertEq(wezly['coach-code-display'].textContent, 'KSTESTOWY1234', 'i widzi swój ISTNIEJĄCY kod');
+  });
+}); 
+
 /* ══════════════════════════════════════════════════════════════════════════
    9. BATERIA MUTACJI — każda zapala, każda ma asercję ODWROTNĄ.
    ⚠️ Cofnięcie jest STRUKTURALNE, nie deklaratywne: każda mutacja to podmiana
@@ -767,7 +1263,6 @@ scenario('8j. `activeSegs` a `SEGS` — dwa zbiory, jedna bramka');
 scenario('9. bateria mutacji — czy ten strażnik w ogóle potrafi się zapalić');
 
 const MD5_PRZED = crypto.createHash('md5').update(HTML).digest('hex');
-const przeparsuj = (t) => { const Mt = maskuj(t); const F = funkcje(t, Mt); for (const f of F) f.trescM = Mt.slice(f.a, f.b); return { Mt, F, znajdz: (n) => F.filter(x => x.nazwa === n).pop() || null }; };
 
 const MUTACJE = [
   {
@@ -942,12 +1437,153 @@ const MUTACJE = [
       return !w.some(x => /segmentyBezWyniku\.length/.test(x));
     },
   },
+  /* ── PLAN-D-Y3 08.2026 — SIEDEM MUTACJI NA LINK, KTÓRY NIESIE WYNIK ──
+     ⚠️ Detektory M18–M23 URUCHAMIAJĄ zmutowany kod na prawdziwych hashach.
+     Detektor tekstowy („czy stoi słowo `walidacja`") przepuściłby kontrolę,
+     która się wykonuje i nic nie odrzuca. */
+  {
+    nazwa: 'M18 — kontrola kompletności ZNIKA (`ocenWynikZLinku` zawsze mówi „pełny")',
+    psuj: t => t.replace('  const brakujace  = oczekiwane.filter(id => !Object.prototype.hasOwnProperty.call(wynik, id));',
+                         '  const brakujace  = [];'),
+    wykryj: t => {
+      // ⭐ URUCHAMIA na hashu z TRZEMA obszarami z trzynastu i pyta o EKRAN.
+      if (!SEGS_Z_PLIKU) return true;
+      const trzy = {}; SEGS_Z_PLIKU.slice(0, 3).forEach((sg, i) => trzy[sg.id] = 50 + i);
+      const w = odpalLinkZ(zrodloLinkuZ(t), doHasha({ s: trzy, j: 0, v: 2 }));
+      return w.ekran === 'screen-results' || w.render > 0 || w.cached !== null;
+    },
+  },
+  {
+    nazwa: 'M19 — kontrola bierze WPISANĄ liczbę obszarów zamiast `SEGS`',
+    psuj: t => t.replace("  const oczekiwane = (typeof SEGS !== 'undefined' && Array.isArray(SEGS)) ? SEGS.map(s => s.id) : [];",
+                         "  const oczekiwane = ['moc','wytrzymalosc','fizycznosc','techFund','techSpec','tolerancja','regeneracja','odpornosc','odzywianie','koncentracja','mental','percepcja','decyzja'];"),
+    wykryj: t => {
+      // ⭐ URUCHAMIA z PODMIENIONYM `SEGS` (czternasty obszar). Prawdziwa kontrola
+      //    pojedzie za `SEGS` i odrzuci wynik trzynastoobszarowy; wpisana lista — nie.
+      if (!SEGS_Z_PLIKU) return true;
+      const S14 = SEGS_Z_PLIKU.concat([{ id: 'obszarKtoregoNieMa', name: 'X', qs: [{}] }]);
+      const p13 = {}; SEGS_Z_PLIKU.forEach((sg, i) => p13[sg.id] = 30 + i);
+      const w = odpalLinkZ(zrodloLinkuZ(t), doHasha({ s: p13, j: 0, v: 2 }), { SEGS: S14 });
+      return w.ekran === 'screen-results';   // zmutowana kontrola przepuszcza — prawdziwa nie
+    },
+  },
+  {
+    nazwa: 'M20 — odrzucony link i tak ląduje na EKRANIE WYNIKÓW',
+    psuj: t => t.replace("    renderLinkOdrzucony(ZDANIE_LINK_NIEPELNY_WYNIK);\n    return true;",
+                         "    renderLinkOdrzucony(ZDANIE_LINK_NIEPELNY_WYNIK);\n    cachedScores = data.s; renderResults(cachedScores); showScreen('screen-results');\n    return true;"),
+    wykryj: t => {
+      if (!SEGS_Z_PLIKU) return true;
+      const trzy = {}; SEGS_Z_PLIKU.slice(0, 3).forEach((sg, i) => trzy[sg.id] = 50 + i);
+      const w = odpalLinkZ(zrodloLinkuZ(t), doHasha({ s: trzy, j: 0, v: 2 }));
+      return w.ekran === 'screen-results' || w.render > 0;   // D3 złamane
+    },
+  },
+  {
+    nazwa: 'M21 — uszkodzony hash i niekompletny wynik dostają TO SAMO zdanie (R5 z powrotem na dwie wartości)',
+    psuj: t => t.replace('    renderLinkOdrzucony(ZDANIE_LINK_NIEPELNY_WYNIK);',
+                         '    renderLinkOdrzucony(ZDANIE_LINK_NIE_DO_ODCZYTANIA);'),
+    wykryj: t => {
+      if (!SEGS_Z_PLIKU) return true;
+      const zr = zrodloLinkuZ(t);
+      const trzy = {}; SEGS_Z_PLIKU.slice(0, 3).forEach((sg, i) => trzy[sg.id] = 50 + i);
+      const uszk = odpalLinkZ(zr, '#to-nie-jest-base64!!!###');
+      const niep = odpalLinkZ(zr, doHasha({ s: trzy, j: 0, v: 2 }));
+      return uszk.skrzynka === niep.skrzynka;   // ⛔ dwa różne stany, jedno zdanie
+    },
+  },
+  {
+    nazwa: 'M22 — znacznik wersji PRZESTAJE BYĆ STAWIANY przy budowie hasha',
+    psuj: t => t.replace('      v: GC_WERSJA_WYNIKU_W_LINKU,\n', ''),
+    wykryj: t => {
+      // ⭐ URUCHAMIA `saveResultsToURL` i CZYTA hash, który z niej wyszedł.
+      const P = przeparsuj(t); const f = P.znajdz('saveResultsToURL'); if (!f) return true;
+      if (!SEGS_Z_PLIKU) return true;
+      const pelny = {}; SEGS_Z_PLIKU.forEach((sg, i) => pelny[sg.id] = 30 + i);
+      let h = null;
+      const c = {
+        JSON, Object,
+        btoa: (x) => Buffer.from(x, 'binary').toString('base64'),
+        unescape, encodeURIComponent,
+        history: { replaceState: (a, b, hh) => { h = hh; } },
+        zglosBladOdczytu: () => {},
+      };
+      vm.createContext(c);
+      vm.runInContext('var isJunior = false, ctx = {}, _diagState = { diagnosisText: "", topDeficitIds: [], usedInsights: false };\n'
+        + (/const\s+GC_WERSJA_WYNIKU_W_LINKU\s*=\s*\d+\s*;/.exec(t) || [''])[0] + '\n' + t.slice(f.od, f.b), c);
+      try { c.saveResultsToURL(pelny); } catch (e) { return true; }
+      if (typeof h !== 'string') return true;
+      let d; try { d = JSON.parse(Buffer.from(h.slice(1), 'base64').toString('utf8')); } catch (e) { return true; }
+      return d.v === undefined;   // ⛔ nowy link bez znacznika = nie do odróżnienia od starego
+    },
+  },
+  {
+    nazwa: 'M23 — ⛔ `registerCoach` ZNÓW WYDAJE KOD po awarii odczytu (Y1-6 wraca)',
+    psuj: t => t.replace("  if (stanSprawdzenia === 'nieudane') {", '  if (false) {'),
+    wykryj: t => {
+      const P = przeparsuj(t); const f = P.znajdz('registerCoach'); if (!f) return true;
+      const przed = t.slice(Math.max(0, f.od - 10), f.od);
+      const zrodlo = (/\basync\s*$/.test(przed) ? 'async ' : '') + t.slice(f.od, f.b);
+      const wezly = {};
+      const el = (id, v) => (wezly[id] = { id, value: v || '', style: {}, textContent: '', innerHTML: '' });
+      el('coach-name-input', 'Jan'); el('coach-email-input', 'jan@klub.pl'); el('coach-club-input', 'KS');
+      el('coach-register-error'); el('coach-code-display'); el('coach-panel-link'); el('coach-register-success');
+      let zapisy = 0;
+      const c = {
+        document: { getElementById: (id) => wezly[id] || null, querySelector: () => ({ style: {} }) },
+        window: { location: { origin: 'https://x', pathname: '/' } },
+        SUPABASE_URL: 'https://baza', SUPABASE_KEY: 'k',
+        JSON, Date, Array, Error, Math, encodeURIComponent,
+        fetch: (u, o) => { if (o && o.method === 'POST') { zapisy++; return Promise.resolve({ ok: true, status: 201 }); }
+                           return Promise.reject(new Error('sieć padła')); },
+        emailjs: { send: () => Promise.resolve() },
+        zglosBladOdczytu: () => {}, console: { error() {}, warn() {}, log() {} },
+      };
+      vm.createContext(c);
+      try {
+        vm.runInContext((new RegExp("const\\s+ZDANIE_NIE_UDALO_SIE_SPRAWDZIC_KODU\\s*=\\s*'[^']*';").exec(t) || [''])[0] + '\n'
+          + (/const\s+ETYKIETA_SPROBUJ_PONOWNIE\s*=\s*'[^']*';/.exec(t) || [''])[0] + '\n' + zrodlo, c);
+      } catch (e) { return true; }
+      // ⚠️ `registerCoach` jest `async`, więc detektor oddaje OBIETNICĘ.
+      //    Bateria niżej umie ją domknąć (`mut.async`), zamiast pytać o wygląd kodu.
+      return c.registerCoach().then(() => zapisy > 0, () => true);
+    },
+    async: true,
+  },
+  {
+    nazwa: 'M24 — `null` znów przechodzi kontrolę (kontrola pyta tylko o OBECNOŚĆ klucza)',
+    psuj: t => t.replace("    !(typeof wynik[id] === 'number' && isFinite(wynik[id]) && wynik[id] >= 0 && wynik[id] <= 100));",
+                         '    false);'),
+    wykryj: t => {
+      if (!SEGS_Z_PLIKU) return true;
+      const zNullem = {}; SEGS_Z_PLIKU.forEach((sg, i) => zNullem[sg.id] = 30 + i);
+      zNullem[SEGS_Z_PLIKU[10].id] = null;
+      const w = odpalLinkZ(zrodloLinkuZ(t), doHasha({ s: zNullem, j: 0, v: 2 }));
+      // ⛔ `null` w `cachedScores` → `getRelativeDeficits` ogłasza NIEOCENIONY obszar
+      //    wąskim gardłem zawodnika. Zmierzone w Chromium 16.08.2026 na `13ffc41`.
+      return w.ekran === 'screen-results' || !!(w.cached && w.cached[SEGS_Z_PLIKU[10].id] === null);
+    },
+  },
 ];
 
 MUTACJE.forEach(mut => {
+  const sprawdz = (zepsuty) => {
+    assert(zepsuty !== HTML, mut.nazwa + ' — mutacja NAPRAWDĘ zmienia plik (inaczej „złapana" byłaby fikcją)');
+  };
+  if (mut.async) {
+    // ⭐ detektor URUCHAMIA funkcję `async` — obietnica jest domykana przed podsumowaniem
+    probujAsync(mut.nazwa, () => {
+      const zepsuty = mut.psuj(HTML);
+      sprawdz(zepsuty);
+      return Promise.all([mut.wykryj(zepsuty), mut.wykryj(HTML)]).then(([naZepsutym, naPrawdziwym]) => {
+        assertEq(naZepsutym, true, mut.nazwa + ' — detektor ZAPALA SIĘ na zmutowanym kodzie');
+        assertEq(naPrawdziwym, false, mut.nazwa + ' — ASERCJA ODWROTNA: na prawdziwym kodzie detektor milczy');
+      });
+    });
+    return;
+  }
   probuj(mut.nazwa, () => {
     const zepsuty = mut.psuj(HTML);
-    assert(zepsuty !== HTML, mut.nazwa + ' — mutacja NAPRAWDĘ zmienia plik (inaczej „złapana" byłaby fikcją)');
+    sprawdz(zepsuty);
     assertEq(mut.wykryj(zepsuty), true, mut.nazwa + ' — detektor ZAPALA SIĘ na zmutowanym kodzie');
     assertEq(mut.wykryj(HTML), false, mut.nazwa + ' — ASERCJA ODWROTNA: na prawdziwym kodzie detektor milczy');
   });
@@ -956,4 +1592,6 @@ MUTACJE.forEach(mut => {
 const MD5_PO = crypto.createHash('md5').update(HTML).digest('hex');
 assertEq(MD5_PO, MD5_PRZED, '⭐ cofnięcie STRUKTURALNE: `md5` pliku przed baterią i po niej — co do znaku');
 
-podsumuj();
+/* ⭐ pomiary URUCHOMIENIOWE `registerCoach` są asynchroniczne — domykamy je,
+   ZANIM `podsumuj()` woła `process.exit`. Bez tej linii ich asercje nigdy by nie padły. */
+Promise.all(OCZEKUJACE).then(podsumuj, podsumuj);

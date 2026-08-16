@@ -743,6 +743,11 @@ body {
         <span style="font-size:24px;">→</span>
       </button>
 
+      <!-- PLAN-D-Y3 08.2026 — D3: miejsce na zdanie o LINKU, który nie przeszedł kontroli.
+           Puste, dopóki `loadResultsFromURL()` nie odrzuci hasha. Stoi WYŻEJ niż propozycja
+           powrotu, bo dotyczy tego, po co zawodnik właśnie tu przyszedł. -->
+      <div id="gc-link-odrzucony" style="margin-top:32px;"></div>
+
       <!-- PLAN-D-Y1 08.2026 — D2: miejsce na propozycję powrotu do niedokończonej ankiety.
            Puste, dopóki `zaproponujPowrotDoAnkiety()` nie znajdzie zapisanego postępu. -->
       <div id="gc-powrot-do-ankiety" style="margin-top:32px;"></div>
@@ -1085,6 +1090,11 @@ body {
     </div>
   </div>
   <div class="results-body">
+
+    <!-- PLAN-D-Y3 08.2026 — D4: miejsce na zdanie o linku BEZ znacznika wersji.
+         Puste dla każdego wyniku policzonego po poprawce. Stoi NAD wynikiem,
+         bo dotyczy tego, jak ten wynik powstał. -->
+    <div id="gc-link-sprzed-poprawki"></div>
 
     <div class="scores-section">
       <div class="section-head">
@@ -2363,6 +2373,45 @@ const ETYKIETA_SPROBUJ_PONOWNIE = 'Spróbuj ponownie';
 const ZDANIE_ODPOWIEDZI_ZOSTAJA = 'Twoje odpowiedzi i wyniki zostają na tej stronie — nic z nich nie przepadło.';
 
 /* ══════════════════════════════════════════════════════════════════════════
+   PLAN-D-Y3 08.2026 — LINK, KTÓRY NIESIE WYNIK
+
+   Pas Y2 zamknął drzwi frontowe (z niepełnej ankiety nie wychodzi wynik).
+   `loadResultsFromURL` był drzwiami bocznymi: brał liczby z adresu strony
+   i renderował je BEZ ŻADNEJ KONTROLI.
+
+   ZMIERZONE 16.08.2026 w Chromium na `13ffc41`, przez prawdziwy interfejs:
+   · hash z TRZEMA segmentami zamiast trzynastu → ekran `screen-results`,
+     nagłówek „Jedno wyraźne wąskie gardło", `cachedScores` z 3 kluczami;
+   · hash z trzynastoma segmentami, gdzie JEDEN jest `null` → ekran wyników,
+     a segment BEZ WYNIKU zostaje ogłoszony wąskim gardłem zawodnika
+     (`getRelativeDeficits` porównuje `null < mediana` i wygrywa nim ranking);
+   · hash USZKODZONY → dokładnie to samo milczenie, co adres BEZ hasha.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/** ⭐ Znacznik wersji wyniku w linku (decyzja D4).
+ *  Stawiany w JEDNYM miejscu — tam, gdzie hash powstaje (`saveResultsToURL`).
+ *  Link BEZ tego pola powstał, zanim wypełniacz 3.5 zniknął z `calcScores`,
+ *  więc mógł nieść liczby za obszary, których zawodnik nie ocenił. Kształt ma
+ *  poprawny (13 liczb w 0–100), więc ŻADNA kontrola go nie odróżni — i dlatego
+ *  nie zgadujemy po liczbach (Z0), tylko mówimy wprost, czego nie wiemy. */
+const GC_WERSJA_WYNIKU_W_LINKU = 2;
+
+// ⚠️ DO PRZEJRZENIA — Y3. Trzy zdania niżej mówią o LINKU, nie o zawodniku (N1):
+// żadne nie zawiera słowa „nie odpowiedziałeś", „musisz" ani „błąd użytkownika".
+// W tym pliku nie stało dotąd ANI JEDNO zdanie o linku, więc nie ma skąd ich wziąć
+// (D7). Propozycje do decyzji Kuby — nota, sekcja „propozycje brzmień".
+const ZDANIE_LINK_NIE_DO_ODCZYTANIA = 'Ten link jest uszkodzony — zapisanego w nim wyniku nie da się odczytać.';
+const ZDANIE_LINK_NIEPELNY_WYNIK = 'Ten link nie niesie pełnego wyniku — brakuje w nim ocen części obszarów, więc nie pokażemy go jako Twojego profilu.';
+const ZDANIE_LINK_SPRZED_POPRAWKI = 'Ten wynik powstał, zanim poprawiliśmy sposób liczenia. Mógł obejmować obszary, których nikt nie ocenił — wtedy dostawały wartość zastępczą. Nie mamy jak tego sprawdzić po fakcie.';
+// ⚠️ DO PRZEJRZENIA — Y3. Zdanie D6 (ekran trenera): awaria odczytu ma prawo
+// powiedzieć, że NIE WIE, i nie ma prawa wydać drugiego kodu tej samej drużynie.
+const ZDANIE_NIE_UDALO_SIE_SPRAWDZIC_KODU = 'Nie udało się sprawdzić, czy masz już kod drużyny. Nie wydajemy nowego, żeby nie powstał drugi.';
+// Pochodzenie: przycisk startowy na `screen-intro` w tym pliku („Sprawdź swoje
+// wąskie gardło"). To jest DOKŁADNIE ta sama czynność — `startSurvey()` — więc
+// zdanie jest brane, nie wymyślane (D7). Stała pilnuje, żeby się nie rozjechało.
+const ETYKIETA_SPRAWDZ_WASKIE_GARDLO = 'Sprawdź swoje wąskie gardło';
+
+/* ══════════════════════════════════════════════════════════════════════════
    PLAN-D-Y1 08.2026 — ODPOWIEDZI PRZEŻYWAJĄ ODŚWIEŻENIE (decyzja D2)
 
    ZMIERZONE 16.08.2026, Chromium, przez prawdziwy interfejs: 27 odpowiedzi,
@@ -2925,25 +2974,50 @@ async function registerCoach() {
   }
   err.style.display = 'none';
 
-  // Sprawdź czy email już zarejestrowany
+  // ══════════════════════════════════════════════════════════════════════
+  // ⭐ PLAN-D-Y3 08.2026 — D6. TRZY STANY ODCZYTU, NIE DWA (R5).
+  // Znalezisko Y1-6: do 16.08.2026 `catch(e) { /* ignoruj */ }` sklejał
+  // „ten trener NIE MA jeszcze kodu" z „NIE UDAŁO SIĘ sprawdzić, czy ma" —
+  // i obie gałęzie szły dalej do generatora. Sieć padała na sekundę,
+  // a drużyna dostawała DRUGI kod, którego nikt już nie połączy z pierwszym.
+  // ⛔ Awaria odczytu nie ma prawa wyprodukować nowego kodu.
+  // ══════════════════════════════════════════════════════════════════════
+  let stanSprawdzenia = 'nieudane';   // 'jest' | 'niema' | 'nieudane'
+  let istniejacy = null;
   try {
     const dup = await fetch(
       `${SUPABASE_URL}/rest/v1/teams?coach_email=eq.${encodeURIComponent(email)}&limit=1`,
       { headers: { 'apikey': SUPABASE_KEY } }
     );
+    // ⛔ HTTP 500 z ciałem `[]` wyglądał dokładnie jak „nie ma takiego trenera".
+    if (!dup.ok) throw new Error('HTTP ' + dup.status);
     const dupData = await dup.json();
-    if (dupData && dupData.length > 0) {
-      // Pokaż istniejący kod zamiast tworzyć nowy
-      const existing = dupData[0];
-      document.getElementById('coach-code-display').textContent = existing.code;
-      const panelLink = `${window.location.origin}${window.location.pathname}?team=${existing.code}`;
-      document.getElementById('coach-panel-link').innerHTML = `Panel trenera: <a href="${panelLink}" style="color:#0e0d0b;">${panelLink}</a>`;
-      document.getElementById('coach-register-success').style.display = 'block';
-      err.textContent = 'Ten email jest już zarejestrowany. Wyświetlamy Twój istniejący kod.';
-      err.style.display = 'block';
-      return;
-    }
-  } catch(e) { /* ignoruj — kontynuuj rejestrację */ }
+    if (!Array.isArray(dupData)) throw new Error('odpowiedź nie jest listą drużyn');
+    stanSprawdzenia = dupData.length > 0 ? 'jest' : 'niema';
+    if (stanSprawdzenia === 'jest') istniejacy = dupData[0];
+  } catch(e) {
+    zglosBladOdczytu('registerCoach :: teams?coach_email', e);
+    stanSprawdzenia = 'nieudane';
+  }
+
+  if (stanSprawdzenia === 'jest') {
+    // Pokaż istniejący kod zamiast tworzyć nowy
+    const existing = istniejacy;
+    document.getElementById('coach-code-display').textContent = existing.code;
+    const panelLink = `${window.location.origin}${window.location.pathname}?team=${existing.code}`;
+    document.getElementById('coach-panel-link').innerHTML = `Panel trenera: <a href="${panelLink}" style="color:#0e0d0b;">${panelLink}</a>`;
+    document.getElementById('coach-register-success').style.display = 'block';
+    err.textContent = 'Ten email jest już zarejestrowany. Wyświetlamy Twój istniejący kod.';
+    err.style.display = 'block';
+    return;
+  }
+
+  if (stanSprawdzenia === 'nieudane') {
+    // ⛔ NIC nie wydajemy. Nie wiemy, czy ta drużyna ma już kod — i mówimy to wprost.
+    err.textContent = ZDANIE_NIE_UDALO_SIE_SPRAWDZIC_KODU + ' ' + ETYKIETA_SPROBUJ_PONOWNIE + '.';
+    err.style.display = 'block';
+    return;
+  }
 
   // Generuj unikalny kod z nazwy klubu + losowe 4 cyfry
   const base = club.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8);
@@ -5028,22 +5102,129 @@ function saveResultsToURL(scores) {
       d: _diagState.diagnosisText || '',   // surowa diagnoza AI, do pełnego odtworzenia przy powrocie
       td: _diagState.topDeficitIds || [],  // do odtworzenia sekcji produktowej
       ui: _diagState.usedInsights ? 1 : 0, // czy diagnoza uwzględniła obserwacje trenera/rodzica — zachowuje transparentność przy powrocie przez link
+      // ⭐ PLAN-D-Y3 08.2026 — D4. JEDYNE miejsce w tym pliku, w którym powstaje
+      // hash z wynikiem, więc JEDYNE miejsce, w którym stawia się znacznik wersji.
+      v: GC_WERSJA_WYNIKU_W_LINKU,
     };
     const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
     history.replaceState(null, '', '#' + encoded);
-  } catch(e) {}
+  } catch(e) { zglosBladOdczytu('saveResultsToURL', e); }
+}
+
+/**
+ * ⭐ PLAN-D-Y3 08.2026 — D2. Czy liczby z linku TWORZĄ WYNIK.
+ *
+ * Prawdę o tym, ILE obszarów ma wynik, bierze z `SEGS` — nie z liczby wpisanej
+ * w tej funkcji. Gdyby ktoś dołożył czternasty segment, kontrola pojedzie za nim
+ * sama; gdyby ktoś wpisał tu `13`, rozjechałaby się po cichu.
+ *
+ * Zwraca ORZECZENIE, nie `true`/`false` — wołający musi wiedzieć, CZEGO brakuje,
+ * żeby móc to powiedzieć zawodnikowi i wypisać do konsoli.
+ */
+function ocenWynikZLinku(wynik) {
+  const oczekiwane = (typeof SEGS !== 'undefined' && Array.isArray(SEGS)) ? SEGS.map(s => s.id) : [];
+  if (!oczekiwane.length) {
+    return { pelny: false, powod: 'brak definicji obszarów', brakujace: [], nadmiarowe: [], nieliczby: [] };
+  }
+  if (!wynik || typeof wynik !== 'object' || Array.isArray(wynik)) {
+    return { pelny: false, powod: 'wynik nie jest zbiorem obszarów', brakujace: oczekiwane.slice(), nadmiarowe: [], nieliczby: [] };
+  }
+  const brakujace  = oczekiwane.filter(id => !Object.prototype.hasOwnProperty.call(wynik, id));
+  const nadmiarowe = Object.keys(wynik).filter(k => oczekiwane.indexOf(k) === -1);
+  // ⛔ `null` NIE jest liczbą — to jawne „nie wiem" z `calcScores`. Gdyby przeszło,
+  // `getRelativeDeficits` porównałoby `null < mediana` i ogłosiło NIEOCENIONY obszar
+  // wąskim gardłem zawodnika. Zmierzone: dokładnie to działo się do 16.08.2026.
+  const nieliczby = oczekiwane.filter(id =>
+    Object.prototype.hasOwnProperty.call(wynik, id) &&
+    !(typeof wynik[id] === 'number' && isFinite(wynik[id]) && wynik[id] >= 0 && wynik[id] <= 100));
+  return {
+    pelny: !brakujace.length && !nadmiarowe.length && !nieliczby.length,
+    powod: '', brakujace: brakujace, nadmiarowe: nadmiarowe, nieliczby: nieliczby,
+  };
+}
+
+/**
+ * ⭐ PLAN-D-Y3 08.2026 — D3. Link, który nie przeszedł kontroli, NIE RYSUJE WYNIKU.
+ * Zawodnik czyta, co się stało Z LINKIEM, i ma JEDNO wyjście pod ręką (P0).
+ */
+function renderLinkOdrzucony(zdanie) {
+  try {
+    const gniazdo = document.getElementById('gc-link-odrzucony');
+    if (gniazdo) {
+      gniazdo.innerHTML =
+        '<div style="background:#fff;border:1px solid #d8d3c8;padding:20px;max-width:480px;margin:0 auto 24px;text-align:center;">' +
+        '<div style="font-size:13px;color:#3a3830;font-weight:300;line-height:1.7;margin-bottom:14px;">' +
+        esc(zdanie) +
+        '</div>' +
+        '<button onclick="startSurvey()" style="background:#0e0d0b;color:#f5f2ec;border:none;padding:12px 24px;font-family:\'Bebas Neue\',sans-serif;font-size:15px;letter-spacing:0.1em;cursor:pointer;">' +
+        esc(ETYKIETA_SPRAWDZ_WASKIE_GARDLO) +
+        '</button>' +
+        '</div>';
+    }
+  } catch (e) { zglosBladOdczytu('renderLinkOdrzucony', e); }
+  // ⛔ Ekran wyników NIE zostaje pokazany. To jest cała treść decyzji D3.
+  showScreen('screen-intro');
+}
+
+/**
+ * ⭐ PLAN-D-Y3 08.2026 — D4. Link BEZ znacznika wersji renderuje się normalnie,
+ * ale niesie nad wynikiem jedno zdanie o tym, czego o nim NIE WIEMY.
+ * ⛔ Nie zgadujemy po liczbach (Z0) i nie kasujemy cudzego linku.
+ */
+function oznaczLinkSprzedPoprawki(stary) {
+  try {
+    const gniazdo = document.getElementById('gc-link-sprzed-poprawki');
+    if (!gniazdo) return;
+    gniazdo.innerHTML = stary
+      ? '<div style="background:#fff;border:1px solid #d8d3c8;border-left:3px solid var(--amber);padding:16px 20px;max-width:640px;margin:0 auto 28px;">' +
+        '<div style="font-size:13px;color:#3a3830;font-weight:300;line-height:1.7;">' + esc(ZDANIE_LINK_SPRZED_POPRAWKI) + '</div>' +
+        '</div>'
+      : '';
+  } catch (e) { zglosBladOdczytu('oznaczLinkSprzedPoprawki', e); }
 }
 
 function loadResultsFromURL() {
+  // ⭐ PLAN-D-Y3 08.2026 — D1. TRZY wyniki, nie dwa (R5):
+  //   BRAK               → adres bez hasha; milczenie jest tu POPRAWNE;
+  //   NIE DA SIĘ ODCZYTAĆ → base64/JSON się nie rozwija;
+  //   ODCZYTANE, NIEPEŁNE → rozwinęło się, ale liczby nie tworzą wyniku.
+  // Do 16.08.2026 wszystkie trzy kończyły się jednym `catch(e) { return false; }`.
+  const hash = window.location.hash.slice(1);
+  if (!hash) return false;                       // BRAK — jedyny stan, który ma prawo milczeć
+
+  let data = null;
   try {
-    const hash = window.location.hash.slice(1);
-    if (!hash) return false;
-    const data = JSON.parse(decodeURIComponent(escape(atob(hash))));
-    if (!data.s) return false;
+    data = JSON.parse(decodeURIComponent(escape(atob(hash))));
+  } catch (e) {
+    zglosBladOdczytu('loadResultsFromURL :: hash nie do rozwinięcia', e);
+    renderLinkOdrzucony(ZDANIE_LINK_NIE_DO_ODCZYTANIA);
+    return true;                                 // ekran POKAZANY — wołający nie ma już nic do zrobienia
+  }
+  if (!data || typeof data !== 'object' || !data.s) {
+    zglosBladOdczytu('loadResultsFromURL :: hash rozwinięty, ale bez wyniku', hash.slice(0, 40));
+    renderLinkOdrzucony(ZDANIE_LINK_NIE_DO_ODCZYTANIA);
+    return true;
+  }
+
+  const ocena = ocenWynikZLinku(data.s);
+  if (!ocena.pelny) {
+    console.warn('PLAN-D-Y3 — LINK ODRZUCONY: wynik z adresu nie jest pełny.'
+      + ' Brakuje: [' + ocena.brakujace.join(', ') + ']'
+      + ' · bez liczby w 0–100: [' + ocena.nieliczby.join(', ') + ']'
+      + ' · nieznane obszary: [' + ocena.nadmiarowe.join(', ') + ']'
+      + (ocena.powod ? ' · ' + ocena.powod : '')
+      + '. Nic nie renderuję, nic nie kasuję.');
+    renderLinkOdrzucony(ZDANIE_LINK_NIEPELNY_WYNIK);
+    return true;
+  }
+
+  try {
     cachedScores = data.s;
     isJunior = data.j === 1;
     if (data.c) ctx = data.c;
     renderResults(cachedScores);
+    // ⭐ D4 — znacznik wersji rozstrzyga, czy nad wynikiem stoi zdanie ostrzegawcze.
+    oznaczLinkSprzedPoprawki(data.v !== GC_WERSJA_WYNIKU_W_LINKU);
     showScreen('screen-results');
     setTimeout(() => {
       document.querySelectorAll('.bar-fill, .seg-group-bar-fill').forEach(b => { b.style.width = b.dataset.w + '%'; });
@@ -5063,7 +5244,15 @@ function loadResultsFromURL() {
       _showProductSection(cachedScores);
     }
     return true;
-  } catch(e) { return false; }
+  } catch (e) {
+    // ⛔ Ta gałąź nie jest już czwartym stanem udającym pierwszy. Wynik PRZESZEDŁ
+    // kontrolę, a rysowanie i tak padło — zawodnik ma o tym usłyszeć, nie zobaczyć
+    // ekran startowy, jakby link nie istniał.
+    zglosBladOdczytu('loadResultsFromURL :: rysowanie wyniku z linku', e);
+    cachedScores = null;
+    renderLinkOdrzucony(ZDANIE_LINK_NIE_DO_ODCZYTANIA);
+    return true;
+  }
 }
 
 /**
