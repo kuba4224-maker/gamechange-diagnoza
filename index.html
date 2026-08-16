@@ -743,6 +743,10 @@ body {
         <span style="font-size:24px;">→</span>
       </button>
 
+      <!-- PLAN-D-Y1 08.2026 — D2: miejsce na propozycję powrotu do niedokończonej ankiety.
+           Puste, dopóki `zaproponujPowrotDoAnkiety()` nie znajdzie zapisanego postępu. -->
+      <div id="gc-powrot-do-ankiety" style="margin-top:32px;"></div>
+
       <!-- SOCIAL PROOF — liczby systemu -->
       <div style="margin-top:56px;display:flex;justify-content:center;gap:0;border:1px solid rgba(255,255,255,0.07);max-width:480px;margin-left:auto;margin-right:auto;">
         <div style="flex:1;padding:20px 16px;border-right:1px solid rgba(255,255,255,0.07);text-align:center;">
@@ -2293,6 +2297,154 @@ const CTX_LABELS = {
   goal: ['Dojść do futbolu zawodowego','Zajść tak wysoko, jak zdołam','Być zawodnikiem, którego trudno pominąć','Doprowadzić do końca jedną rzecz w swojej grze','Zostać w grze na długo','Coś innego — napiszę własnymi słowami'],
 };
 
+/* ══════════════════════════════════════════════════════════════════════════
+   PLAN-D-Y1 08.2026 — TRZY WARTOŚCI, NIE DWIE
+
+   Ten plik jest PIERWSZYM ekranem, jaki zawodnik widzi w produkcie. Wchodzi
+   w niego bez konta i bez historii — więc odczyt, który padnie po cichu,
+   nie ma jak się przed nim upomnieć drugi raz. Zamyka kartę i tyle.
+
+   Każdy odczyt ma odtąd TRZY stany, nigdy dwa:
+     • `null`  — jeszcze nie pytaliśmy;
+     • `true`  — odczyt przeszedł, WOLNO twierdzić;
+     • `false` — odczyt padł, NIE WOLNO twierdzić niczego, co z niego wynika.
+
+   ⚠️ DLACZEGO `=== true`, A NIE „prawdziwość". `undefined` z zapomnianego
+   argumentu i `null` ze stanu początkowego muszą ZAMYKAĆ usta, nie otwierać.
+   Pomyłka w tę stronę odbiera zdanie; w drugą — stawia zdanie o zawodniku
+   na czymś, czego nie wiemy.
+
+   ⚠️ ŚWIADOMA KOPIA WZORCA. Te same trzy nazwy stoją w
+   `gamechange-app/lib/cichy-brak-web.js` (pas X1, 15.08.2026). Kopia, bo to są
+   dwa osobne repozytoria git, a ten lejek nie ma kroku budowania. Bloku
+   ŚWIADOMIE nie wynosimy do osobnego pliku z sieci — nieudany odczyt takiego pliku
+   zabiłby CAŁĄ stronę, czyli dokładnie tę awarię, którą ma nazywać.
+   ══════════════════════════════════════════════════════════════════════════ */
+function wolnoTwierdzic(stanOdczytu) { return stanOdczytu === true; }
+function odczytPadl(stanOdczytu)     { return stanOdczytu === false; }
+function zglosBladOdczytu(gdzie, szczegol) {
+  // `console.log` NIE JEST głosem (O80) — log poziomu „log" ginie obok wszystkiego innego.
+  try { console.error('CICHY BRAK — ' + gdzie, szczegol === undefined ? '' : szczegol); }
+  catch (_konsola) { /* konsola nie jest warunkiem poprawności */ }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PLAN-D-Y1 08.2026 — ZDANIA O NIEUDANYM ODCZYCIE, PO JEDNYM ŹRÓDLE
+
+   ⛔ ZERO NOWYCH BRZMIEŃ W PRODUKCIE (decyzja D4). Każda stała niżej cytuje
+   zdanie, KTÓRE JUŻ STAŁO W TYM PLIKU przed tym pasem — pochodzenie opisane
+   przy każdej. Stała istnieje po to, żeby to samo zdanie nie rozjechało się
+   między ekranem a PDF-em.
+   ══════════════════════════════════════════════════════════════════════════ */
+// Pochodzenie: `submitCoachAnswers` w tym pliku (panel trenera) — dokładnie ta
+// sama awaria (`/api/diagnose` nie oddał diagnozy), tylko u innego czytelnika.
+const ZDANIE_NIEUDANA_DIAGNOZA = 'Nie udało się wygenerować diagnozy.';
+// Pochodzenie: gałąź `catch` funkcji `loadObservationResponseView` w tym pliku.
+const ZDANIE_BLAD_LADOWANIA_PYTANIA = 'Błąd ładowania pytania.';
+// Pochodzenie: etykieta przycisku w `generateCoachQuestions` w tym pliku.
+const ETYKIETA_SPROBUJ_PONOWNIE = 'Spróbuj ponownie';
+// ⚠️ DO PRZEJRZENIA — Y1. Jedyne zdanie w tym pasie, którego nie ma skąd wziąć:
+// nigdzie w tym repozytorium nie padło jeszcze zdanie o tym, że praca zawodnika
+// NIE PRZEPADŁA. Wstawione, bo bez niego komunikat o awarii brzmi jak koniec
+// drogi (D5). Propozycja do decyzji Kuby — nota, sekcja 8.
+const ZDANIE_ODPOWIEDZI_ZOSTAJA = 'Twoje odpowiedzi i wyniki zostają na tej stronie — nic z nich nie przepadło.';
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PLAN-D-Y1 08.2026 — ODPOWIEDZI PRZEŻYWAJĄ ODŚWIEŻENIE (decyzja D2)
+
+   ZMIERZONE 16.08.2026, Chromium, przez prawdziwy interfejs: 27 odpowiedzi,
+   kontekst i samoopis znikały co do jednego po `location.reload()` —
+   `localStorage` był PUSTY, `sessionStorage` PUSTY, hash PUSTY, a strona
+   wracała na `screen-intro`. Zawodnik bez konta nie ma tego jak odzyskać.
+   `localStorage` w tym pliku DZIAŁA i jest już używany (`gc_affiliate_code`),
+   więc obowiązuje pierwszy wariant D2: przechowujemy i proponujemy powrót.
+
+   ⛔ CZEGO ŚWIADOMIE NIE ZAPISUJEMY — i to nie jest przeoczenie:
+   samoopisu (`presurvey.selfDesc`), imienia, adresu rodzica ani kodu drużyny.
+   Samoopis przechodzi przez `gcMozeKryzys()`, a ekran pomocy obiecuje wprost,
+   że nic z napisanego tekstu nie zostaje zapisane. Do tego to jest wolny tekst
+   nastolatka o sobie, a urządzenie bywa wspólne. Zapisujemy WYŁĄCZNIE liczby
+   i wybory — czyli dokładnie tę pracę, której powtórzenie kosztuje 27 pytań.
+   ══════════════════════════════════════════════════════════════════════════ */
+const GC_KLUCZ_POSTEPU = 'gc_diagnoza_postep';
+
+function zapiszPostepAnkiety() {
+  try {
+    if (!ans || !Object.keys(ans).length) return;
+    localStorage.setItem(GC_KLUCZ_POSTEPU, JSON.stringify({
+      w: 1,
+      ans: ans,
+      ctx: ctx,
+      goal: presurvey.goal,
+      ownTypes: [...presurvey.ownTypes],
+      zapisano: new Date().toISOString(),
+    }));
+  } catch (e) { /* tryb prywatny albo pełny magazyn — brak zapisu nie może zepsuć ankiety */ }
+}
+
+function wczytajPostepAnkiety() {
+  try {
+    const surowy = localStorage.getItem(GC_KLUCZ_POSTEPU);
+    if (!surowy) return null;
+    const dane = JSON.parse(surowy);
+    if (!dane || dane.w !== 1 || !dane.ans) return null;
+    let odpowiedzi = 0;
+    Object.keys(dane.ans).forEach(k => (dane.ans[k] || []).forEach(v => { if (v != null) odpowiedzi++; }));
+    if (!odpowiedzi) return null;
+    dane.odpowiedzi = odpowiedzi;
+    return dane;
+  } catch (e) { return null; }
+}
+
+function zapomnijPostepAnkiety() {
+  try { localStorage.removeItem(GC_KLUCZ_POSTEPU); } catch (e) {}
+}
+
+/** Propozycja, nie porwanie: pudełko na ekranie wejścia. Zawodnik decyduje. */
+function zaproponujPowrotDoAnkiety() {
+  try {
+    const dane = wczytajPostepAnkiety();
+    if (!dane) return;
+    const gniazdo = document.getElementById('gc-powrot-do-ankiety');
+    if (!gniazdo) return;
+    let ile = 0;
+    (SEGS || []).forEach(s => { ile += s.qs.length; });
+    gniazdo.innerHTML =
+      '<div style="background:#fff;border:1px solid #d8d3c8;padding:20px;max-width:480px;margin:0 auto 24px;text-align:center;">' +
+      // ⚠️ DO PRZEJRZENIA — Y1 (dwa zdania i dwie etykiety niżej).
+      '<div style="font-size:13px;color:#3a3830;font-weight:300;line-height:1.7;margin-bottom:14px;">' +
+      'Masz tu niedokończoną ankietę — odpowiedzi na ' + dane.odpowiedzi + ' z ' + ile + ' pytań są zapisane w tej przeglądarce.' +
+      '</div>' +
+      '<button onclick="wrocDoAnkiety()" style="background:#0e0d0b;color:#f5f2ec;border:none;padding:12px 24px;font-family:\'Bebas Neue\',sans-serif;font-size:15px;letter-spacing:0.1em;cursor:pointer;margin-right:8px;">Wróć tam, gdzie skończyłeś</button>' +
+      '<button onclick="zapomnijPostepAnkiety();document.getElementById(\'gc-powrot-do-ankiety\').innerHTML=\'\';" style="background:transparent;border:none;font-size:13px;color:#9a9488;cursor:pointer;text-decoration:underline;text-underline-offset:3px;">Zacznij od nowa</button>' +
+      '</div>';
+  } catch (e) { zglosBladOdczytu('zaproponujPowrotDoAnkiety', e); }
+}
+
+function wrocDoAnkiety() {
+  try {
+    const dane = wczytajPostepAnkiety();
+    if (!dane) return;
+    ctx = dane.ctx || ctx;
+    presurvey.goal = (dane.goal === undefined ? null : dane.goal);
+    presurvey.ownTypes = new Set(dane.ownTypes || []);
+    // Samoopisu NIE odtwarzamy — nigdy nie został zapisany (patrz komentarz wyżej).
+    presurvey.selfDesc = '';
+    isJunior = ctx.age !== null && ctx.age < 15;
+    activeSegs = SEGS;
+    ans = {};
+    activeSegs.forEach(s => {
+      const zapisane = dane.ans[s.id] || [];
+      ans[s.id] = s.qs.map((_, i) => (zapisane[i] == null ? null : zapisane[i]));
+    });
+    const etykieta = document.getElementById('survey-mode-label');
+    if (etykieta) etykieta.textContent = isJunior ? 'Diagnoza Junior' : 'Diagnoza';
+    renderAllQuestions();
+    showScreen('screen-survey');
+    updateSurveyQuestionStates();
+  } catch (e) { zglosBladOdczytu('wrocDoAnkiety', e); }
+}
+
 // PLAN-D-Q 08.2026 — klucze celu, w tej samej kolejności co CTX_LABELS.goal.
 // Lejek zapisuje etykietę (player_goal) i indeks, nie klucz — ale bez tej tablicy
 // strażnik nie miałby czego porównać ze zbiorami kluczy z trzech pozostałych kopii,
@@ -2494,6 +2646,7 @@ function startSurveyFromPresurvey(skip = false) {
 
   renderAllQuestions();
   showScreen('screen-survey');
+  zapiszPostepAnkiety(); // PLAN-D-Y1 08.2026 — D2: kontekst i wybory zapisane już na starcie
 }
 
 // ======================================
@@ -2587,6 +2740,7 @@ function pickScroll(segId, qi, val, btn) {
   btn.classList.add('sel');
   updateProgressScroll();
   updateSurveyQuestionStates();
+  zapiszPostepAnkiety(); // PLAN-D-Y1 08.2026 — D2: odpowiedź ma przeżyć odświeżenie
 }
 
 function updateSurveyQuestionStates() {
@@ -3011,6 +3165,21 @@ async function loadObservationResponseView(token) {
 
   try {
     const row = await gcRpc('followup_screen', { p_token: token });
+    // ⛔ PLAN-D-Y1 08.2026 — ROZKLEJONE. Do 16.08.2026 stał tu jeden warunek
+    // `if (!row || row.ok !== true)`, który prowadził OBA stany do jednego zdania:
+    // „Link może być nieaktualny lub nieprawidłowy". Zawodnik, któremu padł
+    // odczyt, czytał jako fakt o sobie, że jego link jest zły — i nie miał powodu
+    // klikać go drugi raz. `gcRpc` oddaje `null` WYŁĄCZNIE wtedy, gdy nie udało
+    // się zapytać (jego własny nagłówek obiecywał „dwa różne stany, dwa różne
+    // ekrany" — tu ta obietnica była łamana).
+    if (row === null) {
+      zglosBladOdczytu('loadObservationResponseView :: followup_screen', 'gcRpc oddał null');
+      // ⚠️ ŚWIADOMIE TYLKO JEDNO ZDANIE. `ZDANIE_ODPOWIEDZI_ZOSTAJA` mówi o wynikach
+      // i odpowiedziach LEŻĄCYCH NA STRONIE — na tym ekranie nie ma ani jednych,
+      // ani drugich, więc byłoby nieprawdą (Z0). Sprawdzone renderem 16.08.2026.
+      el.innerHTML = '<div style="padding:48px;text-align:center;"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:#9a9488;margin-bottom:8px;">' + ZDANIE_BLAD_LADOWANIA_PYTANIA + '</div></div>';
+      return;
+    }
     if (!row || row.ok !== true) {
       el.innerHTML = '<div style="padding:48px;text-align:center;"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:#9a9488;margin-bottom:8px;">Nie znaleziono pytania</div><p style="font-size:13px;color:#9a9488;font-weight:300;">Link może być nieaktualny lub nieprawidłowy.</p></div>';
       return;
@@ -3051,7 +3220,9 @@ async function loadObservationResponseView(token) {
       </div>
     `;
   } catch(e) {
-    el.innerHTML = '<div style="padding:48px;text-align:center;color:#9a9488;">Błąd ładowania pytania.</div>';
+    // PLAN-D-Y1 08.2026 — to samo zdanie co w gałęzi „odczyt padł", z jednej stałej.
+    zglosBladOdczytu('loadObservationResponseView', e);
+    el.innerHTML = '<div style="padding:48px;text-align:center;color:#9a9488;">' + ZDANIE_BLAD_LADOWANIA_PYTANIA + '</div>';
   }
 }
 
@@ -4787,6 +4958,7 @@ function loadResultsFromURL() {
     // Jeśli link zawiera pełną diagnozę (wygenerowaną wcześniej) — odtwórz ją
     // od razu, w trybie tylko-do-odczytu, bez ponownego wywołania AI.
     if (data.d) {
+      _diagState.odczytDiagnozy = true; // PLAN-D-Y1 08.2026 — diagnoza z linku jest prawdziwa
       _diagState.diagnosisText = data.d;
       _diagState.topDeficitIds = data.td || [];
       document.getElementById('diagnosis-blur-wrap').style.display = 'block';
@@ -4946,6 +5118,9 @@ window.addEventListener('load', () => {
   // Sprawdź czy są wyniki w hashu
   if (!loadResultsFromURL()) {
     showScreen('screen-intro');
+    // PLAN-D-Y1 08.2026 — D2: propozycja powrotu do niedokończonej ankiety.
+    // Propozycja, nie przekierowanie — zawodnik może zacząć od nowa jednym kliknięciem.
+    zaproponujPowrotDoAnkiety();
   }
 });
 
@@ -5139,15 +5314,35 @@ function buildDiagnosticsRecord(extras = {}) {
 // ======================================
 //  HISTORIA ZAWODNIKA
 // ======================================
+/**
+ * PLAN-D-Y1 08.2026 — TRZY WARTOŚCI, NIE DWIE.
+ * BYŁO: `catch(e) { return []; }` — pusta tablica znaczyła NARAZ „ten zawodnik
+ * wypełnia ankietę pierwszy raz" i „baza nie odpowiedziała". Wołający nie miał
+ * jak tego rozróżnić, więc powracający zawodnik po padniętym odczycie był
+ * traktowany jak nowy, a jego wcześniejszy samoopis i cel po cichu wypadały
+ * z promptu diagnozy. To jest klasa `PUSTKA` z O83 w czystej postaci.
+ * JEST: `{ wpisy, odczyt }` — `odczyt === true` znaczy „wolno twierdzić".
+ */
 async function loadPlayerHistory(email) {
   try {
     const res = await fetch(
       `${SUPABASE_URL}/rest/v1/diagnostics?email=eq.${encodeURIComponent(email)}&event=eq.email_submitted&order=created_at.desc&limit=5`,
       { headers: { 'apikey': SUPABASE_KEY } }
     );
+    if (!res.ok) {
+      zglosBladOdczytu('loadPlayerHistory :: diagnostics', 'HTTP ' + res.status);
+      return { wpisy: [], odczyt: false };
+    }
     const data = await res.json();
-    return Array.isArray(data) ? data : [];
-  } catch(e) { return []; }
+    if (!Array.isArray(data)) {
+      zglosBladOdczytu('loadPlayerHistory :: diagnostics', 'odpowiedź nie jest tablicą');
+      return { wpisy: [], odczyt: false };
+    }
+    return { wpisy: data, odczyt: true };
+  } catch(e) {
+    zglosBladOdczytu('loadPlayerHistory :: diagnostics', e);
+    return { wpisy: [], odczyt: false };
+  }
 }
 
 // ======================================
@@ -5369,10 +5564,14 @@ function submitEmail() {
   document.getElementById('email-confirm-box').style.display = 'block';
 
   // Załaduj historię i pokaż porównanie jeśli jest
-  loadPlayerHistory(email).then(history => {
-    playerHistory = history;
-    // Komunikat powitalny dla powracającego zawodnika
-    if (history.length > 1 && cachedScores) {
+  loadPlayerHistory(email).then(odp => {
+    playerHistory = odp.wpisy;
+    // Komunikat powitalny dla powracającego zawodnika.
+    // PLAN-D-Y1 08.2026 — bramka `wolnoTwierdzic`: po padniętym odczycie NIE
+    // twierdzimy, że to pierwsza wizyta. Nie twierdzimy też nic innego —
+    // zdanie po prostu nie powstaje, a awaria melduje się w konsoli głośno.
+    if (wolnoTwierdzic(odp.odczyt) && odp.wpisy.length > 1 && cachedScores) {
+      const history = odp.wpisy;
       const prevDate = new Date(history[1].created_at).toLocaleDateString('pl-PL');
       const confirmText = document.getElementById('email-confirm-text');
       if (confirmText) {
@@ -5461,6 +5660,10 @@ function inlineLoaderHTML(label) {
     </div>`;
 }
 let _diagState = {
+  // PLAN-D-Y1 08.2026 — TRZECIA WARTOŚĆ. `null` = jeszcze nie pytaliśmy,
+  // `true` = diagnoza naprawdę przyszła, `false` = odczyt padł.
+  // Rządzi tym, czy WOLNO cokolwiek pokazać jako diagnozę — na ekranie i w PDF-ie.
+  odczytDiagnozy: null,
   scores: null,
   deficits: [],
   strengths: [],
@@ -5601,7 +5804,14 @@ async function _buildDiagData(scores, playerEmail, weryfikacja) {
   // najnowszy WCZEŚNIEJSZY, jeśli ma treść.
   let priorSelfText = '';
   if (playerEmail) {
-    const history = await loadPlayerHistory(playerEmail);
+    // PLAN-D-Y1 08.2026 — po padniętym odczycie historii do promptu NIE wchodzi nic.
+    // Pusta historia z awarii wyglądała dotąd identycznie jak brak historii,
+    // a diagnoza szła dalej tak, jakby zawodnik był tu pierwszy raz.
+    const odpHistorii = await loadPlayerHistory(playerEmail);
+    const history = wolnoTwierdzic(odpHistorii.odczyt) ? odpHistorii.wpisy : [];
+    if (!wolnoTwierdzic(odpHistorii.odczyt)) {
+      console.info('PLAN-D-Y1: historia zawodnika nie weszła do promptu — odczyt padł.');
+    }
     const prior = history.find(h => h.self_description || h.player_goal);
     if (prior) {
       const parts = [];
@@ -5779,15 +5989,33 @@ FORMAT ODPOWIEDZI (zachowaj dokładnie te znaczniki). TREŚĆ KAŻDEJ SEKCJI ZAL
 [PYTANIE]
 (1 pytanie zakotwiczające, dostosowane do scenariusza — patrz zasada 10.)`;
 
+  // ══ PLAN-D-Y1 08.2026 — TRZY WARTOŚCI, NIE DWIE ═══════════════════════════
+  // ⚠️ `fetch` NIE RZUCA przy HTTP 500. Zmierzone 16.08.2026 w Chromium:
+  // najczęstsza awaria produkcyjna tej ścieżki (brak `ANTHROPIC_API_KEY`,
+  // przekroczony limit, model niedostępny) wraca WARTOŚCIĄ — `api/diagnose.js`
+  // oddaje wtedy `{ error, details }` ze statusem 500, `response.json()`
+  // przechodzi, a `data.content` po prostu nie istnieje. Do 16.08.2026 kod
+  // wpadał wtedy w gałąź „brak [SYTUACJA]" i rysował zawodnikowi lokalnie
+  // sklejoną diagnozę. Gałąź `catch` NIE ZAPALAŁA SIĘ ANI RAZU — czyli
+  // detektor liczący same `catch` nie zobaczyłby tu niczego (O83).
+  _diagState.odczytDiagnozy = null;
+  let powodNieudanejDiagnozy = '';
   try {
     const response = await fetch('/api/diagnose', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt, maxTokens: 2400 })
     });
-    const data = await response.json();
-    const raw = data.content?.filter(c => c.type === 'text').map(c => c.text || '').join('') || '';
-    if (raw && raw.includes('[SYTUACJA]')) {
+    let data = null;
+    try { data = await response.json(); }
+    catch (_parse) { data = null; }
+    const raw = (data && data.content ? data.content.filter(c => c.type === 'text').map(c => c.text || '').join('') : '') || '';
+    if (!response.ok) {
+      _diagState.odczytDiagnozy = false;
+      powodNieudanejDiagnozy = 'HTTP ' + response.status + ((data && data.error) ? ' — ' + data.error : '');
+      zglosBladOdczytu('generateAIDiagnosis :: /api/diagnose', powodNieudanejDiagnozy);
+    } else if (raw && raw.includes('[SYTUACJA]')) {
+      _diagState.odczytDiagnozy = true;
       _diagState.diagnosisText = raw;
       _diagState.usedInsights = !!insightsText;
       renderDiagnosisV2(raw, scores, deficitsData, !!insightsText);
@@ -5802,12 +6030,24 @@ FORMAT ODPOWIEDZI (zachowaj dokładnie te znaczniki). TREŚĆ KAŻDEJ SEKCJI ZAL
       //     sendParentReport({ email: playerEmail }, window._parentEmail);
       //   }
     } else {
-      console.warn('Call 2: brak [SYTUACJA] w odpowiedzi. Raw:', raw.slice(0, 200));
-      renderFallback(scores, deficitsData);
+      _diagState.odczytDiagnozy = false;
+      powodNieudanejDiagnozy = 'odpowiedź bez znacznika [SYTUACJA] (' + raw.slice(0, 120) + ')';
+      zglosBladOdczytu('generateAIDiagnosis :: /api/diagnose', powodNieudanejDiagnozy);
     }
   } catch (e) {
-    console.error('Call 2 error:', e);
-    renderFallback(scores, deficitsData);
+    // ⚠️ Głos stoi TUTAJ, a nie wyłącznie niżej pod wspólną bramką. Gałąź błędu,
+    // która sama nic nie mówi, jest cicha nawet wtedy, gdy ktoś mówi za nią —
+    // i dokładnie tak wygląda defekt, który ten pas usuwa w innych miejscach.
+    _diagState.odczytDiagnozy = false;
+    powodNieudanejDiagnozy = 'połączenie: ' + (e && e.message ? e.message : String(e));
+    zglosBladOdczytu('generateAIDiagnosis :: /api/diagnose', e);
+  }
+
+  // ⛔ DECYZJA D3 — WYNIK DIAGNOZY NIE WYCHODZI Z PADNIĘTEGO ODCZYTU.
+  // Żadnej wersji „przybliżonej", „domyślnej" ani „na podstawie tego, co mamy".
+  // Trzy różne awarie (HTTP, treść bez znacznika, zerwane połączenie) — jedno wyjście.
+  if (!wolnoTwierdzic(_diagState.odczytDiagnozy)) {
+    renderNieudanyOdczytDiagnozy(scores, powodNieudanejDiagnozy);
   }
 
   // Zabezpieczenie: diagnosis-blur-wrap i tak jest już odsłonięty (ustawia to
@@ -6083,11 +6323,14 @@ async function _saveFeedbackToSupabase(rating, comment) {
 // ======================================
 //  HELPER — pokaż sekcję produktową
 // ======================================
-function _showProductSection(scores) {
+function _showProductSection(scores, wolnoPokazacMost) {
   // Sekcja produktowa i karta zawodnika usunięte 05.08.2026 — zostaje tylko PDF.
   // MOST DIAGNOZA 07.08.2026 — dodatkowo most do appki (funkcja jest idempotentna,
   // więc wywołanie jej i tu, i z renderDiagnosisV2() niczego nie dubluje).
-  _showAppBridge();
+  // PLAN-D-Y1 08.2026 — drugi argument: `false` WYŁĄCZA most. Domyślnie (brak
+  // argumentu) zachowanie jest dokładnie takie jak przed tym pasem. Most mówi
+  // „ta diagnoza jest już w środku" — po padniętym odczycie nie ma czego tam być.
+  if (wolnoPokazacMost !== false) _showAppBridge();
   setTimeout(() => {
     // Sekcja PDF
     const pdfSection = document.getElementById('pdf-section-wrap');
@@ -6239,34 +6482,79 @@ function downloadPDFWithEmail() {
   downloadPDF();
 }
 
-function renderFallback(scores, deficitsData) {
-  // deficitsData może być tablicą obiektów (nowy format) lub tablicą [id, score] (stary format)
-  const deficits = Array.isArray(deficitsData) && deficitsData[0] && deficitsData[0].id
-    ? deficitsData
-    : (deficitsData || []).map(([id, score]) => ({ id, score }));
-  const { diagnosis, steps } = buildFallbackDiagnosis(scores, deficits.map(d => [d.id, d.score]));
+/* ══════════════════════════════════════════════════════════════════════════
+   PLAN-D-Y1 08.2026 — CO WIDZI ZAWODNIK, KIEDY DIAGNOZA NIE PRZYSZŁA
 
+   ⛔ BYŁO (do 16.08.2026): `renderFallback()` sklejała lokalnie pełną diagnozę
+   z `buildFallbackDiagnosis()` i wstawiała ją pod nagłówek „Twoja diagnoza",
+   razem z listą „Nad czym powinieneś pracować". Zawodnik nie miał ŻADNEGO
+   sposobu, żeby się dowiedzieć, że jego diagnoza w ogóle nie powstała.
+   Zweryfikowane RENDEREM w Chromium, nie lekturą źródła — trzy awarie
+   (HTTP 500, odpowiedź bez znacznika, zerwane połączenie) dawały ten sam,
+   nieodróżnialny ekran.
+
+   Dlaczego to nie mogło zostać, nawet z etykietą:
+     • D3 zabrania wprost wersji „na podstawie tego, co mamy";
+     • Z0 — tamten tekst stawiał zdanie „przyczyną jest słaba X" jako pewnik,
+       a wyliczał je z samooceny, nie z pomiaru;
+     • tamte kroki podawały METODY („przysiady i martwy ciąg", „8 godzin snu"),
+       których prompt diagnozy zakazuje modelowi w punkcie 5 — czyli produkt
+       łamał po cichu własną regułę dokładnie w chwili awarii;
+     • pod spodem otwierało się „Jak trafna jest ta diagnoza?", a odpowiedź
+       lądowała w `diagnostics.feedback_accuracy` — w tej samej kolumnie,
+       z której liczymy trafność PRAWDZIWYCH diagnoz.
+
+   JEST: gałąź błędu, która NIE CZYŚCI i NAZYWA. Wyniki obszar po obszarze,
+   odpowiedzi i potwierdzenie e-maila zostają nietknięte; dochodzi zdanie
+   o tym, co się stało, i rzecz do zrobienia.
+   ══════════════════════════════════════════════════════════════════════════ */
+function renderNieudanyOdczytDiagnozy(scores, powod) {
   const el = document.getElementById('ai-diagnosis-text');
-  let html = `<p style="font-size:15px;color:#3a3830;line-height:1.9;font-weight:300;margin-bottom:${steps.length ? '28px' : '0'}">${diagnosis}</p>`;
-  if (steps.length) {
-    html += `
-      <div style="border-top:1px solid #d8d3c8;padding-top:24px;">
-        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:16px;">Nad czym powinieneś pracować</div>
-        ${steps.map((step, i) => `
-          <div style="display:flex;gap:16px;margin-bottom:16px;align-items:flex-start;">
-            <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#d8d3c8;line-height:1;flex-shrink:0;min-width:24px;">${i+1}</div>
-            <div style="font-size:14px;color:#0e0d0b;line-height:1.75;font-weight:300;">${step}</div>
-          </div>
-        `).join('')}
-      </div>
-    `;
-  }
-  el.innerHTML = html;
+  if (!el) return;
 
-  // Feedback i produkt bez pytania zakotwiczającego
-  document.getElementById('feedback-wrap').style.display = 'block';
-  _showProductSection(scores);
+  el.innerHTML =
+    '<p style="font-size:15px;color:#0e0d0b;line-height:1.9;font-weight:400;margin:0 0 10px;">' +
+      ZDANIE_NIEUDANA_DIAGNOZA +
+    '</p>' +
+    '<p style="font-size:14px;color:#3a3830;line-height:1.8;font-weight:300;margin:0 0 20px;">' +
+      ZDANIE_ODPOWIEDZI_ZOSTAJA +
+    '</p>' +
+    '<button id="gc-ponow-diagnoze" onclick="ponowDiagnoze(this)" ' +
+      'style="background:#0e0d0b;color:#f5f2ec;border:none;padding:14px 28px;font-family:\'Bebas Neue\',sans-serif;font-size:16px;letter-spacing:0.1em;cursor:pointer;">' +
+      ETYKIETA_SPROBUJ_PONOWNIE +
+    '</button>';
+
+  // „✓ Diagnoza odblokowana" jest po padniętym odczycie zdaniem NIEPRAWDZIWYM.
+  // To jedyna rzecz, którą tu chowamy — i nie jest to praca zawodnika.
+  const nota = document.getElementById('diagnosis-unlocked-note');
+  if (nota) nota.style.display = 'none';
+
+  // ⛔ NIE pokazujemy „Jak trafna jest ta diagnoza?" — nie ma czego oceniać,
+  // a ocena wpadłaby do tej samej kolumny co oceny prawdziwych diagnoz.
+  // Sekcja PDF zostaje odsłonięta (wyniki obszar po obszarze SĄ prawdziwe),
+  // ale BEZ mostu do aplikacji: jego zdanie „ta diagnoza jest już w środku"
+  // po padniętym odczycie byłoby nieprawdą.
+  _showProductSection(scores, false);
 }
+
+/** PLAN-D-Y1 08.2026 — rzecz do zrobienia po awarii (D5): druga próba. */
+function ponowDiagnoze(btn) {
+  try {
+    if (btn) { btn.disabled = true; btn.textContent = 'Generuję…'; }
+    const el = document.getElementById('ai-diagnosis-text');
+    if (el) el.innerHTML = inlineLoaderHTML('Generuję Twoją diagnozę');
+    const nota = document.getElementById('diagnosis-unlocked-note');
+    if (nota) nota.style.display = 'block';
+    generateAIDiagnosis(_diagState.scores || cachedScores, _diagState.situation || '');
+  } catch (e) { zglosBladOdczytu('ponowDiagnoze', e); }
+}
+
+/* ⛔ PLAN-D-Y1 08.2026 — `buildFallbackDiagnosis()` NIE JEST JUŻ WOŁANA I NIE MA BYĆ.
+   Zostaje jako zapis tego, co produkt mówił zawodnikowi po padniętym odczycie do
+   16.08.2026 — tak samo jak `renderHistoryComparison()` wyżej zostaje jako zapis
+   wyłączonego radaru samooceny. ⚠️ ZANIM KTOŚ TO WŁĄCZY Z POWROTEM: to nie jest
+   funkcja „do dokończenia". Włączenie wymaga zmiany decyzji D3, z datą, w pamięci
+   projektu — nie odkomentowania wywołania. Pilnuje tego `tests/test-cichy-brak-lejka.js`. */
 
 // renderDiagnosisText i renderDiagnosisHTML usunięte — zastąpione przez renderDiagnosisV2
 
@@ -6807,8 +7095,32 @@ function downloadPDF() {
   });
 
   // ── DIAGNOZA ──
+  // PLAN-D-Y1 08.2026 — PDF czyta `#ai-diagnosis-text` i drukuje to pod nagłówkiem
+  // „TWOJA DIAGNOZA". Do 16.08.2026 wynosiło to sklejoną lokalnie diagnozę do PLIKU,
+  // który zawodnik zostawia sobie na dysku. Po padniętym odczycie drukujemy zdanie
+  // o awarii — z tej samej stałej co ekran, żeby PDF i strona nie rozjechały się —
+  // i NIE zdrapujemy tekstu z DOM-u (byłaby tam jeszcze etykieta przycisku).
   const diagEl = document.getElementById('ai-diagnosis-text');
-  if (diagEl && diagEl.innerText && !diagEl.querySelector('.ai-loader') && diagEl.innerText.trim() !== '') {
+  if (odczytPadl(_diagState.odczytDiagnozy)) {
+    y += 2;
+    checkPage(20);
+    doc.setTextColor(14, 13, 11);
+    doc.setFontSize(13);
+    doc.setFont('helvetica', 'bold');
+    doc.text(stripPolishChars('TWOJA DIAGNOZA'), margin, y);
+    y += 6;
+    doc.setDrawColor(216, 211, 200);
+    doc.line(margin, y, W - margin, y);
+    y += 8;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(58, 56, 48);
+    doc.splitTextToSize(ZDANIE_NIEUDANA_DIAGNOZA + ' ' + ZDANIE_ODPOWIEDZI_ZOSTAJA, contentW).forEach(line => {
+      checkPage(6);
+      doc.text(stripPolishChars(line), margin, y);
+      y += 5.5;
+    });
+  } else if (diagEl && diagEl.innerText && !diagEl.querySelector('.ai-loader') && diagEl.innerText.trim() !== '') {
     y += 2;
     checkPage(20);
     doc.setTextColor(14, 13, 11);
@@ -6874,6 +7186,7 @@ function restart() {
   // przebiegiem. Bez tego timer uzbrojony w poprzedniej diagnozie odpalałby się w nowej
   // (np. odsłaniając sekcję PDF w środku ponownie wypełnianej ankiety).
   _cancelPdfAutoReveal();
+  zapomnijPostepAnkiety(); // PLAN-D-Y1 08.2026 — D2: świadomy start od nowa kasuje zapis
   ans = {}; cachedScores = null;
   isJunior = false; activeSegs = [];
   ctx = { level: null, pos: null, age: null, clubTrainings: null, ownTrainings: null };
@@ -6883,6 +7196,7 @@ function restart() {
 
   // Reset stanu diagnostycznego
   _diagState = {
+    odczytDiagnozy: null, // PLAN-D-Y1 08.2026
     scores: null, deficits: [], strengths: [], ctxText: '',
     diagnosisText: '', diagnosisRendered: '',
     anchorQuestion: '', anchorStory: '',
