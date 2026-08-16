@@ -1042,11 +1042,24 @@ body {
   </div>
   <div class="survey-body" id="survey-body"></div>
   <div style="max-width:680px;margin:0 auto;padding:0 24px 80px;text-align:center;">
-    <button class="btn-nav primary" id="btn-submit" onclick="generateResults()"
+    <!-- PLAN-D-Y2 08.2026 — D2, POZIOM PIERWSZY. Do 16.08.2026 ten przycisk miał
+         WYŁĄCZNIE `opacity:0.4` — był przygaszony, ale klikał się tak samo dobrze
+         jak jasny, a `generateResults()` liczyło wynik z pytań, na które nikt nie
+         odpowiedział. `disabled` to ZACHOWANIE, `opacity` to WYGLĄD. Stan startowy
+         ankiety to zero odpowiedzi, więc atrybut stoi już w źródle strony —
+         przycisk nie ma ani jednej chwili, w której da się go kliknąć. -->
+    <button class="btn-nav primary" id="btn-submit" onclick="generateResults()" disabled
       style="padding:18px 48px;font-size:17px;letter-spacing:0.1em;opacity:0.4;cursor:not-allowed;transition:opacity 0.3s;">
       Wygeneruj diagnozę →
     </button>
     <div style="margin-top:12px;font-size:12px;color:#9a9488;" id="submit-hint">Odpowiedz na wszystkie pytania żeby odblokować diagnozę.</div>
+    <!-- PLAN-D-Y2 08.2026 — D3. Zablokowany przycisk BEZ POWODU I BEZ WYJŚCIA to ten
+         sam cichy brak, tylko po stronie wejścia: zawodnik widzi, że nie może, i nie
+         wie ani ile zostało, ani gdzie to jest. Etykieta wstawiana ze stałej
+         `ETYKIETA_WROC_TAM_GDZIE_SKONCZYLES` — nie ma jej tutaj, żeby nie mogła się
+         rozjechać z tą samą etykietą na ekranie wejścia. -->
+    <button id="btn-do-pierwszego-braku" onclick="przejdzDoPierwszegoBezOdpowiedzi()"
+      style="display:none;margin-top:10px;background:transparent;border:none;font-family:'DM Sans',sans-serif;font-size:13px;color:#3a3830;cursor:pointer;text-decoration:underline;text-underline-offset:3px;"></button>
   </div>
 </div>
 
@@ -2714,7 +2727,12 @@ function renderAllQuestions() {
         btns += `<span class="scale-label-text">${label}</span>`;
         btns += `</button>`;
       });
-      questionsHtml += `<div class="question-block" style="animation:none;opacity:1;transform:none;">`;
+      // PLAN-D-Y2 08.2026 — D3: bez tych dwóch atrybutów wyjście „wróć tam, gdzie
+      // skończyłeś" nie ma czego znaleźć. ⚠️ `updateSurveyQuestionStates` pytało
+      // o nie selektorem `[data-seg][data-qi]` od chwili powstania — i nie znajdowało
+      // NIGDY (znalezisko Y2-3). Klasy `q-past`/`q-active`/`q-future` nie mają w tym
+      // pliku ŻADNEJ reguły CSS, więc dopisanie atrybutów niczego nie przemalowuje.
+      questionsHtml += `<div class="question-block" data-seg="${esc(seg.id)}" data-qi="${qi}" style="animation:none;opacity:1;transform:none;">`;
       questionsHtml += `<div class="q-text">${esc(qq.t)}</div>`;
       questionsHtml += `<div class="q-context">${esc(qq.ctx)}</div>`;
       questionsHtml += `<div class="scale-wrap" style="margin-top:20px;"><div class="scale-btns">${btns}</div></div>`;
@@ -2773,30 +2791,106 @@ function updateSurveyQuestionStates() {
   });
 }
 
-function updateProgressScroll() {
-  let total = 0, done = 0;
-  activeSegs.forEach(s => {
-    const qCount = s.qs.length;
-    total += qCount;
-    for (let i = 0; i < qCount; i++) {
-      if (ans[s.id] && ans[s.id][i] !== null && ans[s.id][i] !== undefined) done++;
-    }
+/* ══════════════════════════════════════════════════════════════════════════
+   PLAN-D-Y2 08.2026 — WYNIK NIE POWSTAJE Z ANKIETY NIEPEŁNEJ (D1)
+
+   Do 16.08.2026 zawodnik, który odpowiedział na 6 z 27 pytań i kliknął
+   „Wygeneruj diagnozę", dostawał wynik. Zmierzone, nie oszacowane: ten sam
+   zawodnik — mocny fizycznie, słaby w głowie — po PEŁNEJ ankiecie czytał
+   „Twoja gra ma odwagę w grze jako wąskie gardło", a po SZEŚCIU pytaniach
+   „Twój profil jest wyrównany. Nic wyraźnie nie odstaje." przy WYŻSZYM wyniku
+   ogólnym (58 zamiast 56). Krótsza droga dawała lepszą liczbę i kasowała jego
+   prawdziwe wąskie gardło — bo `calcScores()` wstawiało za każde pytanie bez
+   odpowiedzi środek skali (3.5 → 50/100).
+
+   Zawodnik nie ma tu konta ani historii. To jest jego PIERWSZA i zwykle JEDYNA
+   diagnoza, a wąskie gardło z niej wybrane wyznacza mu kierunek pracy.
+
+   Trzy poziomy, bo jeden jest wyglądem, a nie zachowaniem:
+     1. `disabled` na przycisku (źródło strony + `updateProgressScroll`),
+     2. bramka w samej `generateResults()` — funkcja bywa wołana skądinąd,
+     3. `calcScores()` przestało zmyślać liczbę (patrz D4 przy tej funkcji).
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Etykieta wyjścia do pierwszego pytania bez odpowiedzi. ⛔ NIE JEST NOWA — to
+   dokładnie ta etykieta, którą pas Y1 postawił na ekranie wejścia przy propozycji
+   powrotu do niedokończonej ankiety (`zaproponujPowrotDoAnkiety`). Strażnik
+   porównuje tę stałą z ŻYWYM literałem tamtej funkcji, nie z kopią w teście. */
+const ETYKIETA_WROC_TAM_GDZIE_SKONCZYLES = 'Wróć tam, gdzie skończyłeś';
+
+/** ⚠️ DO PRZEJRZENIA — Y2. JEDYNE nowe brzmienie tego pasa. W tym pliku nie było
+ *  ani jednego zdania podającego LICZBĘ POZOSTAŁYCH pytań, a D3 wymaga, żeby
+ *  zawodnik jej nie odejmował w pamięci (P0). Zdanie mówi, ile zostało, i nie
+ *  mówi nic o nim samym (D7). */
+function zdanieZostalo(ile) {
+  return 'Zostało ' + ile + '.';
+}
+
+/** Jedno miejsce, które odpowiada na pytanie „czego w tej ankiecie brakuje".
+ *  Wołają je trzy rzeczy: bramka przycisku, bramka w `generateResults()`
+ *  i wyjście do pierwszego pytania bez odpowiedzi — żeby nie mogły się rozjechać. */
+function brakiWAnkiecie() {
+  let razem = 0, brakuje = 0, pierwszy = null;
+  (activeSegs || []).forEach(s => {
+    (s.qs || []).forEach((q, qi) => {
+      razem++;
+      const v = (ans[s.id] || [])[qi];
+      if (v === null || v === undefined) {
+        brakuje++;
+        if (!pierwszy) pierwszy = { segId: s.id, qi: qi };
+      }
+    });
   });
-  const pct = Math.round((done / total) * 100);
-  document.getElementById('prog-fill').style.width = pct + '%';
-  document.getElementById('prog-info').textContent = pct + '%';
+  // ⛔ Ankieta, która nie ma ANI JEDNEGO pytania, NIE jest kompletna. Bez tego
+  // warunku `brakuje === 0` znaczyłoby „komplet" także zanim pytania powstały
+  // (`activeSegs` jest puste po `restart()` i przed `startSurvey()`).
+  return {
+    razem: razem,
+    brakuje: brakuje,
+    odpowiedziano: razem - brakuje,
+    pierwszy: pierwszy,
+    kompletna: razem > 0 && brakuje === 0,
+  };
+}
+
+/** D3 — wyjście, nie tylko komunikat. Przewija do pierwszego pytania bez odpowiedzi. */
+function przejdzDoPierwszegoBezOdpowiedzi() {
+  const b = brakiWAnkiecie();
+  if (!b.pierwszy) return;
+  const el = document.querySelector('[data-seg="' + b.pierwszy.segId + '"][data-qi="' + b.pierwszy.qi + '"]');
+  if (!el) return;
+  if (el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function updateProgressScroll() {
+  const b = brakiWAnkiecie();
+  const pct = b.razem > 0 ? Math.round((b.odpowiedziano / b.razem) * 100) : 0;
+  const fill = document.getElementById('prog-fill');
+  const info = document.getElementById('prog-info');
+  if (fill) fill.style.width = pct + '%';
+  if (info) info.textContent = pct + '%';
 
   const btn = document.getElementById('btn-submit');
-  if (done === total) {
-    btn.style.opacity = '1';
-    btn.style.cursor = 'pointer';
-    document.getElementById('submit-hint').textContent = 'Gotowe — możesz wygenerować diagnozę.';
-    document.getElementById('submit-hint').style.color = '#2a7a3a';
-  } else {
-    btn.style.opacity = '0.4';
-    btn.style.cursor = 'not-allowed';
-    document.getElementById('submit-hint').textContent = `Odpowiedziano na ${done} z ${total} pytań.`;
-    document.getElementById('submit-hint').style.color = '#9a9488';
+  const hint = document.getElementById('submit-hint');
+  const wyjscie = document.getElementById('btn-do-pierwszego-braku');
+
+  if (btn) {
+    // PLAN-D-Y2 08.2026 — D2, POZIOM PIERWSZY. `disabled` to zachowanie,
+    // `opacity` zostaje wyłącznie jako wygląd.
+    btn.disabled = !b.kompletna;
+    btn.style.opacity = b.kompletna ? '1' : '0.4';
+    btn.style.cursor = b.kompletna ? 'pointer' : 'not-allowed';
+  }
+  if (hint) {
+    hint.textContent = b.kompletna
+      ? 'Gotowe — możesz wygenerować diagnozę.'
+      : `Odpowiedziano na ${b.odpowiedziano} z ${b.razem} pytań. ` + zdanieZostalo(b.brakuje);
+    hint.style.color = b.kompletna ? '#2a7a3a' : '#9a9488';
+  }
+  if (wyjscie) {
+    // PLAN-D-Y2 08.2026 — D3: rzecz ważna nie może wymagać szukania (P0).
+    wyjscie.textContent = ETYKIETA_WROC_TAM_GDZIE_SKONCZYLES;
+    wyjscie.style.display = b.kompletna ? 'none' : 'inline-block';
   }
 }
 
@@ -5350,6 +5444,22 @@ async function loadPlayerHistory(email) {
 // ======================================
 
 async function generateResults() {
+  // ══════════════════════════════════════════════════════════════════════
+  // PLAN-D-Y2 08.2026 — D1 + D2, POZIOM DRUGI.
+  // `disabled` na przycisku pilnuje EKRANU. Ta bramka pilnuje FUNKCJI: jest
+  // wołana także z atrybutu `onclick`, a jutro może być wołana skądinąd
+  // (R5, O75). Stoi PRZED `showScreen('screen-loading')`, żeby zawodnik nie
+  // wylądował na ekranie ładowania, z którego nic nie wyjdzie.
+  // ⛔ D5: ta gałąź NICZEGO NIE KASUJE — ani `ans`, ani zapisu postępu z pasa Y1.
+  // ══════════════════════════════════════════════════════════════════════
+  const braki = brakiWAnkiecie();
+  if (!braki.kompletna) {
+    console.warn('PLAN-D-Y2 — WYNIK NIE POWSTAJE Z ANKIETY NIEPEŁNEJ: brakuje '
+      + braki.brakuje + ' z ' + braki.razem + ' odpowiedzi. Nic nie liczę, nic nie kasuję.');
+    updateProgressScroll();
+    przejdzDoPierwszegoBezOdpowiedzi();
+    return;
+  }
   showScreen('screen-loading');
   const phrases = ['ANALIZUJĘ','WYKRYWAM','DIAGNOZUJĘ'];
   const subs = ['wykrywam zależności między segmentami','identyfikuję kluczowe deficyty','generuję spersonalizowany raport'];
@@ -5366,6 +5476,28 @@ async function generateResults() {
   clearInterval(iv);
 
   cachedScores = calcScores();
+
+  // ══════════════════════════════════════════════════════════════════════
+  // PLAN-D-Y2 08.2026 — D1, BRAMKA OSTATNIA I NAJWAŻNIEJSZA.
+  // `brakiWAnkiecie()` liczy po `activeSegs`, a `calcScores()` po `SEGS`.
+  // Dziś to ten sam zbiór (jedyne przypisania to `activeSegs = SEGS` i `= []`
+  // w `restart()`), ale gdyby kiedykolwiek się rozjechały, `null` z segmentu
+  // bez kompletu poszedłby dalej i skoercował się do ZERA w `overall_score`
+  // i w rankingu deficytów — cichy brak wróciłby tylnymi drzwiami, tylko jako
+  // zero zamiast pięćdziesiątki. Pytamy więc o to, co NAPRAWDĘ wyszło z liczenia,
+  // a nie o to, co powinno było wyjść.
+  // ══════════════════════════════════════════════════════════════════════
+  const segmentyBezWyniku = Object.keys(cachedScores).filter(k => cachedScores[k] === null);
+  if (segmentyBezWyniku.length) {
+    console.warn('PLAN-D-Y2 — WYNIK NIE POWSTAJE: segmenty bez kompletu odpowiedzi: '
+      + segmentyBezWyniku.join(', ') + '. Nic nie zapisuję, nic nie kasuję.');
+    cachedScores = null;
+    showScreen('screen-survey');
+    updateProgressScroll();
+    przejdzDoPierwszegoBezOdpowiedzi();
+    return;
+  }
+
   renderResults(cachedScores);
   saveResultsToURL(cachedScores);
 
@@ -6683,7 +6815,30 @@ function calcScores() {
       const v = (ans[seg.id] || [])[qi];
       if (v != null) { sum += q.dir === 1 ? v : (7 - v); cnt++; }
     });
-    const raw = cnt > 0 ? sum / cnt : 3.5;
+    // ══════════════════════════════════════════════════════════════════════
+    // PLAN-D-Y2 08.2026 — D4. DO 16.08.2026 STAŁO TU DOKŁADNIE TO:
+    //     const raw = cnt > 0 ? sum / cnt : 3.5;
+    // Segment, którego zawodnik NIE OCENIŁ ANI RAZU, dostawał środek skali
+    // i wychodził stąd jako 50/100 — nieodróżnialny od segmentu ocenionego
+    // przeciętnie. Ta liczba szła dalej: na wykres obszarów, do promptu
+    // diagnozy, do PDF-a, do `diagnostics.scores` i do wyboru wąskiego gardła,
+    // na którym stoi cały późniejszy plan pracy zawodnika. Cichy brak wpisany
+    // do liczby łamie Z0 tak samo jak zmyślone zdanie.
+    //
+    // Warunek pyta o KOMPLET, nie o „choć jedną odpowiedź": segment odpowiedziany
+    // w połowie dostawał pełnowartościową średnią z tego, co było, i wyglądał na
+    // zmierzony dokładnie tak samo jak komplet (zmierzone: `mental` = [1, BRAK]
+    // dawało 0/100 i stawało się wąskim gardłem).
+    //
+    // `null` to jawne „nie wiem" — trzecia wartość z kanonu pasa Y1.
+    // ⚠️ Ta gałąź jest DZIŚ NIEOSIĄGALNA Z EKRANU (`generateResults` odmawia
+    // wcześniej). Zostaje mimo to: gałąź nieosiągalna dziś bywa osiągalna jutro
+    // (R5, O75), a funkcja ma dziś jednego konsumenta — nie ma gwarancji, że jutro.
+    // Zapadka na RÓWNOŚĆ w strażniku pilnuje, że konsument jest nadal JEDEN
+    // i nadal bramkowany.
+    // ══════════════════════════════════════════════════════════════════════
+    if (cnt !== seg.qs.length) { sc[seg.id] = null; return; }
+    const raw = sum / cnt;
     sc[seg.id] = Math.round(((raw - 1) / 5) * 100); // skala 1-6 → 0-100
   });
   return sc;
@@ -7189,6 +7344,11 @@ function restart() {
   zapomnijPostepAnkiety(); // PLAN-D-Y1 08.2026 — D2: świadomy start od nowa kasuje zapis
   ans = {}; cachedScores = null;
   isJunior = false; activeSegs = [];
+  // PLAN-D-Y2 08.2026 — D2. Po świadomym starcie od nowa nie ma ANI JEDNEJ
+  // odpowiedzi, więc przycisk „Wygeneruj diagnozę" nie ma prawa zostać klikalny
+  // z poprzedniego przebiegu. Bez tej linii wracał do stanu `disabled=false`
+  // i czekał tak do najbliższego wejścia w ankietę.
+  updateProgressScroll();
   ctx = { level: null, pos: null, age: null, clubTrainings: null, ownTrainings: null };
   presurvey = { goal: null, ownTypes: new Set(), selfDesc: '' };
   playerEmail = null; playerHistory = [];

@@ -12,6 +12,14 @@
  * żadnej zmiany konfiguracji. (Polecenie pasa Y1 zakładało, że CI tu nie ma;
  * pomiar z 16.08.2026 to obalił — workflow wszedł commitem `0e2bd49`.)
  *
+ * PLAN-D-Y2 08.2026 (16.08.2026) — sekcja 8 i mutacje M10–M16 dokładają DRUGĄ
+ * stronę tej samej choroby: cichy brak po stronie WEJŚCIA. Do 16.08.2026
+ * `btn-submit` był tylko przygaszony (`opacity:0.4`), `onclick` działał, a
+ * `calcScores()` wstawiało za każde pytanie bez odpowiedzi środek skali (3.5).
+ * Zmierzone: ten sam zawodnik po pełnej ankiecie czytał „Twoja gra ma odwagę
+ * w grze jako wąskie gardło", a po sześciu pytaniach „Twój profil jest wyrównany"
+ * przy WYŻSZYM wyniku ogólnym. Krótsza droga dawała lepszą liczbę.
+ *
  * ⚠️ TO JEST STRAŻNIK NA REGUŁĘ, NIE NA LISTĘ (O69). Nigdzie tu nie ma spisu
  * ścieżek odczytu. Ścieżki są WYKRYWANE: najpierw wyznaczamy zbiór funkcji
  * CZYTAJĄCYCH (domknięcie przechodnie), potem pytamy o nie w ciałach `try`
@@ -497,12 +505,266 @@ assert(/zaproponujPowrotDoAnkiety\s*\(/.test(M), 'ekran wejścia proponuje powr�
 assert(/id="gc-powrot-do-ankiety"/.test(HTML), 'w `screen-intro` jest miejsce, w którym ta propozycja się rysuje');
 
 /* ══════════════════════════════════════════════════════════════════════════
-   8. BATERIA MUTACJI — każda zapala, każda ma asercję ODWROTNĄ.
+   8. PLAN-D-Y2 08.2026 — WYNIK NIE POWSTAJE Z ANKIETY NIEPEŁNEJ
+   Cichy brak po stronie WEJŚCIA: nie „nie wiem, bo odczyt padł", tylko
+   „nie wiem, bo nikt nie odpowiedział" — a produkt w obu wypadkach podawał
+   liczbę, jakby wiedział.
+   ══════════════════════════════════════════════════════════════════════════ */
+scenario('8. odkrywanie ankiety — pytania i segmenty liczone Z KODU (O69)');
+
+/** SEGS wycinane dopasowaniem nawiasów i URUCHAMIANE — nie ma tu spisu segmentów. */
+let SEGS_Z_PLIKU = null;
+probuj('definicja `SEGS` daje się wyciąć i uruchomić', () => {
+  const iS = M.indexOf('const SEGS = [');
+  if (iS === -1) throw new Error('nie ma `const SEGS = [` w tym pliku');
+  const aS = M.indexOf('[', iS);
+  const bS = dopasuj(M, aS, '[', ']');
+  if (bS === -1) throw new Error('nie da się domknąć tablicy `SEGS`');
+  const c = { console: { log() {} } };
+  vm.createContext(c);
+  vm.runInContext('var SEGS = ' + HTML.slice(aS, bS + 1) + ';', c);
+  SEGS_Z_PLIKU = c.SEGS;
+  assert(Array.isArray(SEGS_Z_PLIKU), '`SEGS` jest tablicą');
+});
+const LICZBA_SEGMENTOW = SEGS_Z_PLIKU ? SEGS_Z_PLIKU.length : -1;
+const LICZBA_PYTAN = SEGS_Z_PLIKU ? SEGS_Z_PLIKU.reduce((s, x) => s + (x.qs || []).length, 0) : -1;
+assertEq(LICZBA_SEGMENTOW, 13, 'zapadka na RÓWNOŚĆ (O73): segmentów w ankiecie');
+assertEq(LICZBA_PYTAN, 27, 'zapadka na RÓWNOŚĆ (O73): PYTAŃ w ankiecie — od tej liczby zależy każda bramka niżej');
+assert(SEGS_Z_PLIKU ? SEGS_Z_PLIKU.every(s => (s.qs || []).length > 0) : false, 'każdy segment ma przynajmniej jedno pytanie');
+
+scenario('8a. wejścia do `generateResults()` i `calcScores()` — wykryte, nie wypisane');
+/** Wywołania z atrybutów zdarzeń HTML. Maska kasuje wszystko poza <script>,
+ *  więc atrybutów NIE widać w `M` — trzeba ich szukać osobno, w atrybutach,
+ *  a nie w całym HTML-u (inaczej liczy się też własne komentarze tego pliku). */
+function wywolaniaZAtrybutow(nazwa) {
+  let n = 0;
+  const re = /\son[a-z]+\s*=\s*"([^"]*)"/g; let m;
+  while ((m = re.exec(HTML))) {
+    const r2 = new RegExp('\\b' + nazwa + '\\s*\\(', 'g');
+    while (r2.exec(m[1])) n++;
+  }
+  return n;
+}
+assertEq(wywolaniaZAtrybutow('generateResults'), 1, 'zapadka na RÓWNOŚĆ (O73): `generateResults()` ma DOKŁADNIE JEDNO wejście z ekranu — `onclick` przycisku');
+assertEq(ileWywolan('generateResults'), 0, '`generateResults()` nie jest wołana z JavaScriptu ani razu');
+assertEq(ileWywolan('calcScores'), 1, '⭐ zapadka na RÓWNOŚĆ (O73): `calcScores()` ma DOKŁADNIE JEDNEGO konsumenta — kto dołoży drugiego, musi go zabramkować tak samo');
+assert(/calcScores\s*\(/.test(wytnijM('generateResults')), 'tym jedynym konsumentem jest `generateResults`');
+
+scenario('8b. D2 POZIOM PIERWSZY — przycisk jest NIEKLIKALNY, nie tylko przygaszony');
+const TAG_SUBMIT = (/<button[^>]*id="btn-submit"[^>]*>/.exec(HTML) || [''])[0];
+assert(TAG_SUBMIT.length > 0, 'w źródle strony stoi przycisk `#btn-submit`');
+assert(/\bdisabled\b/.test(TAG_SUBMIT),
+  '⭐ `#btn-submit` ma `disabled` JUŻ W ŹRÓDLE STRONY — stan startowy ankiety to zero odpowiedzi, więc nie ma chwili, w której da się go kliknąć');
+const upsM = wytnijM('updateProgressScroll');
+assert(upsM.length > 0, 'jest funkcja `updateProgressScroll`');
+assert(/\.disabled\s*=/.test(upsM),
+  '⛔ `updateProgressScroll` ustawia `disabled`, a nie samo `opacity` — `opacity` to WYGLĄD, przygaszony przycisk klikał się tak samo dobrze');
+assert(/updateProgressScroll\s*\(/.test(wytnijM('restart')),
+  '⭐ `restart()` odświeża stan przycisku — po świadomym starcie od nowa nie ma odpowiedzi, więc nie ma prawa zostać klikalny z poprzedniego przebiegu');
+
+scenario('8c. D2 POZIOM DRUGI — bramka w samej funkcji, PRZED ekranem ładowania (O71, O75)');
+const genResM = wytnijM('generateResults');
+const genResRaw = wytnij('generateResults');
+assert(/brakiWAnkiecie\s*\(/.test(genResM), '⭐ O75 — `generateResults` NAPRAWDĘ pyta `brakiWAnkiecie()`; bramka niewołana szłaby na zielono');
+{
+  // ⚠️ Pozycji szukamy w ŹRÓDLE ZAMASKOWANYM. Komentarz nad tą bramką CYTUJE
+  //    `showScreen('screen-loading')`, więc szukanie w surowym tekście trafiłoby
+  //    w cytat i asercja przechodziłaby (albo padała) z powodu dokumentacji.
+  const iBramka = genResM.indexOf('brakiWAnkiecie');
+  const iLadowanie = genResM.indexOf('showScreen(');
+  const iReturn = genResM.indexOf('return;');
+  assert(genResRaw.indexOf("showScreen('screen-loading')") !== -1, '`generateResults` w ogóle pokazuje ekran ładowania');
+  assert(iBramka !== -1 && iLadowanie !== -1 && iBramka < iLadowanie,
+    '⭐ bramka stoi PRZED pierwszym `showScreen(` — zawodnik nie ląduje na ekranie ładowania, z którego nic nie wyjdzie');
+  assert(iReturn !== -1 && iReturn < iLadowanie, 'między bramką a ekranem ładowania stoi `return;`');
+}
+const IFY_GEN = warunkiIf('generateResults');
+assert(IFY_GEN.some(w => /!\s*braki\.kompletna/.test(w)),
+  '⭐ O71 — WARUNEK tej JEDNEJ instrukcji `if` pyta o `!braki.kompletna`');
+assert(IFY_GEN.some(w => /segmentyBezWyniku\.length/.test(w)),
+  '⭐ O71 — druga bramka pyta o to, co NAPRAWDĘ wyszło z `calcScores()`, a nie o to, co powinno było wyjść');
+assert(/kompletna:\s*razem\s*>\s*0\s*&&\s*brakuje\s*===\s*0/.test(wytnijM('brakiWAnkiecie')),
+  '⛔ ankieta BEZ ANI JEDNEGO pytania nie jest „kompletna" — inaczej bramka przepuszczałaby pusty `activeSegs`');
+
+scenario('8d. D3 — zawodnik WIE, ile zostało, i ma jak tam wrócić');
+assert(/id="btn-do-pierwszego-braku"/.test(HTML), 'na ekranie ankiety jest wyjście do pierwszego pytania bez odpowiedzi');
+assertEq(wywolaniaZAtrybutow('przejdzDoPierwszegoBezOdpowiedzi'), 1, 'zapadka na RÓWNOŚĆ: to wyjście jest podpięte dokładnie raz');
+const rawRender = wytnij('renderAllQuestions');   // ⚠️ atrybuty są w literale szablonowym — maska by je wyczyściła
+assert(/data-seg="\$\{esc\(seg\.id\)\}"/.test(rawRender) && /data-qi="\$\{qi\}"/.test(rawRender),
+  '⭐ każde pytanie ma kotwicę `data-seg`/`data-qi` — bez niej wyjście nie ma czego znaleźć');
+assert(/\[data-seg=/.test(wytnij('przejdzDoPierwszegoBezOdpowiedzi')), '`przejdzDoPierwszegoBezOdpowiedzi` szuka pytania po tej samej kotwicy');
+assert(/wyjscie\.style\.display/.test(upsM), '`updateProgressScroll` decyduje, czy wyjście jest widoczne');
+
+scenario('8e. ⭐ D4 URUCHOMIONE — `calcScores()` z NIEPEŁNYM wejściem nie oddaje LICZBY');
+const zrodloCalc = wytnij('calcScores');
+assert(zrodloCalc.length > 0, 'jest funkcja `calcScores`');
+function policzZ(ans, segs) {
+  const c = { SEGS: segs, ans: ans, Math, Object, console: { warn() {}, error() {} } };
+  vm.createContext(c);
+  vm.runInContext(zrodloCalc, c);
+  return c.calcScores();
+}
+function pustaAnkieta(segs) { const a = {}; segs.forEach(s => a[s.id] = s.qs.map(() => null)); return a; }
+function pierwszeN(segs, n, w) {
+  const a = pustaAnkieta(segs); let i = 0;
+  segs.forEach(s => s.qs.forEach((q, qi) => { if (i < n) a[s.id][qi] = w; i++; }));
+  return a;
+}
+probuj('`calcScores` daje się URUCHOMIĆ na trzech stanach ankiety', () => {
+  if (!SEGS_Z_PLIKU) throw new Error('brak `SEGS` — nie ma na czym uruchomić');
+  const S = SEGS_Z_PLIKU;
+
+  /* ankieta PUSTA — do 16.08.2026 dawała 13 × 50/100, czyli wynik ogólny 50 */
+  const pusta = policzZ(pustaAnkieta(S), S);
+  const liczbyZPustej = Object.keys(pusta).filter(k => typeof pusta[k] === 'number');
+  assertEq(liczbyZPustej.length, 0,
+    '⛔ z ankiety PUSTEJ nie wychodzi ANI JEDNA liczba' + (liczbyZPustej.length ? ' — WYSZŁY: ' + liczbyZPustej.join(', ') : ''));
+  assert(Object.keys(pusta).every(k => pusta[k] === null), 'każdy segment pustej ankiety mówi jawne „nie wiem" (`null`)');
+
+  /* ankieta NIEPEŁNA — 6 z 27, czyli trzy pierwsze segmenty w komplecie */
+  const niepelna = policzZ(pierwszeN(S, 6, 4), S);
+  const odpowiedziane = new Set(); { let i = 0; S.forEach(s => s.qs.forEach(() => { if (i < 6) odpowiedziane.add(s.id); i++; })); }
+  const zmyslone = Object.keys(niepelna).filter(k => !odpowiedziane.has(k) && typeof niepelna[k] === 'number');
+  assertEq(zmyslone.length, 0,
+    '⭐ SEGMENT, KTÓREGO ZAWODNIK NIE OCENIŁ, NIE DOSTAJE LICZBY' + (zmyslone.length ? ' — DOSTAŁY: ' + zmyslone.map(k => k + '=' + niepelna[k]).join(', ') : ''));
+  assertEq(Object.keys(niepelna).filter(k => typeof niepelna[k] === 'number').length, odpowiedziane.size,
+    'liczbę dostają DOKŁADNIE te segmenty, które zawodnik ocenił w komplecie');
+
+  /* segment odpowiedziany W POŁOWIE — druga dziura, nie ta od 3.5 */
+  const polowa = pustaAnkieta(S);
+  S.forEach(s => s.qs.forEach((q, qi) => { polowa[s.id][qi] = 4; }));
+  const segWielopytaniowy = S.filter(s => s.qs.length > 1)[0];
+  polowa[segWielopytaniowy.id][segWielopytaniowy.qs.length - 1] = null;
+  const wynikPolowa = policzZ(polowa, S);
+  assertEq(wynikPolowa[segWielopytaniowy.id], null,
+    '⭐ segment odpowiedziany W POŁOWIE też mówi „nie wiem" — średnia z połowy pytań wyglądała jak pomiar');
+
+  /* ASERCJA ODWROTNA — naprawa nie zepsuła liczenia PEŁNEJ ankiety */
+  const pelna = pustaAnkieta(S);
+  S.forEach(s => s.qs.forEach((q, qi) => { pelna[s.id][qi] = 4; }));
+  const wynikPelny = policzZ(pelna, S);
+  assertEq(Object.keys(wynikPelny).filter(k => typeof wynikPelny[k] === 'number').length, S.length,
+    '⭐ ASERCJA ODWROTNA: ankieta PEŁNA nadal daje liczbę dla KAŻDEGO segmentu');
+  assert(Object.values(wynikPelny).every(v => v >= 0 && v <= 100), 'wszystkie liczby z pełnej ankiety mieszczą się w 0–100');
+});
+
+scenario('8f. ⛔ wypełniacz 3.5 — nie wraca po cichu');
+{
+  const TRAFIENIA = [];
+  const re = /3\.5/g; let m;
+  while ((m = re.exec(HTML))) {
+    TRAFIENIA.push({
+      linia: HTML.slice(0, m.index).split('\n').length,
+      zywe: M.slice(m.index, m.index + 3) === '3.5',
+      ctx: HTML.slice(Math.max(0, m.index - 40), m.index + 20).replace(/\s+/g, ' '),
+    });
+  }
+  const ZYWE = TRAFIENIA.filter(t => t.zywe);
+  assertEq(ZYWE.length, 0,
+    '⛔ wartości 3.5 NIE MA W WYKONYWANYM KODZIE' + (ZYWE.length ? ' — STOI w l. ' + ZYWE.map(t => t.linia + ' (' + t.ctx + ')').join(' | ') : ''));
+  assertEq(TRAFIENIA.length, 3,
+    'zapadka na RÓWNOŚĆ (O73): wystąpień „3.5" w całym pliku — wszystkie poza żywym kodem, każde wypisane niżej');
+  TRAFIENIA.forEach(t => console.log('      · l. ' + t.linia + (t.zywe ? '  ⛔ ŻYWY KOD  ' : '  (poza kodem: literał albo komentarz)  ') + t.ctx));
+  const calcM = wytnijM('calcScores');
+  assert(!/3\.5/.test(calcM), '⛔ w ciele `calcScores` nie ma już wypełniacza');
+  assert(/sc\[seg\.id\]\s*=\s*null/.test(calcM), '`calcScores` stawia jawne `null` zamiast liczby');
+  assert(/cnt\s*!==\s*seg\.qs\.length/.test(calcM), 'warunek pyta o KOMPLET odpowiedzi, nie o „choć jedną"');
+}
+
+scenario('8g. D5 — żadna z tych ścieżek NIE KASUJE pracy zawodnika');
+assert(!/zapomnijPostepAnkiety\s*\(/.test(genResM), '`generateResults` nie kasuje zapisanego postępu ankiety');
+assert(!/\bans\s*=\s*\{\s*\}/.test(genResM), '`generateResults` nie zeruje odpowiedzi');
+assert(!/localStorage\s*\.\s*removeItem/.test(genResM), '`generateResults` nie rusza magazynu przeglądarki');
+assert(!/zapomnijPostepAnkiety\s*\(|\bans\s*=\s*\{\s*\}/.test(wytnijM('brakiWAnkiecie') + wytnijM('przejdzDoPierwszegoBezOdpowiedzi') + upsM),
+  'ani bramka, ani wyjście, ani pasek postępu niczego nie kasują');
+
+scenario('8h. ⭐ ZACHOWANIE — pasek, przycisk i podpowiedź ZBUDOWANE NAPRAWDĘ');
+const ZRODLO_EKRANU = [
+  (/const\s+ETYKIETA_WROC_TAM_GDZIE_SKONCZYLES\s*=\s*'[^']*';/.exec(HTML) || [''])[0],
+  wytnij('zdanieZostalo'), wytnij('brakiWAnkiecie'),
+  wytnij('przejdzDoPierwszegoBezOdpowiedzi'), wytnij('updateProgressScroll'),
+].join('\n');
+function zbudujEkran(ileOdpowiedzi) {
+  const S = SEGS_Z_PLIKU;
+  const ans = {}; S.forEach(s => ans[s.id] = s.qs.map(() => null));
+  let i = 0; S.forEach(s => s.qs.forEach((q, qi) => { if (i < ileOdpowiedzi) ans[s.id][qi] = 4; i++; }));
+  const el = (id) => ({ id, style: {}, textContent: '', disabled: undefined });
+  const wezly = { 'prog-fill': el('prog-fill'), 'prog-info': el('prog-info'), 'btn-submit': el('btn-submit'), 'submit-hint': el('submit-hint'), 'btn-do-pierwszego-braku': el('btn-do-pierwszego-braku') };
+  let pytany = null;
+  const c = {
+    document: { getElementById: (id) => wezly[id] || null, querySelector: (s) => { pytany = s; return null; } },
+    activeSegs: S, ans: ans, Math, Object, console: { warn() {}, error() {} },
+  };
+  vm.createContext(c);
+  vm.runInContext(ZRODLO_EKRANU, c);
+  c.updateProgressScroll();
+  c.przejdzDoPierwszegoBezOdpowiedzi();
+  return { w: wezly, pytany: pytany };
+}
+probuj('ekran ankiety daje się ZBUDOWAĆ w trzech stanach', () => {
+  if (!SEGS_Z_PLIKU) throw new Error('brak `SEGS`');
+
+  const pusty = zbudujEkran(0);
+  assertEq(pusty.w['btn-submit'].disabled, true, '⭐ ankieta PUSTA: przycisk jest NIEKLIKALNY (`disabled === true`)');
+  assertEq(pusty.w['prog-info'].textContent, '0%', 'ankieta pusta: pasek postępu pokazuje 0%');
+  assert(pusty.w['submit-hint'].textContent.indexOf('Zostało 27.') !== -1,
+    '⭐ ankieta pusta MÓWI, ILE ZOSTAŁO: „' + pusty.w['submit-hint'].textContent + '"');
+  assertEq(pusty.w['btn-do-pierwszego-braku'].style.display, 'inline-block', 'ankieta pusta: wyjście do pierwszego pytania jest WIDOCZNE');
+
+  const polowa = zbudujEkran(6);
+  assertEq(polowa.w['btn-submit'].disabled, true, '⭐ ankieta 6/27: przycisk WCIĄŻ nieklikalny');
+  assertEq(polowa.w['submit-hint'].textContent, 'Odpowiedziano na 6 z 27 pytań. Zostało 21.',
+    '⭐ ankieta 6/27 mówi obie liczby — zawodnik nie musi odejmować w pamięci (P0)');
+  assert(!/nie odpowiedziałeś|musisz|niestety|błąd/i.test(polowa.w['submit-hint'].textContent),
+    'D7 — zdanie nie brzmi jak wina zawodnika ani jak wyrzut');
+  assertEq(polowa.w['btn-do-pierwszego-braku'].textContent, 'Wróć tam, gdzie skończyłeś',
+    '⭐ etykieta wyjścia jest wzięta ze stałej, nie wpisana w HTML');
+  assert(polowa.pytany && polowa.pytany.indexOf('data-qi="0"') !== -1 && polowa.pytany.indexOf('data-seg="techFund"') !== -1,
+    '⭐ wyjście prowadzi do SIÓDMEGO pytania, czyli pierwszego bez odpowiedzi — pytało o: ' + polowa.pytany);
+
+  const pelny = zbudujEkran(27);
+  assertEq(pelny.w['btn-submit'].disabled, false, '⭐ ASERCJA ODWROTNA: po komplecie odpowiedzi przycisk jest KLIKALNY');
+  assertEq(pelny.w['prog-info'].textContent, '100%', 'komplet: pasek postępu pokazuje 100%');
+  assertEq(pelny.w['submit-hint'].textContent, 'Gotowe — możesz wygenerować diagnozę.', 'komplet: podpowiedź jest ta sama co przed pasem');
+  assertEq(pelny.w['btn-do-pierwszego-braku'].style.display, 'none', 'komplet: wyjście do pierwszego braku znika');
+  assertEq(pelny.pytany, null, 'komplet: nie ma o co pytać — `przejdzDoPierwszegoBezOdpowiedzi` nie szuka niczego');
+});
+
+scenario('8i. D6 — skąd pochodzi etykieta wyjścia');
+{
+  const wart = (/const\s+ETYKIETA_WROC_TAM_GDZIE_SKONCZYLES\s*=\s*'([^']*)'/.exec(HTML) || [])[1];
+  assert(!!wart, 'stała `ETYKIETA_WROC_TAM_GDZIE_SKONCZYLES` istnieje');
+  assert(wytnij('zaproponujPowrotDoAnkiety').indexOf(wart) !== -1,
+    '⭐ „' + wart + '" stoi w `zaproponujPowrotDoAnkiety` OD PASA Y1 — porównanie z ŻYWYM źródłem, nie z kopią w teście');
+  probuj('`zdanieZostalo` daje się uruchomić i mówi liczbę', () => {
+    const c = {}; vm.createContext(c); vm.runInContext(wytnij('zdanieZostalo'), c);
+    assertEq(c.zdanieZostalo(21), 'Zostało 21.', 'jedyne nowe brzmienie pasa Y2 — oznaczone `⚠️ DO PRZEJRZENIA — Y2`');
+    assert(/DO PRZEJRZENIA — Y2/.test(HTML.slice(Math.max(0, znajdz('zdanieZostalo').od - 600), znajdz('zdanieZostalo').od)),
+      'to brzmienie jest oznaczone do przejrzenia — nikt go nie przemyci jako uzgodnione');
+  });
+}
+
+scenario('8j. `activeSegs` a `SEGS` — dwa zbiory, jedna bramka');
+{
+  const PRZYPISANIA = [];
+  const re = /\bactiveSegs\s*=\s*([^;]+);/g; let m;
+  while ((m = re.exec(M))) PRZYPISANIA.push(m[1].trim());
+  // ZMIERZONE: `let activeSegs = []` (deklaracja) · `= SEGS` w `startSurvey`
+  // · `= SEGS` w `wrocDoAnkiety` · `= []` w `restart`.
+  assertEq(PRZYPISANIA.length, 4, 'zapadka na RÓWNOŚĆ (O73): przypisań do `activeSegs` w całym pliku');
+  assert(PRZYPISANIA.every(x => x === 'SEGS' || x === '[]'),
+    '`activeSegs` bierze dziś wyłącznie `SEGS` albo pustkę — gdyby stał się PODZBIOREM, bramka po `null` w `generateResults` i tak by go złapała (znaleziono: ' + PRZYPISANIA.join(' | ') + ')');
+  assert(/SEGS\.forEach/.test(wytnijM('calcScores')), '`calcScores` liczy po `SEGS`');
+  assert(/activeSegs/.test(wytnijM('brakiWAnkiecie')), '`brakiWAnkiecie` liczy po `activeSegs` — dlatego druga bramka jest konieczna, nie ozdobna');
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   9. BATERIA MUTACJI — każda zapala, każda ma asercję ODWROTNĄ.
    ⚠️ Cofnięcie jest STRUKTURALNE, nie deklaratywne: każda mutacja to podmiana
    w łańcuchu znaków W PAMIĘCI. Nic nie dotyka dysku, więc nie ma czego cofać —
    a pilnuje tego `md5` liczone przed baterią i po niej.
    ══════════════════════════════════════════════════════════════════════════ */
-scenario('8. bateria mutacji — czy ten strażnik w ogóle potrafi się zapalić');
+scenario('9. bateria mutacji — czy ten strażnik w ogóle potrafi się zapalić');
 
 const MD5_PRZED = crypto.createHash('md5').update(HTML).digest('hex');
 const przeparsuj = (t) => { const Mt = maskuj(t); const F = funkcje(t, Mt); for (const f of F) f.trescM = Mt.slice(f.a, f.b); return { Mt, F, znajdz: (n) => F.filter(x => x.nazwa === n).pop() || null }; };
@@ -590,6 +852,95 @@ const MUTACJE = [
     nazwa: 'M9 — `zglosBladOdczytu` schodzi z `console.error` na `console.log` (O80)',
     psuj: t => t.replace("try { console.error('CICHY BRAK — ' + gdzie,", "try { console.log('CICHY BRAK — ' + gdzie,"),
     wykryj: t => { const { znajdz } = przeparsuj(t); const f = znajdz('zglosBladOdczytu'); return !f || !/console\.error\(/.test(f.trescM); },
+  },
+  /* ── PLAN-D-Y2 08.2026 — siedem mutacji na cichy brak po stronie WEJŚCIA ── */
+  {
+    nazwa: 'M10 — `disabled` znika z przycisku w źródle strony (zostaje samo `opacity`)',
+    psuj: t => t.replace('id="btn-submit" onclick="generateResults()" disabled', 'id="btn-submit" onclick="generateResults()"'),
+    wykryj: t => {
+      const tag = (/<button[^>]*id="btn-submit"[^>]*>/.exec(t) || [''])[0];
+      return !/\bdisabled\b/.test(tag);
+    },
+  },
+  {
+    nazwa: 'M11 — `updateProgressScroll` przestaje ustawiać `disabled`',
+    psuj: t => t.replace('    btn.disabled = !b.kompletna;', "    btn.title = '';"),
+    wykryj: t => { const { znajdz } = przeparsuj(t); const f = znajdz('updateProgressScroll'); return !f || !/\.disabled\s*=/.test(f.trescM); },
+  },
+  {
+    nazwa: 'M12 — bramka na niepełną ankietę w `generateResults` rozluźniona (O71)',
+    psuj: t => t.replace('  if (!braki.kompletna) {', '  if (false) {'),
+    wykryj: t => {
+      const { znajdz } = przeparsuj(t);
+      const f = znajdz('generateResults'); if (!f) return true;
+      const w = []; const re = /\bif\s*\(/g; let m;
+      while ((m = re.exec(f.trescM))) { const nw = f.trescM.indexOf('(', m.index); const k = dopasuj(f.trescM, nw, '(', ')'); if (k !== -1) w.push(f.trescM.slice(nw + 1, k)); }
+      return !w.some(x => /!\s*braki\.kompletna/.test(x));
+    },
+  },
+  {
+    nazwa: 'M13 — ⛔ WYPEŁNIACZ 3.5 WRACA DO `calcScores`',
+    psuj: t => t.replace('    if (cnt !== seg.qs.length) { sc[seg.id] = null; return; }\n    const raw = sum / cnt;',
+                         '    const raw = cnt > 0 ? sum / cnt : 3.5;'),
+    wykryj: t => {
+      // ⭐ detektor URUCHAMIA zmutowaną funkcję na ankiecie 6 z 27 i pyta,
+      //    czy segment BEZ ANI JEDNEJ ODPOWIEDZI dostał liczbę.
+      const { znajdz } = przeparsuj(t);
+      const f = znajdz('calcScores'); if (!f) return true;
+      if (!SEGS_Z_PLIKU) return true;
+      const S = SEGS_Z_PLIKU;
+      const ans = {}; S.forEach(s => ans[s.id] = s.qs.map(() => null));
+      let i = 0; S.forEach(s => s.qs.forEach((q, qi) => { if (i < 6) ans[s.id][qi] = 4; i++; }));
+      const odp = new Set(); { let j = 0; S.forEach(s => s.qs.forEach(() => { if (j < 6) odp.add(s.id); j++; })); }
+      const c = { SEGS: S, ans: ans, Math, Object, console: { warn() {}, error() {} } };
+      vm.createContext(c);
+      vm.runInContext(t.slice(f.od, f.b), c);
+      const sc = c.calcScores();
+      return Object.keys(sc).some(k => !odp.has(k) && typeof sc[k] === 'number');
+    },
+  },
+  {
+    nazwa: 'M14 — warunek kompletu rozluźniony do „choć jedna odpowiedź"',
+    psuj: t => t.replace('    if (cnt !== seg.qs.length) { sc[seg.id] = null; return; }', '    if (cnt === 0) { sc[seg.id] = null; return; }'),
+    wykryj: t => {
+      // ⭐ URUCHAMIA na segmencie odpowiedzianym W POŁOWIE.
+      const { znajdz } = przeparsuj(t);
+      const f = znajdz('calcScores'); if (!f) return true;
+      if (!SEGS_Z_PLIKU) return true;
+      const S = SEGS_Z_PLIKU;
+      const ans = {}; S.forEach(s => ans[s.id] = s.qs.map(() => 4));
+      const wielo = S.filter(s => s.qs.length > 1)[0];
+      ans[wielo.id][wielo.qs.length - 1] = null;
+      const c = { SEGS: S, ans: ans, Math, Object, console: { warn() {}, error() {} } };
+      vm.createContext(c);
+      vm.runInContext(t.slice(f.od, f.b), c);
+      return typeof c.calcScores()[wielo.id] === 'number';
+    },
+  },
+  {
+    nazwa: 'M15 — kotwice `data-seg`/`data-qi` znikają z pytania (wyjście traci cel)',
+    psuj: t => t.replace('<div class="question-block" data-seg="${esc(seg.id)}" data-qi="${qi}" style=', '<div class="question-block" style='),
+    wykryj: t => {
+      const { znajdz } = przeparsuj(t);
+      const f = znajdz('renderAllQuestions'); if (!f) return true;
+      return !/data-seg="\$\{esc\(seg\.id\)\}"/.test(t.slice(f.od, f.b));   // ⚠️ RAW, nie maska — atrybuty siedzą w literale szablonowym
+    },
+  },
+  {
+    nazwa: 'M17 — `restart()` przestaje odświeżać stan przycisku',
+    psuj: t => t.replace('  updateProgressScroll();\n  ctx = { level: null', '  ctx = { level: null'),
+    wykryj: t => { const { znajdz } = przeparsuj(t); const f = znajdz('restart'); return !f || !/updateProgressScroll\s*\(/.test(f.trescM); },
+  },
+  {
+    nazwa: 'M16 — ostatnia bramka (`null` po policzeniu) przestaje pytać',
+    psuj: t => t.replace('  if (segmentyBezWyniku.length) {', '  if (false) {'),
+    wykryj: t => {
+      const { znajdz } = przeparsuj(t);
+      const f = znajdz('generateResults'); if (!f) return true;
+      const w = []; const re = /\bif\s*\(/g; let m;
+      while ((m = re.exec(f.trescM))) { const nw = f.trescM.indexOf('(', m.index); const k = dopasuj(f.trescM, nw, '(', ')'); if (k !== -1) w.push(f.trescM.slice(nw + 1, k)); }
+      return !w.some(x => /segmentyBezWyniku\.length/.test(x));
+    },
   },
 ];
 
