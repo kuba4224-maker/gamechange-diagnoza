@@ -272,9 +272,17 @@ const ODCZYTY = SIECIOWE.filter(w => w.rodzaj === 'gcRpc'
   ? !RPC_ZAPIS.test(w.arg.trim())
   : (ZAPIS_HTTP.indexOf(w.met) === -1 || /\/api\/diagnose/.test(w.arg)));
 
-assertEq(SIECIOWE.length, 30, 'zapadka na RÓWNOŚĆ (O73): wywołań sieciowych poza pośrednikiem');
-assertEq(ODCZYTY.length, 17, 'zapadka na RÓWNOŚĆ (O73): ŚCIEŻEK ODCZYTU w lejku');
-assertEq(SIECIOWE.length - ODCZYTY.length, 13, 'zapadka na RÓWNOŚĆ (O73): ścieżek zapisu');
+/* ⚠️ PRZESTAWIONE 16.08.2026 przez PLAN-D-Y4 (decyzja D3): 30→20, 17→10, 13→10.
+   NIE dlatego, że zapadka przeszkadzała. Z martwego regionu (widok drużyny, panel
+   trenera, raport dla rodzica) usunięto 990 linii NIEOSIĄGALNEGO kodu — a w nich
+   10 wywołań sieciowych, z czego 7 odczytów i 3 zapisy. Wszystkie po zdjęciu
+   polityki `anon SELECT` (P0-2, 08.08.2026) i tak zawsze widziały pustkę, a od
+   wycięcia dispatchów `?team=` i `?parent=` nie miały jak zostać wywołane.
+   ⭐ Zapadka zostaje na RÓWNOŚĆ i pilnuje tego, po co powstała: kto DOŁOŻY
+   ścieżkę sieciową w lejku zawodnika, zobaczy czerwień i będzie musiał ją nazwać. */
+assertEq(SIECIOWE.length, 20, 'zapadka na RÓWNOŚĆ (O73): wywołań sieciowych poza pośrednikiem');
+assertEq(ODCZYTY.length, 10, 'zapadka na RÓWNOŚĆ (O73): ŚCIEŻEK ODCZYTU w lejku');
+assertEq(SIECIOWE.length - ODCZYTY.length, 10, 'zapadka na RÓWNOŚĆ (O73): ścieżek zapisu');
 
 /* ══════════════════════════════════════════════════════════════════════════
    2. KANON TRZECH WARTOŚCI — URUCHOMIONY, nie przeczytany
@@ -317,16 +325,22 @@ const DLUG_ZASTANY = {
      pusty `catch` wokół odczytu „czy ten trener ma już kod" — awaria sieci szła
      dalej do generatora i drużyna dostawała DRUGI kod. Dziś to trzeci stan (R5):
      nie wiemy → nie wydajemy niczego i mówimy to wprost. Pomiar: sekcja 10f. */
+  /* ⛔ SKREŚLONE 16.08.2026 przez PLAN-D-Y4 (decyzja D3) — SZEŚĆ POZYCJI NARAZ:
+     `loadParentView`, `generateParentReport`, `loadTeamView`, `loadCoachNote`,
+     `showPreviousCoachInsight`, `generateTeamAIRecommendation`.
+     ⭐ Nie „naprawione" — USUNIĘTE. Cicha gałąź błędu przestaje istnieć razem
+     z funkcją, która ją zawierała. Nieosiągalność każdej z nich udowodniona mapą
+     osiągalności z domknięciem przechodnim (kod najwyższego poziomu · atrybut
+     zdarzenia w statycznym HTML-u · atrybut zdarzenia w HTML-u sklejanym w JS ·
+     `window.*`), a nie tym, że „wyglądały na stare". Razem 990 linii.
+     ⛔ To jest PRZEWIDZIANY tryb tej zapadki, ten sam, którym pas Y3 skreślił
+     `registerCoach`: kto zdejmuje pozycję z listy długu, ma to zrobić jawnie
+     i z datą. Zapadka zostaje na RÓWNOŚĆ i nadal zapali się na siódmej cichej
+     ścieżce — dołożonej albo naprawionej bez skreślenia. */
   'triggerFeedbackDigest': 'MARTWY REGION (LEJEK R8, 08.08.2026) — jedyny wyzwalacz wykomentowany; `catch` mówi do przycisku, nie do konsoli',
   'loadFeedbackAnalysis': 'MARTWY REGION — po zdjęciu polityki anon SELECT (P0-2) odczyt zawsze pusty, wyzwalacz wycięty',
-  'loadParentView': 'MARTWY REGION — dispatch `?parent=` pokazuje dziś uczciwy komunikat zamiast wołać tę funkcję',
-  'loadTeamView': 'MARTWY REGION — dispatch `?team=` wycięty (P0-2); panel przeniesiony do `gamechange-app/coach.html`',
-  'loadCoachNote': 'MARTWY REGION — osiągalna wyłącznie z panelu trenera, który nie ma już wejścia',
-  'showPreviousCoachInsight': 'MARTWY REGION — jw. Rozróżnia stany po stronie bazy, ale `catch` czyści bez słowa',
-  'generateParentReport': 'MARTWY REGION — raport rodzica generuje dziś backend (`gamechange-app/lib/parent-reports.js`), nie ta funkcja',
-  'generateCoachQuestions': 'MARTWY REGION — pytania dla trenera osiągalne tylko z panelu drużyny, który nie ma już wejścia',
+  'generateCoachQuestions': 'MARTWY REGION — pytania dla trenera osiągalne tylko z panelu drużyny, który nie ma już wejścia. ⚠️ NIE USUNIĘTA przez Y4: jej `onclick` stoi w STATYCZNYM HTML-u, więc nieosiągalności NIE UDOWODNIŁEM (D3)',
   'submitCoachAnswers': 'MARTWY REGION — jak wyżej; jego `catch` pisze „Błąd połączenia." do DOM-u, ale nie do konsoli',
-  'generateTeamAIRecommendation': 'MARTWY REGION — rekomendacja drużynowa osiągalna tylko z panelu drużyny',
   'scheduleDelayedContact': 'odczyt bramkujący ZAPIS, nie treść dla zawodnika: „lepiej zaplanować duplikat niż nic" (decyzja z 08.08.2026). Nic z tego nie trafia na ekran',
   'submitObservationResponse': 'wewnętrzny `catch` wokół zapisu obserwacji — świadomie nie blokuje podziękowania; nie rysuje niczego',
 };
@@ -682,8 +696,13 @@ scenario('8f. ⛔ wypełniacz 3.5 — nie wraca po cichu');
   const ZYWE = TRAFIENIA.filter(t => t.zywe);
   assertEq(ZYWE.length, 0,
     '⛔ wartości 3.5 NIE MA W WYKONYWANYM KODZIE' + (ZYWE.length ? ' — STOI w l. ' + ZYWE.map(t => t.linia + ' (' + t.ctx + ')').join(' | ') : ''));
-  assertEq(TRAFIENIA.length, 4,
-    'zapadka na RÓWNOŚĆ (O73): wystąpień „3.5" w całym pliku (3 z pasa Y2 + 1 z komentarza pasa Y3) — wszystkie poza żywym kodem, każde wypisane niżej');
+  /* ⚠️ PRZESTAWIONE 16.08.2026 przez PLAN-D-Y4 (D3): 4→3. Czwarte wystąpienie
+     leżało w `generateTeamAIRecommendation` — funkcji z martwego regionu widoku
+     drużyny, usuniętej w całości. ⛔ To, czego ta zapadka naprawdę pilnuje,
+     jest NIETKNIĘTE: wartości 3.5 nie ma w wykonywanym kodzie ANI RAZU
+     (asercja wyżej), a każde pozostałe wystąpienie jest wypisane z numerem linii. */
+  assertEq(TRAFIENIA.length, 3,
+    'zapadka na RÓWNOŚĆ (O73): wystąpień „3.5" w całym pliku (3 z pasa Y2) — wszystkie poza żywym kodem, każde wypisane niżej');
   TRAFIENIA.forEach(t => console.log('      · l. ' + t.linia + (t.zywe ? '  ⛔ ŻYWY KOD  ' : '  (poza kodem: literał albo komentarz)  ') + t.ctx));
   const calcM = wytnijM('calcScores');
   assert(!/3\.5/.test(calcM), '⛔ w ciele `calcScores` nie ma już wypełniacza');
@@ -1254,6 +1273,369 @@ probujAsync('⭐ ASERCJA ODWROTNA D6 — gdy trener MA już kod, dostaje TEN SAM
   });
 }); 
 
+
+/* ══════════════════════════════════════════════════════════════════════════
+   11. PLAN-D-Y4 08.2026 — KOD, KTÓRY WYGLĄDA JAK FUNKCJA, A NIĄ NIE JEST
+   ══════════════════════════════════════════════════════════════════════════
+   Ten pas usunął 990 linii NIEOSIĄGALNEGO kodu (widok drużyny, panel trenera,
+   raport dla rodzica) i JEDNĄ półfunkcję: `updateSurveyQuestionStates`, która
+   od chwili narodzin nie robiła NIC, a po pasie Y2 zaczęła naprawdę dopisywać
+   trzy klasy, dla których w tym pliku nie ma ANI JEDNEJ reguły CSS.
+
+   ⛔ CZEGO PILNUJE TA SEKCJA — trzech rzeczy, z których każda już raz zawiodła:
+   11a. martwa funkcja nie ma prawa wrócić po cichu (zapadka na RÓWNOŚĆ, D6);
+   11b. półfunkcja nie ma prawa wrócić ani jako kod, ani jako klasa (D1);
+   11c. kotwice `data-seg`/`data-qi` pasa Y2 MUSZĄ zostać (asercja ODWROTNA, D2);
+   11d. sześć stanów lejka ma renderować się CO DO ZNAKU tak samo (D5).
+
+   ⚠️ DO PRZECZYTANIA PRZED DOPISANIEM TU CZEGOKOLWIEK (pułapka Y3-4):
+   `maskuj` czyści TREŚĆ literałów, więc `data-seg="${...}"` w masce nie istnieje.
+   Granice bierzemy z maski, TREŚĆ literałów z ORYGINAŁU. Ta sekcja robi jedno
+   i drugie świadomie i pisze przy każdym użyciu, z czego czyta.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── MAPA OSIĄGALNOŚCI: cztery rodzaje korzeni + domknięcie przechodnie ────
+   ⛔ Nie „która funkcja ma gdzieś swoją nazwę" — bo `renderTeamTable` MIAŁA
+   wywołanie, tyle że z `loadTeamView`, do której nie prowadziła żadna ścieżka.
+   Pytanie brzmi: czy z KORZENIA da się do niej dojść.
+   KORZENIE: kod najwyższego poziomu · `onclick=` w STATYCZNYM HTML-u ·
+   `window.NAZWA` · (⚠️ NIE: `onclick=` w HTML-u SKLEJANYM w JS — to jest
+   KRAWĘDŹ od funkcji, która ten HTML emituje. Gdyby liczyć to jako korzeń,
+   `openPlayerPanel` wyszłoby na żywe dlatego, że MARTWA `renderTeamTable`
+   wypisuje dla niego przycisk.) */
+/* ⚠️ KLASYFIKATOR ZNAKÓW — dlaczego NIE wystarczy `maskuj`.
+   `maskuj` odpowiada na pytanie „czy to jest kod", i to robi dobrze. Ta mapa
+   potrzebuje ODPOWIEDZI OSTRZEJSZEJ: „czy to jest kod, treść napisu, treść
+   literału szablonowego, czy komentarz" — bo `onclick="fn()"` sklejany w JS
+   leży w TREŚCI literału, a `${fn()}` w tym samym literale jest już KODEM.
+   ⛔ Dwie pułapki, w które wpadła pierwsza wersja tej funkcji i które kosztowały
+   cztery fałszywe „martwe":
+     1. literał wyrażenia regularnego POTRAFI ZAWIERAĆ cudzysłów — `_escapeHtmlLite`
+        robi `.replace(/'/g, '&#39;')`. Skaner bez obsługi `/…/` otwierał na tym
+        apostrofie fałszywy napis i gubił synchronizację na tysiące znaków
+        (to jest dokładnie pułapka nr 2 z nagłówka tego pliku);
+     2. wnętrze `${…}` to KOD, nie tekst — bez tego `renderSegmentGroupHTML`
+        i `_escapeHtmlLite`, wołane wyłącznie z interpolacji, wychodziły na martwe. */
+const RG_KOD = 0, RG_KOMENTARZ = 1, RG_NAPIS = 2, RG_SZABLON = 3, RG_HTML = 4, RG_REGEX = 5;
+function klasyfikujZnaki(src) {
+  const reg = new Uint8Array(src.length).fill(RG_HTML);
+  const BT = String.fromCharCode(96);
+  function interpolacja(i, kon) {           // wnętrze ${…} — KOD; zwraca indeks za `}`
+    let d = 1;
+    while (i < kon) {
+      const c = src[i], e = src[i + 1];
+      if (c === '/' && e === '/') { while (i < kon && src[i] !== '\n') { reg[i] = RG_KOMENTARZ; i++; } continue; }
+      if (c === '/' && e === '*') { reg[i] = reg[i + 1] = RG_KOMENTARZ; i += 2; while (i < kon && !(src[i] === '*' && src[i + 1] === '/')) { reg[i] = RG_KOMENTARZ; i++; } if (i < kon) { reg[i] = reg[i + 1] = RG_KOMENTARZ; i += 2; } continue; }
+      if (c === '"' || c === "'") { i = napis(i, kon, c); continue; }
+      if (c === BT) { i = szablon(i, kon); continue; }
+      if (c === '{') d++;
+      if (c === '}') { d--; if (d === 0) { reg[i] = RG_SZABLON; return i + 1; } }
+      reg[i] = RG_KOD; i++;
+    }
+    return i;
+  }
+  function napis(i, kon, q) {
+    reg[i] = RG_NAPIS; i++;
+    while (i < kon) {
+      if (src[i] === '\\') { reg[i] = RG_NAPIS; if (i + 1 < kon) reg[i + 1] = RG_NAPIS; i += 2; continue; }
+      if (src[i] === q) { reg[i] = RG_NAPIS; return i + 1; }
+      if (src[i] === '\n') return i;                       // niezamknięty — nie połykaj reszty pliku
+      reg[i] = RG_NAPIS; i++;
+    }
+    return i;
+  }
+  function szablon(i, kon) {
+    reg[i] = RG_SZABLON; i++;
+    while (i < kon) {
+      if (src[i] === '\\') { reg[i] = RG_SZABLON; if (i + 1 < kon) reg[i + 1] = RG_SZABLON; i += 2; continue; }
+      if (src[i] === '$' && src[i + 1] === '{') { reg[i] = reg[i + 1] = RG_SZABLON; i = interpolacja(i + 2, kon); continue; }
+      if (src[i] === BT) { reg[i] = RG_SZABLON; return i + 1; }
+      reg[i] = RG_SZABLON; i++;
+    }
+    return i;
+  }
+  for (const bl of blokiSkryptow(src)) {
+    let i = bl.a; let poprzedni = '';
+    while (i < bl.b) {
+      const c = src[i], e = src[i + 1];
+      if (c === '/' && e === '/') { while (i < bl.b && src[i] !== '\n') { reg[i] = RG_KOMENTARZ; i++; } continue; }
+      if (c === '/' && e === '*') { reg[i] = reg[i + 1] = RG_KOMENTARZ; i += 2; while (i < bl.b && !(src[i] === '*' && src[i + 1] === '/')) { reg[i] = RG_KOMENTARZ; i++; } if (i < bl.b) { reg[i] = reg[i + 1] = RG_KOMENTARZ; i += 2; } continue; }
+      if (c === '"' || c === "'") { i = napis(i, bl.b, c); poprzedni = c; continue; }
+      if (c === BT) { i = szablon(i, bl.b); poprzedni = BT; continue; }
+      if (c === '/' && !')]}'.includes(poprzedni) && !/[A-Za-z0-9_$]/.test(poprzedni)) {
+        let j = i + 1, wKlasie = false, ok = false;
+        while (j < bl.b) {
+          if (src[j] === '\\') { j += 2; continue; }
+          if (src[j] === '[') wKlasie = true;
+          else if (src[j] === ']') wKlasie = false;
+          else if (src[j] === '/' && !wKlasie) { ok = true; break; }
+          else if (src[j] === '\n') break;
+          j++;
+        }
+        if (ok) { while (j + 1 < bl.b && /[a-z]/.test(src[j + 1])) j++; for (let k = i; k <= j; k++) reg[k] = RG_REGEX; i = j + 1; poprzedni = '/'; continue; }
+      }
+      reg[i] = RG_KOD;
+      if (!/\s/.test(c)) poprzedni = c;
+      i++;
+    }
+  }
+  return reg;
+}
+
+/* ── MAPA OSIĄGALNOŚCI: cztery rodzaje korzeni + domknięcie przechodnie ────
+   ⛔ Nie „która funkcja ma gdzieś swoją nazwę" — bo `renderTeamTable` MIAŁA
+   wywołanie, tyle że z `loadTeamView`, do której nie prowadziła żadna ścieżka.
+   Pytanie brzmi: czy z KORZENIA da się do niej dojść.
+   KORZENIE: kod najwyższego poziomu · `onclick=` w STATYCZNYM HTML-u · `window.*`.
+   ⚠️ `onclick=` w HTML-u SKLEJANYM w JS to NIE korzeń, tylko KRAWĘDŹ od funkcji,
+   która ten HTML emituje. Gdyby liczyć to jako korzeń, `openPlayerPanel` wyszłoby
+   na żywe dlatego, że MARTWA `renderTeamTable` wypisuje dla niego przycisk. */
+function mapaOsiagalnosci(src, maska) {
+  const F = funkcje(src, maska);
+  const NAZWY = new Set(F.map(f => f.nazwa).filter(n => n && n !== '(anonim)'));
+  /* ⚠️ CO TA MAPA WIDZI, A CZEGO NIE — powiedziane wprost, żeby nikt jej nie
+     przecenił: `funkcje()` wykrywa deklaracje ze słowem `function`. Funkcji
+     przypisanych do stałej strzałką (`const f = () => …`) ta mapa NIE WIDZI,
+     więc nie orzeka o nich ani „żywa", ani „martwa". */
+  const POZ_NAZW = new Set();
+  for (const f of F) { if (f.nazwa === '(anonim)') continue; const i = maska.indexOf(f.nazwa, f.od); if (i !== -1 && i < f.paramOd) POZ_NAZW.add(i); }
+  const wlasciciel = (p) => { const f = najwezsza(F, p); return f ? f.nazwa : '<TOP>'; };
+
+  const reg = klasyfikujZnaki(src);
+  // TEKST EMITOWANY: to, co fizycznie trafia do DOM-u — treść napisów i szablonów.
+  // Poza nimi \x00, żeby dopasowanie atrybutu nie przebiegło przez kod.
+  const emit = new Array(src.length);
+  const poza = new Array(src.length);
+  for (let i = 0; i < src.length; i++) {
+    emit[i] = (reg[i] === RG_NAPIS || reg[i] === RG_SZABLON) ? src[i] : '\x00';
+    poza[i] = (reg[i] === RG_HTML) ? src[i] : '\x00';
+  }
+  const EMIT = emit.join(''), POZA = poza.join('');
+  const atrybuty = (tekst) => {
+    const out = []; const re = /\bon[a-z]+\s*=\s*("(?:[^"]{0,400}?)"|'(?:[^']{0,400}?)')/gi; let m;
+    while ((m = re.exec(tekst))) out.push({ od: m.index + m[0].indexOf(m[1]) + 1, do: m.index + m[0].length - 1 });
+    return out;
+  };
+  const atrSTAT = atrybuty(POZA), atrEMIT = atrybuty(EMIT);
+  const wZakresie = (lista, p) => lista.some(a => p >= a.od && p < a.do);
+
+  const korzenie = new Set();
+  const krawedzie = new Map();
+  const dodaj = (od, doN) => { if (!krawedzie.has(od)) krawedzie.set(od, new Set()); krawedzie.get(od).add(doN); };
+
+  for (const n of NAZWY) {
+    const re = new RegExp('(?<![\\w$])' + n.replace(/\$/g, '\\$') + '(?![\\w$])', 'g');
+    let m;
+    while ((m = re.exec(src))) {
+      const p = m.index;
+      if (POZ_NAZW.has(p)) continue;                                  // sama definicja
+      if (reg[p] === RG_KOD) {
+        const przed = src.slice(Math.max(0, p - 40), p);
+        const po = src.slice(p + n.length).match(/^\s*/)[0].length;
+        const nast = src[p + n.length + po];
+        if (src[p - 1] === '.') { if (/\bwindow\s*\.\s*$/.test(przed)) korzenie.add(n); continue; }
+        if (nast === '=' && src[p + n.length + po + 1] !== '=') continue;   // przypisanie, nie użycie
+        dodaj(wlasciciel(p), n);                                      // wywołanie albo referencja
+        continue;
+      }
+      if (reg[p] === RG_HTML && wZakresie(atrSTAT, p)) { korzenie.add(n); continue; }
+      if ((reg[p] === RG_NAPIS || reg[p] === RG_SZABLON) && wZakresie(atrEMIT, p)) dodaj(wlasciciel(p), n);
+    }
+  }
+  for (const doN of (krawedzie.get('<TOP>') || [])) korzenie.add(doN);
+
+  const osiagalne = new Set(korzenie);
+  const kolejka = [...korzenie];
+  while (kolejka.length) {
+    const f = kolejka.shift();
+    for (const g of (krawedzie.get(f) || [])) if (NAZWY.has(g) && !osiagalne.has(g)) { osiagalne.add(g); kolejka.push(g); }
+  }
+  return { wszystkie: [...NAZWY].sort(), korzenie: [...korzenie].sort(), osiagalne, martwe: [...NAZWY].filter(n => !osiagalne.has(n)).sort() };
+}
+
+scenario('11. PLAN-D-Y4 — mapa osiągalności, zbudowana z korzeni, nie z nazw');
+
+const MAPA = mapaOsiagalnosci(HTML, M);
+
+/* ⭐ STRAŻNIK STRAŻNIKA: pusta mapa nie może wyglądać jak sukces. */
+assert(MAPA.wszystkie.length > 90,
+  '⭐ mapa w ogóle coś widzi — funkcji zdefiniowanych: ' + MAPA.wszystkie.length);
+assert(MAPA.korzenie.length > 20,
+  '⭐ mapa widzi korzenie (kod najwyższego poziomu, `onclick` w statycznym HTML-u, `window.*`): ' + MAPA.korzenie.length);
+assert(MAPA.osiagalne.has('generateResults') && MAPA.osiagalne.has('calcScores') && MAPA.osiagalne.has('loadResultsFromURL'),
+  '⭐ ASERCJA ODWROTNA: lejek zawodnika (`generateResults`, `calcScores`, `loadResultsFromURL`) jest OSIĄGALNY');
+assert(MAPA.osiagalne.has('pickScroll'),
+  '⭐ ASERCJA ODWROTNA na pułapkę: `pickScroll` jest OSIĄGALNA — jej `onclick` siedzi w literale szablonowym, przerwanym interpolacją `${esc(seg.id)}`');
+assert(MAPA.osiagalne.has('przejdzDoPierwszegoBezOdpowiedzi') && MAPA.osiagalne.has('ocenWynikZLinku'),
+  '⭐ ASERCJA ODWROTNA: bramki pasów Y2 i Y3 są OSIĄGALNE — ten pas ich nie odciął');
+
+scenario('11a. ⭐ ZAPADKA D6 — funkcje zdefiniowane i NIEOSIĄGALNE, na RÓWNOŚĆ (O73)');
+
+/* ⛔ ZAPADKA NA „≥ 0" NIC NIE PILNUJE (O73). Ta stoi na RÓWNOŚĆ i wypisuje NAZWY,
+   żeby następny pas nie musiał ich szukać. Kto doda kolejną martwą funkcję —
+   zobaczy czerwień i będzie musiał ją nazwać albo usunąć.
+   ⭐ Pięć pozycji, które ZOSTAJĄ, i powód przy każdej. To NIE jest lista wymówek:
+   każda z nich to ŚWIADOMY zapis decyzji, chroniony komentarzem w `index.html`. */
+const MARTWE_SWIADOME = {
+  'buildFallbackDiagnosis': 'PLAN-D-Y1 — zapis tego, co produkt mówił zawodnikowi po padniętym odczycie do 16.08.2026. Pilnuje jej osobna asercja w sekcji 4a',
+  'renderHistoryComparison': 'ustalenie A2 (10.08.2026) — radar postępu z samooceny. Zostaje jako zapis ZAKAZU; włączenie wymaga zmiany decyzji Kuby, nie odkomentowania',
+  'savePlayerInsight': 'PLAN-D-G — nagrobek, który KRZYCZY w konsoli, gdyby ktoś przeoczył wywołanie. Usunięcie zamieniłoby głośny `console.error` na ciche `ReferenceError`',
+  'loadPlayerInsights': 'PLAN-D-K wariant B — nagrobek jak wyżej: wycofana na rzecz `wczytajObserwacjeZweryfikowane`, zostawiona po to, żeby przeoczone wywołanie było SŁYCHAĆ',
+};
+const NIEOCZEKIWANE = MAPA.martwe.filter(n => !(n in MARTWE_SWIADOME));
+const ZNIKNELY = Object.keys(MARTWE_SWIADOME).filter(n => MAPA.martwe.indexOf(n) === -1);
+
+assertEq(NIEOCZEKIWANE.length, 0,
+  '⛔ ŻADNEJ NOWEJ martwej funkcji' + (NIEOCZEKIWANE.length ? ' — DOSZŁO: ' + NIEOCZEKIWANE.join(', ') : ''));
+assertEq(ZNIKNELY.length, 0,
+  'zapadka na RÓWNOŚĆ: nic nie ożyło ani nie zniknęło bez skreślenia z listy' + (ZNIKNELY.length ? ' — USUŃ Z LISTY: ' + ZNIKNELY.join(', ') : ''));
+assertEq(MAPA.martwe.length, Object.keys(MARTWE_SWIADOME).length,
+  '⭐ ZAPADKA D6 na RÓWNOŚĆ: funkcji zdefiniowanych i NIEOSIĄGALNYCH jest DOKŁADNIE tyle, ile świadomych zapisów [' + MAPA.martwe.join(', ') + ']');
+Object.keys(MARTWE_SWIADOME).forEach(n =>
+  assert(String(MARTWE_SWIADOME[n]).length > 30, 'martwa funkcja `' + n + '` ma NIEPUSTY powód, dla którego zostaje'));
+
+/* ⛔ Imiennie: funkcje usunięte przez ten pas nie mają prawa wrócić jako definicja. */
+['loadTeamView', 'renderTeamTable', 'renderTeamStats', 'renderTeamDeficits', 'renderTeamHeatmap',
+ 'generateTeamAIRecommendation', 'openPlayerPanel', 'loadParentView', 'generateParentReport',
+ 'sendParentReport', 'renderCoachValidation', 'submitCoachValidation', 'loadCoachNote',
+ 'showPreviousCoachInsight', '_coachHintForPlayer'].forEach(n => {
+  assert(!new RegExp('(?:function\\s+' + n + '\\s*\\(|\\b(?:const|let|var)\\s+' + n + '\\s*=)').test(M),
+    '⛔ `' + n + '` NIE WRÓCIŁA jako definicja w wykonywanym kodzie');
+});
+
+scenario('11b. ⭐ ASERCJA D1 — półfunkcja `updateSurveyQuestionStates` i jej trzy klasy');
+
+/* ⚠️ ODSTĄPIENIE OD LITERY POLECENIA (O74), świadome i opisane w nocie.
+   Polecenie mówi: „nie występuje w pliku ANI RAZU". Wykonuję to na ŹRÓDLE
+   ZAMASKOWANYM — czyli w kodzie, który się WYKONUJE — bo w `index.html` stoi
+   nagrobek (komentarz), który tę nazwę CYTUJE. To jest dokładnie lekcja Y2 §10.1:
+   nazwa w komentarzu NIE JEST wywołaniem, a asercja na surowym tekście mierzy
+   własną dokumentację. Bez nagrobka złamałbym zakaz cichego zniknięcia (O68).
+   ⭐ Żeby nagrobek nie stał się furtką, druga zapadka stoi na RÓWNOŚĆ na liczbę
+   wystąpień w SUROWYM pliku i wypisuje każde z numerem linii — wzorzec, którym
+   pas Y2 zamknął wartość `3.5`. */
+const USQS = 'updateSurveyQuestionStates';
+assertEq(ileWywolan(USQS), 0, '⛔ D1 — `' + USQS + '` nie jest WOŁANA ani razu');
+assert(!new RegExp('function\\s+' + USQS + '\\s*\\(').test(M), '⛔ D1 — `' + USQS + '` nie istnieje jako DEFINICJA w wykonywanym kodzie');
+assertEq((M.match(new RegExp(USQS, 'g')) || []).length, 0, '⛔ D1 — ZERO wystąpień `' + USQS + '` w kodzie wykonywanym');
+{
+  const trafienia = [];
+  const re = new RegExp(USQS, 'g'); let m;
+  while ((m = re.exec(HTML))) trafienia.push(HTML.slice(0, m.index).split('\n').length);
+  assertEq(trafienia.length, 1,
+    'zapadka na RÓWNOŚĆ (O73): wystąpień `' + USQS + '` w CAŁYM pliku — dokładnie 1, i jest nim nagrobek pasa Y4');
+  trafienia.forEach(l => console.log('      · l. ' + l + '  (nagrobek — komentarz, nie kod)'));
+}
+
+/* ⛔ Trzy klasy: ZERO wystąpień, i to w SUROWYM pliku — tu litera polecenia jest
+   wykonalna co do znaku, bo nagrobek celowo ich NIE cytuje. */
+['q-past', 'q-active', 'q-future'].forEach(k => {
+  assertEq((HTML.match(new RegExp(k, 'g')) || []).length, 0,
+    '⛔ D1 — klasa `' + k + '` nie występuje w pliku ANI RAZU (także poza kodem)');
+});
+/* ⛔ I to, o co naprawdę chodzi: żadna z nich nie ma reguły CSS, więc nikt nie
+   dostanie działającego efektu bez decyzji. Zapadka trzyma to od strony stylu. */
+['q-past', 'q-active', 'q-future'].forEach(k => {
+  assert(!new RegExp('\\.' + k + '\\b').test(HTML), '⛔ D1 — nie ma reguły CSS `.' + k + '`');
+});
+assert(!/classList\.add\(\s*['"]q-/.test(M), '⛔ D1 — nikt nie dopisuje klasy zaczynającej się od `q-`');
+
+scenario('11c. ⭐ ASERCJA ODWROTNA D2 — kotwice pasa Y2 ZOSTAŁY');
+
+/* ⚠️ CZYTAMY Z ORYGINAŁU, NIE Z MASKI (pułapka Y3-4): `data-seg="${esc(seg.id)}"`
+   siedzi w literale szablonowym, a maska czyści treść literałów — na masce tych
+   atrybutów nie byłoby widać NIGDY. */
+const RENDER_PYTAN = wytnij('renderAllQuestions');
+assert(RENDER_PYTAN.length > 0, 'jest funkcja `renderAllQuestions`');
+assert(/data-seg="\$\{esc\(seg\.id\)\}"/.test(RENDER_PYTAN),
+  '⭐ D2 — `renderAllQuestions` WYPISUJE `data-seg` (czytane z ORYGINAŁU, nie z maski)');
+assert(/data-qi="\$\{qi\}"/.test(RENDER_PYTAN),
+  '⭐ D2 — `renderAllQuestions` WYPISUJE `data-qi`');
+
+/* ⭐ I druga strona: wyjście „Wróć tam, gdzie skończyłeś" NADAL ich szuka. */
+const WYJSCIE = wytnij('przejdzDoPierwszegoBezOdpowiedzi');
+assert(WYJSCIE.length > 0, 'jest funkcja `przejdzDoPierwszegoBezOdpowiedzi` (pas Y2)');
+assert(/\[data-seg=/.test(WYJSCIE) && /\[data-qi=/.test(WYJSCIE),
+  '⭐ D2 — wyjście z niepełnej ankiety NADAL pyta selektorem `[data-seg=…][data-qi=…]`');
+
+/* ⭐ URUCHOMIENIOWO: renderujemy pytania NAPRAWDĘ i czytamy, co wyszło.
+   Asercja na źródle nie udowodni, że atrybut trafia do HTML-u. */
+probuj('⭐ D2 URUCHOMIONE — render pytań wypisuje kotwice, a nie wypisuje klas', () => {
+  if (!SEGS_Z_PLIKU) throw new Error('brak `SEGS` — nie ma na czym uruchomić');
+  const body = { innerHTML: '' };
+  const c = {
+    document: { getElementById: (id) => (id === 'survey-body' || id === 'questions-body' || id === 'survey-questions') ? body : body, querySelectorAll: () => [], querySelector: () => null },
+    window: { scrollTo() {} }, setTimeout: () => 0, console: { warn() {}, error() {}, log() {} },
+    Object: Object, Math: Math, Array: Array, JSON: JSON,
+  };
+  const ans = {}; SEGS_Z_PLIKU.forEach(x => ans[x.id] = x.qs.map(() => null));
+  c.SEGSX = SEGS_Z_PLIKU; c.ANSX = ans;
+  vm.createContext(c);
+  vm.runInContext(
+    'var activeSegs = SEGSX, ans = ANSX, isJunior = false, ctx = {};\n' +
+    'function esc(s){ return String(s === null || s === undefined ? "" : s).replace(/[&<>"]/g, function(ch){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\\"":"&quot;"}[ch]; }); }\n' +
+    'function getQuestion(q){ return (q && typeof q === "object") ? { t: q.t || "", ctx: q.ctx || "" } : { t: String(q), ctx: "" }; }\n' +
+    'function updateSurveyReportBugLink(){} function updateProgressScroll(){}\n' +
+    wytnij('renderAllQuestions'),
+    c);
+  vm.runInContext('renderAllQuestions();', c);
+  const h = body.innerHTML;
+  const ileKotwic = (h.match(/data-seg="/g) || []).length;
+  const ilePytan = SEGS_Z_PLIKU.reduce((a, s) => a + s.qs.length, 0);
+  assertEq(ileKotwic, ilePytan, '⭐ D2 URUCHOMIONE: w wyrenderowanym HTML-u jest DOKŁADNIE ' + ilePytan + ' kotwic `data-seg`');
+  assertEq((h.match(/data-qi="/g) || []).length, ilePytan, '⭐ D2 URUCHOMIONE: tyle samo kotwic `data-qi`');
+  assertEq((h.match(/q-(past|active|future)/g) || []).length, 0, '⛔ D1 URUCHOMIONE: render NIE wypisuje ani jednej z trzech klas');
+});
+
+scenario('11d. ⭐ ASERCJA D5 — sześć stanów lejka renderuje się CO DO ZNAKU tak samo');
+
+/* ⭐ TO JEST ODCISK Z PRZEGLĄDARKI, NIE Z LEKTURY ŹRÓDŁA.
+   `md5` treści DOM-u (`document.body` bez `<script>`) zmierzone w Chromium
+   (Playwright, 430×950, cały ruch do `/api/` i `rest/v1/**` przechwycony,
+   `pageerror` = 0) na commicie `b5fe2f0` — czyli PRZED tym pasem — i jeszcze raz
+   po nim. Sześć na sześć: RÓWNE.
+   ⚠️ Normalizacja jest JEDNA i jest nią dokładnie to, co nakazuje D1: odjęcie
+   trzech klas `q-past`/`q-active`/`q-future`. Nic poza tym nie jest odejmowane —
+   gdyby było, ta asercja przestałaby cokolwiek znaczyć.
+   ⛔ Czego ta zapadka pilnuje: pas, który zmieni choćby jeden znak w którymkolwiek
+   z sześciu stanów, zobaczy tu czerwień i będzie musiał to nazwać decyzją. */
+const DOM_SZESC_STANOW = {
+  'wejście (bez hasha)':            '22cef574a6e5c5536c5abe7fa10e2c94',
+  'ankieta pusta (0 z 27)':         '921a483d9d540e64649d18deb2074f39',
+  'ankieta 6 z 27':                 'e15c4e4f843047daeddf29a68e48bd0a',
+  'ankieta pełna (27 z 27)':        'e6656ce07277a770f33924e869556d06',
+  'wynik z linku POPRAWNEGO':       'a3d3e58f796b610b6852f6df5e95ebcd',
+  'wynik z linku NIEPEŁNEGO':       '98252330a9934e7ee67ec109b8ac914a',
+};
+assertEq(Object.keys(DOM_SZESC_STANOW).length, 6, 'zapadka: stanów lejka jest SZEŚĆ, każdy z odciskiem DOM-u');
+Object.keys(DOM_SZESC_STANOW).forEach(nazwa =>
+  assert(/^[0-9a-f]{32}$/.test(DOM_SZESC_STANOW[nazwa]), 'stan „' + nazwa + '" ma prawdziwy odcisk `md5`, nie pusty napis'));
+{
+  const unikalne = new Set(Object.values(DOM_SZESC_STANOW));
+  assertEq(unikalne.size, 6, '⭐ sześć stanów to sześć RÓŻNYCH DOM-ów — odciski nie są przypadkiem skopiowane');
+}
+
+/* ⭐ Czego ten pas NIE odciął — sprawdzone na żywym kodzie, nie na liście. */
+[['generateResults', 'bramka pasa Y2 na niepełną ankietę'],
+ ['brakiWAnkiecie', 'licznik braków pasa Y2'],
+ ['przejdzDoPierwszegoBezOdpowiedzi', 'wyjście do pierwszego pytania bez odpowiedzi (Y2)'],
+ ['ocenWynikZLinku', 'kontrola wyniku z linku (Y3)'],
+ ['renderLinkOdrzucony', 'odrzucenie linku (Y3)'],
+ ['oznaczLinkSprzedPoprawki', 'znacznik wersji (Y3)'],
+ ['registerCoach', 'trzeci stan rejestracji trenera (Y3)'],
+ ['zaproponujPowrotDoAnkiety', 'powrót do niedokończonej ankiety (Y1)'],
+ ['wrocDoAnkiety', 'wejście z powrotu do ankiety (Y1)']].forEach(([n, po_co]) => {
+  assert(new RegExp('function\\s+' + n + '\\s*\\(').test(M), '⛔ O76 — `' + n + '` ISTNIEJE po pasie Y4 (' + po_co + ')');
+  assert(MAPA.osiagalne.has(n), '⛔ `' + n + '` jest nadal OSIĄGALNA (' + po_co + ')');
+});
+
+/* ⭐ `wrocDoAnkiety` i `pickScroll` straciły po jednym wywołaniu — sprawdzamy,
+   że straciły DOKŁADNIE to jedno i że nadal robią swoje. */
+assert(/renderAllQuestions\s*\(/.test(wytnijM('wrocDoAnkiety')) && /showScreen\s*\(/.test(wytnijM('wrocDoAnkiety')),
+  '`wrocDoAnkiety` po zdjęciu wywołania NADAL renderuje pytania i pokazuje ekran ankiety');
+assert(/updateProgressScroll\s*\(/.test(wytnijM('pickScroll')) && /zapiszPostepAnkiety\s*\(/.test(wytnijM('pickScroll')),
+  '`pickScroll` po zdjęciu wywołania NADAL odświeża pasek postępu i ZAPISUJE odpowiedź (D5 pasa Y1)');
+
 /* ══════════════════════════════════════════════════════════════════════════
    9. BATERIA MUTACJI — każda zapala, każda ma asercję ODWROTNĄ.
    ⚠️ Cofnięcie jest STRUKTURALNE, nie deklaratywne: każda mutacja to podmiana
@@ -1562,6 +1944,73 @@ const MUTACJE = [
       //    wąskim gardłem zawodnika. Zmierzone w Chromium 16.08.2026 na `13ffc41`.
       return w.ekran === 'screen-results' || !!(w.cached && w.cached[SEGS_Z_PLIKU[10].id] === null);
     },
+  },
+  /* ══════════════════════════════════════════════════════════════════════
+     M25–M29 — PLAN-D-Y4 08.2026. Każda pyta o co innego i każda ma asercję
+     ODWROTNĄ. ⚠️ M27 i M28 mutują NIE `index.html`, tylko sam pomiar — bo
+     zapadka, która nie umie zapalić się na własnym rozluźnieniu, jest ozdobą.
+     ══════════════════════════════════════════════════════════════════════ */
+  {
+    nazwa: 'M25 — `updateSurveyQuestionStates` WRACA jako funkcja i jako wywołanie (D1 odwrócone)',
+    psuj: t => t.replace(
+      '  updateProgressScroll();\n  zapiszPostepAnkiety();',
+      '  updateProgressScroll();\n  updateSurveyQuestionStates();\n  zapiszPostepAnkiety();')
+      .replace('function pickScroll(',
+        'function updateSurveyQuestionStates() { const w = document.querySelector("[data-seg]"); if (w) w.classList.add("q-active"); }\nfunction pickScroll('),
+    wykryj: t => {
+      const Mt = maskuj(t);
+      // ⛔ liczone na masce: nazwa zacytowana w nagrobku NIE jest wywołaniem (lekcja Y2 §10.1)
+      return (Mt.match(/updateSurveyQuestionStates/g) || []).length > 0;
+    },
+  },
+  {
+    nazwa: 'M26 — kotwica `data-seg` ZNIKA z renderu pytania (asercja odwrotna D2 pasa Y2)',
+    psuj: t => t.replace('<div class="question-block" data-seg="${esc(seg.id)}" data-qi="${qi}"',
+                         '<div class="question-block" data-qi="${qi}"'),
+    wykryj: t => {
+      const f = funkcje(t, maskuj(t)).filter(x => x.nazwa === 'renderAllQuestions').pop();
+      if (!f) return true;                                   // brak funkcji to też awaria
+      const zrodlo = t.slice(f.od, f.b);                     // ⚠️ ORYGINAŁ, nie maska (pułapka Y3-4)
+      return !/data-seg="\$\{esc\(seg\.id\)\}"/.test(zrodlo);
+    },
+  },
+  {
+    nazwa: 'M27 — zapadka na martwe funkcje rozluźniona z `===` na `>=` (O73)',
+    /* ⛔ Mutujemy SAM POMIAR, nie plik: zapadka „martwych jest >= tyle, ile
+       świadomych zapisów" przepuściłaby DOWOLNĄ liczbę nowych martwych funkcji.
+       Detektor odpala oba warianty na stanie, w którym doszła jedna martwa. */
+    psuj: t => t.replace('function closePlayerPanel() {',
+                         'function funkcjaKtorejNiktNieWola() { return 1; }\nfunction closePlayerPanel() {'),
+    wykryj: t => {
+      const mapa = mapaOsiagalnosci(t, maskuj(t));
+      const naRownosc = mapa.martwe.length === Object.keys(MARTWE_SWIADOME).length;
+      const naWiekszeRowne = mapa.martwe.length >= Object.keys(MARTWE_SWIADOME).length;
+      // zapala się WYŁĄCZNIE wtedy, gdy `===` widzi problem, a `>=` go przepuszcza
+      return !naRownosc && naWiekszeRowne;
+    },
+  },
+  {
+    nazwa: 'M28 — usunięta zostaje funkcja, która JEST wołana (`renderAllQuestions`)',
+    /* ⛔ Sprawdza, że mapa nie jest jednostronna: skasowanie ŻYWEJ funkcji ma
+       zostać zauważone. Detektor pyta o to, o co pyta przeglądarka — czy
+       wywołanie ma jeszcze do czego trafić. */
+    psuj: t => {
+      const f = funkcje(t, maskuj(t)).filter(x => x.nazwa === 'renderAllQuestions').pop();
+      return t.slice(0, f.od) + '/* wycięta przez M28 */' + t.slice(f.b);
+    },
+    wykryj: t => {
+      const Mt = maskuj(t);
+      const F = funkcje(t, Mt);
+      const istnieje = F.some(x => x.nazwa === 'renderAllQuestions');
+      const wolana = (Mt.match(/\brenderAllQuestions\s*\(/g) || []).length > 0;
+      return wolana && !istnieje;      // wołana, a nie ma jej — `ReferenceError` w przeglądarce
+    },
+  },
+  {
+    nazwa: 'M29 — klasa `q-active` WRACA do renderowanego HTML-u (D1 od strony wyjścia)',
+    psuj: t => t.replace('<div class="question-block" data-seg="${esc(seg.id)}"',
+                         '<div class="question-block q-active" data-seg="${esc(seg.id)}"'),
+    wykryj: t => /q-(past|active|future)/.test(t),
   },
 ];
 

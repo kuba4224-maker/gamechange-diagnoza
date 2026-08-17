@@ -2503,7 +2503,6 @@ function wrocDoAnkiety() {
     if (etykieta) etykieta.textContent = isJunior ? 'Diagnoza Junior' : 'Diagnoza';
     renderAllQuestions();
     showScreen('screen-survey');
-    updateSurveyQuestionStates();
   } catch (e) { zglosBladOdczytu('wrocDoAnkiety', e); }
 }
 
@@ -2777,10 +2776,11 @@ function renderAllQuestions() {
         btns += `</button>`;
       });
       // PLAN-D-Y2 08.2026 — D3: bez tych dwóch atrybutów wyjście „wróć tam, gdzie
-      // skończyłeś" nie ma czego znaleźć. ⚠️ `updateSurveyQuestionStates` pytało
-      // o nie selektorem `[data-seg][data-qi]` od chwili powstania — i nie znajdowało
-      // NIGDY (znalezisko Y2-3). Klasy `q-past`/`q-active`/`q-future` nie mają w tym
-      // pliku ŻADNEJ reguły CSS, więc dopisanie atrybutów niczego nie przemalowuje.
+      // skończyłeś" nie ma czego znaleźć. ⛔ NIE USUWAĆ — to jedyne kotwice, po
+      // których zawodnik wraca do pierwszego pytania bez odpowiedzi.
+      // ⚠️ PLAN-D-Y4 08.2026: do 16.08.2026 pytał o nie jeszcze jeden selektor —
+      // z funkcji, która nie robiła NIC i została usunięta decyzją D1. Co to było
+      // i dlaczego zniknęło, stoi przy `pickScroll` niżej. Te atrybuty zostają.
       questionsHtml += `<div class="question-block" data-seg="${esc(seg.id)}" data-qi="${qi}" style="animation:none;opacity:1;transform:none;">`;
       questionsHtml += `<div class="q-text">${esc(qq.t)}</div>`;
       questionsHtml += `<div class="q-context">${esc(qq.ctx)}</div>`;
@@ -2806,39 +2806,33 @@ function pickScroll(segId, qi, val, btn) {
   btn.closest('.scale-btns').querySelectorAll('.scale-btn').forEach(b => b.classList.remove('sel'));
   btn.classList.add('sel');
   updateProgressScroll();
-  updateSurveyQuestionStates();
   zapiszPostepAnkiety(); // PLAN-D-Y1 08.2026 — D2: odpowiedź ma przeżyć odświeżenie
 }
 
-function updateSurveyQuestionStates() {
-  // Znajdź globalne indeksy odpowiedzi
-  let globalIdx = 0;
-  let lastAnsweredIdx = -1;
-  activeSegs.forEach(seg => {
-    seg.qs.forEach((q, qi) => {
-      if (ans[seg.id] && ans[seg.id][qi] != null) lastAnsweredIdx = globalIdx;
-      globalIdx++;
-    });
-  });
+/* ⛔ PLAN-D-Y4 08.2026 — `updateSurveyQuestionStates()` USUNIĘTA (decyzja D1).
+   Co tu stało: funkcja licząca ostatnie odpowiedziane pytanie i dopisująca
+   opakowaniom pytań jedną z trzech klas — „już za tobą" / „to teraz" / „jeszcze
+   przed tobą".
 
-  // Zastosuj klasy do wrapperów pytań
-  let idx = 0;
-  activeSegs.forEach(seg => {
-    seg.qs.forEach((q, qi) => {
-      const wrap = document.querySelector(`[data-seg="${seg.id}"][data-qi="${qi}"]`);
-      if (!wrap) { idx++; return; }
-      wrap.classList.remove('q-past', 'q-active', 'q-future');
-      if (idx <= lastAnsweredIdx) {
-        wrap.classList.add('q-past');
-      } else if (idx === lastAnsweredIdx + 1) {
-        wrap.classList.add('q-active');
-      } else {
-        wrap.classList.add('q-future');
-      }
-      idx++;
-    });
-  });
-}
+   ⚠️ CZEGO NIE ROBIŁA. Pytała o pytanie selektorem `[data-seg=…][data-qi=…]`,
+   a `renderAllQuestions` tych atrybutów NIE WYPISYWAŁA — od chwili narodzin
+   funkcji do 16.08.2026. Każde wywołanie trafiało w `if (!wrap) { idx++; return; }`
+   i nie robiło NIC (znalezisko Y2-4). Pas Y2 dopisał atrybuty, bo bez nich wyjście
+   „Wróć tam, gdzie skończyłeś" nie ma czego znaleźć — i selektor OŻYŁ: klasy
+   naprawdę zaczęły się dopisywać. Zmierzone wtedy i zmierzone jeszcze raz teraz:
+   dla żadnej z tych trzech klas NIE MA W TYM PLIKU ANI JEDNEJ REGUŁY CSS.
+   Zawodnik nie zobaczył ani jednego piksela różnicy — ale pierwsza dopisana
+   reguła stylu włączyłaby gotowy efekt natychmiast, bez ostrzeżenia i bez decyzji.
+
+   ⛔ DLACZEGO USUNIĘTA, A NIE DOKOŃCZONA. Ekran ankiety JUŻ mówi zawodnikowi,
+   gdzie jest, i mówi to słowami: pasek postępu plus „Odpowiedziano na 6 z 27
+   pytań. Zostało 21." Malowanie tego drugi raz kolorami niczego nie dodaje,
+   a wymaga decyzji o wyglądzie, która należy do Kuby — nie do tego pasa.
+   ⚠️ ZANIM KTOŚ TO PRZYWRÓCI: to nie jest funkcja „do dokończenia". Przywrócenie
+   wymaga decyzji Kuby o wyglądzie ankiety, z datą, w pamięci projektu — nie
+   odkomentowania. Pilnuje tego `tests/test-cichy-brak-lejka.js`, sekcja 11.
+   ⭐ Atrybuty `data-seg` i `data-qi` ZOSTAJĄ — należą do pasa Y2, to po nich
+   wyjście z niepełnej ankiety znajduje pierwsze pytanie bez odpowiedzi. */
 
 /* ══════════════════════════════════════════════════════════════════════════
    PLAN-D-Y2 08.2026 — WYNIK NIE POWSTAJE Z ANKIETY NIEPEŁNEJ (D1)
@@ -3163,34 +3157,26 @@ async function triggerFeedbackDigest(btn) {
 }
 
 
-// LEJEK R8 08.08.2026 — MARTWE (legacy ?parent=): loadParentView,
-// generateParentReport (w tym pliku), sendParentReport. Czytnik po P0-2
-// zawsze widzi pustke; dispatch ?parent= pokazuje teraz uczciwy komunikat,
-// a zywa wysylka linku (po diagnozie) zostala wycieta. Raport rodzica
-// generuje backend: lib/parent-reports.js + raport-rodzica.html.
-async function loadParentView(token) {
-  showScreen('screen-parent');
-  const el = document.getElementById('parent-content');
+/* ⛔ PLAN-D-Y4 08.2026 — MARTWY REGION „RAPORT DLA RODZICA" USUNIĘTY (decyzja D3).
+   Co tu stało: `loadParentView` (czytnik linku `?parent=`), `generateParentReport`
+   (cały raport dla rodzica: progi, opisy obszarów, tabela PARENT_TIPS) i
+   `sendParentReport` (wysyłka linku przez EmailJS). Razem 251 linii.
 
-  try {
-    // Pobierz dane z Supabase po tokenie
-    const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/diagnostics?parent_token=eq.${encodeURIComponent(token)}&order=created_at.desc&limit=1`,
-      { headers: { 'apikey': SUPABASE_KEY } }
-    );
-    const rows = await res.json();
-    if (!rows.length) {
-      el.innerHTML = '<div style="padding:48px;text-align:center;"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:24px;color:#9a9488;margin-bottom:8px;">Nie znaleziono raportu</div><p style="font-size:13px;color:#9a9488;font-weight:300;">Link może być nieaktualny lub nieprawidłowy.</p></div>';
-      return;
-    }
-    const row = rows[0];
-    const name = row.player_name || 'Twoje dziecko';
-    document.getElementById('parent-child-name').textContent = name + ' — raport dla rodzica';
-    await generateParentReport(row, el);
-  } catch(e) {
-    el.innerHTML = '<div style="padding:48px;text-align:center;color:#9a9488;">Błąd ładowania raportu.</div>';
-  }
-}
+   ⛔ DOWÓD NIEOSIĄGALNOŚCI, nie domysł. Zmierzone mapą osiągalności zbudowaną
+   z domknięcia przechodniego korzeni (kod najwyższego poziomu · atrybut zdarzenia
+   w statycznym HTML-u · atrybut zdarzenia w HTML-u sklejanym w JS · `window.*`):
+   do żadnej z tych trzech funkcji NIE PROWADZI ŻADNA ŚCIEŻKA. Jedyne wejście —
+   dispatch `?parent=` w listenerze `load` — zostało wycięte 08.08.2026 (LEJEK R8,
+   P0-2) i pokazuje dziś uczciwy komunikat. Po zdjęciu polityki `anon SELECT`
+   na `diagnostics` odczyt i tak zawsze widział pustkę.
+
+   ⭐ GDZIE TO ŻYJE DZIŚ: raport dla rodzica generuje backend —
+   `gamechange-app/lib/parent-reports.js` + `raport-rodzica.html`.
+   ⭐ GDZIE JEST TREŚĆ USUNIĘTA: w historii gita, commit `b5fe2f0` (pas Y3),
+   linie 3165–3795 tego pliku. Nic nie przepadło.
+   ⚠️ ZANIM KTOŚ TO PRZYWRÓCI: to nie jest kod „do dokończenia". Przywrócenie
+   wymaga decyzji o polityce dostępu do `diagnostics`, z datą, w pamięci projektu. */
+
 
 /* ══════════════════════════════════════════════════════════════════════
    PLAN-D-G 08.2026 — PUNKT POMOCY (warstwa 3 z R2a)
@@ -3564,406 +3550,46 @@ const HOME_OBSERVATION_HYPOTHESES = {
   odzywianie: 'Czy zauważasz, że w dni meczowe je śniadanie, czy raczej wychodzi bez jedzenia lub z czymś niewielkim?',
 };
 
-async function generateParentReport(row, el) {
-  el.innerHTML = inlineLoaderHTML('Przygotowuję raport');
+/* ⛔ PLAN-D-Y4 08.2026 — ciąg dalszy martwego regionu „legacy ?parent=" (D3). Powód i dowód: nagrobek wyżej. */
 
-  const scores = row.scores ? (() => { try { return JSON.parse(row.scores); } catch(e) { return null; } })() : null;
-  if (!scores) {
-    el.innerHTML = '<div style="padding:48px;text-align:center;color:#9a9488;">Brak danych do wygenerowania raportu.</div>';
-    return;
-  }
 
-  const name = row.player_name || 'Twoje dziecko';
-  const pos = row.position || '';
-  const age = row.age_group || '';
+/* ⛔ PLAN-D-Y4 08.2026 — MARTWY REGION „WIDOK DRUŻYNY I PANEL ZAWODNIKA" USUNIĘTY (D3).
+   Co tu stało: `loadTeamView`, `renderTeamTable`, `_coachHintForPlayer`,
+   `openPlayerPanel` (z `statBox`), `showPreviousCoachInsight`, `renderCoachValidation`,
+   `submitCoachValidation`, `submitCoachValidationComment`, `loadCoachNote`,
+   `renderTeamStats` (z `stat`, `statText`), `renderTeamDeficits`,
+   `renderTeamHeatmap` (z `heatColor`, `getPoint` — radar SVG), a także
+   `generateTeamAIRecommendation`.
 
-  // Wylicz mocne strony i deficyty
-  const SEG_NAMES_PL = {
-    moc: 'eksplozywność i szybkość startowa', wytrzymalosc: 'wytrzymałość przez cały mecz',
-    fizycznosc: 'siła w kontakcie fizycznym', techFund: 'jakość techniki podstawowej',
-    techSpec: 'tworzenie przewagi technicznej', tolerancja: 'odporność na obciążenia',
-    regeneracja: 'regeneracja między treningami', odpornosc: 'odporność zdrowotna w sezonie',
-    odzywianie: 'energia przez cały mecz', koncentracja: 'skupienie i powrót po błędzie',
-    mental: 'odwaga i stabilność w trudnych momentach', percepcja: 'czytanie gry przed odbiorem piłki',
-    decyzja: 'szybkość podejmowania decyzji',
-  };
+   ⛔ DOWÓD NIEOSIĄGALNOŚCI. Mapa osiągalności z domknięciem przechodnim czterech
+   rodzajów korzeni pokazuje: jedyne wejście, dispatch `?team=` w listenerze `load`,
+   zostało wycięte 08.08.2026 (P0-2). `openPlayerPanel` i trzy funkcje walidacji
+   trenera mają `onclick` — ale WYŁĄCZNIE w HTML-u, który emituje `renderTeamTable`
+   i `renderCoachValidation`, czyli kod z tego samego martwego regionu.
+   ⚠️ To jest właśnie pułapka, którą trzeba nazwać następnemu pasowi: handler
+   podpięty `onclick`-iem wygląda na osiągalny, dopóki nie zapyta się, KTO
+   renderuje ten przycisk. Handler HTML-a, którego nikt nie ma jak wyrenderować,
+   jest tak samo nieosiągalny jak jego emiter.
 
-  const sorted = Object.entries(scores).sort((a,b) => b[1]-a[1]);
-  const strengths = getRelativeStrengths(scores, 3);
-  let deficits = getRelativeDeficits(scores, 3);
-  const overall = Math.round(Object.values(scores).reduce((a,b)=>a+b,0) / Object.values(scores).length);
+   ⭐ CO ZOSTAJE I DLACZEGO: `closePlayerPanel`, `saveCoachNote`,
+   `generateCoachQuestions`, `submitCoachAnswers` i `downloadTeamPDF` NIE zostały
+   usunięte — ich `onclick` stoi w STATYCZNYM HTML-u tego pliku, więc mają
+   prawdziwą, choć dziś bezużyteczną, ścieżkę wywołania. Nieosiągalności tych
+   pięciu NIE UDOWODNIŁEM i dlatego ich nie ruszam (D3).
+   ⭐ GDZIE TO ŻYJE DZIŚ: widok „Diagnozy drużyny" w `gamechange-app/coach.html`
+   (runda 7) — za logowaniem, nie na kluczu `anon`.
+   ⚠️ POCHŁONIĘTY ZAPIS STARSZEGO AUDYTU, żeby nie zniknął razem z regionem:
+   06.08.2026 usunięto stąd `loadMockTeamData()` — generowała 15 fikcyjnych
+   zawodników (imiona, adresy `*.mock@test.pl`, losowe wyniki) i podstawiała je
+   jako PRAWDZIWE dane drużyny. Wołał ją widoczny przycisk „Podgląd z przykładowymi
+   danymi" w pustym stanie panelu trenera — czyli dokładnie tam, gdzie trener czeka
+   na pierwsze prawdziwe wypełnienia. Przycisk usunięty razem z funkcją.
+   ⭐ GDZIE JEST TREŚĆ USUNIĘTA: historia gita, commit `b5fe2f0`, linie 3804–4989.
+   Progi, mediany i język podpowiedzi, o które chodziło w nocie z 08.08.2026,
+   są w tamtym commicie w całości — i w `coach.html`, gdzie działają.
+   ⚠️ ZANIM KTOŚ TO PRZYWRÓCI: wymaga decyzji o polityce dostępu do `diagnostics`,
+   z datą, w pamięci projektu — nie odkomentowania. */
 
-  // Ten sam fallback co w generateBridge/renderProduct: brak realnego deficytu
-  // (profil wyrównany) nie oznacza że system ma zmyślić problem — jeśli znamy
-  // pozycję zawodnika, rekomendujemy segment kluczowy dla tej roli. row.position
-  // to zapisana nazwa tekstowa (np. "Napastnik"), więc najpierw znajdujemy jej
-  // indeks w CTX_LABELS.pos żeby móc użyć getPositionProfile.
-  let isPositionBasedRecommendation = false;
-  if (!deficits.length && pos) {
-    const posIdx = CTX_LABELS.pos.indexOf(pos);
-    const positionProfile = posIdx >= 0 ? getPositionProfile(posIdx) : null;
-    if (positionProfile) {
-      const keySegments = Object.entries(positionProfile.tiers)
-        .filter(([, tier]) => tier === 'key')
-        .map(([segId]) => segId);
-      const candidateId = keySegments.find(id => scores[id] !== undefined);
-      if (candidateId) {
-        deficits = [[candidateId, scores[candidateId]]];
-        isPositionBasedRecommendation = true;
-      }
-    }
-  }
-
-  const strengthsText = strengths.map(([id]) => SEG_NAMES_PL[id]).filter(Boolean).join(', ');
-  const deficitsText = deficits.map(([id]) => SEG_NAMES_PL[id]).filter(Boolean).join(', ');
-  const profileIsBalanced = deficits.length === 0;
-
-  // Wskazówki dla rodzica — co może zrobić poza boiskiem
-  const PARENT_TIPS = {
-    koncentracja: 'Po meczu — szczególnie po przegranym lub po błędzie — nie analizuj natychmiast. Daj mu 30 minut ciszy. Mózg potrzebuje czasu żeby przetworzyć emocje zanim będzie gotowy na rozmowę. Pytanie "co myślisz że poszło nie tak?" zadane zbyt wcześnie tylko utrwala negatywne emocje.',
-    mental: 'Kiedy dziecko mówi że chce rzucić piłkę lub że nie jest dość dobre — nie zaprzeczaj i nie przekonuj. Zapytaj "co konkretnie było dzisiaj trudne?" To przesuwa rozmowę z oceny na fakty i pomaga mu samemu znaleźć odpowiedź.',
-    percepcja: 'Oglądaj z nim mecze — nie tylko ligę mistrzów, ale mecze na jego poziomie. Pytaj "co ten zawodnik zrobił zanim dostał piłkę?" To buduje bibliotekę wzorców w głowie bez żadnego treningu fizycznego.',
-    decyzja: 'Nie podpowiadaj mu decyzji podczas meczu z trybun. Zawodnik który słyszy instrukcje od rodzica uczy się czekać na podpowiedź zamiast samodzielnie decydować. Kibicuj — nie trenuj.',
-    moc: 'Sen jest ważniejszy niż dodatkowy trening. Zawodnik który śpi 8-9 godzin rozwija moc szybciej niż ten który śpi 6 i trenuje codziennie. Pilnuj regularnych godzin snu bardziej niż liczby treningów.',
-    wytrzymalosc: 'Zadbaj o to żeby miał dobry posiłek 2-3 godziny przed meczem. Zawodnik który gra na czczo lub po fast foodzie wyczerpuje się szybciej niezależnie od kondycji — to jest zmiana którą możesz wprowadzić od następnego meczu.',
-    fizycznosc: 'Jeśli chcesz żeby chodził na siłownię — zaproponuj razem. Nastolatek który zaczyna siłownię z rodzicem ma większą szansę że to będzie regularne niż ten który zaczyna sam.',
-    techFund: '15 minut podań pod ścianą lub z Tobą kilka razy w tygodniu robi więcej niż jeden dodatkowy trening tygodniowo. Nie musisz być trenerem — musisz tylko stać naprzeciwko i podawać piłkę.',
-    techSpec: 'Nie chwal go za wynik — chwal za odważne decyzje. "Dobrze że spróbowałeś tego podania nawet jeśli nie wyszło" buduje zawodnika który będzie grał odważnie. Chwalenie tylko za efekt buduje zawodnika który gra bezpiecznie.',
-    tolerancja: 'Nie martw się każdą drobną kontuzją — ale pilnuj żeby naprawdę odpoczął gdy jest zmęczony. Zawodnik który trenuje z bólem lub zmęczeniem nie buduje odporności — buduje nawyk ignorowania sygnałów ciała.',
-    regeneracja: 'Zadbaj o to żeby miał coś do jedzenia w ciągu 30 minut po treningu. Banana, kanapkę, cokolwiek. Ten posiłek decyduje czy trening z poprzedniego dnia da efekt czy nie.',
-    odpornosc: 'Gdy jest chory — nie wysyłaj na trening. Trening z infekcją nie "przebiegnie" choroby, wydłuża ją. Dwa dni odpoczynku przy przeziębieniu są lepsze niż tydzień absencji przez powikłania.',
-    odzywianie: 'Jeden nawyk który zmieni jego energię w meczu: śniadanie w dniu meczu. Zawodnik który nie je rano traci energię w drugiej połowie niezależnie od kondycji. Makaron, ryż, płatki — cokolwiek co lubi, byle było.',
-  };
-
-  const topDeficitId = deficits[0] ? deficits[0][0] : null;
-  const topStrengthId = strengths[0] ? strengths[0][0] : null;
-  const parentTip = topDeficitId && PARENT_TIPS[topDeficitId] ? PARENT_TIPS[topDeficitId] : (topStrengthId && PARENT_TIPS[topStrengthId] ? PARENT_TIPS[topStrengthId] : '');
-
-  // Rozpoznanie scenariusza — ta sama logika co w głównej diagnozie zawodnika,
-  // żeby raport rodzica nie był zmuszony zmyślać "wąskie gardło" gdy go nie ma.
-  const parentScenario = isPositionBasedRecommendation ? 2 : (deficits.length > 0 ? 1 : 3);
-  const scenarioBlock = {
-    1: `SCENARIUSZ: wykryto realny obszar do pracy. W SEKCJI 2 opisz go jako konkretną sytuację boiskową którą rodzic mógł widzieć na trybunach — bez oceniania, z zapewnieniem że jest do naprawienia.`,
-    2: `SCENARIUSZ: profil dziecka jest wyrównany — nie ma jednego wyraźnego problemu, i to jest DOBRA, prawdziwa wiadomość, nie luka w diagnozie. W SEKCJI 2 powiedz to wprost i uczciwie rodzicowi ("profil Twojego dziecka jest wyrównany, nie ma jednego wyraźnego miejsca które go ogranicza"), a następnie napisz że mimo to, dla jego pozycji na boisku, jeden obszar (podany niżej jako "obszar który go teraz blokuje") jest szczególnie wart uwagi — bo to fundament tej roli, niezależnie od tego że dziś nie jest to jego najsłabszy wynik. NIE nazywaj tego "wąskim gardłem" ani problemem — to rekomendacja rozwojowa, nie diagnoza deficytu.`,
-    3: `SCENARIUSZ: profil dziecka jest wyrównany i nie znamy jego pozycji na boisku. W SEKCJI 2 NIE WYMYŚLAJ problemu — powiedz uczciwie że profil jest wyrównany, to dobra wiadomość, i że przy takim wyniku warto po prostu kontynuować regularną, różnorodną pracę na treningach. Nie sugeruj żadnego konkretnego obszaru do poprawy skoro go nie zidentyfikowaliśmy.`,
-  }[parentScenario];
-
-  // Prompt dla AI — raport napisany dla rodzica
-  const prompt = `Jesteś ekspertem od rozwoju młodych piłkarzy. Piszesz krótki raport dla rodzica zawodnika. Ton: ciepły, konkretny, wspierający — jak rozmowa z doświadczonym trenerem który ceni sobie czas rodzica.
-
-${ZASADY_PROMPTU.rodzic}
-
-DANE ZAWODNIKA:
-Imię: ${name}
-Pozycja: ${pos || 'nie podano'}
-Wiek: ${age || 'nie podano'}
-Mocne strony (wg diagnozy): ${strengthsText || 'wynik wyrównany'}
-Obszar który go teraz blokuje: ${deficitsText || 'brak wyraźnego deficytu — profil wyrównany'}
-
-${scenarioBlock}
-
-Napisz raport w trzech krótkich sekcjach (każda 2-3 zdania):
-
-SEKCJA 1 — "Co Twoje dziecko ma naprawdę dobre":
-Napisz o mocnych stronach w języku rodzica — co to oznacza w praktyce na boisku. Nie używaj terminologii technicznej. Rodzic powinien poczuć dumę i zrozumieć dlaczego to jest wartościowe.
-
-SEKCJA 2 — "Co go teraz blokuje":
-Zgodnie z SCENARIUSZEM podanym wyżej. Bez oceniania.
-
-SEKCJA 3 — "Jeden konkret który możesz zrobić":
-Jedna praktyczna rzecz którą rodzic może zrobić w tym miesiącu — nie treningowo, ale jako rodzic. Codzienna, realistyczna, bez kosztów.
-
-ZASADY: Pisz bezpośrednio do rodzica (forma "Twoje dziecko", "możesz", "warto"). Żadnych liczb ani wyników. Żadnego żargonu. ZAKAZ markdown, gwiazdek, nagłówków z hashami — tylko czysty tekst z nagłówkami sekcji jako osobnymi liniami.`;
-
-  try {
-    const response = await fetch('/api/diagnose', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, maxTokens: 600 })
-    });
-    const data = await response.json();
-    const text = data.content?.filter(c => c.type === 'text').map(c => c.text).join('').trim() || '';
-
-    // Renderuj raport
-    const lvlColor = overall < 45 ? '#e08020' : overall < 65 ? '#c8b820' : '#2a7a3a';
-
-    let html = '';
-
-    // Profil hexagon dziecka — uproszczony i kolorowy
-    html += '<div style="background:#fff;border:1px solid #d8d3c8;padding:28px;margin-bottom:20px;text-align:center;">';
-    html += '<div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:16px;">Profil ' + name + '</div>';
-
-    // Paski segmentów — tylko top 3 mocne i top 3 słabe, bez liczb
-    const SEG_LABELS = { mocne: 'Mocne strony', slabe: 'Obszary do pracy' };
-    html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;text-align:left;">';
-
-    html += '<div>';
-    html += '<div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#2a7a3a;margin-bottom:10px;font-weight:500;">Co mu wychodzi dobrze</div>';
-    strengths.slice(0,3).forEach(([id]) => {
-      const name_seg = SEG_NAMES_PL[id] || id;
-      html += '<div style="margin-bottom:8px;">';
-      html += '<div style="font-size:12px;color:#3a3830;margin-bottom:3px;">' + name_seg + '</div>';
-      html += '<div style="height:4px;background:#e8f5e9;border-radius:2px;"><div style="height:4px;background:#2a7a3a;border-radius:2px;width:' + (scores[id] || 0) + '%;"></div></div>';
-      html += '</div>';
-    });
-    html += '</div>';
-
-    html += '<div>';
-    html += '<div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#e08020;margin-bottom:10px;font-weight:500;">Co go teraz blokuje</div>';
-    deficits.slice(0,3).forEach(([id]) => {
-      const name_seg = SEG_NAMES_PL[id] || id;
-      html += '<div style="margin-bottom:8px;">';
-      html += '<div style="font-size:12px;color:#3a3830;margin-bottom:3px;">' + name_seg + '</div>';
-      html += '<div style="height:4px;background:#fff3e0;border-radius:2px;"><div style="height:4px;background:#e08020;border-radius:2px;width:' + (scores[id] || 0) + '%;"></div></div>';
-      html += '</div>';
-    });
-    html += '</div>';
-
-    html += '</div></div>';
-
-    // Raport AI
-    if (text) {
-      // Parsuj sekcje
-      const sections = text.split(/\n\n+/).filter(s => s.trim());
-      sections.forEach(section => {
-        const lines = section.trim().split('\n');
-        const heading = lines[0].replace(/^#+\s*/, '').replace(/\*\*/g, '').trim();
-        const body = lines.slice(1).join(' ').trim() || heading;
-        const isHeading = lines.length > 1 || heading.length < 60;
-
-        if (isHeading && lines.length > 1) {
-          html += '<div style="background:#fff;border:1px solid #d8d3c8;padding:24px;margin-bottom:12px;">';
-          html += '<div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#9a9488;margin-bottom:8px;font-weight:500;">' + heading + '</div>';
-          html += '<div style="font-size:14px;color:#3a3830;line-height:1.8;font-weight:300;">' + body + '</div>';
-          html += '</div>';
-        } else {
-          html += '<div style="background:#fff;border:1px solid #d8d3c8;padding:24px;margin-bottom:12px;">';
-          html += '<div style="font-size:14px;color:#3a3830;line-height:1.8;font-weight:300;">' + section.trim() + '</div>';
-          html += '</div>';
-        }
-      });
-    }
-
-    // Wskazówka dla rodzica
-    if (parentTip) {
-      html += '<div style="background:#fff8f0;border:1px solid #e8c87a;padding:24px;margin-bottom:20px;">';
-      html += '<div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#c08820;margin-bottom:8px;font-weight:500;">Wskazówka dla Ciebie</div>';
-      html += '<div style="font-size:14px;color:#3a3830;line-height:1.8;font-weight:300;">' + parentTip + '</div>';
-      html += '</div>';
-    }
-
-    // CTA zakupu programu 97 zł usunięte 05.08.2026 — jedynym produktem jest aplikacja.
-
-    // Stopka
-    html += '<div style="text-align:center;padding:16px 0;font-size:11px;color:#9a9488;">Raport wygenerowany przez Gamechange System · ' + new Date().toLocaleDateString('pl-PL') + '</div>';
-
-    el.innerHTML = html;
-
-  } catch(e) {
-    el.innerHTML = '<div style="padding:48px;text-align:center;color:#9a9488;">Błąd generowania raportu.</div>';
-  }
-}
-
-async function sendParentReport(playerData, parentEmail) {
-  const token = Math.random().toString(36).slice(2) + Date.now().toString(36);
-
-  try {
-    await fetch(`${SUPABASE_URL}/rest/v1/diagnostics?email=eq.${encodeURIComponent(playerData.email || '')}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'Prefer': 'return=minimal',
-      },
-      body: JSON.stringify({ parent_token: token, parent_email: parentEmail })
-    });
-  } catch(e) { console.warn('Nie udało się zapisać tokenu rodzica', e); }
-
-  const parentLink = `${window.location.origin}${window.location.pathname}?parent=${token}`;
-
-  // Używamy istniejącego szablonu — pola dopasowane do template_ybc0bsq
-  try {
-    await emailjs.send('service_7dxlxuq', 'template_ybc0bsq', {
-      email: parentEmail,
-      from_name: 'Gamechange System',
-      subject: 'Raport o grze Twojego dziecka — Gamechange',
-      message: `Twoje dziecko właśnie ukończyło profesjonalną diagnostykę piłkarską w systemie Gamechange.\n\nPrzygotowaliśmy dla Ciebie osobny raport — napisany specjalnie dla rodzica.\n\nKliknij żeby go zobaczyć:\n${parentLink}\n\nLink jest aktywny bezterminowo.`,
-      reply_to: 'noreply@gamechange.pl',
-    });
-  } catch(e) { console.warn('EmailJS parent send failed', e); }
-}
-
-// ============================================================
-// LEJEK R8 08.08.2026 — MARTWY REGION (agent-N2): loadTeamView,
-// renderTeamTable, renderTeamStats, renderTeamDeficits, renderTeamHeatmap,
-// generateTeamAIRecommendation, downloadTeamPDF.
-// Po zdjeciu polityki anon SELECT na diagnostics (P0-2, na stale) te funkcje
-// zawsze dostaja pusta odpowiedz - dzialac nie beda. Jedyne wejscie
-// (dispatch ?team= w listenerze load) zostalo wyciete, wiec kod jest
-// NIEOSIAGALNY. Zastepstwo: widok "Diagnozy druzyny" w coach.html (runda 7).
-// Kod NIE jest owiniety w /* */ swiadomie: region zawiera wlasne komentarze
-// blokowe (m.in. okolice linii 3562-4513), wiec blokowy komentarz ucialby sie
-// na pierwszym */ i wywrocil caly <script>. Definicje zostaja jako zapis
-// logiki (progi, mediany), z ktorej czerpal widok w coach.html.
-// ============================================================
-async function loadTeamView(code) {
-  document.getElementById('team-title').textContent = `Drużyna: ${code}`;
-  showScreen('screen-team');
-
-  // Weryfikuj kod wyłącznie względem tabeli `teams`.
-  // AUDYT 06.08.2026 — usunięto listę STATIC_CODES ['GAMECHANGE','TRENER','PILOT',
-  // 'GAMECHANGE2025','LEGIA2025','MOCK','PARASOL'], która pozwalała wejść do panelu
-  // trenera z pominięciem jakiejkolwiek weryfikacji. To były łatwe do odgadnięcia słowa
-  // otwierające widok z imionami, e-mailami i pełnymi wynikami nieletnich.
-  // ⚠️ JEŚLI PANEL PRZESTAŁ DZIAŁAĆ dla Twojego kodu pilotażowego (np. PARASOL) —
-  // znaczy to, że tego kodu nie ma w tabeli `teams`. Dodaj go tam, nie przywracaj listy.
-  {
-    try {
-      const codeCheck = await fetch(
-        `${SUPABASE_URL}/rest/v1/teams?code=eq.${encodeURIComponent(code)}&limit=1`,
-        { headers: { 'apikey': SUPABASE_KEY } }
-      );
-      const codeData = await codeCheck.json();
-      if (!codeData || !codeData.length) {
-        document.getElementById('team-loading').style.display = 'none';
-        document.getElementById('team-empty').style.display = 'block';
-        document.getElementById('team-empty').innerHTML = '<div style="padding:48px;text-align:center;"><div style="font-family:\'Bebas Neue\',sans-serif;font-size:24px;color:#9a9488;margin-bottom:8px;">Nieznany kod drużyny</div><p style="font-size:13px;color:#9a9488;font-weight:300;">Sprawdź czy kod jest wpisany poprawnie.</p></div>';
-        return;
-      }
-      // Pokaż nazwę drużyny jeśli jest
-      if (codeData[0].club_name) {
-        document.getElementById('team-title').textContent = codeData[0].club_name + ' — ' + code;
-      }
-    } catch(e) { /* ignoruj — pokaż panel normalnie */ }
-  }
-
-  try {
-    const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/diagnostics?team_code=eq.${encodeURIComponent(code)}&event=eq.email_submitted&order=created_at.desc`,
-      { headers: { 'apikey': SUPABASE_KEY } }
-    );
-    teamData = await res.json();
-  } catch(e) { teamData = []; }
-
-  document.getElementById('team-loading').style.display = 'none';
-
-  if (!teamData.length) {
-    document.getElementById('team-empty').style.display = 'block';
-    return;
-  }
-
-  renderTeamTable(teamData);
-  renderTeamStats(teamData);
-  renderTeamDeficits(teamData);
-  setTimeout(() => {
-    renderTeamHeatmap(teamData);
-    generateTeamAIRecommendation(teamData, code);
-  }, 100);
-}
-
-function renderTeamTable(data) {
-  document.getElementById('team-count').textContent = `${data.length} zawodników`;
-  const tbody = document.getElementById('team-tbody');
-
-  // Mapowanie id segmentu → czytelna nazwa
-  const SEG_NAMES_PL = {
-    moc: 'Moc', wytrzymalosc: 'Wytrzymałość', fizycznosc: 'Fizyczność',
-    techFund: 'Technika fund.', techSpec: 'Technika spec.',
-    tolerancja: 'Tol. obciążeń', regeneracja: 'Regeneracja',
-    odpornosc: 'Odporność', odzywianie: 'Odżywienie',
-    koncentracja: 'Koncentracja', mental: 'Odwaga w grze',
-    percepcja: 'Percepcja', decyzja: 'Szybk. decyzji',
-  };
-
-  tbody.innerHTML = data.map((row, idx) => {
-    const scores = row.scores ? (() => { try { return JSON.parse(row.scores); } catch(e) { return null; } })() : null;
-    const overall = row.overall_score;
-    const lvlLabel = !overall ? '—' : overall < 40 ? 'Wymaga uwagi' : overall < 55 ? 'Poniżej średniej' : overall < 70 ? 'Przeciętny' : 'Dobry';
-    const color = !overall ? '#9a9488' : overall < 40 ? '#C0392B' : overall < 55 ? '#e08020' : overall < 70 ? '#c8b820' : '#2a7a3a';
-    const bgColor = !overall ? 'transparent' : overall < 40 ? '#FDEBEB' : overall < 55 ? '#fff3e0' : overall < 70 ? '#fffde0' : '#e8f5e9';
-    const deficits = row.top_deficits ? row.top_deficits.split(', ') : [];
-    const mainDeficit = deficits[0] || '—';
-    const date = row.created_at ? new Date(row.created_at).toLocaleDateString('pl-PL') : '—';
-    const name = row.player_name || row.email || 'Anonimowy';
-    const pos = row.position || '—';
-
-    // Jedna praktyczna podpowiedź treningowa per zawodnik
-    const hint = _coachHintForPlayer(row, scores);
-
-    return `
-      <tr style="border-bottom:1px solid #e8e4dd;cursor:pointer;transition:background 0.1s;"
-        onmouseover="this.style.background='#f9f8f5'"
-        onmouseout="this.style.background=''"
-        onclick="openPlayerPanel(${idx})">
-        <td style="padding:14px 16px;">
-          <div style="font-size:13px;font-weight:500;color:#0e0d0b;">${name}</div>
-          <div style="font-size:11px;color:#9a9488;margin-top:2px;">${pos}</div>
-        </td>
-        <td style="padding:14px 16px;text-align:center;">
-          <span style="display:inline-block;padding:4px 10px;background:${bgColor};border:1px solid ${color};font-size:11px;font-weight:500;color:${color};letter-spacing:0.05em;">${lvlLabel}</span>
-        </td>
-        <td style="padding:14px 16px;">
-          <div style="font-size:12px;color:#C0392B;font-weight:500;margin-bottom:2px;">${mainDeficit}</div>
-          <div style="font-size:11px;color:#9a9488;">${deficits.slice(1,3).join(' · ')}</div>
-        </td>
-        <td style="padding:14px 16px;max-width:220px;">
-          <div style="font-size:12px;color:#3a3830;line-height:1.5;font-weight:300;">${hint}</div>
-        </td>
-        <td style="padding:14px 16px;font-size:11px;color:#9a9488;">${date}</td>
-        <td style="padding:14px 16px;">
-          <button onclick="event.stopPropagation();openPlayerPanel(${idx})"
-            style="background:transparent;border:1px solid #d8d3c8;padding:5px 12px;font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:0.1em;cursor:pointer;color:#3a3830;">
-            PROFIL →
-          </button>
-        </td>
-      </tr>`;
-  }).join('');
-}
-
-// Jedna konkretna podpowiedź treningowa dla trenera per zawodnik
-function _coachHintForPlayer(row, scores) {
-  if (!scores) return '—';
-
-  const HINTS = {
-    moc: 'Włącz do rozgrzewki krótkie starty 10m. Priorytet: pierwsze 3 metry.',
-    wytrzymalosc: 'Ogranicz czas na boisku w intensywnych fragmentach. Małe gry 3v3 budują szybciej niż bieganie.',
-    fizycznosc: 'Ćwiczenia z kontaktem na treningach — nie unikaj sytuacji 1v1. Pozycja ciała ważniejsza niż siła.',
-    techFund: 'Więcej powtórzeń w zmiennych warunkach — nie statycznie. Zmieniaj kierunek, wysokość, presję.',
-    techSpec: 'Dawaj mu sytuacje gdzie musi zdecydować szybko. Małe gry z ograniczonym kontaktem z piłką.',
-    tolerancja: 'Kontroluj obciążenia. Nie dokładaj mu treningu gdy drużyna i tak dużo pracuje.',
-    regeneracja: 'Zapytaj o sen i jedzenie po treningu. Często problem leży tam, nie w samym treningu.',
-    odpornosc: 'Obserwuj jak reaguje po intensywnym tygodniu. Wczesne sygnały zmęczenia są ważniejsze niż liczby.',
-    odzywianie: 'Zaproponuj żeby jadł coś lekkiego przed treningiem. To może zmienić jego drugą połowę meczu.',
-    koncentracja: 'Po błędzie — nie komentuj od razu. Daj mu kilka akcji żeby sam się "zebrał". Oceniaj po meczu.',
-    mental: 'Dawaj mu odpowiedzialność w ćwiczeniach — niech podejmuje decyzje pod presją, nie tylko wykonuje.',
-    percepcja: 'Małe gry na małym boisku z dużą intensywnością. Wymuszają skanowanie — nie tłumacz, twórz sytuacje.',
-    decyzja: 'Ćwiczenia z presją czasu. Jeden kontakt, dwa kontakty. Szybkość decyzji buduje się przez powtórzenia.',
-  };
-
-  // Ten sam mechanizm co w raporcie rodzica i mostku do produktu: bierzemy
-  // realny statystyczny deficyt (względem WŁASNEJ mediany zawodnika), nie
-  // po prostu najniższy surowy wynik — bo przy wyrównanym profilu najniższy
-  // z segmentów w normie i tak "wygrywał" ten ranking, sugerując trenerowi
-  // fałszywy priorytet w miejscu które wcale nie odstaje od reszty.
-  const deficits = getRelativeDeficits(scores, 1);
-  if (deficits.length) {
-    return HINTS[deficits[0][0]] || '—';
-  }
-
-  // Profil wyrównany — fallback do segmentu kluczowego dla pozycji, jeśli ją znamy
-  const posIdx = row.position ? CTX_LABELS.pos.indexOf(row.position) : -1;
-  const positionProfile = posIdx >= 0 ? getPositionProfile(posIdx) : null;
-  if (positionProfile) {
-    const keySegments = Object.entries(positionProfile.tiers)
-      .filter(([, tier]) => tier === 'key')
-      .map(([segId]) => segId);
-    const candidateId = keySegments.find(id => scores[id] !== undefined);
-    if (candidateId && HINTS[candidateId]) return HINTS[candidateId];
-  }
-
-  return 'Profil wyrównany — brak pilnego priorytetu';
-}
 
 // ======================================
 //  PANEL BOCZNY ZAWODNIKA — trener
@@ -3972,89 +3598,13 @@ function _coachHintForPlayer(row, scores) {
 let _currentPlayerIdx = null;
 let _noteDebounce = null;
 
-const SEG_ORDER_PANEL = [
-  { id: 'moc', name: 'MOC' },
-  { id: 'wytrzymalosc', name: 'WYTRZYMAŁOŚĆ' },
-  { id: 'fizycznosc', name: 'FIZYCZNOŚĆ' },
-  { id: 'techFund', name: 'TECH. FUND.' },
-  { id: 'techSpec', name: 'TECH. SPEC.' },
-  { id: 'tolerancja', name: 'TOL. OBCIĄŻEŃ' },
-  { id: 'regeneracja', name: 'REGENERACJA' },
-  { id: 'odpornosc', name: 'ODPORNOŚĆ' },
-  { id: 'odzywianie', name: 'ODŻYWIENIE' },
-  { id: 'koncentracja', name: 'KONCENTRACJA' },
-  { id: 'mental', name: 'ODWAGA W GRZE' },
-  { id: 'percepcja', name: 'PERCEPCJA' },
-  { id: 'decyzja', name: 'SZYBK. DECYZJI' },
-];
+/* ⛔ PLAN-D-Y4 08.2026 — `SEG_ORDER_PANEL` USUNIĘTA razem z regionem (D3).
+   Kolejność 13 obszarów wyłącznie na potrzeby panelu bocznego trenera; po
+   usunięciu `openPlayerPanel` została BEZ ANI JEDNEGO UŻYCIA (zmierzone).
+   ⭐ Ta sama kolejność i te same etykiety żyją w `SEGS` — tam, gdzie pracują. */
 
-function openPlayerPanel(idx) {
-  _currentPlayerIdx = idx;
-  const row = teamData[idx];
-  if (!row) return;
+/* ⛔ PLAN-D-Y4 08.2026 — ciąg dalszy martwego regionu „legacy ?team= i panel trenera" (D3). Powód i dowód: nagrobek wyżej. */
 
-  const name = row.player_name || row.email || 'Anonimowy';
-  const scores = row.scores ? (() => { try { return JSON.parse(row.scores); } catch(e) { return null; } })() : null;
-  const overall = row.overall_score;
-  const lvlLabel = !overall ? '—' : overall < 40 ? 'Wymaga uwagi' : overall < 55 ? 'Poniżej średniej' : overall < 70 ? 'Przeciętny' : 'Dobry';
-  const lvlColor = !overall ? '#9a9488' : overall < 40 ? '#C0392B' : overall < 55 ? '#e08020' : overall < 70 ? '#c8b820' : '#2a7a3a';
-  const lvlBg = !overall ? 'transparent' : overall < 40 ? '#FDEBEB' : overall < 55 ? '#fff3e0' : overall < 70 ? '#fffde0' : '#e8f5e9';
-
-  const ppNameEl = document.getElementById('pp-name');
-  if (ppNameEl) ppNameEl.textContent = name;
-
-  const statBox = (label, val, c, bg) => `
-    <div style="background:#fff;border:1px solid #d8d3c8;padding:16px;text-align:center;">
-      <div style="display:inline-block;padding:4px 10px;background:${bg};border:1px solid ${c};font-size:13px;font-weight:500;color:${c};margin-bottom:6px;">${val}</div>
-      <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:#9a9488;">${label}</div>
-    </div>`;
-  document.getElementById('pp-stats').innerHTML =
-    statBox('Poziom ogólny', lvlLabel, lvlColor, lvlBg) +
-    statBox('Pozycja', row.position || '—', '#0e0d0b', 'transparent') +
-    statBox('Data', row.created_at ? new Date(row.created_at).toLocaleDateString('pl-PL') : '—', '#9a9488', 'transparent');
-
-  // Segmenty — paski sortowane od najsłabszego
-  if (scores) {
-    const sorted = SEG_ORDER_PANEL.map(s => ({ ...s, val: scores[s.id] || 0 }))
-      .sort((a, b) => a.val - b.val);
-    document.getElementById('pp-segments').innerHTML = sorted.map(s => {
-      const c = s.val < 35 ? '#C0392B' : s.val < 50 ? '#e08020' : s.val < 65 ? '#c8b820' : '#2a7a3a';
-      const lbl = s.val < 35 ? 'Wymaga uwagi' : s.val < 50 ? 'Do pracy' : s.val < 65 ? 'Przeciętny' : 'Dobry';
-      return `
-        <div style="margin-bottom:10px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-            <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#3a3830;">${s.name}</div>
-            <div style="font-size:10px;color:${c};font-weight:500;">${lbl}</div>
-          </div>
-          <div style="height:5px;background:#e8e4dd;border-radius:2px;">
-            <div style="height:5px;background:${c};border-radius:2px;width:${s.val}%;transition:width 0.5s ease;"></div>
-          </div>
-        </div>`;
-    }).join('');
-  } else {
-    document.getElementById('pp-segments').innerHTML = '<div style="font-size:13px;color:#9a9488;">Brak danych segmentów.</div>';
-  }
-
-  // Notatka trenera — z Supabase
-  document.getElementById('pp-note').value = '';
-  document.getElementById('pp-note-saved').style.display = 'none';
-  document.getElementById('pp-note-error').style.display = 'none';
-  loadCoachNote(row);
-
-  // Reset pytań — ale najpierw sprawdź czy trener już wcześniej coś
-  // zaobserwował dla tego zawodnika (żeby nie dawać złudzenia że wcześniejsza
-  // praca zniknęła bez śladu)
-  document.getElementById('pp-questions').innerHTML = '';
-  document.getElementById('pp-questions-btn').style.display = 'block';
-  document.getElementById('pp-enhanced-wrap').style.display = 'none';
-  showPreviousCoachInsight(row);
-  renderCoachValidation(row, scores);
-
-  // Pokaż panel
-  document.getElementById('player-panel-overlay').style.display = 'block';
-  document.getElementById('player-panel').style.display = 'block';
-  document.body.style.overflow = 'hidden';
-}
 
 function closePlayerPanel() {
   document.getElementById('player-panel-overlay').style.display = 'none';
@@ -4225,188 +3775,14 @@ async function wczytajObserwacjeZweryfikowane(weryfikacja) {
   return { obserwacje: odp.obserwacje, powod: '' };
 }
 
-/**
- * Pokazuje trenerowi widoczny ślad jego wcześniejszej obserwacji dla tego
- * zawodnika (jeśli istnieje) — bez tego panel zawsze wyglądał tak jakby
- * trener nigdy nic nie zapisał, co zniechęcało do ponownego zaangażowania.
- * Rozróżnia "nigdy nic nie zapisano" od "obserwacja wygasła po 90 dniach"
- * (loadPlayerInsights celowo pomija starsze — patrz INSIGHT_MAX_AGE_DAYS) —
- * bez tego rozróżnienia trener mógłby pomyśleć że system zgubił jego pracę,
- * zamiast że to jest zamierzone wygaśnięcie nieaktualnej już obserwacji.
- */
-async function showPreviousCoachInsight(row) {
-  const el = document.getElementById('pp-previous-insight');
-  if (!el || !row.email) { if (el) el.innerHTML = ''; return; }
+/* ⛔ PLAN-D-Y4 08.2026 — ciąg dalszy martwego regionu „legacy ?team= i panel trenera" (D3). Powód i dowód: nagrobek wyżej. */
 
-  try {
-    // PLAN-D-K 08.2026 — WARIANT B. Odczyt trenera rozstrzyga KOD DRUŻYNY,
-    // nie adres e-mail. Funkcja `get_coach_insight_for_team` ma dokładnie tę
-    // samą bramkę co `record_coach_insight` (zawodnik musi mieć w `diagnostics`
-    // wiersz z tym kodem drużyny) — asymetria między zapisem a odczytem byłaby
-    // dziurą samą w sobie. Kod drużyny trener MUSI DOSTAĆ; adres e-mail
-    // zawodnika da się zgadnąć.
-    //
-    // ⚠️ ZAKAZ ŚCIEŻKI ODZYSKU: wołamy DOKŁADNIE RAZ. Gdy odpowiedź jest
-    // odmowna albo jej nie ma, panel milczy i mówi to w konsoli — nie ma
-    // drugiej próby po adresie e-mail. Druga, cicha droga jest dokładnie tym,
-    // co ta runda zamyka.
-    const odp = await gcRpc('get_coach_insight_for_team', {
-      p_team_code: row.team_code || '',
-      p_player_email: row.email,
-    });
 
-    if (odp === null || !odp || odp.ok !== true) {
-      console.warn('PLAN-D-K: odczyt obserwacji trenera odmówiony albo nieudany —',
-        (odp && odp.powod) || 'baza nie odpowiedziała');
-      el.innerHTML = '';
-      return;
-    }
+/* ⛔ PLAN-D-Y4 08.2026 — `_pendingValidationSegId` USUNIĘTA (D3): po usunięciu
+   `renderCoachValidation` i `submitCoachValidation*` została bez ani jednego użycia. */
 
-    const coachInsight = odp.obserwacja || null;
+/* ⛔ PLAN-D-Y4 08.2026 — ciąg dalszy martwego regionu „legacy ?team= i panel trenera" (D3). Powód i dowód: nagrobek wyżej. */
 
-    if (!coachInsight) {
-      // "Nigdy nic nie było" i "było, ale wygasło po 90 dniach" to dwa różne
-      // zdania dla trenera. Rozstrzyga to baza (pole `wygasla`), a nie drugie
-      // zapytanie z przeglądarki.
-      if (odp.wygasla === true) {
-        el.innerHTML = `<div style="padding:10px 14px;background:#f5f2ec;margin-bottom:14px;"><div style="font-size:11px;color:#9a9488;font-weight:300;">Twoja wcześniejsza obserwacja tego zawodnika jest już nieaktualna (starsza niż ${odp.prog_dni || INSIGHT_MAX_AGE_DAYS} dni) i nie wpływa na bieżącą diagnozę.</div></div>`;
-      } else {
-        el.innerHTML = '';
-      }
-      return;
-    }
-
-    const daysAgo = Math.round((Date.now() - new Date(coachInsight.created_at).getTime()) / (24 * 60 * 60 * 1000));
-    const whenText = daysAgo === 0 ? 'dziś' : daysAgo === 1 ? 'wczoraj' : `${daysAgo} dni temu`;
-    const segName = SEG_NAMES[coachInsight.segment_id] || coachInsight.segment_id;
-
-    el.innerHTML = `
-      <div style="padding:12px 14px;background:#f5f2ec;border-left:2px solid #2a7a3a;margin-bottom:14px;">
-        <div style="font-size:11px;color:#2a7a3a;font-weight:500;margin-bottom:4px;">Twoja ostatnia obserwacja (${whenText}, obszar: ${segName})</div>
-        <div style="font-size:12px;color:#3a3830;font-weight:300;line-height:1.6;">${esc((coachInsight.response_value || '').slice(0, 200))}</div>
-      </div>`;
-  } catch(e) { el.innerHTML = ''; }
-}
-
-/**
- * Renderuje pytanie walidacyjne "czy diagnoza się zgadza" — jedno, konkretne
- * pytanie o GŁÓWNY wykryty segment (ten sam wzorzec doboru co wszędzie:
- * getRelativeDeficits z fallbackiem pozycyjnym, NIC jeśli Scenariusz 3 — nie
- * zgadujemy). To jest ustrukturyzowany sygnał trafności (Tak/Trochę/Nie),
- * jakościowo różny od swobodnych obserwacji trenera (generateCoachQuestions) —
- * daje mierzalny, agregowalny wskaźnik czy system trafia w rzeczywistość,
- * nie tylko kolejną obserwację do promptu.
- */
-function renderCoachValidation(row, scores) {
-  const el = document.getElementById('pp-validation');
-  if (!el) return;
-
-  if (!scores) { el.innerHTML = '<div style="font-size:13px;color:#9a9488;">Brak danych do walidacji.</div>'; return; }
-
-  let deficits = getRelativeDeficits(scores, 1);
-  if (!deficits.length && row.position !== undefined && row.position !== null) {
-    // Fallback pozycyjny — ten sam mechanizm co scheduleParentObservationRequest/_buildDiagData
-    const posIdx = CTX_LABELS.pos.indexOf(row.position);
-    const positionProfile = posIdx >= 0 ? getPositionProfile(posIdx) : null;
-    if (positionProfile) {
-      const keySegments = Object.entries(positionProfile.tiers)
-        .filter(([, tier]) => tier === 'key').map(([segId]) => segId);
-      const candidateId = keySegments.find(id => scores[id] !== undefined);
-      if (candidateId) deficits = [[candidateId, scores[candidateId]]];
-    }
-  }
-
-  if (!deficits.length) {
-    // Scenariusz 3 — brak realnego deficytu i brak pozycji do fallbacku,
-    // nie zgadujemy o co pytać, zgodnie z zasadą stosowaną wszędzie indziej.
-    el.innerHTML = '<div style="font-size:13px;color:#9a9488;">Profil wyrównany — brak jednego, konkretnego obszaru do potwierdzenia.</div>';
-    return;
-  }
-
-  const segId = deficits[0][0];
-  const segName = SEG_NAMES[segId] || segId;
-
-  el.innerHTML = `
-    <div style="font-size:14px;color:#0e0d0b;margin-bottom:14px;line-height:1.5;">System wskazał <strong>${esc(segName)}</strong> jako główny obszar do pracy. Czy to się zgadza z Twoją oceną tego zawodnika?</div>
-    <div style="display:flex;gap:8px;margin-bottom:10px;" id="pp-validation-btns">
-      <button onclick="submitCoachValidation('${esc(segId)}','yes',this)" style="flex:1;padding:12px 6px;border:1px solid #2a7a3a;color:#2a7a3a;background:#fff;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Tak</button>
-      <button onclick="submitCoachValidation('${esc(segId)}','partial',this)" style="flex:1;padding:12px 6px;border:1px solid #e08020;color:#e08020;background:#fff;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Trochę</button>
-      <button onclick="submitCoachValidation('${esc(segId)}','no',this)" style="flex:1;padding:12px 6px;border:1px solid #C0392B;color:#C0392B;background:#fff;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Nie</button>
-    </div>
-    <div id="pp-validation-comment-wrap" style="display:none;">
-      <textarea id="pp-validation-comment" placeholder="Co Twoim zdaniem jest bliższe prawdy? (opcjonalnie, ale bardzo pomocne)" style="width:100%;border:1px solid #d8d3c8;padding:10px;font-family:'DM Sans',sans-serif;font-size:13px;resize:none;height:56px;color:#3a3830;margin-top:10px;"></textarea>
-      <button onclick="submitCoachValidationComment('${esc(row.email || '')}')" style="width:100%;background:#0e0d0b;color:#f5f2ec;border:none;padding:10px;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:0.1em;cursor:pointer;margin-top:8px;">Wyślij komentarz</button>
-    </div>
-  `;
-}
-
-let _pendingValidationSegId = null;
-
-async function submitCoachValidation(segId, value, btn) {
-  const el = document.getElementById('pp-validation');
-  const row = teamData[_currentPlayerIdx];
-  if (!row || !row.email) return;
-
-  const buttons = document.getElementById('pp-validation-btns').querySelectorAll('button');
-  buttons.forEach(b => { b.disabled = true; b.style.opacity = b === btn ? '1' : '0.4'; });
-
-  // PLAN-D-G 08.2026 — zapis przez funkcję bramkowaną KODEM DRUŻYNY.
-  // Baza sprawdza, że ten zawodnik naprawdę należy do tej drużyny.
-  await gcRpc('record_coach_insight', {
-    p_team_code: row.team_code || '',
-    p_player_email: row.email,
-    p_segment_id: segId,
-    p_source: 'coach_validation',
-    p_question: 'Czy diagnoza się zgadza?',
-    p_value: value,
-  });
-
-  if (value === 'no' || value === 'partial') {
-    // Jeśli trener nie zgadza się w pełni, dajemy pole na wyjaśnienie —
-    // to jest najbardziej wartościowy sygnał do oceny jakości systemu.
-    _pendingValidationSegId = segId;
-    document.getElementById('pp-validation-comment-wrap').style.display = 'block';
-  } else {
-    const msg = document.createElement('div');
-    msg.style.cssText = 'font-size:12px;color:#2a7a3a;margin-top:10px;';
-    msg.textContent = '✓ Dziękujemy za potwierdzenie';
-    el.appendChild(msg);
-  }
-}
-
-async function submitCoachValidationComment(email) {
-  const commentEl = document.getElementById('pp-validation-comment');
-  const comment = commentEl ? commentEl.value.trim() : '';
-  if (!comment || !_pendingValidationSegId || !email) return;
-
-  // PLAN-D-G 08.2026 — kod drużyny bierzemy z aktualnie otwartego zawodnika,
-  // nie z parametru, żeby nie dokładać go do onclick w HTML-u.
-  const _row = teamData[_currentPlayerIdx] || {};
-  await gcRpc('record_coach_insight', {
-    p_team_code: _row.team_code || '',
-    p_player_email: email,
-    p_segment_id: _pendingValidationSegId,
-    p_source: 'coach_validation',
-    p_question: 'Czy diagnoza się zgadza? — wyjaśnienie',
-    p_value: 'comment',
-    p_comment: comment,
-  });
-
-  document.getElementById('pp-validation-comment-wrap').innerHTML = '<div style="font-size:12px;color:#2a7a3a;">✓ Dziękujemy za wyjaśnienie — to pomoże ocenić i poprawić system.</div>';
-}
-
-async function loadCoachNote(row) {
-  try {
-    const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/coach_notes?player_email=eq.${encodeURIComponent(row.email)}&team_code=eq.${encodeURIComponent(row.team_code || '')}&limit=1`,
-      { headers: { 'apikey': SUPABASE_KEY } }
-    );
-    const data = await res.json();
-    if (data && data[0] && data[0].note) {
-      document.getElementById('pp-note').value = data[0].note;
-    }
-  } catch(e) { /* cicho — puste pole to OK */ }
-}
 
 async function generateCoachQuestions() {
   if (_currentPlayerIdx === null) return;
@@ -4608,390 +3984,8 @@ Napisz diagnozę w 4-5 zdaniach. Zasady:
   }
 }
 
-// AUDYT 06.08.2026 — usunięto loadMockTeamData(): generowała 15 fikcyjnych zawodników
-// ('Mateusz K.', 'Jakub W.', ... , e-maile *.mock@test.pl, losowe wyniki) i podstawiała je
-// jako realne dane drużyny. Wywoływał ją widoczny przycisk 'Podgląd z przykładowymi danymi'
-// w pustym stanie panelu trenera — czyli dokładnie tam, gdzie trener czeka na pierwsze
-// prawdziwe wypełnienia. Przycisk usunięty razem z funkcją.
+/* ⛔ PLAN-D-Y4 08.2026 — ciąg dalszy martwego regionu „legacy ?team= i panel trenera" (D3). Powód i dowód: nagrobek wyżej. */
 
-function renderTeamStats(data) {
-  const scores = data.map(r => r.overall_score).filter(Boolean);
-  const avg = scores.length ? Math.round(scores.reduce((a,b)=>a+b,0)/scores.length) : 0;
-  const below50 = scores.filter(s => s < 50).length;
-
-  // Opis stanu drużyny zamiast surowej średniej i rankingu "Najlepszy" —
-  // ten drugi dodatkowo rankingował zawodników liczbowo przeciwko sobie,
-  // co jest przeciwieństwem filozofii porównania każdego do własnej mediany.
-  const stateLabel = avg < 50 ? 'Wymaga pracy' : avg < 65 ? 'Solidna baza' : 'Dobry poziom';
-  const stateColor = avg < 50 ? '#C0392B' : avg < 65 ? '#e08020' : '#2a7a3a';
-
-  const statsEl = document.getElementById('team-stats');
-  const stat = (label, val, color) => `
-    <div style="background:#fff;border:1px solid #d8d3c8;padding:20px;text-align:center;">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:${color};margin-bottom:4px;">${val}</div>
-      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#9a9488;">${label}</div>
-    </div>`;
-  const statText = (label, val, color) => `
-    <div style="background:#fff;border:1px solid #d8d3c8;padding:20px;text-align:center;">
-      <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:${color};margin-bottom:4px;">${val}</div>
-      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:#9a9488;">${label}</div>
-    </div>`;
-
-  statsEl.innerHTML =
-    stat('Zawodnicy', data.length, '#0e0d0b') +
-    statText('Stan drużyny', stateLabel, stateColor) +
-    stat('Wymaga uwagi', below50, below50 > 0 ? '#C0392B' : '#9a9488');
-}
-
-function renderTeamDeficits(data) {
-  const deficitCount = {};
-  data.forEach(row => {
-    if (!row.top_deficits) return;
-    row.top_deficits.split(', ').forEach(d => {
-      const name = d.replace(/\s*\(\d+\)/, '').trim();
-      deficitCount[name] = (deficitCount[name] || 0) + 1;
-    });
-  });
-
-  const sorted = Object.entries(deficitCount).sort((a,b) => b[1]-a[1]).slice(0, 6);
-  const el = document.getElementById('team-deficits');
-
-  if (!sorted.length) { el.innerHTML = '<div style="color:#9a9488;font-size:13px;">Brak danych.</div>'; return; }
-
-  el.innerHTML = sorted.map(([name, count]) => {
-    const pct = Math.round((count / data.length) * 100);
-    return `
-      <div style="border:1px solid #d8d3c8;padding:16px;">
-        <div style="font-size:13px;font-weight:500;color:#0e0d0b;margin-bottom:6px;">${name}</div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div style="flex:1;height:4px;background:#e8e4dd;border-radius:2px;">
-            <div style="height:4px;background:#C0392B;border-radius:2px;width:${pct}%"></div>
-          </div>
-          <div style="font-size:12px;color:#C0392B;font-weight:500;min-width:32px;">${count}/${data.length}</div>
-        </div>
-      </div>`;
-  }).join('');
-}
-
-function renderTeamHeatmap(data) {
-  const el = document.getElementById('team-heatmap');
-  if (!el) return;
-
-  const SEG_ORDER = [
-    { id: 'moc', name: 'MOC' },
-    { id: 'wytrzymalosc', name: 'WYTRZYMAŁOŚĆ' },
-    { id: 'fizycznosc', name: 'FIZYCZNOŚĆ' },
-    { id: 'techFund', name: 'TECH. FUND.' },
-    { id: 'techSpec', name: 'TECH. SPEC.' },
-    { id: 'tolerancja', name: 'TOL. OBCIĄŻEŃ' },
-    { id: 'regeneracja', name: 'REGENERACJA' },
-    { id: 'odpornosc', name: 'ODPORNOŚĆ' },
-    { id: 'odzywianie', name: 'ODŻYWIENIE' },
-    { id: 'koncentracja', name: 'KONCENTRACJA' },
-    { id: 'mental', name: 'ODWAGA W GRZE' }, /* PODPOWIEDZI A 08.08.2026 — decyzja A1: nazwa segmentu wyrownana z pozostalymi dwiema mapami w tym pliku */
-    { id: 'percepcja', name: 'PERCEPCJA' },
-    { id: 'decyzja', name: 'SZYBK. DECYZJI' },
-  ];
-
-  const totals = {};
-  const counts = {};
-
-  data.forEach(function(row) {
-    if (!row.scores) return;
-    var scores;
-    try { scores = typeof row.scores === 'string' ? JSON.parse(row.scores) : row.scores; }
-    catch(e) { return; }
-    SEG_ORDER.forEach(function(s) {
-      var v = scores[s.id];
-      if (v != null && !isNaN(v)) {
-        totals[s.id] = (totals[s.id] || 0) + Number(v);
-        counts[s.id] = (counts[s.id] || 0) + 1;
-      }
-    });
-  });
-
-  var segAvgs = [];
-  SEG_ORDER.forEach(function(s) {
-    if (counts[s.id]) {
-      segAvgs.push({ id: s.id, name: s.name, avg: Math.round(totals[s.id] / counts[s.id]) });
-    }
-  });
-  segAvgs.sort(function(a, b) { return a.avg - b.avg; });
-
-  window._teamSegAvgs = segAvgs;
-
-  if (!segAvgs.length) {
-    el.innerHTML = '<div style="font-size:13px;color:#9a9488;padding:8px 0;">Brak danych do wyświetlenia mapy.</div>';
-    return;
-  }
-
-  function heatColor(val) {
-    if (val < 35) return { bg: '#FDEBEB', border: '#C0392B', text: '#8B1A1A', label: 'Wymaga uwagi' };
-    if (val < 50) return { bg: '#fff3e0', border: '#e08020', text: '#c06010', label: 'Do pracy' };
-    if (val < 65) return { bg: '#fffde0', border: '#c8b820', text: '#9a8c10', label: 'Przeciętny' };
-    return { bg: '#e8f5e9', border: '#2a7a3a', text: '#1a5a2a', label: 'Dobry' };
-  }
-
-  var html = '<div style="margin-bottom:16px;">';
-  html += '<div style="font-size:11px;letter-spacing:0.15em;text-transform:uppercase;color:#9a9488;margin-bottom:4px;">Mapa deficytów drużyny</div>';
-  html += '<div style="font-size:12px;color:#9a9488;font-weight:300;margin-bottom:16px;">Średnie wyniki drużyny per obszar — od najsłabszego</div>';
-  html += '</div>';
-
-  // Hexagon drużyny — SVG
-  var CX = 200, CY = 200, R = 160;
-  var N = segAvgs.length;
-
-  // Posortuj z powrotem po oryginalnej kolejności segmentów dla hexagonu
-  var SEG_ORDER_IDS = ['moc','wytrzymalosc','fizycznosc','techFund','techSpec',
-    'tolerancja','regeneracja','odpornosc','odzywianie','koncentracja','mental','percepcja','decyzja'];
-  var hexData = SEG_ORDER_IDS.map(function(id) {
-    var s = segAvgs.find(function(x) { return x.id === id; });
-    return s ? s : { id: id, name: id, avg: 0 };
-  });
-
-  function getPoint(i, r, total) {
-    var angle = (2 * Math.PI * i / total) - Math.PI / 2;
-    return {
-      x: Math.round((CX + r * Math.cos(angle)) * 10) / 10,
-      y: Math.round((CY + r * Math.sin(angle)) * 10) / 10
-    };
-  }
-
-  // Siatka — koła referencyjne
-  var gridSVG = '';
-  [0.25, 0.5, 0.75, 1.0].forEach(function(frac) {
-    var pts = [];
-    for (var i = 0; i < hexData.length; i++) {
-      var p = getPoint(i, R * frac, hexData.length);
-      pts.push(p.x + ',' + p.y);
-    }
-    var opacity = frac === 1.0 ? '0.2' : '0.08';
-    var sw = frac === 1.0 ? '1.5' : '1';
-    gridSVG += '<polygon points="' + pts.join(' ') + '" fill="none" stroke="#9a9488" stroke-width="' + sw + '" opacity="' + opacity + '"/>';
-  });
-
-  // Osie
-  var axesSVG = '';
-  hexData.forEach(function(s, i) {
-    var p = getPoint(i, R, hexData.length);
-    axesSVG += '<line x1="' + CX + '" y1="' + CY + '" x2="' + p.x + '" y2="' + p.y + '" stroke="#9a9488" stroke-width="1" opacity="0.1"/>';
-  });
-
-  // Profil drużyny
-  var profilePts = [];
-  hexData.forEach(function(s, i) {
-    var val = s.avg / 100;
-    var p = getPoint(i, R * val, hexData.length);
-    profilePts.push(p.x + ',' + p.y);
-  });
-
-  // Etykiety segmentów
-  var labelsSVG = '';
-  hexData.forEach(function(s, i) {
-    var p = getPoint(i, R * 1.22, hexData.length);
-    var anchor = p.x < CX - 10 ? 'end' : p.x > CX + 10 ? 'start' : 'middle';
-    var shortName = s.name.length > 8 ? s.name.slice(0, 8) : s.name;
-    labelsSVG += '<text x="' + p.x + '" y="' + p.y + '" text-anchor="' + anchor + '" font-size="9" fill="#9a9488" font-family="Arial" letter-spacing="0.05em">' + shortName + '</text>';
-  });
-
-  // Stan drużyny w środku hexagonu — etykieta zamiast surowej liczby,
-  // spójne z renderTeamStats
-  var teamAvg = Math.round(segAvgs.reduce(function(a, s) { return a + s.avg; }, 0) / segAvgs.length);
-  var teamColor = teamAvg < 40 ? '#C0392B' : teamAvg < 55 ? '#e08020' : teamAvg < 70 ? '#c8b820' : '#2a7a3a';
-  var teamStateLabel = teamAvg < 40 ? 'WYMAGA PRACY' : teamAvg < 55 ? 'DO WZMOCNIENIA' : teamAvg < 70 ? 'SOLIDNA BAZA' : 'DOBRY POZIOM';
-
-  html += '<div style="display:flex;align-items:flex-start;gap:32px;margin-bottom:28px;flex-wrap:wrap;">';
-  html += '<svg viewBox="0 0 400 400" width="260" height="260" style="flex-shrink:0;">';
-  html += gridSVG;
-  html += axesSVG;
-  html += '<polygon points="' + profilePts.join(' ') + '" fill="rgba(14,13,11,0.12)" stroke="#0e0d0b" stroke-width="2"/>';
-  hexData.forEach(function(s, i) {
-    var val = s.avg / 100;
-    var p = getPoint(i, R * val, hexData.length);
-    html += '<circle cx="' + p.x + '" cy="' + p.y + '" r="3.5" fill="#0e0d0b"/>';
-  });
-  html += labelsSVG;
-  html += '<text x="200" y="196" text-anchor="middle" font-size="16" font-weight="bold" fill="' + teamColor + '" font-family="Arial">' + teamStateLabel + '</text>';
-  html += '<text x="200" y="214" text-anchor="middle" font-size="9" fill="#9a9488" font-family="Arial" letter-spacing="0.1em">STAN DRUZYNY</text>';
-  html += '</svg>';
-
-  // Legenda po prawej — top 3 deficyty i mocne strony
-  html += '<div style="padding-top:8px;">';
-  html += '<div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#9a9488;margin-bottom:10px;">Największe deficyty drużyny</div>';
-  segAvgs.slice(0, 3).forEach(function(s) {
-    var c = heatColor(s.avg);
-    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">';
-    html += '<div style="width:8px;height:8px;background:' + c.border + ';border-radius:50%;flex-shrink:0;"></div>';
-    html += '<div style="font-size:12px;color:#3a3830;">' + s.name + '</div>';
-    html += '<div style="font-size:11px;color:' + c.text + ';font-weight:500;">' + c.label + '</div>';
-    html += '</div>';
-  });
-  html += '<div style="font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#9a9488;margin-top:16px;margin-bottom:10px;">Mocne strony drużyny</div>';
-  var reversed = segAvgs.slice().reverse();
-  reversed.slice(0, 3).forEach(function(s) {
-    var c = heatColor(s.avg);
-    html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">';
-    html += '<div style="width:8px;height:8px;background:' + c.border + ';border-radius:50%;flex-shrink:0;"></div>';
-    html += '<div style="font-size:12px;color:#3a3830;">' + s.name + '</div>';
-    html += '<div style="font-size:11px;color:' + c.text + ';font-weight:500;">' + c.label + '</div>';
-    html += '</div>';
-  });
-  html += '</div>';
-  html += '</div>';
-
-  html += '<div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Szczegółowy rozkład</div>';
-  html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px;margin-bottom:16px;">';
-  segAvgs.forEach(function(s) {
-    var c = heatColor(s.avg);
-    html += '<div style="border:1px solid ' + c.border + ';background:' + c.bg + ';padding:12px 14px;position:relative;">';
-    html += '<div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:' + c.text + ';margin-bottom:6px;font-weight:500;">' + s.name + '</div>';
-    html += '<div style="font-size:11px;color:' + c.text + ';font-weight:500;">' + c.label + '</div>';
-    html += '<div style="position:absolute;bottom:0;left:0;width:' + s.avg + '%;height:3px;background:' + c.border + ';opacity:0.6;"></div>';
-    html += '</div>';
-  });
-  html += '</div>';
-
-  html += '<div style="display:flex;gap:16px;flex-wrap:wrap;">';
-  html += '<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#9a9488;"><div style="width:12px;height:12px;background:#FDEBEB;border:1px solid #C0392B;"></div> Wymaga uwagi</div>';
-  html += '<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#9a9488;"><div style="width:12px;height:12px;background:#fff3e0;border:1px solid #e08020;"></div> Do pracy</div>';
-  html += '<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#9a9488;"><div style="width:12px;height:12px;background:#fffde0;border:1px solid #c8b820;"></div> Przeciętny</div>';
-  html += '<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#9a9488;"><div style="width:12px;height:12px;background:#e8f5e9;border:1px solid #2a7a3a;"></div> Dobry</div>';
-  html += '</div>';
-
-  el.innerHTML = html;
-}
-
-async function generateTeamAIRecommendation(data, code) {
-  const el = document.getElementById('team-ai-recommendation');
-  if (!el) return;
-
-  el.innerHTML = `
-    <div class="ai-loader">
-      <div class="ai-loader-dots">
-        <div class="ai-loader-dot"></div>
-        <div class="ai-loader-dot"></div>
-        <div class="ai-loader-dot"></div>
-      </div>
-      <div class="ai-loader-progress"></div>
-      <div class="ai-loader-label" style="color:rgba(255,255,255,0.5);">Analizuję dane drużyny</div>
-    </div>`;
-
-  const segAvgs = window._teamSegAvgs || [];
-  const top3Weak = segAvgs.slice(0, 3).map(s => s.name + ' (' + s.avg + '/100)').join(', ');
-  const top3Strong = [...segAvgs].reverse().slice(0, 3).map(s => s.name + ' (' + s.avg + '/100)').join(', ');
-  const avgOverall = Math.round(data.map(r => r.overall_score || 0).reduce((a,b)=>a+b,0) / data.length);
-  const positions = {};
-  data.forEach(r => { if (r.position) positions[r.position] = (positions[r.position]||0)+1; });
-  const posStr = Object.entries(positions).map(([p,c])=>p+': '+c).join(', ');
-
-  const TRAINING_TIPS = {
-    moc: [
-      'Przed każdym treningiem: 4×5 startów eksplozywnych na 10m z 45-sekundową przerwą między seriami. Zawodnicy startują z różnych pozycji — stój, siad, leżenie przodem. Jakość pierwszych 3 kroków ważniejsza niż czas przebiegu.',
-      'W rozgrzewce 2× w tygodniu: 3 serie po 5 skoków w dal z miejsca, przerwa między seriami. Skakaj jak najdalej, ląduj stabilnie. Proste, bez sprzętu, buduje moc startową lepiej niż bieganie.',
-      'Raz w tygodniu: wyścigi 5m w parach ze startem z sygnału, jeden zawodnik z ułamkiem sekundy przewagi. Uczy pierwszego kroku pod presją rywala, nie w próżni.',
-    ],
-    wytrzymalosc: [
-      'Małe gry 3v3 lub 4v4, boisko 20×15m: 4 minuty gry / 2 minuty przerwy, 6-8 serii. Intensywność musi być naprawdę wysoka — jeśli zawodnicy rozmawiają podczas gry, boisko jest za duże.',
-      'Co drugi trening: ostatnie 15 minut to "końcówka meczowa" — gramy z wynikiem i presją, tempo nie spada. Obserwuj którzy zawodnicy odpuszczają ruchy bez piłki jako pierwsi — to jest lista priorytetów.',
-      'Skracaj przerwy między ćwiczeniami — 60 do 90 sekund maksymalnie. Zawodnicy którzy "nie zdążyli odpocząć" i dalej grają dobrze — mają wytrzymałość meczową. Ci którzy przy każdej przerwie kładą się na murawie — nie mają.',
-    ],
-    fizycznosc: [
-      'Raz w tygodniu: ćwiczenia 1v1 "utrzymanie piłki pod presją" — obrońca napiera z tyłu, atakujący chroni piłkę 5 sekund i rozgrywa. Rotacja co 30 sek, 4 serie na zawodnika. Uczy pozycji ciała bez teorii.',
-      'W każdym treningu: zawodnicy walczą o pozycję przy wrzucie zanim piłka dotrze. Sędzia ocenia kto zajął lepsze miejsce przed kontaktem z piłką, nie kto wyskoczył wyżej. 3 serie, rotacja.',
-      'Na każdym treningu przed główną częścią: przysiady z własnym ciężarem 3×15, wypady 3×10 na każdą nogę, deska 3×30 sek. 5 minut, bez sprzętu. Zawodnicy którzy to robią regularnie trzymają pozycję przy kontakcie lepiej niż ci którzy nie robią nic poza treningiem.',
-    ],
-    techFund: [
-      'Codziennie w rozgrzewce: podania w trójkach na 2 kontakty (10-12m), tempo wzrasta co minutę. Patrz który zawodnik jako pierwszy zaczyna tracić jakość przy wyższym tempie — to jest Twoja lista priorytetów.',
-      'Raz w tygodniu: "technika pod presją" — zawodnik przyjmuje piłkę, za 2 sekundy nadbiega rywal. Technika musi być na tyle zautomatyzowana żeby działać bez czasu na myślenie.',
-      'Po każdym treningu: 10 minut podań w dwójkach na 8m, spokojne tempo, każda noga. Nie rywalizacja. Technika automatyzuje się przez powtórzenia — te 10 minut robi więcej niż godzina ćwiczeń technicznych raz w tygodniu.',
-    ],
-    techSpec: [
-      'W każdej małej grze: podanie które przełamuje linię obrony = punkt bonusowy. Nie tłumaczysz dlaczego — zasada gry zmienia co zawodnicy próbują robić, bez wykładu taktycznego.',
-      'Ćwiczenie "decyzja przed odbiorem": zawodnik stoi tyłem do podającego, odwraca się na sygnał i widzi boisko. Musi zagrać w ciągu 1.5 sekundy. Uczy zbierania informacji przed kontaktem z piłką.',
-      'Ćwiczenie "zejście i wyjście": zawodnik schodzi po piłkę, przyjmuje i natychmiast odgrywa do partnera który wybiega w przestrzeń. Partnerzy rotują. Uczy synchronizacji ruchu bez piłki z momentem zagrania — to jest fundament tworzenia przewagi bez dryblingu.',
-    ],
-    tolerancja: [
-      'Zapisuj subiektywną ocenę zmęczenia (1-10) od każdego zawodnika po każdym treningu. Gdy kilku raportuje 8-9 dwa treningi z rzędu — skróć następny trening o 30% i zmniejsz intensywność. Nie czekaj na kontuzje.',
-      'Zasada 10%: nie zwiększaj łącznej objętości treningów o więcej niż 10% tygodniowo. Przeciążenia w amatorskiej piłce rzadko wynikają z jednego ciężkiego treningu — najczęściej ze zbyt szybkiego dokładania kolejnych.',
-      'Po każdym meczu: 15 minut aktywnej regeneracji zamiast od razu do szatni — trucht 5 minut + rozciąganie dynamiczne. Skraca czas do pełnej gotowości o kilkanaście godzin przed kolejnym treningiem.',
-    ],
-    regeneracja: [
-      'Wprowadź stały rytuał po treningu: 10 minut chłodzenia (lekki trucht) + woda lub napój izotoniczny natychmiast + białko w ciągu 30 minut. To warunek żeby poprzedni trening dał efekt — nie opcja.',
-      'Pilnuj żeby trening kończył się najpóźniej 2 godziny przed godziną snu. Trening późno wieczorem rozkręca organizm — zawodnik idzie spać pobudzony, śpi gorzej, przychodzi na następny trening niewyspany. To co kontrolujesz jako trener to godzina zakończenia zajęć.',
-      'Obserwuj jak zawodnicy wyglądają na początku treningów. Zawodnik który "żyje" dopiero po 20 minutach rozgrzewki prawdopodobnie nie regeneruje się wystarczająco między sesjami.',
-    ],
-    odpornosc: [
-      'Zapytaj zawodników co jedzą bezpośrednio po treningu. Jeśli większość odpowiada "nic" lub "cokolwiek" — zaproponuj konkretnie: chleb z twarogiem lub jajkiem, banan i szklanka mleka. Tanie, dostępne wszędzie, wystarczające. Organizm który nie dostaje białka po wysiłku nie odbudowuje mięśni ani odporności — nawet przy dobrym treningu.',
-      'W intensywnych tygodniach (3+ treningi): skróć czas ćwiczeń o 20%, ale nie zmniejszaj tempa. Krótszy trening o tej samej intensywności daje efekt treningowy przy mniejszym ryzyku że drużyna zacznie chorować jeden po drugim.',
-      'Twarda zasada: zawodnicy z temperaturą powyżej 37.5°C nie trenują. Trening z infekcją nie "przebiegnie jej" — wydłuża ją i ryzykuje poważniejsze konsekwencje i dłuższą absencję.',
-    ],
-    odzywianie: [
-      'Posiłek 2-3 godziny przed meczem: węglowodany złożone (makaron, ryż, ziemniaki) + chude białko. Zbyt ciężki posiłek tuż przed = problemy żołądkowe w drugiej połowie. Zbyt lekki lub brak = spadek energii po 60 minutach.',
-      'Nawodnienie: butelka wody przed treningiem, małymi łykami w trakcie. Pragnienie pojawia się gdy organizm jest już odwodniony — zawodnik który pije dopiero gdy jest spragniony jest już spóźniony. Powiedz to drużynie wprost.',
-      'Po meczu i treningu: izotoniczny lub woda z bananem w ciągu 30 minut. Okno regeneracyjne jest krótkie — co zawodnik zje w pierwszej godzinie po wysiłku decyduje jak szybko będzie gotowy na kolejny.',
-    ],
-    koncentracja: [
-      'Zasada "reset po błędzie": po każdym błędzie zawodnik ma 3 sekundy (może powiedzieć coś do siebie, machnąć ręką — cokolwiek jest jego sygnałem), potem wraca do gry. Ćwicz to na treningach, nie po meczu.',
-      'Nie komentuj błędów zawodników natychmiast po akcji — czekaj do przerwy. Komentarz w tej chwili wydłuża czas w którym zawodnik myśli o poprzedniej akcji zamiast o następnej. Twoje zachowanie wpływa na ich koncentrację.',
-      'Małe gry z narastającą stawką: pierwsze dwie serie normalnie, trzecia z "konsekwencją". Obserwuj różnicę w błędach — to jest wskaźnik jak drużyna reaguje na presję.',
-    ],
-    mental: [
-      'Dawaj zawodnikom odpowiedzialność za decyzje, nie tylko za wykonanie. Zamiast "zagraj do prawej" powiedz "zagraj tam gdzie widzisz przestrzeń" i przyjmuj złe decyzje bez natychmiastowej korekty. Zawodnik który boi się podjąć złą decyzję gra zachowawczo.',
-      'Zmień język po stracie bramki: zamiast "co wy robicie" powiedz konkretnie co taktycznie ma się zmienić. Emocjonalna reakcja trenera jest sygnałem zagrożenia — zawodnicy przełączają się na tryb ochronny, nie ofensywny.',
-      'Raz w tygodniu po treningu: jedno pytanie do drużyny — "Kto dzisiaj zagrał zagranie które zrobiłoby jego idol?". Zawodnik mówi co zagrał i dlaczego. Nie oceniasz. To przesuwa ich myślenie z "nie popełnić błędu" na "zrobić coś wartego zapamiętania" — i to jest właśnie różnica między graniem defensywnym a odważnym.',
-    ],
-    percepcja: [
-      'Zasada "dwa skany" na każdym treningu: przed każdym odbiorem piłki zawodnik musi się dwa razy rozejrzeć. Egzekwuj zasadę, nie tłumacz dlaczego — gra spowalnia na początku, potem wchodzi w nawyk.',
-      'Zatrzymuj grę losowo i pytaj konkretnego zawodnika: "gdzie jest X?" (inny zawodnik). Jeśli nie wie — widać że nie skanował. Rób to regularnie bez oceniania — budujesz nawyk świadomej obserwacji.',
-      'Małe gry na ograniczonej przestrzeni (15×10m dla 4v4) wymuszają skanowanie bardziej niż jakiekolwiek ćwiczenie izolowane. To jest najlepsza forma treningu percepcji — bez osobnego bloku czasowego.',
-    ],
-    decyzja: [
-      'Gry z limitem kontaktów: 2 kontakty dla wszystkich, 1 kontakt dla zawodników z deficytem decyzji. Jeden kontakt fizycznie wymusza decyzję przed odbiorem. Efekt pojawia się po 3-4 treningach.',
-      'Ćwiczenie "zegar": zawodnik ma piłkę, za 1.5 sekundy nadbiega rywal. Stopniowo zmniejszaj czas (1.5 → 1.0 → 0.7 sekundy). Zawodnicy uczą się decydować przy coraz mniejszej ilości czasu — definicja szybkości decyzji.',
-      'Po treningu: jedno pytanie do drużyny — "Kto dzisiaj trzymał piłkę za długo?" Zawodnik który potrafi sam wskazać moment decyzyjny który przegapił — następnym razem go nie przegapi. Trener który tylko wskazuje błędy zawodnicy słyszą, ale nie przyswajają.',
-    ],
-  };
-
-  const weakSegs = segAvgs.slice(0, 3).filter(s => s.avg < 65);
-  var tipsHTML = '';
-  weakSegs.forEach(function(s) {
-    var tips = TRAINING_TIPS[s.id];
-    if (!tips) return;
-    var selected = [tips[0], tips[Math.floor(Math.random() * (tips.length - 1)) + 1]].filter(Boolean);
-    tipsHTML += '<div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">';
-    tipsHTML += '<div style="font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:rgba(232,67,45,0.7);margin-bottom:10px;">' + s.name + ' — wskazówki praktyczne</div>';
-    selected.forEach(function(tip, i) {
-      tipsHTML += '<div style="display:flex;gap:10px;margin-bottom:10px;">';
-      tipsHTML += '<div style="color:#E8432D;font-size:12px;flex-shrink:0;margin-top:1px;">' + (i+1) + '.</div>';
-      tipsHTML += '<div style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.75;font-weight:300;">' + tip + '</div>';
-      tipsHTML += '</div>';
-    });
-    tipsHTML += '</div>';
-  });
-
-  const prompt = 'Jesteś ekspertem od diagnostyki piłkarskiej. Analizujesz dane drużyny i piszesz rekomendację dla trenera.\n\n' + ZASADY_PROMPTU.trener + '\n\nDANE DRUŻYNY "' + code + '":\nLiczba zawodników: ' + data.length + '\nSkład pozycyjny: ' + (posStr || 'nie podano') + '\nŚredni wynik ogólny: ' + avgOverall + '/100\nNajwiększe deficyty drużyny: ' + top3Weak + '\nMocne strony drużyny: ' + top3Strong + '\n\nNapisz zwięzłą rekomendację dla trenera — 3-4 zdania. Mów konkretnie o grze drużyny, nie o liczbach. Powiedz: (1) co jest największym wspólnym problemem który wpływa na grę jako całości, (2) jaki jeden obszar treningowy dałby największy efekt jeśli zostałby wzmocniony, (3) co w tej drużynie działa dobrze i jak to wykorzystać. Pisz po polsku, bezpośrednio do trenera (forma "Twoja drużyna"), konkretnie i bez ogólników. ZAKAZ używania markdown, gwiazdek, nagłówków — tylko czysty tekst.';
-
-  try {
-    const response = await fetch('/api/diagnose', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, maxTokens: 600 })
-    });
-    const result = await response.json();
-    const text = result.content && result.content.filter(c => c.type === 'text').map(c => c.text).join('').trim() || '';
-
-    if (text) {
-      el.innerHTML =
-        '<div style="font-size:14px;color:rgba(255,255,255,0.85);line-height:1.85;font-weight:300;">' + text + '</div>' +
-        tipsHTML +
-        '<div style="margin-top:20px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.1);font-size:11px;color:rgba(255,255,255,0.3);">Analiza oparta na danych ' + data.length + ' zawodników · ' + new Date().toLocaleDateString('pl-PL') + '</div>';
-    } else {
-      el.innerHTML = '<div style="font-size:13px;color:#9a9488;">Nie udało się wygenerować rekomendacji.</div>';
-    }
-  } catch(e) {
-    el.innerHTML = '<div style="font-size:13px;color:#9a9488;">Błąd połączenia.</div>';
-  }
-}
 
 
 function stripPolishChars(str) {

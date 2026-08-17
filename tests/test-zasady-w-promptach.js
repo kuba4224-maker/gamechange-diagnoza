@@ -161,7 +161,13 @@ while ((m = RE_START.exec(HTML)) !== null) {
 console.log('  wykryte prompty: ' + wykryte.map(w => w.linia).join(', '));
 
 // ⚠️ STRAŻNIK STRAŻNIKA — pusty przebieg nie może wyglądać jak sukces.
-assert(wykryte.length >= 5, 'wykrywanie znalazło co najmniej 5 promptów (znalazło: ' + wykryte.length + ')');
+// ⚠️ PRZESTAWIONE 16.08.2026 przez PLAN-D-Y4 (D3): 5→3. Dwa prompty — raportu
+// dla rodzica i rekomendacji dla trenera — leżały w MARTWYM REGIONIE (`?parent=`
+// i `?team=`), do którego nie prowadziła żadna ścieżka wywołania. Nie dało się
+// ich wysłać do modelu ANI RAZU. Usunięte razem z funkcjami, które je budowały.
+// ⛔ Rola tej asercji jest nietknięta: pusty przebieg nadal nie ma prawa
+// wyglądać jak sukces. Zmniejszenie tej liczby PONIŻEJ 3 to znów czerwień.
+assert(wykryte.length >= 3, 'wykrywanie znalazło co najmniej 3 prompty (znalazło: ' + wykryte.length + ')');
 
 // ⚠️ ROZSZERZONE 14.08.2026 (sesja naprawcza po odbiorze pasa X).
 // ZMIERZONY WYŁOM: regex brzmiał /fetch\(\s*'\/api\/diagnose'/ — dopuszczał
@@ -212,11 +218,23 @@ assertEq(Object.keys(WYJATKI).length, 0,
    promptów. Szósty prompt zapala tę sekcję tak samo jak oś 2.
    ══════════════════════════════════════════════════════════════════════════ */
 scenario('B2a. każdy prompt niesie wariant SWOJEGO odbiorcy, nie dowolny istniejący');
+/* ⛔ DWA PODPISY SKREŚLONE 16.08.2026 przez PLAN-D-Y4 (decyzja D3):
+     'Piszesz krótki raport dla rodzica zawodnika'            (rodzic)
+     'Analizujesz dane drużyny i piszesz rekomendację dla trenera' (trener)
+   Oba prompty leżały w martwym regionie: pierwszy w `generateParentReport`
+   (dispatch `?parent=` wycięty 08.08.2026), drugi w `generateTeamAIRecommendation`
+   (dispatch `?team=` wycięty tym samym P0-2). ŻADEN z nich nie miał ścieżki
+   wywołania, więc żaden nie mógł zostać wysłany do modelu.
+   ⭐ ZASADY DLA RODZICA NIE ZNIKAJĄ Z PRODUKTU: wariant `ZASADY_PROMPTU.rodzic`
+   stoi nietknięty w `zasady-promptu.js`, a raport dla rodzica generuje dziś
+   backend (`gamechange-app/lib/parent-reports.js`) — tam ten wariant pracuje.
+   ⚠️ Ten plik pilnuje promptów W LEJKU, a w lejku tych dwóch już nie ma.
+   ⛔ Lista dalej wiąże podpis z promptem JEDEN DO JEDNEGO w obie strony,
+   a `WARIANT_PROMPTU.length === wykryte.length` nadal zapala się na każdym
+   prompcie dołożonym bez wpisu. */
 const WARIANT_PROMPTU = [
-  { podpis: 'Piszesz krótki raport dla rodzica zawodnika', odbiorca: 'rodzic' },
   { podpis: 'generujesz pytania dla jego trenera', odbiorca: 'trener' },
   { podpis: 'Napisz ulepszoną diagnozę która łączy obie perspektywy', odbiorca: 'trener' },
-  { podpis: 'Analizujesz dane drużyny i piszesz rekomendację dla trenera', odbiorca: 'trener' },
   { podpis: 'piszesz diagnozę bezpośrednio do zawodnika', odbiorca: 'zawodnik' },
 ];
 
@@ -237,12 +255,16 @@ const nietrafione = Array.from(trafienia.entries()).filter(([, n]) => n !== 1).m
 assertEq(nietrafione.join(' | '), '',
   'każdy podpis z listy oczekiwań trafił w dokładnie jeden prompt (nietrafione: ' + (nietrafione.join(' | ') || 'brak') + ')');
 
-// Rozkład odbiorców jest faktem o lejku, nie ozdobnikiem: jeden rodzic,
-// jeden zawodnik, trzy prompty trenera. Zmiana tego rozkładu ma być decyzją,
-// nie skutkiem ubocznym.
+// Rozkład odbiorców jest faktem o lejku, nie ozdobnikiem. Zmiana tego rozkładu
+// ma być decyzją, nie skutkiem ubocznym.
+// ⚠️ ZMIENIONE 16.08.2026 przez PLAN-D-Y4 — I TO JEST TA DECYZJA (D3).
+// Było: 'zawodnik:1, rodzic:1, trener:3'. Jest: 'zawodnik:1, rodzic:0, trener:2'.
+// Zniknęły dokładnie dwa prompty z martwego regionu, wyliczone przy `WARIANT_PROMPTU`.
+// ⛔ Zapadka zostaje na RÓWNOŚĆ: pierwszy prompt dołożony do lejka bez decyzji
+// przestawi ten rozkład i zapali czerwień.
 const rozklad = ODBIORCY.map(o => o + ':' + wykryte.filter(w => w.odbiorca === o).length).join(', ');
-assertEq(rozklad, 'zawodnik:1, rodzic:1, trener:3',
-  'rozkład wariantów w lejku: jeden prompt zawodnika, jeden rodzica, trzy trenera');
+assertEq(rozklad, 'zawodnik:1, rodzic:0, trener:2',
+  'rozkład wariantów w lejku: jeden prompt zawodnika, zero rodzica, dwa trenera');
 
 scenario('B3. blok stoi w prompcie otoczony pustą linią z obu stron');
 for (const w of wykryte) {
