@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gamechange — panel trenera</title>
+<!--
+  ⭐⭐ PAS C2 · 23.08.2026 — PANEL TRENERA Z PRAWDZIWYM LOGOWANIEM.
+
+  ⛔ DLACZEGO TO JEST OSOBNY PLIK, A NIE ZMIANA W index.html.
+  `index.html` (394 077 B) to NIE jest tylko panel trenera — to także LEJEK DIAGNOZY,
+  przez który przeszło osiemnastu zawodników pilotażu. Dodanie tam uwierzytelniania
+  w tygodniu, w którym aplikacja idzie na cudze telefony, ryzykuje zamknięciem naboru,
+  a sesja budująca nie ma jak sprawdzić tamtego lejka od końca do końca.
+  ⭐ Osobny plik ma ryzyko ZERO dla lejka: tamten plik pozostaje nietknięty co do bajta.
+
+  ⛔ CZEGO TU NIE MA I DLACZEGO: żadnej biblioteki z CDN. Supabase Auth i PostgREST
+  są zwykłym REST-em, a strona, która przestaje działać, gdy padnie cudzy CDN,
+  jest gorsza od dłuższej o trzydzieści linii.
+
+  ⚠️ CO CZYTA, A CZEGO NIE. Ten panel NIE MA własnych uprawnień — czyta wyłącznie
+  to, na co pozwoli RLS zalogowanemu trenerowi. Dwanaście tabel ma gotowe polityki
+  (zmierzone 23.08.2026 próbą w wycofanej transakcji). Poziom `basic` daje kalendarz
+  i profile; szczegóły Dziennika wymagają `teams.visibility_level = 'full'`,
+  a to jest PRZEŁĄCZNIK ZGODY, nie ustawienie techniczne.
+
+  ⛔ TRZY STANY WSZĘDZIE (R5): „nie mam prawa tego widzieć" ≠ „zawodnik nic nie
+  zapisał" ≠ „nie udało się odczytać". Puste miejsce bez zdania czyta się jak
+  „dziecko nic nie robi" — a to może być nieprawda i może dziecku zaszkodzić.
+-->
+<style>
+  :root { --tlo:#f5f2ec; --atrament:#0e0d0b; --linia:#d8d3c8; --szary:#9a9488;
+          --marka:#2e6b5e; --blad:#C0392B; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--tlo); color:var(--atrament);
+         font:16px/1.5 -apple-system,Segoe UI,Roboto,sans-serif; }
+  header { background:var(--atrament); color:var(--tlo); padding:16px 20px;
+           display:flex; justify-content:space-between; align-items:center; gap:12px; }
+  header h1 { font-size:16px; letter-spacing:.14em; text-transform:uppercase; margin:0; }
+  main { max-width:760px; margin:0 auto; padding:20px; }
+  .karta { background:#fff; border:1px solid var(--linia); padding:18px; margin-bottom:16px; }
+  label { display:block; font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+          color:var(--szary); margin-bottom:6px; }
+  input { width:100%; padding:12px; border:1px solid var(--linia); background:var(--tlo);
+          font-size:16px; margin-bottom:12px; }
+  button { background:var(--atrament); color:var(--tlo); border:0; padding:12px 22px;
+           font-size:14px; letter-spacing:.08em; cursor:pointer; min-height:48px; }
+  button.cichy { background:transparent; color:var(--atrament); border:1px solid var(--linia); }
+  button[disabled] { opacity:.5; cursor:default; }
+  .zdanie { font-size:14px; color:var(--szary); margin:8px 0; }
+  .blad { color:var(--blad); }
+  .ok { color:var(--marka); }
+  .wiersz { display:flex; justify-content:space-between; gap:12px; padding:10px 0;
+            border-bottom:1px solid var(--linia); cursor:pointer; }
+  .wiersz:last-child { border-bottom:0; }
+  .maly { font-size:12px; color:var(--szary); }
+  h2 { font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--szary);
+       margin:0 0 10px; }
+  .ukryte { display:none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Gamechange · panel trenera</h1>
+  <button id="wyloguj" class="cichy ukryte" onclick="wyloguj()">Wyloguj</button>
+</header>
+
+<main>
+  <!-- ── LOGOWANIE ─────────────────────────────────────────────── -->
+  <section id="sekcja-logowania" class="karta">
+    <h2>Logowanie</h2>
+    <p class="zdanie">
+      Kod przyjdzie na Twój adres — ten sam, który podałeś przy zakładaniu drużyny.
+      ⛔ Bez logowania panel nie ma prawa pokazać danych zawodnika.
+    </p>
+    <label for="mail">Adres e-mail</label>
+    <input id="mail" type="email" autocomplete="email" placeholder="trener@klub.pl">
+    <button id="btn-kod" onclick="wyslijKod()">Wyślij kod</button>
+
+    <div id="krok-kod" class="ukryte" style="margin-top:16px">
+      <label for="kod">Kod z maila (6 cyfr)</label>
+      <input id="kod" inputmode="numeric" autocomplete="one-time-code" placeholder="123456">
+      <button id="btn-zaloguj" onclick="zaloguj()">Zaloguj</button>
+    </div>
+    <p id="stan-logowania" class="zdanie"></p>
+  </section>
+
+  <!-- ── DRUŻYNA ───────────────────────────────────────────────── -->
+  <section id="sekcja-druzyny" class="karta ukryte">
+    <h2>Twoja drużyna</h2>
+    <label for="kod-druzyny">Kod drużyny</label>
+    <input id="kod-druzyny" placeholder="PARASOLW3283">
+    <button onclick="przejmijDruzyne()">Połącz z moim kontem</button>
+    <p id="stan-druzyny" class="zdanie"></p>
+  </section>
+
+  <!-- ── ZAWODNICY ─────────────────────────────────────────────── -->
+  <section id="sekcja-zawodnikow" class="karta ukryte">
+    <h2>Zawodnicy</h2>
+    <p id="stan-zawodnikow" class="zdanie"></p>
+    <div id="lista-zawodnikow"></div>
+  </section>
+
+  <!-- ── DANE JEDNEGO ZAWODNIKA ────────────────────────────────── -->
+  <section id="sekcja-danych" class="karta ukryte">
+    <h2 id="naglowek-zawodnika">Zawodnik</h2>
+    <div id="dane-kalendarz"></div>
+    <div id="dane-dziennik" style="margin-top:16px"></div>
+  </section>
+</main>
+
+<script>
+'use strict';
+const SUPABASE_URL = 'https://kqrbztsvepjtggjmmcdx.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_EoYRIZpDhUSdNSJDXWl4Ew_SG8aJABP';
+const KLUCZ_TOKENU = 'gc_trener_token';
+
+/* ⛔ Token żyje w sessionStorage, nie w localStorage: zamknięcie karty ma go
+   kasować. To jest panel z danymi dzieci, często otwierany na cudzym sprzęcie. */
+function token() { try { return sessionStorage.getItem(KLUCZ_TOKENU) || null; } catch (e) { return null; } }
+function zapiszToken(t) { try { sessionStorage.setItem(KLUCZ_TOKENU, t); } catch (e) {} }
+function skasujToken() { try { sessionStorage.removeItem(KLUCZ_TOKENU); } catch (e) {} }
+
+/* ⭐ Jedyne miejsce, w którym powstaje nagłówek. Bez tokenu zachowuje się DOKŁADNIE
+   tak jak `gcRpc` w index.html — klucz anonimowy. Z tokenem RLS zaczyna widzieć trenera. */
+function naglowki() {
+  const t = token();
+  return { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY,
+           'Authorization': 'Bearer ' + (t || SUPABASE_KEY) };
+}
+
+const el = (id) => document.getElementById(id);
+const pokaz = (id, czy) => el(id).classList.toggle('ukryte', !czy);
+function zdanie(id, tekst, rodzaj) {
+  const e = el(id); e.textContent = tekst;
+  e.className = 'zdanie' + (rodzaj ? ' ' + rodzaj : '');
+}
+
+/* ── ODCZYT Z TRZEMA STANAMI ────────────────────────────────────
+   ⛔ Zwraca {stan:'jest'|'pusto'|'nie_wolno'|'nie_wiem', wiersze, powod}.
+   Sklejenie „nie wolno" z „pusto" byłoby powiedzeniem trenerowi, że dziecko
+   nic nie robi — o dziecku, którego danych nie mamy prawa zobaczyć. */
+async function czytaj(sciezka) {
+  let res;
+  try {
+    res = await fetch(SUPABASE_URL + '/rest/v1/' + sciezka, { headers: naglowki() });
+  } catch (e) {
+    return { stan: 'nie_wiem', powod: 'nie udało się połączyć: ' + e.message };
+  }
+  if (res.status === 401 || res.status === 403) {
+    return { stan: 'nie_wolno', powod: 'HTTP ' + res.status };
+  }
+  if (!res.ok) return { stan: 'nie_wiem', powod: 'HTTP ' + res.status };
+  let dane;
+  try { dane = await res.json(); } catch (e) { return { stan: 'nie_wiem', powod: 'odpowiedź nie jest listą' }; }
+  if (!Array.isArray(dane)) return { stan: 'nie_wiem', powod: 'odpowiedź nie jest listą' };
+  return dane.length === 0 ? { stan: 'pusto', wiersze: [] } : { stan: 'jest', wiersze: dane };
+}
+
+/* ── LOGOWANIE (Supabase Auth, zwykły REST) ─────────────────── */
+async function wyslijKod() {
+  const email = el('mail').value.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return zdanie('stan-logowania', 'Podaj prawidłowy adres e-mail.', 'blad');
+  }
+  el('btn-kod').disabled = true;
+  zdanie('stan-logowania', 'Wysyłam kod…');
+  try {
+    const res = await fetch(SUPABASE_URL + '/auth/v1/otp', {
+      method: 'POST', headers: naglowki(),
+      body: JSON.stringify({ email: email, create_user: true })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    pokaz('krok-kod', true);
+    zdanie('stan-logowania', 'Kod poszedł na ' + email + '. Sprawdź skrzynkę.', 'ok');
+  } catch (e) {
+    /* ⛔ Nieudane wysłanie NIE JEST ciszą i nie udaje sukcesu. */
+    zdanie('stan-logowania', 'Nie udało się wysłać kodu (' + e.message + '). Kod NIE został wysłany.', 'blad');
+  } finally { el('btn-kod').disabled = false; }
+}
+
+async function zaloguj() {
+  const email = el('mail').value.trim();
+  const kod = el('kod').value.trim();
+  if (!kod) return zdanie('stan-logowania', 'Wpisz kod z maila.', 'blad');
+  el('btn-zaloguj').disabled = true;
+  try {
+    const res = await fetch(SUPABASE_URL + '/auth/v1/verify', {
+      method: 'POST', headers: naglowki(),
+      body: JSON.stringify({ type: 'email', email: email, token: kod })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const dane = await res.json();
+    if (!dane || !dane.access_token) throw new Error('brak tokenu w odpowiedzi');
+    zapiszToken(dane.access_token);
+    zdanie('stan-logowania', 'Zalogowany.', 'ok');
+    poLogowaniu();
+  } catch (e) {
+    zdanie('stan-logowania', 'Nie udało się zalogować (' + e.message + ').', 'blad');
+  } finally { el('btn-zaloguj').disabled = false; }
+}
+
+function wyloguj() { skasujToken(); location.reload(); }
+
+function poLogowaniu() {
+  pokaz('sekcja-logowania', false);
+  pokaz('sekcja-druzyny', true);
+  pokaz('wyloguj', true);
+}
+
+/* ── PRZEJĘCIE DRUŻYNY ──────────────────────────────────────── */
+async function przejmijDruzyne() {
+  const kod = el('kod-druzyny').value.trim();
+  if (!kod) return zdanie('stan-druzyny', 'Wpisz kod drużyny.', 'blad');
+  zdanie('stan-druzyny', 'Łączę…');
+  try {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/rpc/claim_coach_team', {
+      method: 'POST', headers: naglowki(), body: JSON.stringify({ p_team_code: kod })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const t = await res.json();
+    if (!t || !t.id) {
+      /* ⛔ `null` z tej funkcji znaczy JEDNO: adres konta nie zgadza się z adresem
+         zapisanym przy drużynie. Mówimy to wprost, zamiast „coś poszło nie tak". */
+      return zdanie('stan-druzyny',
+        'Ta drużyna jest zapisana na INNY adres e-mail niż konto, na które się zalogowałeś.', 'blad');
+    }
+    zdanie('stan-druzyny', 'Połączono: ' + (t.club_name || t.code) +
+      ' · poziom widoczności: ' + t.visibility_level, 'ok');
+    wczytajZawodnikow(t);
+  } catch (e) {
+    zdanie('stan-druzyny', 'Nie udało się połączyć (' + e.message + ').', 'blad');
+  }
+}
+
+/* ── LISTA ZAWODNIKÓW ───────────────────────────────────────── */
+let POZIOM = 'basic';
+async function wczytajZawodnikow(druzyna) {
+  POZIOM = druzyna.visibility_level || 'basic';
+  pokaz('sekcja-zawodnikow', true);
+  zdanie('stan-zawodnikow', 'Czytam…');
+  const w = await czytaj('team_memberships?select=player_user_id,status,joined_at' +
+                         '&team_id=eq.' + encodeURIComponent(druzyna.id) + '&status=eq.active');
+  if (w.stan === 'nie_wolno') return zdanie('stan-zawodnikow',
+    'Nie mam prawa odczytać składu tej drużyny.', 'blad');
+  if (w.stan === 'nie_wiem') return zdanie('stan-zawodnikow',
+    'Nie udało się odczytać składu (' + w.powod + '). ⛔ To NIE znaczy, że drużyna jest pusta.', 'blad');
+  if (w.stan === 'pusto') return zdanie('stan-zawodnikow',
+    'Odczytałem skład i nikt jeszcze nie dołączył do drużyny kodem.');
+
+  zdanie('stan-zawodnikow', 'Zawodników z kontem w aplikacji: ' + w.wiersze.length);
+  const lista = el('lista-zawodnikow');
+  lista.innerHTML = '';
+  w.wiersze.forEach((m) => {
+    const d = document.createElement('div');
+    d.className = 'wiersz';
+    d.innerHTML = '<span>' + m.player_user_id.slice(0, 8) + '…</span>' +
+                  '<span class="maly">dołączył ' + String(m.joined_at).slice(0, 10) + '</span>';
+    d.onclick = () => wczytajZawodnika(m.player_user_id);
+    lista.appendChild(d);
+  });
+}
+
+/* ── DANE JEDNEGO ZAWODNIKA ─────────────────────────────────── */
+async function wczytajZawodnika(uid) {
+  pokaz('sekcja-danych', true);
+  el('naglowek-zawodnika').textContent = 'Zawodnik ' + uid.slice(0, 8) + '…';
+  el('dane-kalendarz').innerHTML = '<p class="zdanie">Czytam plan…</p>';
+  el('dane-dziennik').innerHTML = '';
+
+  const kal = await czytaj('calendar_events?select=title,scheduled_date,event_type,status' +
+    '&user_id=eq.' + uid + '&order=scheduled_date.desc&limit=14');
+  el('dane-kalendarz').innerHTML = '<h2>Plan i kalendarz</h2>' + wypisz(kal, (r) =>
+    String(r.scheduled_date).slice(0, 10) + ' · ' + (r.title || '(bez tytułu)') +
+    ' · ' + (r.status || ''));
+
+  /* ⛔ DZIENNIK TYLKO PRZY `full` — i mówimy WPROST, dlaczego go nie ma.
+     Cisza w tym miejscu byłaby zdaniem „zawodnik nic nie zapisał". */
+  if (POZIOM !== 'full') {
+    el('dane-dziennik').innerHTML = '<h2>Dziennik</h2><p class="zdanie">' +
+      '⛔ Nie mam prawa pokazać Ci wpisów z Dziennika tego zawodnika. ' +
+      'Poziom widoczności tej drużyny to „' + POZIOM + '". ' +
+      'To NIE znaczy, że zawodnik nic nie zapisał — znaczy, że tego nie sprawdzam.</p>';
+    return;
+  }
+  const dz = await czytaj('daily_logs?select=log_date,entry_type,session_type,payload' +
+    '&user_id=eq.' + uid + '&order=log_date.desc&limit=14');
+  el('dane-dziennik').innerHTML = '<h2>Dziennik</h2>' + wypisz(dz, (r) =>
+    String(r.log_date).slice(0, 10) + ' · ' + r.entry_type +
+    (r.session_type ? ' · ' + r.session_type : ''));
+}
+
+/* ⭐ JEDNO miejsce, w którym cztery stany zamieniają się w zdania. */
+function wypisz(wynik, opisz) {
+  if (wynik.stan === 'nie_wolno') {
+    return '<p class="zdanie blad">⛔ Nie mam prawa tego zobaczyć.</p>';
+  }
+  if (wynik.stan === 'nie_wiem') {
+    return '<p class="zdanie blad">Nie udało się odczytać (' + wynik.powod +
+           '). ⛔ To NIE znaczy, że tu nic nie ma.</p>';
+  }
+  if (wynik.stan === 'pusto') {
+    return '<p class="zdanie">Odczytałem i nie ma tu ani jednego wpisu.</p>';
+  }
+  return wynik.wiersze.map((r) =>
+    '<div class="wiersz"><span>' + opisz(r) + '</span></div>').join('');
+}
+
+/* ⭐ Wejście: jeżeli token przetrwał odświeżenie karty, pomijamy logowanie. */
+if (token()) poLogowaniu();
+</script>
+</body>
+</html>
