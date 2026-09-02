@@ -5,39 +5,45 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Gamechange — panel trenera</title>
 <!--
-  ⭐⭐ PAS C2 · 23.08.2026 — PANEL TRENERA Z PRAWDZIWYM LOGOWANIEM.
+  ⭐⭐ PANEL TRENERA BEZ PUNKTACJI · 01.09.2026 — decyzja Kuby 28.08.2026:
+  „Ta punktacja dla trenera jest bez sensu na pewno. Wolałbym, żeby trenerowi
+  wyświetlało się co wg diagnozy powinien rozwijać dany zawodnik."
 
-  ⛔ DLACZEGO TO JEST OSOBNY PLIK, A NIE ZMIANA W index.html.
-  `index.html` (394 077 B) to NIE jest tylko panel trenera — to także LEJEK DIAGNOZY,
-  przez który przeszło osiemnastu zawodników pilotażu. Dodanie tam uwierzytelniania
-  w tygodniu, w którym aplikacja idzie na cudze telefony, ryzykuje zamknięciem naboru,
-  a sesja budująca nie ma jak sprawdzić tamtego lejka od końca do końca.
-  ⭐ Osobny plik ma ryzyko ZERO dla lejka: tamten plik pozostaje nietknięty co do bajta.
-
-  ⛔ CZEGO TU NIE MA I DLACZEGO: żadnej biblioteki z CDN. Supabase Auth i PostgREST
-  są zwykłym REST-em, a strona, która przestaje działać, gdy padnie cudzy CDN,
-  jest gorsza od dłuższej o trzydzieści linii.
-
-  ⚠️ CO CZYTA, A CZEGO NIE. Ten panel NIE MA własnych uprawnień — czyta wyłącznie
-  to, na co pozwoli RLS zalogowanemu trenerowi. Dwanaście tabel ma gotowe polityki
-  (zmierzone 23.08.2026 próbą w wycofanej transakcji). Poziom `basic` daje kalendarz
-  i profile; szczegóły Dziennika wymagają `teams.visibility_level = 'full'`,
-  a to jest PRZEŁĄCZNIK ZGODY, nie ustawienie techniczne.
+  ⭐ CO SIĘ ZMIENIŁO WOBEC WERSJI Z 23.08:
+  1. Panel CZYTA `diagnostics` — do tej pory nie dotykał tej tabeli w ogóle.
+  2. Zawodnik ma IMIĘ I NAZWISKO, a nie osiem znaków identyfikatora.
+  3. Priorytet liczony ZWROTEM OBSZARU, portem `lib/zwrotObszaru.ts` z aplikacji.
+     ⛔ To NIE jest `top_deficits` z ankiety — tamto nie zna pozycji na boisku
+     i u bramkarza wskazuje wytrzymałość, która na tej pozycji jest poboczna.
+  4. Grupy treningowe: ilu zawodników dzieli ten sam priorytet.
+  5. ⛔ ZERO PUNKTACJI. Ani średniej, ani wyników 0–100, ani trzynastu obszarów.
 
   ⛔ TRZY STANY WSZĘDZIE (R5): „nie mam prawa tego widzieć" ≠ „zawodnik nic nie
   zapisał" ≠ „nie udało się odczytać". Puste miejsce bez zdania czyta się jak
   „dziecko nic nie robi" — a to może być nieprawda i może dziecku zaszkodzić.
+
+  ⚠️ ZMIERZONE 01.09.2026 NA POLITYKACH RLS:
+  · `diagnostics_coach_select` — działa przy poziomie `basic`. Diagnozy widać.
+  · `daily_logs_coach_select` i `pain_entries_coach_select` idą przez
+    `coach_sees_journal_details`, które WYMAGA `teams.visibility_level = 'full'`.
+    Drużyna PARASOLW3283 ma dziś `basic`, więc RPE i ból będą puste do czasu
+    przełączenia. To jest PRZEŁĄCZNIK ZGODY, nie ustawienie techniczne.
+  · `diagnostics_coach_select` wymaga `user_id IS NOT NULL` — czyli diagnoza
+    staje się widoczna dopiero, gdy zawodnik założy konto w aplikacji.
+
+  ⛔ ŻADNEJ BIBLIOTEKI Z CDN. Supabase Auth i PostgREST to zwykły REST.
 -->
 <style>
   :root { --tlo:#f5f2ec; --atrament:#0e0d0b; --linia:#d8d3c8; --szary:#9a9488;
-          --marka:#2e6b5e; --blad:#C0392B; }
+          --marka:#2e6b5e; --marka-tlo:#e7f1ea; --blad:#C0392B; --blad-tlo:#fbeae7;
+          --uwaga:#8a6a10; --uwaga-tlo:#fbf3e0; --pusto-tlo:#eceae4; }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--tlo); color:var(--atrament);
          font:16px/1.5 -apple-system,Segoe UI,Roboto,sans-serif; }
   header { background:var(--atrament); color:var(--tlo); padding:16px 20px;
            display:flex; justify-content:space-between; align-items:center; gap:12px; }
   header h1 { font-size:16px; letter-spacing:.14em; text-transform:uppercase; margin:0; }
-  main { max-width:760px; margin:0 auto; padding:20px; }
+  main { max-width:900px; margin:0 auto; padding:20px; }
   .karta { background:#fff; border:1px solid var(--linia); padding:18px; margin-bottom:16px; }
   label { display:block; font-size:12px; letter-spacing:.1em; text-transform:uppercase;
           color:var(--szary); margin-bottom:6px; }
@@ -50,13 +56,32 @@
   .zdanie { font-size:14px; color:var(--szary); margin:8px 0; }
   .blad { color:var(--blad); }
   .ok { color:var(--marka); }
-  .wiersz { display:flex; justify-content:space-between; gap:12px; padding:10px 0;
-            border-bottom:1px solid var(--linia); cursor:pointer; }
-  .wiersz:last-child { border-bottom:0; }
   .maly { font-size:12px; color:var(--szary); }
   h2 { font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--szary);
        margin:0 0 10px; }
   .ukryte { display:none; }
+  .plotno { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; font-size:14px; min-width:560px; }
+  th { text-align:left; font-size:11px; letter-spacing:.09em; text-transform:uppercase;
+       color:var(--szary); font-weight:600; padding:0 10px 10px; border-bottom:1px solid var(--linia); }
+  td { padding:11px 10px; border-bottom:1px solid var(--linia); vertical-align:top; }
+  tr:last-child td { border-bottom:0; }
+  .kto b { display:block; font-weight:600; }
+  .poz { display:block; color:var(--szary); font-size:12px; }
+  .prio { display:block; font-weight:600; color:var(--marka); }
+  .prio.brak { color:var(--szary); font-weight:500; }
+  .drugi { display:block; color:var(--szary); font-size:12px; margin-top:2px; }
+  .pill { display:inline-block; padding:3px 9px; border-radius:999px; font-size:12px;
+          font-weight:600; margin:0 5px 4px 0; white-space:nowrap; }
+  .p-rpe { background:var(--marka-tlo); color:var(--marka); }
+  .p-rpe-hi { background:var(--uwaga-tlo); color:var(--uwaga); }
+  .p-pusto { background:var(--pusto-tlo); color:var(--szary); font-weight:500; }
+  .p-bol { background:var(--blad-tlo); color:var(--blad); display:block; width:fit-content; }
+  .grupa { border:1px solid var(--linia); padding:12px 14px; margin-bottom:8px; background:#fff; }
+  .grupa-glowa { display:flex; align-items:baseline; gap:11px; }
+  .licznik { font-size:22px; font-weight:700; color:var(--marka); min-width:26px; }
+  .grupa-nazwa { font-weight:600; }
+  .grupa-kto { margin-top:5px; color:var(--szary); font-size:13px; }
 </style>
 </head>
 <body>
@@ -66,7 +91,6 @@
 </header>
 
 <main>
-  <!-- ── LOGOWANIE ─────────────────────────────────────────────── -->
   <section id="sekcja-logowania" class="karta">
     <h2>Logowanie</h2>
     <p class="zdanie">
@@ -76,7 +100,6 @@
     <label for="mail">Adres e-mail</label>
     <input id="mail" type="email" autocomplete="email" placeholder="trener@klub.pl">
     <button id="btn-kod" onclick="wyslijKod()">Wyślij kod</button>
-
     <div id="krok-kod" class="ukryte" style="margin-top:16px">
       <label for="kod">Kod z maila (6 cyfr)</label>
       <input id="kod" inputmode="numeric" autocomplete="one-time-code" placeholder="123456">
@@ -85,7 +108,6 @@
     <p id="stan-logowania" class="zdanie"></p>
   </section>
 
-  <!-- ── DRUŻYNA ───────────────────────────────────────────────── -->
   <section id="sekcja-druzyny" class="karta ukryte">
     <h2>Twoja drużyna</h2>
     <label for="kod-druzyny">Kod drużyny</label>
@@ -94,21 +116,21 @@
     <p id="stan-druzyny" class="zdanie"></p>
   </section>
 
-  <!-- ── ZAWODNICY ─────────────────────────────────────────────── -->
-  <section id="sekcja-zawodnikow" class="karta ukryte">
-    <h2>Zawodnicy</h2>
-    <p id="stan-zawodnikow" class="zdanie"></p>
-    <div id="lista-zawodnikow"></div>
+  <section id="sekcja-skladu" class="karta ukryte">
+    <h2>Skład — co rozwijać</h2>
+    <p id="stan-skladu" class="zdanie"></p>
+    <div class="plotno"><table id="tabela-skladu" class="ukryte">
+      <thead><tr><th>Zawodnik</th><th>Co rozwijać (z diagnozy)</th><th>Po ostatnim treningu</th></tr></thead>
+      <tbody id="ciało-skladu"></tbody>
+    </table></div>
   </section>
 
-  <!-- ── DANE JEDNEGO ZAWODNIKA ────────────────────────────────── -->
-  <section id="sekcja-danych" class="karta ukryte">
-    <h2 id="naglowek-zawodnika">Zawodnik</h2>
-    <div id="dane-kalendarz"></div>
-    <div id="dane-dziennik" style="margin-top:16px"></div>
+  <section id="sekcja-grup" class="karta ukryte">
+    <h2>Grupy treningowe</h2>
+    <p class="zdanie">Ilu zawodników dzieli ten sam priorytet. Jeden blok obsługuje całą grupę naraz.</p>
+    <div id="lista-grup"></div>
   </section>
 </main>
-
 <script>
 'use strict';
 const SUPABASE_URL = 'https://kqrbztsvepjtggjmmcdx.supabase.co';
@@ -121,8 +143,6 @@ function token() { try { return sessionStorage.getItem(KLUCZ_TOKENU) || null; } 
 function zapiszToken(t) { try { sessionStorage.setItem(KLUCZ_TOKENU, t); } catch (e) {} }
 function skasujToken() { try { sessionStorage.removeItem(KLUCZ_TOKENU); } catch (e) {} }
 
-/* ⭐ Jedyne miejsce, w którym powstaje nagłówek. Bez tokenu zachowuje się DOKŁADNIE
-   tak jak `gcRpc` w index.html — klucz anonimowy. Z tokenem RLS zaczyna widzieć trenera. */
 function naglowki() {
   const t = token();
   return { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY,
@@ -135,26 +155,183 @@ function zdanie(id, tekst, rodzaj) {
   const e = el(id); e.textContent = tekst;
   e.className = 'zdanie' + (rodzaj ? ' ' + rodzaj : '');
 }
+function bezpieczny(s) {
+  return String(s === null || s === undefined ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
 
-/* ── ODCZYT Z TRZEMA STANAMI ────────────────────────────────────
-   ⛔ Zwraca {stan:'jest'|'pusto'|'nie_wolno'|'nie_wiem', wiersze, powod}.
-   Sklejenie „nie wolno" z „pusto" byłoby powiedzeniem trenerowi, że dziecko
-   nic nie robi — o dziecku, którego danych nie mamy prawa zobaczyć. */
+/* ═══════════════════════════════════════════════════════════════
+   PORT `lib/zwrotObszaru.ts` + `lib/positionProfiles.ts` Z APLIKACJI
+   ⛔ Wartości przepisane co do liczby. Gdy tamten plik się zmieni,
+   ten port trzeba zmienić razem z nim — to JEST druga kopia reguły
+   i wiem o tym; jedynym sposobem uniknięcia jej byłby wspólny moduł,
+   a mobilna aplikacja i ta strona nie dzielą dziś budowania.
+   ═══════════════════════════════════════════════════════════════ */
+const WAGA_TIERU = { key: 1.0, important: 0.6, minor: 0.3 };
+const PROG_PODLOGI_WYNIKU = 40;
+const ILE_NAJWYZSZYCH_ZWROTOW = 3;
+
+const PROFILE_POZYCJI = {
+  bramkarz: { mental:'key', koncentracja:'key', decyzja:'key', moc:'key',
+    fizycznosc:'important', techFund:'important', percepcja:'important', regeneracja:'important',
+    wytrzymalosc:'minor', techSpec:'minor', tolerancja:'minor', odzywianie:'minor', odpornosc:'minor' },
+  obronca_srodkowy: { percepcja:'key', decyzja:'key', fizycznosc:'key', mental:'key',
+    moc:'important', koncentracja:'important', techFund:'important', tolerancja:'important',
+    wytrzymalosc:'minor', techSpec:'minor', regeneracja:'minor', odzywianie:'minor', odpornosc:'minor' },
+  obronca_boczny: { wytrzymalosc:'key', moc:'key', decyzja:'key',
+    percepcja:'important', fizycznosc:'important', techFund:'important', tolerancja:'important',
+    koncentracja:'minor', techSpec:'minor', mental:'minor', regeneracja:'minor', odzywianie:'minor', odpornosc:'minor' },
+  pomocnik_defensywny: { percepcja:'key', decyzja:'key', koncentracja:'key',
+    techFund:'important', fizycznosc:'important', wytrzymalosc:'important', mental:'important',
+    moc:'minor', techSpec:'minor', tolerancja:'minor', regeneracja:'minor', odzywianie:'minor', odpornosc:'minor' },
+  pomocnik_srodkowy: { wytrzymalosc:'key', decyzja:'key', techFund:'key',
+    percepcja:'important', moc:'important', koncentracja:'important', fizycznosc:'important',
+    techSpec:'minor', mental:'minor', tolerancja:'minor', regeneracja:'minor', odzywianie:'minor', odpornosc:'minor' },
+  pomocnik_ofensywny: { techSpec:'key', decyzja:'key', percepcja:'key', mental:'key',
+    techFund:'important', koncentracja:'important',
+    moc:'minor', wytrzymalosc:'minor', fizycznosc:'minor', tolerancja:'minor', regeneracja:'minor', odzywianie:'minor', odpornosc:'minor' },
+  skrzydlowy: { moc:'key', techSpec:'key', decyzja:'key',
+    percepcja:'important', wytrzymalosc:'important', techFund:'important', mental:'important',
+    fizycznosc:'minor', koncentracja:'minor', tolerancja:'minor', regeneracja:'minor', odzywianie:'minor', odpornosc:'minor' },
+  napastnik: { decyzja:'key', techSpec:'key', fizycznosc:'key', mental:'key',
+    moc:'important', percepcja:'important', techFund:'important', koncentracja:'important',
+    wytrzymalosc:'minor', tolerancja:'minor', regeneracja:'minor', odzywianie:'minor', odpornosc:'minor' },
+};
+
+const ETYKIETA_POZYCJI_NA_KLUCZ = {
+  'Bramkarz':'bramkarz', 'Środkowy obrońca':'obronca_srodkowy', 'Boczny obrońca':'obronca_boczny',
+  'Defensywny pomocnik':'pomocnik_defensywny', 'Środkowy pomocnik':'pomocnik_srodkowy',
+  'Ofensywny pomocnik':'pomocnik_ofensywny', 'Skrzydłowy':'skrzydlowy', 'Napastnik':'napastnik',
+};
+
+const NAZWA_OBSZARU = {
+  moc:'Moc', wytrzymalosc:'Wytrzymałość', fizycznosc:'Fizyczność',
+  techFund:'Technika fundamentalna', techSpec:'Technika specjalistyczna',
+  tolerancja:'Tolerancja obciążeń', regeneracja:'Regeneracja', odpornosc:'Odporność',
+  odzywianie:'Odżywienie', koncentracja:'Koncentracja', mental:'Odwaga w grze',
+  percepcja:'Percepcja', decyzja:'Szybkość decyzji',
+};
+
+/* ⛔ ZMIERZONE 01.09.2026 NA ŻYWEJ BAZIE, PRÓBĄ W COFNIĘTEJ TRANSAKCJI:
+   `pain_entries.body_location` to SLUG (`lydka`, `brzuch_tulow`), a `side`
+   jest po ANGIELSKU (`left`/`right`, wymuszone przez `chk_pain_entries_side`).
+   Bez tego przekładu trener czytałby „lydka right" — pół po polsku, pół nie.
+   Mapa przepisana 1:1 z `lib/labels.ts` (BODY_LOCATIONS, 17 pozycji). */
+const NAZWA_MIEJSCA_BOLU = {
+  kostka:'Kostka', kolano:'Kolano', udo_przednie:'Udo przednie', udo_tylne:'Udo tylne',
+  lydka:'Łydka', pachwina:'Pachwina', biodro:'Biodro', stopa:'Stopa',
+  achilles:'Ścięgno Achillesa', plecy_kregoslup:'Plecy / kręgosłup',
+  brzuch_tulow:'Brzuch / tułów', bark:'Bark', lokiec:'Łokieć',
+  nadgarstek_dlon:'Nadgarstek / dłoń', glowa_twarz:'Głowa / twarz',
+  klatka_piersiowa_zebra:'Klatka piersiowa / żebra', inne:'Inne',
+};
+const NAZWA_STRONY = { left:'lewe', right:'prawe' };
+
+/* ⛔ Nieznany slug NIE znika i NIE udaje znanego — oddajemy go surowo,
+   żeby trener zobaczył, że coś tu jest, nawet gdy nie umiem tego nazwać. */
+function nazwijMiejsceBolu(miejsce, strona) {
+  const m = NAZWA_MIEJSCA_BOLU[miejsce] || (miejsce ? String(miejsce) : 'miejsce nieokreślone');
+  const s = strona ? (NAZWA_STRONY[strona] || String(strona)) : null;
+  return s ? (m + ' ' + s) : m;
+}
+
+function liczbaWynik(x) {
+  return (typeof x === 'number' && isFinite(x) && x >= 0 && x <= 100) ? x : null;
+}
+
+/* ⭐ ZWROT OBSZARÓW: `(100 − wynik) × waga tieru`.
+   ⛔ Brak diagnozy albo brak pozycji NIE JEST zerem zwrotu — jest „nie wiemy". */
+function policzZwrotObszarow(wyniki, pozycja) {
+  if (wyniki === null || typeof wyniki !== 'object') {
+    return { rodzaj:'nie_wiemy', powod:'nie mam wyników diagnozy tego zawodnika' };
+  }
+  const klucz = pozycja ? ETYKIETA_POZYCJI_NA_KLUCZ[pozycja] : null;
+  const tiery = klucz ? PROFILE_POZYCJI[klucz] : null;
+  if (!tiery) {
+    return { rodzaj:'nie_wiemy', powod: (!pozycja)
+      ? 'nie znam pozycji tego zawodnika' : 'nie znam profilu pozycji „' + pozycja + '"' };
+  }
+  const obszary = [];
+  Object.keys(wyniki).forEach(function (obszar) {
+    const wynik = liczbaWynik(wyniki[obszar]);
+    if (wynik === null) return;
+    const tier = tiery[obszar] || null;
+    obszary.push({ obszar: obszar, wynik: wynik, tier: tier,
+      /* ⛔ Nieznany tier NIE dostaje wagi domyślnej — zwrot bez tieru byłby
+         liczbą udającą pomiar. Zostaje null; taki obszar wchodzi tylko podłogą. */
+      zwrot: tier === null ? null : (100 - wynik) * WAGA_TIERU[tier], trafny: null });
+  });
+  if (obszary.length === 0) {
+    return { rodzaj:'nie_wiemy', powod:'diagnoza nie zawiera ani jednego czytelnego wyniku' };
+  }
+  const kolejnosc = obszary.filter(function (o) { return o.zwrot !== null; }).slice().sort(function (a, b) {
+    const r = b.zwrot - a.zwrot;
+    if (r !== 0) return r;
+    if (a.wynik !== b.wynik) return a.wynik - b.wynik;
+    return a.obszar < b.obszar ? -1 : 1;
+  });
+  /* ⭐ REMISY NA GRANICY WCHODZĄ W KOMPLECIE — progiem jest WARTOŚĆ trzeciego
+     zwrotu, nie pozycja w liście. Inaczej z trzech obszarów o identycznym
+     zwrocie wpadłby jeden, alfabetycznie, a dwa zniknęłyby po cichu. */
+  const prog = kolejnosc.length >= ILE_NAJWYZSZYCH_ZWROTOW
+    ? kolejnosc[ILE_NAJWYZSZYCH_ZWROTOW - 1].zwrot
+    : (kolejnosc.length > 0 ? kolejnosc[kolejnosc.length - 1].zwrot : Infinity);
+  const zZwrotu = {}, zPodlogi = {};
+  kolejnosc.forEach(function (o) { if (o.zwrot >= prog) zZwrotu[o.obszar] = true; });
+  obszary.forEach(function (o) { if (o.wynik <= PROG_PODLOGI_WYNIKU) zPodlogi[o.obszar] = true; });
+  obszary.forEach(function (o) {
+    const a = !!zZwrotu[o.obszar], b = !!zPodlogi[o.obszar];
+    o.trafny = (a && b) ? 'zwrot_i_podloga' : a ? 'zwrot' : b ? 'podloga' : null;
+  });
+  obszary.sort(function (a, b) {
+    const az = a.zwrot === null ? -1 : a.zwrot, bz = b.zwrot === null ? -1 : b.zwrot;
+    if (az !== bz) return bz - az;
+    return a.obszar < b.obszar ? -1 : 1;
+  });
+  return { rodzaj:'jest', obszary: obszary };
+}
+
+/* ⭐ JEDEN priorytet dla trenera — albo uczciwe „nie ma jednego".
+   ⛔ Gdy więcej niż dwa obszary wychodzą DOKŁADNIE równo, panel NIE wybiera
+   jednego alfabetycznie. Zmierzone na prawdziwych zawodnikach: bramkarz
+   z czterema obszarami kluczowymi po 80 punktów. Wylosowany priorytet
+   wyglądałby mądrzej, a byłby zdaniem, za którym nic nie stoi (Z0). */
+function priorytet(zwrot) {
+  if (zwrot.rodzaj !== 'jest') return { rodzaj:'nie_wiemy', powod: zwrot.powod };
+  const trafne = zwrot.obszary.filter(function (o) { return o.trafny !== null; });
+  if (trafne.length === 0) return { rodzaj:'nie_wiemy', powod:'żaden obszar nie wyszedł trafny' };
+  let max = -1;
+  trafne.forEach(function (o) { const z = o.zwrot === null ? -1 : o.zwrot; if (z > max) max = z; });
+  const szczyt = trafne.filter(function (o) { return (o.zwrot === null ? -1 : o.zwrot) === max; });
+  szczyt.sort(function (a, b) { return a.wynik !== b.wynik ? a.wynik - b.wynik : (a.obszar < b.obszar ? -1 : 1); });
+  if (szczyt.length > 2) {
+    return { rodzaj:'brak_jednego', ile: szczyt.length,
+             lista: szczyt.map(function (o) { return NAZWA_OBSZARU[o.obszar] || o.obszar; }) };
+  }
+  const glowny = szczyt[0];
+  const drugi = trafne.filter(function (o) { return o.obszar !== glowny.obszar; })[0] || null;
+  return { rodzaj:'jest',
+           glowny: NAZWA_OBSZARU[glowny.obszar] || glowny.obszar,
+           drugi: drugi ? (NAZWA_OBSZARU[drugi.obszar] || drugi.obszar) : null };
+}
+
+/* ── ODCZYT Z CZTEREMA STANAMI ──────────────────────────────────
+   ⛔ Zwraca {stan:'jest'|'pusto'|'nie_wolno'|'nie_wiem'}. Sklejenie
+   „nie wolno" z „pusto" byłoby powiedzeniem trenerowi, że dziecko nic nie
+   robi — o dziecku, którego danych nie mamy prawa zobaczyć. */
 async function czytaj(sciezka) {
   let res;
   try {
     res = await fetch(SUPABASE_URL + '/rest/v1/' + sciezka, { headers: naglowki() });
   } catch (e) {
-    return { stan: 'nie_wiem', powod: 'nie udało się połączyć: ' + e.message };
+    return { stan:'nie_wiem', powod:'nie udało się połączyć: ' + e.message };
   }
-  if (res.status === 401 || res.status === 403) {
-    return { stan: 'nie_wolno', powod: 'HTTP ' + res.status };
-  }
-  if (!res.ok) return { stan: 'nie_wiem', powod: 'HTTP ' + res.status };
+  if (res.status === 401 || res.status === 403) return { stan:'nie_wolno', powod:'HTTP ' + res.status };
+  if (!res.ok) return { stan:'nie_wiem', powod:'HTTP ' + res.status };
   let dane;
-  try { dane = await res.json(); } catch (e) { return { stan: 'nie_wiem', powod: 'odpowiedź nie jest listą' }; }
-  if (!Array.isArray(dane)) return { stan: 'nie_wiem', powod: 'odpowiedź nie jest listą' };
-  return dane.length === 0 ? { stan: 'pusto', wiersze: [] } : { stan: 'jest', wiersze: dane };
+  try { dane = await res.json(); } catch (e) { return { stan:'nie_wiem', powod:'odpowiedź nie jest listą' }; }
+  if (!Array.isArray(dane)) return { stan:'nie_wiem', powod:'odpowiedź nie jest listą' };
+  return dane.length === 0 ? { stan:'pusto', wiersze: [] } : { stan:'jest', wiersze: dane };
 }
 
 /* ── LOGOWANIE (Supabase Auth, zwykły REST) ─────────────────── */
@@ -167,8 +344,7 @@ async function wyslijKod() {
   zdanie('stan-logowania', 'Wysyłam kod…');
   try {
     const res = await fetch(SUPABASE_URL + '/auth/v1/otp', {
-      method: 'POST', headers: naglowki(),
-      body: JSON.stringify({ email: email, create_user: true })
+      method:'POST', headers: naglowki(), body: JSON.stringify({ email: email, create_user: true })
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     pokaz('krok-kod', true);
@@ -186,8 +362,7 @@ async function zaloguj() {
   el('btn-zaloguj').disabled = true;
   try {
     const res = await fetch(SUPABASE_URL + '/auth/v1/verify', {
-      method: 'POST', headers: naglowki(),
-      body: JSON.stringify({ type: 'email', email: email, token: kod })
+      method:'POST', headers: naglowki(), body: JSON.stringify({ type:'email', email: email, token: kod })
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const dane = await res.json();
@@ -201,109 +376,211 @@ async function zaloguj() {
 }
 
 function wyloguj() { skasujToken(); location.reload(); }
-
-function poLogowaniu() {
-  pokaz('sekcja-logowania', false);
-  pokaz('sekcja-druzyny', true);
-  pokaz('wyloguj', true);
-}
+function poLogowaniu() { pokaz('sekcja-logowania', false); pokaz('sekcja-druzyny', true); pokaz('wyloguj', true); }
 
 /* ── PRZEJĘCIE DRUŻYNY ──────────────────────────────────────── */
+let POZIOM = 'basic';
 async function przejmijDruzyne() {
   const kod = el('kod-druzyny').value.trim();
   if (!kod) return zdanie('stan-druzyny', 'Wpisz kod drużyny.', 'blad');
   zdanie('stan-druzyny', 'Łączę…');
   try {
     const res = await fetch(SUPABASE_URL + '/rest/v1/rpc/claim_coach_team', {
-      method: 'POST', headers: naglowki(), body: JSON.stringify({ p_team_code: kod })
+      method:'POST', headers: naglowki(), body: JSON.stringify({ p_team_code: kod })
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const t = await res.json();
     if (!t || !t.id) {
-      /* ⛔ `null` z tej funkcji znaczy JEDNO: adres konta nie zgadza się z adresem
-         zapisanym przy drużynie. Mówimy to wprost, zamiast „coś poszło nie tak". */
+      /* ⛔ `null` z tej funkcji znaczy JEDNO: adres konta nie zgadza się
+         z adresem zapisanym przy drużynie. Mówimy to wprost. */
       return zdanie('stan-druzyny',
         'Ta drużyna jest zapisana na INNY adres e-mail niż konto, na które się zalogowałeś.', 'blad');
     }
-    zdanie('stan-druzyny', 'Połączono: ' + (t.club_name || t.code) +
-      ' · poziom widoczności: ' + t.visibility_level, 'ok');
-    wczytajZawodnikow(t);
+    POZIOM = t.visibility_level || 'basic';
+    zdanie('stan-druzyny', 'Połączono: ' + (t.club_name || t.code) + ' · poziom widoczności: ' + POZIOM, 'ok');
+    wczytajSklad(t);
   } catch (e) {
     zdanie('stan-druzyny', 'Nie udało się połączyć (' + e.message + ').', 'blad');
   }
 }
 
-/* ── LISTA ZAWODNIKÓW ───────────────────────────────────────── */
-let POZIOM = 'basic';
-async function wczytajZawodnikow(druzyna) {
-  POZIOM = druzyna.visibility_level || 'basic';
-  pokaz('sekcja-zawodnikow', true);
-  zdanie('stan-zawodnikow', 'Czytam…');
-  const w = await czytaj('team_memberships?select=player_user_id,status,joined_at' +
-                         '&team_id=eq.' + encodeURIComponent(druzyna.id) + '&status=eq.active');
-  if (w.stan === 'nie_wolno') return zdanie('stan-zawodnikow',
-    'Nie mam prawa odczytać składu tej drużyny.', 'blad');
-  if (w.stan === 'nie_wiem') return zdanie('stan-zawodnikow',
-    'Nie udało się odczytać składu (' + w.powod + '). ⛔ To NIE znaczy, że drużyna jest pusta.', 'blad');
-  if (w.stan === 'pusto') return zdanie('stan-zawodnikow',
-    'Odczytałem skład i nikt jeszcze nie dołączył do drużyny kodem.');
+/* ── SKŁAD: DIAGNOZY + RPE + BÓL W JEDNEJ TABELI ────────────── */
+async function wczytajSklad(druzyna) {
+  pokaz('sekcja-skladu', true);
+  zdanie('stan-skladu', 'Czytam skład…');
 
-  zdanie('stan-zawodnikow', 'Zawodników z kontem w aplikacji: ' + w.wiersze.length);
-  const lista = el('lista-zawodnikow');
-  lista.innerHTML = '';
-  w.wiersze.forEach((m) => {
-    const d = document.createElement('div');
-    d.className = 'wiersz';
-    d.innerHTML = '<span>' + m.player_user_id.slice(0, 8) + '…</span>' +
-                  '<span class="maly">dołączył ' + String(m.joined_at).slice(0, 10) + '</span>';
-    d.onclick = () => wczytajZawodnika(m.player_user_id);
-    lista.appendChild(d);
+  const czl = await czytaj('team_memberships?select=player_user_id,joined_at' +
+    '&team_id=eq.' + encodeURIComponent(druzyna.id) + '&status=eq.active');
+  if (czl.stan === 'nie_wolno') return zdanie('stan-skladu', '⛔ Nie mam prawa odczytać składu tej drużyny.', 'blad');
+  if (czl.stan === 'nie_wiem') return zdanie('stan-skladu',
+    'Nie udało się odczytać składu (' + czl.powod + '). ⛔ To NIE znaczy, że drużyna jest pusta.', 'blad');
+  if (czl.stan === 'pusto') return zdanie('stan-skladu',
+    'Odczytałem skład i nikt jeszcze nie dołączył do drużyny kodem. ' +
+    'Zawodnik dołącza w aplikacji: Profil → Ustawienia → Dostęp, kod drużyny.');
+
+  const idy = czl.wiersze.map(function (m) { return m.player_user_id; });
+  const wLiscie = '(' + idy.join(',') + ')';
+
+  /* ⭐ Diagnozy. `event=eq.results_generated` — tylko gotowe wyniki ankiety.
+     ⚠️ RLS wymaga `user_id IS NOT NULL`, więc diagnoza staje się widoczna
+     dopiero po założeniu konta przez zawodnika. */
+  const dia = await czytaj('diagnostics?select=user_id,player_name,position,scores,created_at' +
+    '&user_id=in.' + wLiscie + '&event=eq.results_generated&order=created_at.desc');
+
+  /* ⭐ RPE z ostatnich 10 dni i ból — OBA wymagają poziomu `full`. */
+  const odKiedy = new Date(Date.now() - 10 * 864e5).toISOString().slice(0, 10);
+  const dz = await czytaj('daily_logs?select=user_id,log_date,entry_type,payload' +
+    '&user_id=in.' + wLiscie + '&entry_type=eq.post_training&log_date=gte.' + odKiedy +
+    '&order=log_date.desc');
+  const bol = await czytaj('pain_entries?select=user_id,body_location,side,intensity,excludes_from_training,log_date' +
+    '&user_id=in.' + wLiscie + '&log_date=gte.' + odKiedy + '&order=log_date.desc');
+
+  narysujSklad(czl.wiersze, dia, dz, bol);
+}
+
+/* ⭐ ILE DNI JUŻ BOLI — policzone z CIĄGU zgłoszeń, bo w bazie NIE MA takiego
+   pola (zmierzone: `pain_entries` ma tylko `log_date`, `body_location`,
+   `side`, `intensity`, `excludes_from_training`).
+   ⛔ Liczymy dni PO KOLEI wstecz od ostatniego zgłoszenia tego samego miejsca.
+   Przerwa w zgłoszeniach kończy ciąg — nie zakładamy, że bolało w dniu,
+   którego zawodnik nie zgłosił. */
+function ciagBolu(wpisy) {
+  if (!wpisy || wpisy.length === 0) return null;
+  const posort = wpisy.slice().sort(function (a, b) { return a.log_date < b.log_date ? 1 : -1; });
+  const najnowszy = posort[0];
+  const miejsce = (najnowszy.body_location || '') + '|' + (najnowszy.side || '');
+  const dni = {};
+  posort.forEach(function (w) {
+    if (((w.body_location || '') + '|' + (w.side || '')) === miejsce) dni[String(w.log_date).slice(0, 10)] = w;
   });
+  let ile = 0;
+  const kursor = new Date(String(najnowszy.log_date).slice(0, 10) + 'T00:00:00Z');
+  while (dni[kursor.toISOString().slice(0, 10)]) {
+    ile += 1;
+    kursor.setUTCDate(kursor.getUTCDate() - 1);
+  }
+  return { miejsce: nazwijMiejsceBolu(najnowszy.body_location, najnowszy.side),
+           moc: najnowszy.intensity, dni: ile,
+           wyklucza: najnowszy.excludes_from_training === true,
+           ostatni: String(najnowszy.log_date).slice(0, 10) };
 }
 
-/* ── DANE JEDNEGO ZAWODNIKA ─────────────────────────────────── */
-async function wczytajZawodnika(uid) {
-  pokaz('sekcja-danych', true);
-  el('naglowek-zawodnika').textContent = 'Zawodnik ' + uid.slice(0, 8) + '…';
-  el('dane-kalendarz').innerHTML = '<p class="zdanie">Czytam plan…</p>';
-  el('dane-dziennik').innerHTML = '';
-
-  const kal = await czytaj('calendar_events?select=title,scheduled_date,event_type,status' +
-    '&user_id=eq.' + uid + '&order=scheduled_date.desc&limit=14');
-  el('dane-kalendarz').innerHTML = '<h2>Plan i kalendarz</h2>' + wypisz(kal, (r) =>
-    String(r.scheduled_date).slice(0, 10) + ' · ' + (r.title || '(bez tytułu)') +
-    ' · ' + (r.status || ''));
-
-  /* ⛔ DZIENNIK TYLKO PRZY `full` — i mówimy WPROST, dlaczego go nie ma.
-     Cisza w tym miejscu byłaby zdaniem „zawodnik nic nie zapisał". */
-  if (POZIOM !== 'full') {
-    el('dane-dziennik').innerHTML = '<h2>Dziennik</h2><p class="zdanie">' +
-      '⛔ Nie mam prawa pokazać Ci wpisów z Dziennika tego zawodnika. ' +
-      'Poziom widoczności tej drużyny to „' + POZIOM + '". ' +
-      'To NIE znaczy, że zawodnik nic nie zapisał — znaczy, że tego nie sprawdzam.</p>';
-    return;
+/* ⭐ Jedno miejsce, w którym brak danych zamienia się w ZDANIE, nie w pustkę. */
+function komorkaPoTreningu(stanDz, wpisyDz, stanBol, wpisyBol) {
+  let html = '';
+  if (stanDz === 'nie_wolno') {
+    html += '<span class="pill p-pusto">RPE zablokowane</span>';
+  } else if (stanDz === 'nie_wiem') {
+    html += '<span class="pill p-pusto">RPE nieodczytane</span>';
+  } else if (!wpisyDz || wpisyDz.length === 0) {
+    html += '<span class="pill p-pusto">nie wypełnił</span>';
+  } else {
+    const ost = wpisyDz[0];
+    const rpe = ost.payload && typeof ost.payload.rpe === 'number' ? ost.payload.rpe : null;
+    html += rpe === null
+      ? '<span class="pill p-pusto">wpis bez RPE</span>'
+      : '<span class="pill ' + (rpe >= 8 ? 'p-rpe-hi' : 'p-rpe') + '">RPE ' + rpe +
+        '</span> <span class="maly">' + bezpieczny(String(ost.log_date).slice(0, 10)) + '</span>';
   }
-  const dz = await czytaj('daily_logs?select=log_date,entry_type,session_type,payload' +
-    '&user_id=eq.' + uid + '&order=log_date.desc&limit=14');
-  el('dane-dziennik').innerHTML = '<h2>Dziennik</h2>' + wypisz(dz, (r) =>
-    String(r.log_date).slice(0, 10) + ' · ' + r.entry_type +
-    (r.session_type ? ' · ' + r.session_type : ''));
+  if (stanBol === 'jest' && wpisyBol && wpisyBol.length > 0) {
+    const b = ciagBolu(wpisyBol);
+    if (b) {
+      html += '<span class="pill p-bol">' + bezpieczny(b.miejsce) +
+        (typeof b.moc === 'number' ? ' · ' + b.moc + '/10' : '') +
+        ' · ' + b.dni + (b.dni === 1 ? ' dzień' : ' dni') +
+        (b.wyklucza ? ' · wyklucza z treningu' : '') + '</span>';
+    }
+  }
+  return html;
 }
 
-/* ⭐ JEDNO miejsce, w którym cztery stany zamieniają się w zdania. */
-function wypisz(wynik, opisz) {
-  if (wynik.stan === 'nie_wolno') {
-    return '<p class="zdanie blad">⛔ Nie mam prawa tego zobaczyć.</p>';
+function narysujSklad(czlonkowie, dia, dz, bol) {
+  /* Najnowsza diagnoza na zawodnika — lista przyszła posortowana malejąco. */
+  const diagnozaPo = {};
+  if (dia.stan === 'jest') {
+    dia.wiersze.forEach(function (d) { if (!diagnozaPo[d.user_id]) diagnozaPo[d.user_id] = d; });
   }
-  if (wynik.stan === 'nie_wiem') {
-    return '<p class="zdanie blad">Nie udało się odczytać (' + wynik.powod +
-           '). ⛔ To NIE znaczy, że tu nic nie ma.</p>';
+  const dzPo = {}, bolPo = {};
+  if (dz.stan === 'jest') dz.wiersze.forEach(function (r) { (dzPo[r.user_id] = dzPo[r.user_id] || []).push(r); });
+  if (bol.stan === 'jest') bol.wiersze.forEach(function (r) { (bolPo[r.user_id] = bolPo[r.user_id] || []).push(r); });
+
+  const wiersze = [];
+  czlonkowie.forEach(function (m) {
+    const d = diagnozaPo[m.player_user_id] || null;
+    let wyniki = null;
+    if (d && typeof d.scores === 'string') {
+      /* ⚠️ `diagnostics.scores` to KOLUMNA TEKSTOWA z JSON-em w środku, nie jsonb. */
+      try { const s = JSON.parse(d.scores); if (s && typeof s === 'object') wyniki = s; } catch (e) { wyniki = null; }
+    } else if (d && d.scores && typeof d.scores === 'object') { wyniki = d.scores; }
+    const p = d ? priorytet(policzZwrotObszarow(wyniki, d.position || null))
+                : { rodzaj:'nie_wiemy', powod:'ten zawodnik nie ma jeszcze diagnozy w bazie' };
+    wiersze.push({ uid: m.player_user_id, nazwa: (d && d.player_name) || null,
+                   pozycja: (d && d.position) || null, prio: p });
+  });
+
+  wiersze.sort(function (a, b) {
+    return String(a.nazwa || a.uid).localeCompare(String(b.nazwa || b.uid), 'pl');
+  });
+
+  const cialo = el('ciało-skladu');
+  cialo.innerHTML = wiersze.map(function (w) {
+    let prioHtml;
+    if (w.prio.rodzaj === 'jest') {
+      prioHtml = '<span class="prio">' + bezpieczny(w.prio.glowny) + '</span>' +
+        (w.prio.drugi ? '<span class="drugi">potem: ' + bezpieczny(w.prio.drugi) + '</span>' : '');
+    } else if (w.prio.rodzaj === 'brak_jednego') {
+      prioHtml = '<span class="prio brak">bez jednego priorytetu</span>' +
+        '<span class="drugi">' + w.prio.ile + ' obszary równo: ' +
+        bezpieczny(w.prio.lista.join(', ')) + '</span>';
+    } else {
+      /* ⛔ Trzecia wartość, nie cisza: trener ma wiedzieć, CZEGO nie wiem. */
+      prioHtml = '<span class="prio brak">nie wiem</span>' +
+        '<span class="drugi">' + bezpieczny(w.prio.powod) + '</span>';
+    }
+    return '<tr><td class="kto"><b>' + bezpieczny(w.nazwa || ('zawodnik ' + w.uid.slice(0, 8) + '…')) +
+      '</b><span class="poz">' + bezpieczny(w.pozycja || 'pozycja nieznana') + '</span></td>' +
+      '<td>' + prioHtml + '</td>' +
+      '<td>' + komorkaPoTreningu(dz.stan, dzPo[w.uid], bol.stan, bolPo[w.uid]) + '</td></tr>';
+  }).join('');
+  pokaz('tabela-skladu', true);
+
+  /* ── ZDANIA O TYM, CZEGO NIE WIDAĆ ──────────────────────────── */
+  const uwagi = [];
+  uwagi.push('Zawodników w drużynie: ' + czlonkowie.length + '.');
+  if (dia.stan === 'nie_wolno') uwagi.push('⛔ Nie mam prawa odczytać diagnoz.');
+  else if (dia.stan === 'nie_wiem') uwagi.push('Nie udało się odczytać diagnoz (' + dia.powod + '). ⛔ To NIE znaczy, że ich nie ma.');
+  else if (dia.stan === 'pusto') uwagi.push('Odczytałem diagnozy i nie ma ani jednej dla tego składu.');
+  if (dz.stan === 'nie_wolno' || bol.stan === 'nie_wolno') {
+    uwagi.push('⛔ RPE i zgłoszenia bólu są dla mnie zamknięte, bo poziom widoczności tej drużyny to „' +
+      POZIOM + '". To NIE znaczy, że zawodnicy nic nie zapisali — znaczy, że tego nie sprawdzam.');
+  } else if (dz.stan === 'pusto' && bol.stan === 'pusto') {
+    uwagi.push('Odczytałem RPE i zgłoszenia bólu z ostatnich 10 dni — nie ma ani jednego wpisu.');
   }
-  if (wynik.stan === 'pusto') {
-    return '<p class="zdanie">Odczytałem i nie ma tu ani jednego wpisu.</p>';
-  }
-  return wynik.wiersze.map((r) =>
-    '<div class="wiersz"><span>' + opisz(r) + '</span></div>').join('');
+  zdanie('stan-skladu', uwagi.join(' '));
+
+  narysujGrupy(wiersze);
+}
+
+/* ⭐ TA SAMA DIAGNOZA OBRÓCONA O 90 STOPNI: nie „co z Kowalskim", tylko
+   „co zaplanować, żeby trafić w jak najwięcej osób naraz". */
+function narysujGrupy(wiersze) {
+  const grupy = {};
+  wiersze.forEach(function (w) {
+    let klucz;
+    if (w.prio.rodzaj === 'jest') klucz = w.prio.glowny;
+    else if (w.prio.rodzaj === 'brak_jednego') klucz = '— bez jednego priorytetu —';
+    else return; /* ⛔ „nie wiem" NIE tworzy grupy treningowej. */
+    (grupy[klucz] = grupy[klucz] || []).push(w.nazwa || ('zawodnik ' + w.uid.slice(0, 8) + '…'));
+  });
+  const pary = Object.keys(grupy).map(function (k) { return [k, grupy[k]]; })
+    .sort(function (a, b) { return b[1].length - a[1].length; });
+  if (pary.length === 0) { pokaz('sekcja-grup', false); return; }
+  el('lista-grup').innerHTML = pary.map(function (p) {
+    return '<div class="grupa"><div class="grupa-glowa"><span class="licznik">' + p[1].length +
+      '</span><span class="grupa-nazwa">' + bezpieczny(p[0]) + '</span></div>' +
+      '<div class="grupa-kto">' + bezpieczny(p[1].join(' · ')) + '</div></div>';
+  }).join('');
+  pokaz('sekcja-grup', true);
 }
 
 /* ⭐ Wejście: jeżeli token przetrwał odświeżenie karty, pomijamy logowanie. */
