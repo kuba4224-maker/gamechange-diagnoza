@@ -494,6 +494,29 @@ function komorkaPoTreningu(stanDz, wpisyDz, stanBol, wpisyBol) {
   return html;
 }
 
+/* ⭐ JEDNO ZDANIE NAD TABELĄ. ⛔ Liczby biorą się z tego, co panel MA PRAWO
+   przeczytać — gdy RPE jest zamknięte poziomem widoczności, zdanie o RPE
+   NIE POWSTAJE w ogóle. „Wypełniło 0 z 16" przy zamkniętym odczycie byłoby
+   zdaniem fałszywym i najgorszym z możliwych: obwiniałoby dzieci. */
+function zdanieOTreningu(ilu, stanDz, dzPo) {
+  if (stanDz !== 'jest' && stanDz !== 'pusto') return null;
+  let wypelnilo = 0, suma = 0, ile = 0, najciezej = null;
+  Object.keys(dzPo).forEach(function (uid) {
+    const w = dzPo[uid];
+    if (!w || w.length === 0) return;
+    wypelnilo += 1;
+    const rpe = w[0].payload && typeof w[0].payload.rpe === 'number' ? w[0].payload.rpe : null;
+    if (rpe === null) return;
+    suma += rpe; ile += 1;
+    if (najciezej === null || rpe > najciezej.rpe) najciezej = { uid: uid, rpe: rpe };
+  });
+  const czesci = ['Po ostatnim treningu wypełniło ' + wypelnilo + ' z ' + ilu];
+  if (ile > 0) {
+    czesci.push('średnia RPE ' + (Math.round((suma / ile) * 10) / 10).toString().replace('.', ','));
+  }
+  return czesci.join(' · ') + '.';
+}
+
 function narysujSklad(czlonkowie, dia, dz, bol) {
   /* Najnowsza diagnoza na zawodnika — lista przyszła posortowana malejąco. */
   const diagnozaPo = {};
@@ -547,6 +570,8 @@ function narysujSklad(czlonkowie, dia, dz, bol) {
   /* ── ZDANIA O TYM, CZEGO NIE WIDAĆ ──────────────────────────── */
   const uwagi = [];
   uwagi.push('Zawodników w drużynie: ' + czlonkowie.length + '.');
+  const zdanieRPE = zdanieOTreningu(czlonkowie.length, dz.stan, dzPo);
+  if (zdanieRPE !== null) uwagi.push(zdanieRPE);
   if (dia.stan === 'nie_wolno') uwagi.push('⛔ Nie mam prawa odczytać diagnoz.');
   else if (dia.stan === 'nie_wiem') uwagi.push('Nie udało się odczytać diagnoz (' + dia.powod + '). ⛔ To NIE znaczy, że ich nie ma.');
   else if (dia.stan === 'pusto') uwagi.push('Odczytałem diagnozy i nie ma ani jednej dla tego składu.');
