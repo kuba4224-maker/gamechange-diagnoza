@@ -70,7 +70,7 @@ function kontekst(extra) {
     wytnijConst('GC_IST_CZAS_ODPOWIEDZI'), 'const GC_NASTEPNY_KROK_ENABLED = true;',
     (extra && extra.__plany) || wytnijConst('GC_PLANY_6TYG'), wytnijConst('GC_CENA_PLANU_6TYG'), wytnijConst('GC_CENY_IST'),
     wytnijConst('GC_WASKIE_GARDLO_JEZYK'), wytnij('getRelativeDeficits'), wytnij('opiszWaskieGardlo'),
-    wytnij('_pokazNastepnyKrok'), wytnij('wybierzKrokIST'), wytnij('wyslijProsbeIST'),
+    wytnij('czyWidokRodzica'), wytnijConst('GC_TEKSTY_RODZIC'), wytnij('_pokazNastepnyKrok'), wytnij('wybierzKrokIST'), wytnij('wyslijProsbeIST'),
     wytnij('_escapeHtmlLite'), wytnij('zbudujMailDoRodzica'), wytnij('_powiadomOMailuDoRodzica'), wytnij('pokazRodzicowi'),
   ].join('\n');
   vm.runInContext(kod, c);
@@ -216,6 +216,32 @@ probuj('produkcyjne linki Stripe dla wszystkich 13 obszarów', () => {
   const blok = wytnijConst('GC_PLANY_6TYG');
   const urls = blok.match(/url: '([^']+)'/g) || [];
   assert(urls.length === 13 && urls.every(u => /https:\/\/buy\.stripe\.com\/\w+'/.test(u)), '13 linków buy.stripe.com, żadnego null');
+});
+probuj('widok rodzica (?dla=rodzic)', () => {
+  const RODZIC_LOC = { search: '?dla=rodzic&ref=YT_F3', hash: '#r=abc', href: 'https://diagnoza.gamechange.pl/?dla=rodzic&ref=YT_F3#r=abc' };
+  const k = kontekst({ cachedScores: DEFICYT, ctx: { pos: null, age: 15 }, window: { location: RODZIC_LOC } });
+  k.c._pokazNastepnyKrok();
+  assert(k.el['next-step-btn-rodzic'].style.display === 'none', 'rodzic nie widzi przycisku „Pokaż wynik rodzicowi”');
+  assert(/zawodnik/.test(k.el['next-step-intro'].textContent) && !/Chcesz zrobić to sam/.test(k.el['next-step-intro'].textContent), 'wstęp mówi do rodzica o zawodniku');
+  assert(!/Twoj|Twój|Twoją/.test(k.el['next-step-ist-opis'].textContent + k.el['next-step-plan-opis'].textContent + k.el['next-step-sentence'].textContent), '⛔ w bloku rodzica brak zwrotów do zawodnika');
+  assert(k.zapisy.some(z => z.r.event === 'parent_view_opened'), 'zdarzenie `parent_view_opened`');
+  k.c.wybierzKrokIST('spotkanie');
+  k.el['next-step-email'].value = 'mama@x.pl';
+  k.c.wyslijProsbeIST();
+  assert(k.zapisy.some(z => z.r.event === 'parent_meeting_requested'), 'zdarzenie `parent_meeting_requested`');
+  assert(k.powiadomienia.length === 1 && /^RODZIC — /.test(k.powiadomienia[0].typ), 'Kuba dostaje powiadomienie z dopiskiem RODZIC');
+  assert(!/mniej niż 18 lat/.test(k.el['next-step-done-text'].innerHTML), 'potwierdzenie bez zdania do niepełnoletniego');
+  const z = kontekst({ cachedScores: DEFICYT, ctx: { pos: null, age: 15 } });
+  z.c._pokazNastepnyKrok();
+  assert(!z.zapisy.some(r => r.r.event === 'parent_view_opened'), 'zwykły widok zawodnika nie zapisuje `parent_view_opened`');
+});
+probuj('link dla rodzica ma ?dla=rodzic i kod źródła', () => {
+  const otwarte = [];
+  const k = kontekst({ cachedScores: DEFICYT, affiliateCode: 'YT_F3',
+    window: { open: (u) => otwarte.push(u), location: { origin: 'https://diagnoza.gamechange.pl', pathname: '/', search: '', hash: '#r=abc', href: 'https://diagnoza.gamechange.pl/#r=abc' } } });
+  k.c._pokazNastepnyKrok();
+  const tekst = k.c.pokazRodzicowi();
+  assert(tekst.indexOf('https://diagnoza.gamechange.pl/?dla=rodzic&ref=YT_F3#r=abc') !== -1, 'link: adres + ?dla=rodzic + &ref + wynik');
 });
 probuj('pokaż rodzicowi', () => {
   const otwarte = [];
