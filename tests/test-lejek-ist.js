@@ -180,9 +180,13 @@ probuj('przycisk planu zależy od obszaru', () => {
   assert(k.el['next-step-btn-plan'].style.display === 'block', 'moc: „Zrób to sam” widoczny');
   assert(/Moc/.test(k.el['next-step-plan-tytul'].textContent) && /49 zł/.test(k.el['next-step-plan-tytul'].textContent), 'tytuł planu z nazwą obszaru i ceną ze stałej');
   assert(/250 zł/.test(k.el['next-step-ist-cena'].textContent) && /500 zł/.test(k.el['next-step-ist-cena'].textContent), 'ceny IST ze stałej');
-  const r = kontekst({ cachedScores: { moc: 70, regeneracja: 30, percepcja: 72, decyzja: 71, wytrzymalosc: 70, fizycznosc: 69 } });
+  const r = kontekst({ cachedScores: { moc: 70, regeneracja: 30, percepcja: 72, decyzja: 71, wytrzymalosc: 70, fizycznosc: 69 },
+    __plany: "const GC_PLANY_6TYG = { moc: { nazwa: 'Moc', url: null } };" });
   r.c._pokazNastepnyKrok();
-  assert(r.el['next-step-btn-plan'].style.display === 'none', 'regeneracja: brak gotowego planu → „Zrób to sam” schowany');
+  assert(r.el['next-step-btn-plan'].style.display === 'none', 'obszar bez planu w mapie → „Zrób to sam” schowany');
+  const PL = (/const GC_PLANY_6TYG = \{([\s\S]*?)\n\};/.exec(HTML) || ['',''])[1];
+  for (const id of ['moc','wytrzymalosc','fizycznosc','techFund','techSpec','tolerancja','regeneracja','odpornosc','odzywianie','koncentracja','mental','percepcja','decyzja'])
+    assert(new RegExp('\\b' + id + ':').test(PL), 'plan 6 tygodni przypisany do obszaru `' + id + '`');
 });
 probuj('przycisk rodzica tylko poniżej 18 lat', () => {
   const a = kontekst({ cachedScores: DEFICYT, ctx: { pos: null, age: 15 } }); a.c._pokazNastepnyKrok();
