@@ -1283,18 +1283,24 @@ body {
 
         <div id="next-step-choice">
           <p style="font-size:13px;color:#9a9488;font-weight:300;line-height:1.7;margin:0 0 14px;">
-            Ankieta mówi, gdzie szukać. Co z tym zrobić, ustalam z Tobą osobiście — wybierz, od czego chcesz zacząć:
+            Ankieta mówi, gdzie szukać. Chcesz zrobić to sam czy ze mną?
           </p>
           <div style="display:flex;flex-direction:column;gap:10px;">
-            <button id="next-step-btn-spotkanie" onclick="wybierzKrokIST('spotkanie')"
-              style="text-align:left;background:#E8432D;color:#f5f2ec;border:none;padding:16px 20px;cursor:pointer;font-family:'DM Sans',sans-serif;">
-              <span style="display:block;font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:0.08em;">Spotkanie diagnostyczne →</span>
-              <span style="display:block;font-size:13px;font-weight:300;line-height:1.6;margin-top:4px;">Sprawdzam to wąskie gardło na żywo, testami ruchowymi, i mówię, od czego zacząć.</span>
-            </button>
             <button id="next-step-btn-plan" onclick="wybierzKrokIST('plan')"
+              style="text-align:left;background:#E8432D;color:#f5f2ec;border:none;padding:16px 20px;cursor:pointer;font-family:'DM Sans',sans-serif;">
+              <span id="next-step-plan-tytul" style="display:block;font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:0.08em;">Zrób to sam: Plan 6 tygodni →</span>
+              <span style="display:block;font-size:13px;font-weight:300;line-height:1.6;margin-top:4px;">Gotowy plan pod Twoje wąskie gardło: test na start, plan tydzień po tygodniu, pomiar na koniec.</span>
+            </button>
+            <button id="next-step-btn-spotkanie" onclick="wybierzKrokIST('spotkanie')"
               style="text-align:left;background:transparent;color:#f5f2ec;border:1px solid #9a9488;padding:16px 20px;cursor:pointer;font-family:'DM Sans',sans-serif;">
-              <span style="display:block;font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:0.08em;">Plan treningowy pod to wąskie gardło →</span>
-              <span style="display:block;font-size:13px;font-weight:300;line-height:1.6;margin-top:4px;">Rozpisany dla Ciebie na miesiąc, z ćwiczeniami na wideo i kontrolą postępów.</span>
+              <span style="display:block;font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:0.08em;">Zrób to ze mną: Indywidualny System Treningowy →</span>
+              <span style="display:block;font-size:13px;font-weight:300;line-height:1.6;margin-top:4px;">Zaczynamy od spotkania z testami (we Wrocławiu albo zdalnie), potem plan ułożony w Twój tydzień: szkoła, treningi drużyny, mecze.</span>
+              <span id="next-step-ist-cena" style="display:block;font-size:12px;color:#9a9488;margin-top:4px;"></span>
+            </button>
+            <button id="next-step-btn-rodzic" onclick="pokazRodzicowi()"
+              style="display:none;text-align:left;background:transparent;color:#f5f2ec;border:1px dashed #9a9488;padding:14px 20px;cursor:pointer;font-family:'DM Sans',sans-serif;">
+              <span style="display:block;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:0.08em;">Pokaż wynik rodzicowi →</span>
+              <span style="display:block;font-size:13px;font-weight:300;line-height:1.6;margin-top:4px;">Wyślij mu link do wyniku przez WhatsApp albo SMS.</span>
             </button>
           </div>
         </div>
@@ -4433,6 +4439,20 @@ const GC_IST_CZAS_ODPOWIEDZI = '48 godzin';
 // (diagnoza, PDF) działa bez zmian.
 const GC_NASTEPNY_KROK_ENABLED = true;
 
+// LEJEK 09.11.2026 (Helicopter View, dok. 45) — oferta „Zrób to sam / Zrób to ze mną”.
+// Plan 6 tygodni na obszar: `url` = link do płatności (Stripe). Gdy `url` jest null,
+// przycisk otwiera formularz, a Kuba odsyła plan i link do płatności ręcznie.
+// Obszaru, którego nie ma w tej mapie, przycisk „Zrób to sam” nie pokazuje.
+const GC_PLANY_6TYG = {
+  wytrzymalosc: { nazwa: 'Wytrzymałość', url: null },
+  moc:          { nazwa: 'Moc', url: null },
+  fizycznosc:   { nazwa: 'Fizyczność', url: null },
+  techFund:     { nazwa: 'Technika', url: null },
+  techSpec:     { nazwa: 'Technika', url: null },
+};
+const GC_CENA_PLANU_6TYG = '49 zł';
+const GC_CENY_IST = 'Spotkanie z testami 250 zł, potem IST 500 zł miesięcznie.';
+
 // ======================================
 //  LEJEK A 08.08.2026 — AUTO-ODSŁONIĘCIE SEKCJI PDF (znalezisko A1 z rundy 1)
 // ======================================
@@ -5729,6 +5749,17 @@ function _pokazNastepnyKrok() {
     const z = document.getElementById('next-step-sentence');
     if (h) h.textContent = opis.naglowek;
     if (z) z.textContent = opis.zdanie;
+    // LEJEK 09.11.2026 — „Zrób to sam” tylko, gdy dla obszaru jest gotowy plan.
+    const plan6 = opis.segId ? GC_PLANY_6TYG[opis.segId] : null;
+    _diagState.plan6 = plan6 || null;
+    const btnPlan = document.getElementById('next-step-btn-plan');
+    if (btnPlan) btnPlan.style.display = plan6 ? 'block' : 'none';
+    const tytulPlanu = document.getElementById('next-step-plan-tytul');
+    if (tytulPlanu && plan6) tytulPlanu.textContent = 'Zrób to sam: Plan 6 tygodni — ' + plan6.nazwa + ' · ' + GC_CENA_PLANU_6TYG + ' →';
+    const cenaIst = document.getElementById('next-step-ist-cena');
+    if (cenaIst) cenaIst.textContent = GC_CENY_IST;
+    const btnRodzic = document.getElementById('next-step-btn-rodzic');
+    if (btnRodzic) btnRodzic.style.display = (ctx && ctx.age !== null && ctx.age !== undefined && ctx.age < 18) ? 'block' : 'none';
     wrap.style.display = 'block';
   } catch (e) {
     console.warn('NASTĘPNY KROK: nie udało się pokazać bloku', e);
@@ -5747,10 +5778,17 @@ function wybierzKrokIST(rodzaj) {
       return;
     }
     _diagState.krokIST = rodzaj;
+    const plan6 = _diagState.plan6 || null;
+    // Gotowy plan z linkiem do płatności: od razu do płatności, bez formularza.
+    if (rodzaj === 'plan' && plan6 && plan6.url) {
+      saveToSupabase('diagnostics', buildDiagnosticsRecord({ event: 'plan6_checkout_clicked', product: 'Plan 6 tygodni: ' + plan6.nazwa }));
+      if (typeof window !== 'undefined' && window.open) window.open(plan6.url, '_blank');
+      return;
+    }
     const tytul = document.getElementById('next-step-form-title');
     if (tytul) tytul.textContent = rodzaj === 'spotkanie'
-      ? 'Spotkanie diagnostyczne — gdzie mam się odezwać?'
-      : 'Plan treningowy — gdzie mam się odezwać?';
+      ? 'Indywidualny System Treningowy — gdzie mam się odezwać, żeby ustalić spotkanie?'
+      : 'Plan 6 tygodni' + (plan6 ? ': ' + plan6.nazwa : '') + ' — gdzie wysłać plan i link do płatności?';
     const email = document.getElementById('next-step-email');
     if (email && playerEmail && !email.value) email.value = playerEmail;
     if (wybor) wybor.style.display = 'none';
@@ -5779,17 +5817,19 @@ function wyslijProsbeIST() {
     const telefon = telEl ? telEl.value.trim().slice(0, 40) : '';
     const opis = _diagState.nastepnyKrok || opiszWaskieGardlo(cachedScores, ctx.pos);
 
+    const plan6 = _diagState.plan6 || null;
+    const nazwaPlanu = 'Plan 6 tygodni' + (plan6 ? ': ' + plan6.nazwa : '');
     saveToSupabase('diagnostics', buildDiagnosticsRecord({
-      event: rodzaj === 'plan' ? 'ist_plan_requested' : 'ist_meeting_requested',
+      event: rodzaj === 'plan' ? 'plan6_requested' : 'ist_meeting_requested',
       email,
     }));
     sendEmailNotification(rodzaj === 'plan'
-      ? 'IST — prośba o plan treningowy'
-      : 'IST — prośba o spotkanie diagnostyczne', {
+      ? 'Plan 6 tygodni — prośba o plan i link do płatności'
+      : 'IST — prośba o spotkanie z testami', {
       email,
       name: playerName || '—',
       contact: telefon || '—',
-      product: rodzaj === 'plan' ? 'Plan IST' : 'Spotkanie diagnostyczne',
+      product: rodzaj === 'plan' ? nazwaPlanu + ' (' + GC_CENA_PLANU_6TYG + ')' : 'IST — spotkanie z testami (pierwszy krok)',
       note: opis.naglowek + ' — ' + opis.zdanie +
         (window._parentEmail ? ' | E-mail rodzica: ' + window._parentEmail : '') +
         ' | Odpowiedz w ciągu ' + GC_IST_CZAS_ODPOWIEDZI + ' (obietnica z ekranu).',
@@ -5800,13 +5840,42 @@ function wyslijProsbeIST() {
     const doneText = document.getElementById('next-step-done-text');
     if (form) form.style.display = 'none';
     if (doneText) {
-      doneText.innerHTML = 'Odezwę się na <strong style="color:#f5f2ec;font-weight:500;">' +
-        _escapeHtmlLite(email) + '</strong> w ciągu ' + GC_IST_CZAS_ODPOWIEDZI +
-        ' — ustalimy termin i szczegóły. Jeśli masz mniej niż 18 lat, rozmawiam też z Twoim rodzicem.';
+      doneText.innerHTML = (rodzaj === 'plan'
+        ? 'Wyślę plan i link do płatności na <strong style="color:#f5f2ec;font-weight:500;">' +
+          _escapeHtmlLite(email) + '</strong> w ciągu ' + GC_IST_CZAS_ODPOWIEDZI + '.'
+        : 'Odezwę się na <strong style="color:#f5f2ec;font-weight:500;">' +
+          _escapeHtmlLite(email) + '</strong> w ciągu ' + GC_IST_CZAS_ODPOWIEDZI +
+          ' — ustalimy termin spotkania i szczegóły.') +
+        ' Jeśli masz mniej niż 18 lat, rozmawiam też z Twoim rodzicem.';
     }
     if (done) done.style.display = 'block';
   } catch (e) {
     console.warn('NASTĘPNY KROK: wyslijProsbeIST', e);
+  }
+}
+
+/**
+ * LEJEK 09.11.2026 — „Pokaż wynik rodzicowi”. Zawodnik sam wysyła rodzicowi link do
+ * wyniku (WhatsApp / SMS / systemowe udostępnianie). Nic nie trafia do bazy poza
+ * zdarzeniem kliknięcia; adresu rodzica nie zbieramy.
+ */
+function pokazRodzicowi() {
+  try {
+    const opis = _diagState.nastepnyKrok || opiszWaskieGardlo(cachedScores, ctx.pos);
+    const link = (typeof window !== 'undefined' && window.location) ? window.location.href : '';
+    const tekst = 'Zrobiłem diagnozę Gamechange. ' + (opis.zdanieRodzic || opis.zdanie) +
+      ' Zobacz wynik i co dalej: ' + link;
+    saveToSupabase('diagnostics', buildDiagnosticsRecord({ event: 'parent_share_clicked' }));
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      navigator.share({ title: 'Wynik diagnozy Gamechange', text: tekst }).catch(() => {});
+      return tekst;
+    }
+    if (typeof window !== 'undefined' && window.open) {
+      window.open('https://wa.me/?text=' + encodeURIComponent(tekst), '_blank');
+    }
+    return tekst;
+  } catch (e) {
+    console.warn('NASTĘPNY KROK: pokazRodzicowi', e);
   }
 }
 
@@ -5833,10 +5902,10 @@ function zbudujMailDoRodzica(opis, imie) {
     '',
     'To wynik ankiety — pokazuje, gdzie szukać, ale nie zastępuje sprawdzenia na żywo.',
     'Mogę zaproponować jeden z dwóch kroków:',
-    '— spotkanie diagnostyczne: sprawdzam to testami ruchowymi i mówię, od czego zacząć,',
-    '— plan treningowy na miesiąc, rozpisany pod to wąskie gardło, z ćwiczeniami na wideo i kontrolą postępów.',
+    '— gotowy plan 6 tygodni pod to wąskie gardło (do samodzielnej pracy),',
+    '— Indywidualny System Treningowy: spotkanie z testami, a potem plan ułożony w cały tydzień zawodnika (szkoła, treningi drużyny, mecze).',
     '',
-    'Wystarczy odpisać na tego maila jednym słowem: „spotkanie" albo „plan".',
+    'Wystarczy odpisać na tego maila jednym słowem: „plan" albo „spotkanie".',
     link ? '' : null,
     link ? 'Wyniki diagnozy: ' + link : null,
     '',
