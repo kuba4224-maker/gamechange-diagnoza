@@ -122,7 +122,8 @@ probuj('_pokazNastepnyKrok', () => {
 
 scenario('4. prośba o spotkanie / plan');
 probuj('wyslijProsbeIST', () => {
-  const { c, el, zapisy, powiadomienia } = kontekst({ cachedScores: DEFICYT, playerEmail: 'jan@x.pl', playerName: 'Jan' });
+  const BEZ_LINKU = "const GC_PLANY_6TYG = { moc: { nazwa: 'Moc', url: null } };"; // plan bez linku płatności → formularz prośby
+  const { c, el, zapisy, powiadomienia } = kontekst({ cachedScores: DEFICYT, playerEmail: 'jan@x.pl', playerName: 'Jan', __plany: BEZ_LINKU });
   c._pokazNastepnyKrok();
   c.wybierzKrokIST('plan');
   assert(el['next-step-form'].style.display === 'block' && el['next-step-choice'].style.display === 'none', 'wybór otwiera formularz');
@@ -142,7 +143,7 @@ probuj('wyslijProsbeIST', () => {
   k2.el['next-step-email'].value = 'a@b.pl';
   k2.c.wyslijProsbeIST();
   assert(k2.zapisy[0].r.event === 'ist_meeting_requested', 'spotkanie: zdarzenie `ist_meeting_requested`');
-  const k3 = kontekst({ cachedScores: DEFICYT });
+  const k3 = kontekst({ cachedScores: DEFICYT, __plany: BEZ_LINKU });
   k3.el['next-step-email'].value = '<img>@b.pl';
   k3.c.wybierzKrokIST('plan'); k3.el['next-step-email'].value = 'x"<b>@b.pl'; k3.c.wyslijProsbeIST();
   assert(!/<b>/.test(k3.el['next-step-done-text'].innerHTML), 'adres w potwierdzeniu jest escapowany');
@@ -202,6 +203,19 @@ probuj('plan z linkiem płatności idzie od razu do płatności', () => {
   assert(otwarte[0] === 'https://buy.stripe.com/test', 'otwiera link płatności');
   assert(k.el['next-step-form'].style.display !== 'block', 'nie otwiera formularza');
   assert(k.zapisy[0].r.event === 'plan6_checkout_clicked', 'zdarzenie `plan6_checkout_clicked`');
+});
+probuj('link płatności niesie e-mail z diagnozy i kod źródła', () => {
+  const otwarte = [];
+  const k = kontekst({ cachedScores: DEFICYT, playerEmail: 'a+b@x.pl', affiliateCode: 'YT_F3',
+    __plany: "const GC_PLANY_6TYG = { moc: { nazwa: 'Moc', url: 'https://buy.stripe.com/test' } };",
+    window: { open: (u) => otwarte.push(u), location: { href: 'https://x/#r=abc' } } });
+  k.c._pokazNastepnyKrok(); k.c.wybierzKrokIST('plan');
+  assert(otwarte[0] === 'https://buy.stripe.com/test?prefilled_email=a%2Bb%40x.pl&client_reference_id=YT_F3', 'prefilled_email zakodowany, client_reference_id = kod źródła');
+});
+probuj('produkcyjne linki Stripe dla wszystkich 13 obszarów', () => {
+  const blok = wytnijConst('GC_PLANY_6TYG');
+  const urls = blok.match(/url: '([^']+)'/g) || [];
+  assert(urls.length === 13 && urls.every(u => /https:\/\/buy\.stripe\.com\/\w+'/.test(u)), '13 linków buy.stripe.com, żadnego null');
 });
 probuj('pokaż rodzicowi', () => {
   const otwarte = [];
