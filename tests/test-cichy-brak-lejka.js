@@ -280,9 +280,12 @@ const ODCZYTY = SIECIOWE.filter(w => w.rodzaj === 'gcRpc'
    wycięcia dispatchów `?team=` i `?parent=` nie miały jak zostać wywołane.
    ⭐ Zapadka zostaje na RÓWNOŚĆ i pilnuje tego, po co powstała: kto DOŁOŻY
    ścieżkę sieciową w lejku zawodnika, zobaczy czerwień i będzie musiał ją nazwać. */
-assertEq(SIECIOWE.length, 20, 'zapadka na RÓWNOŚĆ (O73): wywołań sieciowych poza pośrednikiem');
+/* ⚠️ PRZESTAWIONE 09.11.2026 (lejek, Helicopter View): 20→21, zapisy 10→11. Nowa, NAZWANA ścieżka
+   zapisu: `_zapiszDoListy` → POST /api/mailerlite (zapis do listy mailowej po zaznaczonej zgodzie,
+   za flagą GC_ZGODA_MARKETING_ENABLED, fire-and-forget: błąd nie zmienia ekranu). Odczytów bez zmian. */
+assertEq(SIECIOWE.length, 21, 'zapadka na RÓWNOŚĆ (O73): wywołań sieciowych poza pośrednikiem');
 assertEq(ODCZYTY.length, 10, 'zapadka na RÓWNOŚĆ (O73): ŚCIEŻEK ODCZYTU w lejku');
-assertEq(SIECIOWE.length - ODCZYTY.length, 10, 'zapadka na RÓWNOŚĆ (O73): ścieżek zapisu');
+assertEq(SIECIOWE.length - ODCZYTY.length, 11, 'zapadka na RÓWNOŚĆ (O73): ścieżek zapisu');
 
 /* ══════════════════════════════════════════════════════════════════════════
    2. KANON TRZECH WARTOŚCI — URUCHOMIONY, nie przeczytany

@@ -243,6 +243,13 @@ probuj('link dla rodzica ma ?dla=rodzic i kod źródła', () => {
   const tekst = k.c.pokazRodzicowi();
   assert(tekst.indexOf('https://diagnoza.gamechange.pl/?dla=rodzic&ref=YT_F3#r=abc') !== -1, 'link: adres + ?dla=rodzic + &ref + wynik');
 });
+probuj('zgoda na wiadomości: wyłączona flagą, tylko 16+', () => {
+  const blok = HTML.slice(HTML.indexOf('id="email-consent-wrap"'), HTML.indexOf('id="email-consent-wrap"') + 400);
+  assert(/display:none/.test(blok), 'pole zgody domyślnie schowane');
+  assert(!/id="email-consent"[^>]*checked/.test(HTML), '⛔ zgoda domyślnie NIEzaznaczona');
+  assert(/const GC_ZGODA_MARKETING_ENABLED = false;/.test(HTML), 'flaga wyłączona do czasu SQL i klucza');
+  assert(/\{ marketing_consent: zgoda \}/.test(HTML) && /zgoda === null \? \{\}/.test(HTML), 'kolumna marketing_consent nie trafia do bazy, gdy pole nieaktywne');
+});
 probuj('pokaż rodzicowi', () => {
   const otwarte = [];
   const k = kontekst({ cachedScores: DEFICYT, window: { open: (u) => otwarte.push(u), location: { href: 'https://gamechange-diagnoza.vercel.app/#r=abc' } } });
