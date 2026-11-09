@@ -1125,6 +1125,10 @@ body {
           Odblokuj diagnozę →
         </button>
         <div id="email-error" style="color:#C0392B;font-size:13px;display:none;margin-bottom:8px;">Podaj poprawny adres email.</div>
+        <label id="email-consent-wrap" style="display:none;align-items:flex-start;gap:10px;margin:4px 0 10px;cursor:pointer;">
+          <input id="email-consent" type="checkbox" style="margin-top:3px;flex-shrink:0;">
+          <span style="font-size:12px;color:#3a3830;font-weight:300;line-height:1.6;">Chcę dostawać od Kuby Seweryna wskazówki do mojego wąskiego gardła i informacje o jego usługach (mogę zrezygnować w każdej chwili).</span>
+        </label>
         <p style="font-size:11px;color:#9a9488;font-weight:300;">Bez spamu. Tylko Twoja diagnoza i materiały które mogą Ci pomóc.</p>
       </div>
     </div>
@@ -4465,6 +4469,11 @@ const GC_PLANY_6TYG = {
   decyzja:      { nazwa: 'Percepcja i szybkość decyzji', url: 'https://buy.stripe.com/00w3cvgCOax81Mwdk1dby0r' },
 };
 const GC_CENA_PLANU_6TYG = '49 zł';
+// LEJEK 09.11.2026 — zgoda na wiadomości + zapis do MailerLite. WYŁĄCZONE, dopóki Kuba nie uruchomi
+// `sql-lejek-v2.sql` (kolumna diagnostics.marketing_consent) i nie doda na Vercelu MAILERLITE_API_KEY
+// i MAILERLITE_GROUP_DIAGNOZA. Pole zgody pokazuje się tylko od 16 lat (poniżej: zgoda rodzica, poza tym pasem).
+const GC_ZGODA_MARKETING_ENABLED = false;
+const GC_ZGODA_MIN_WIEK = 16;
 const GC_CENY_IST = 'Spotkanie z testami 250 zł, potem IST 500 zł miesięcznie.';
 
 // ======================================
@@ -4870,6 +4879,32 @@ async function scheduleParentObservationRequest(parentEmail, scores, posIdx, pla
 }
 
 
+// LEJEK 09.11.2026 — null = pole zgody nieaktywne (flaga wyłączona albo wiek poniżej progu).
+function _czyPokazacZgode() {
+  return GC_ZGODA_MARKETING_ENABLED === true &&
+    !!ctx && ctx.age !== null && ctx.age !== undefined && ctx.age >= GC_ZGODA_MIN_WIEK;
+}
+function _zgodaMarketingowa() {
+  if (!_czyPokazacZgode()) return null;
+  const el = document.getElementById('email-consent');
+  return !!(el && el.checked);
+}
+function _pokazPoleZgody() {
+  const wrap = document.getElementById('email-consent-wrap');
+  if (wrap) wrap.style.display = _czyPokazacZgode() ? 'flex' : 'none';
+}
+// Zapis do MailerLite przez /api/mailerlite (klucz tylko na serwerze). Fire-and-forget: błąd nie blokuje ekranu.
+function _zapiszDoListy(email) {
+  try {
+    const opis = opiszWaskieGardlo(cachedScores, ctx.pos);
+    fetch('/api/mailerlite', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, obszar: opis.segId || 'ogolna', ref: affiliateCode || '' }),
+    }).catch(() => {});
+  } catch (e) { console.warn('LISTA: zapis do MailerLite', e); }
+}
+
 function submitEmail() {
   const email = document.getElementById('email-input').value.trim();
   const err = document.getElementById('email-error');
@@ -4881,7 +4916,10 @@ function submitEmail() {
   playerEmail = email;
 
   // Zapisz email do Supabase
-  saveToSupabase('diagnostics', buildDiagnosticsRecord({ event: 'email_submitted', email }));
+  const zgoda = _zgodaMarketingowa();
+  saveToSupabase('diagnostics', buildDiagnosticsRecord(Object.assign({ event: 'email_submitted', email },
+    zgoda === null ? {} : { marketing_consent: zgoda })));
+  if (zgoda === true) _zapiszDoListy(email);
   // Powiadomienie email
   sendEmailNotification('Nowy email z ankiety', { email });
 
@@ -6263,6 +6301,7 @@ function calcScores() {
 
 
 function renderResults(scores) {
+  try { if (typeof _pokazPoleZgody === 'function') _pokazPoleZgody(); } catch (e) {}
   // Rozpoznanie scenariusza + karta pozycyjna (do grupowania bez liczb)
   const positionId = POSITION_MAP_TEMP[ctx.pos] || null;
   const positionProfile = getPositionProfile(ctx.pos);
