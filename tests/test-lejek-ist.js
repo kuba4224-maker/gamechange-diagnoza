@@ -68,9 +68,10 @@ function kontekst(extra) {
   vm.createContext(c);
   const kod = [
     wytnijConst('GC_IST_CZAS_ODPOWIEDZI'), 'const GC_NASTEPNY_KROK_ENABLED = true;',
+    (extra && extra.__plany) || wytnijConst('GC_PLANY_6TYG'), wytnijConst('GC_CENA_PLANU_6TYG'), wytnijConst('GC_CENY_IST'),
     wytnijConst('GC_WASKIE_GARDLO_JEZYK'), wytnij('getRelativeDeficits'), wytnij('opiszWaskieGardlo'),
     wytnij('_pokazNastepnyKrok'), wytnij('wybierzKrokIST'), wytnij('wyslijProsbeIST'),
-    wytnij('_escapeHtmlLite'), wytnij('zbudujMailDoRodzica'), wytnij('_powiadomOMailuDoRodzica'),
+    wytnij('_escapeHtmlLite'), wytnij('zbudujMailDoRodzica'), wytnij('_powiadomOMailuDoRodzica'), wytnij('pokazRodzicowi'),
   ].join('\n');
   vm.runInContext(kod, c);
   return { c, el: d.el, zapisy, powiadomienia };
@@ -86,8 +87,10 @@ scenario('1. ekran końcowy NIE zaprasza do aplikacji');
   assert(start !== -1, 'blok „Następny krok" istnieje w HTML');
   assert(!/aplikacj/i.test(blok), '⛔ w bloku nie ma słowa „aplikacja"');
   assert(!/app-bridge|requestAppAccess|_showAppBridge|GC_APP_ACCESS_URL/.test(HTML), '⛔ stary most do aplikacji zniknął z pliku (HTML i JS)');
-  assert(/Spotkanie diagnostyczne/.test(blok) && /Plan treningowy/.test(blok), 'dwie propozycje: spotkanie i plan');
-  assert(!/\d+\s*zł/.test(blok), '⛔ bez ceny na ekranie (cennik należy do Helicopter View)');
+  assert(/Zrób to sam/.test(blok) && /Zrób to ze mną/.test(blok) && /Indywidualny System Treningowy/.test(blok), 'dwie propozycje (09.11): „Zrób to sam” (Plan 6 tygodni) i „Zrób to ze mną” (IST)');
+  assert(/Pokaż wynik rodzicowi/.test(blok), 'jest przycisk „Pokaż wynik rodzicowi”');
+  assert(/szkoła, treningi drużyny, mecze/.test(blok), 'IST opisany jako plan ułożony w cały tydzień zawodnika');
+  assert(!/\d+\s*zł/.test(blok), '⛔ w HTML bloku nie ma ceny wpisanej na sztywno — ceny tylko ze stałych GC_CENA_PLANU_6TYG / GC_CENY_IST');
   assert(!/dostanie osobny raport/.test(HTML), '⛔ pole e-maila rodzica nie obiecuje raportu, którego nikt nie wysyła');
 }
 
@@ -126,7 +129,7 @@ probuj('wyslijProsbeIST', () => {
   assert(el['next-step-email'].value === 'jan@x.pl', 'znany e-mail jest wpisany z góry');
   el['next-step-phone'].value = '600100200';
   c.wyslijProsbeIST();
-  assert(zapisy.length === 1 && zapisy[0].r.event === 'ist_plan_requested', 'zapis zdarzenia `ist_plan_requested`');
+  assert(zapisy.length === 1 && zapisy[0].r.event === 'plan6_requested', 'zapis zdarzenia `plan6_requested` (plan bez linku płatności → prośba)');
   assert(!JSON.stringify(zapisy).includes('600100200'), '⛔ telefon NIE trafia do bazy');
   assert(powiadomienia.length === 1 && /plan/i.test(powiadomienia[0].typ) && powiadomienia[0].x.contact === '600100200', 'Kuba dostaje powiadomienie z telefonem');
   assert(el['next-step-done'].style.display === 'block' && /48 godzin/.test(el['next-step-done-text'].innerHTML), 'potwierdzenie z obietnicą czasu odpowiedzi');
@@ -170,9 +173,47 @@ scenario('6. restart zeruje blok');
   assert(/next-step-wrap/.test(r) && /gcShown\s*=\s*''/.test(r), 'restart chowa blok i zeruje `dataset.gcShown`');
 }
 
+scenario('7. LEJEK 09.11 — „Zrób to sam / ze mną / pokaż rodzicowi”');
+probuj('przycisk planu zależy od obszaru', () => {
+  const k = kontekst({ cachedScores: DEFICYT });           // najsłabsza moc → jest plan
+  k.c._pokazNastepnyKrok();
+  assert(k.el['next-step-btn-plan'].style.display === 'block', 'moc: „Zrób to sam” widoczny');
+  assert(/Moc/.test(k.el['next-step-plan-tytul'].textContent) && /49 zł/.test(k.el['next-step-plan-tytul'].textContent), 'tytuł planu z nazwą obszaru i ceną ze stałej');
+  assert(/250 zł/.test(k.el['next-step-ist-cena'].textContent) && /500 zł/.test(k.el['next-step-ist-cena'].textContent), 'ceny IST ze stałej');
+  const r = kontekst({ cachedScores: { moc: 70, regeneracja: 30, percepcja: 72, decyzja: 71, wytrzymalosc: 70, fizycznosc: 69 } });
+  r.c._pokazNastepnyKrok();
+  assert(r.el['next-step-btn-plan'].style.display === 'none', 'regeneracja: brak gotowego planu → „Zrób to sam” schowany');
+});
+probuj('przycisk rodzica tylko poniżej 18 lat', () => {
+  const a = kontekst({ cachedScores: DEFICYT, ctx: { pos: null, age: 15 } }); a.c._pokazNastepnyKrok();
+  assert(a.el['next-step-btn-rodzic'].style.display === 'block', '15 lat: „Pokaż wynik rodzicowi” widoczny');
+  const b = kontekst({ cachedScores: DEFICYT, ctx: { pos: null, age: 22 } }); b.c._pokazNastepnyKrok();
+  assert(b.el['next-step-btn-rodzic'].style.display === 'none', '22 lata: przycisk rodzica schowany');
+});
+probuj('plan z linkiem płatności idzie od razu do płatności', () => {
+  const otwarte = [];
+  const k = kontekst({ cachedScores: DEFICYT, __plany: "const GC_PLANY_6TYG = { moc: { nazwa: 'Moc', url: 'https://buy.stripe.com/test' } };",
+    window: { open: (u) => otwarte.push(u), location: { href: 'https://x/#r=abc' } } });
+  k.c._pokazNastepnyKrok(); k.c.wybierzKrokIST('plan');
+  assert(otwarte[0] === 'https://buy.stripe.com/test', 'otwiera link płatności');
+  assert(k.el['next-step-form'].style.display !== 'block', 'nie otwiera formularza');
+  assert(k.zapisy[0].r.event === 'plan6_checkout_clicked', 'zdarzenie `plan6_checkout_clicked`');
+});
+probuj('pokaż rodzicowi', () => {
+  const otwarte = [];
+  const k = kontekst({ cachedScores: DEFICYT, window: { open: (u) => otwarte.push(u), location: { href: 'https://gamechange-diagnoza.vercel.app/#r=abc' } } });
+  k.c._pokazNastepnyKrok();
+  const t = k.c.pokazRodzicowi();
+  assert(/#r=abc/.test(t) && /Gamechange/.test(t), 'wiadomość niesie link do wyniku');
+  assert(otwarte.length === 1 && /^https:\/\/wa\.me\/\?text=/.test(otwarte[0]), 'bez systemowego udostępniania: WhatsApp z gotowym tekstem');
+  assert(k.zapisy.length === 1 && k.zapisy[0].r.event === 'parent_share_clicked' && !k.zapisy[0].r.email, 'zapis tylko zdarzenia, bez adresu');
+});
+
+
 console.log('\n════════════════════════════════════════');
 console.log('  ok:   ' + ok);
 console.log('  FAIL: ' + fail);
 if (fail) { console.log('\nCZERWONE:'); bledy.forEach(b => console.log('  · ' + b)); }
+
 console.log('════════════════════════════════════════');
 process.exit(fail ? 1 : 0);
