@@ -4444,19 +4444,19 @@ const GC_NASTEPNY_KROK_ENABLED = true;
 // przycisk otwiera formularz, a Kuba odsyła plan i link do płatności ręcznie.
 // Obszaru, którego nie ma w tej mapie, przycisk „Zrób to sam” nie pokazuje.
 const GC_PLANY_6TYG = {
-  wytrzymalosc: { nazwa: 'Wytrzymałość', url: null },
-  moc:          { nazwa: 'Moc', url: null },
-  fizycznosc:   { nazwa: 'Fizyczność', url: null },
-  techFund:     { nazwa: 'Technika', url: null },
-  techSpec:     { nazwa: 'Technika', url: null },
-  tolerancja:   { nazwa: 'Tolerancja obciążeń', url: null },
-  regeneracja:  { nazwa: 'Regeneracja', url: null },
-  odpornosc:    { nazwa: 'Odporność', url: null },
-  odzywianie:   { nazwa: 'Odżywienie', url: null },
-  koncentracja: { nazwa: 'Koncentracja', url: null },
-  mental:       { nazwa: 'Odwaga w grze', url: null },
-  percepcja:    { nazwa: 'Percepcja i szybkość decyzji', url: null },
-  decyzja:      { nazwa: 'Percepcja i szybkość decyzji', url: null },
+  wytrzymalosc: { nazwa: 'Wytrzymałość', url: 'https://buy.stripe.com/4gMdR91HU6gS0Isdk1dby0h' },
+  moc:          { nazwa: 'Moc', url: 'https://buy.stripe.com/9B6bJ10DQfRs4YIeo5dby0k' },
+  fizycznosc:   { nazwa: 'Fizyczność', url: 'https://buy.stripe.com/4gMfZhcmydJkdve7ZHdby0j' },
+  techFund:     { nazwa: 'Technika', url: 'https://buy.stripe.com/5kQcN54U68p0ezi0xfdby0i' },
+  techSpec:     { nazwa: 'Technika', url: 'https://buy.stripe.com/5kQcN54U68p0ezi0xfdby0i' },
+  tolerancja:   { nazwa: 'Tolerancja obciążeń', url: 'https://buy.stripe.com/fZueVdaeq48Kbn6fs9dby0l' },
+  regeneracja:  { nazwa: 'Regeneracja', url: 'https://buy.stripe.com/cNi3cv9ameNo8aUfs9dby0m' },
+  odpornosc:    { nazwa: 'Odporność', url: 'https://buy.stripe.com/aFa3cv0DQax81Mw0xfdby0n' },
+  odzywianie:   { nazwa: 'Odżywienie', url: 'https://buy.stripe.com/14A00jgCO34G1Mwa7Pdby0o' },
+  koncentracja: { nazwa: 'Koncentracja', url: 'https://buy.stripe.com/7sY4gzgCOcFgcrabbTdby0p' },
+  mental:       { nazwa: 'Odwaga w grze', url: 'https://buy.stripe.com/4gM4gzdqC7kWcra2Fndby0q' },
+  percepcja:    { nazwa: 'Percepcja i szybkość decyzji', url: 'https://buy.stripe.com/00w3cvgCOax81Mwdk1dby0r' },
+  decyzja:      { nazwa: 'Percepcja i szybkość decyzji', url: 'https://buy.stripe.com/00w3cvgCOax81Mwdk1dby0r' },
 };
 const GC_CENA_PLANU_6TYG = '49 zł';
 const GC_CENY_IST = 'Spotkanie z testami 250 zł, potem IST 500 zł miesięcznie.';
@@ -5790,7 +5790,14 @@ function wybierzKrokIST(rodzaj) {
     // Gotowy plan z linkiem do płatności: od razu do płatności, bez formularza.
     if (rodzaj === 'plan' && plan6 && plan6.url) {
       saveToSupabase('diagnostics', buildDiagnosticsRecord({ event: 'plan6_checkout_clicked', product: 'Plan 6 tygodni: ' + plan6.nazwa }));
-      if (typeof window !== 'undefined' && window.open) window.open(plan6.url, '_blank');
+      // Stripe: e-mail z diagnozy wpisany z góry, kod źródła (`ref`) w client_reference_id.
+      let link = plan6.url;
+      const parametry = [];
+      if (typeof playerEmail === 'string' && playerEmail) parametry.push('prefilled_email=' + encodeURIComponent(playerEmail));
+      const kodZrodla = (typeof affiliateCode === 'string' ? affiliateCode : '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 200);
+      if (kodZrodla) parametry.push('client_reference_id=' + kodZrodla);
+      if (parametry.length) link += (link.indexOf('?') === -1 ? '?' : '&') + parametry.join('&');
+      if (typeof window !== 'undefined' && window.open) window.open(link, '_blank');
       return;
     }
     const tytul = document.getElementById('next-step-form-title');
