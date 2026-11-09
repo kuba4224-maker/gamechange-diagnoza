@@ -490,6 +490,7 @@ probuj('ekran awarii daje się ZBUDOWAĆ', () => { EKRAN = (() => {
   const c = {
     document: { getElementById: (id) => id === 'ai-diagnosis-text' ? el : (id === 'diagnosis-unlocked-note' ? nota : null) },
     _showProductSection: (s, m) => most.push(m),
+    _pokazNastepnyKrok: () => most.push('nastepny-krok'),
     console: { error() {}, warn() {} },
   };
   vm.createContext(c);
@@ -501,7 +502,7 @@ assert(EKRAN.html.indexOf(STALE.ZDANIE_NIEUDANA_DIAGNOZA) !== -1, '⭐ zbudowany
 assert(EKRAN.html.indexOf(STALE.ZDANIE_ODPOWIEDZI_ZOSTAJA) !== -1, '⭐ zbudowany ekran mówi, że odpowiedzi NIE PRZEPADŁY (D1)');
 assert(EKRAN.html.indexOf(STALE.ETYKIETA_SPROBUJ_PONOWNIE) !== -1, '⭐ zbudowany ekran daje RZECZ DO ZROBIENIA (D5)');
 assertEq(EKRAN.nota, 'none', '„✓ Diagnoza odblokowana" znika — po padniętym odczycie to zdanie jest nieprawdziwe');
-assertEq(JSON.stringify(EKRAN.most), '[false]', 'most do aplikacji NIE jest pokazywany — mówiłby „ta diagnoza jest już w środku"');
+assertEq(JSON.stringify(EKRAN.most), '[false,"nastepny-krok"]', 'most do aplikacji NIE jest pokazywany, ale następny krok (spotkanie / plan) TAK — lejek 09.11.2026');
 assert(!/Nad czym powinieneś pracować/.test(EKRAN.html), '⛔ nie ma listy „Nad czym powinieneś pracować" — to była lokalna sklejka');
 assert(!/przysiady|martwy ciąg|8 godzin/.test(EKRAN.html), '⛔ nie ma METOD treningowych, których prompt diagnozy zakazuje modelowi (zasada 5)');
 
