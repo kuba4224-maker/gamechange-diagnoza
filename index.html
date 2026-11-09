@@ -927,7 +927,7 @@ body {
       <!-- Email rodzica — pojawia się automatycznie gdy zawodnik ma < 16 lat -->
       <div id="parent-email-wrap" style="display:none;margin-bottom:32px;padding:20px;background:#fff8f0;border:1px solid #e8c87a;">
         <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:6px;font-weight:500;">Email rodzica lub opiekuna (opcjonalnie)</div>
-        <p style="font-size:12px;color:#9a9488;font-weight:300;margin-bottom:12px;line-height:1.6;">Jeśli podasz email rodzica lub opiekuna, dostanie osobny raport — napisany dla niego, nie dla Ciebie. Zobaczy w czym jesteś dobry i co może zrobić żeby Ci pomóc. Możesz to pominąć.</p>
+        <p style="font-size:12px;color:#9a9488;font-weight:300;margin-bottom:12px;line-height:1.6;">Jeśli podasz email rodzica lub opiekuna, napiszę do niego krótko, co wynika z diagnozy i jaki może być następny krok. Możesz to pominąć.</p>
         <input id="parent-email-input" type="email" placeholder="email@rodzica.pl"
           style="width:100%;padding:12px 16px;border:1px solid #d8d3c8;background:#fff;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;"
           onfocus="this.style.borderColor='#0e0d0b'"
@@ -1270,70 +1270,59 @@ body {
     <!-- Bridge/produkt/karty zawodnika (mostek do produktu, sekcja 97 zł, karta zawodnika,
          karta insightu) usunięte 05.08.2026 — jedynym produktem jest aplikacja. -->
 
-    <!-- MOST DIAGNOZA 07.08.2026 — most z ekranu wyniku do appki mobilnej.
-         To NIE jest przywrócenie sekcji produktowej ani paywalla: diagnoza pozostaje
-         darmowa, tu nie ma ceny, nie ma Stripe'a i nie ma linku do Marketplace
-         (zamrożony 06.08.2026). Jedynym celem jest jedno oczywiste kliknięcie dalej —
-         konto w appce, z wynikiem diagnozy już powiązanym po adresie e-mail.
-         Umieszczone NAD sekcją PDF świadomie: brief wymaga CTA równorzędnego z
-         "Pobierz raport PDF" albo mocniejszego.
-         Odsłanianiem steruje _showAppBridge() — patrz JS. -->
-    <div id="app-bridge-wrap" style="display:none;margin-top:32px;border-top:1px solid #d8d3c8;padding-top:32px;">
+    <!-- LEJEK IST 23.09.2026 — NASTĘPNY KROK: z diagnozy do spotkania albo planu.
+         Zastępuje most do aplikacji z 07.08.2026 (decyzja Kuby 23.09.2026: aplikacja
+         jest dziś zapleczem lejka, nie produktem; diagnoza prowadzi do planów IST).
+         Bez ceny na ekranie — cennik należy do Helicopter View. Treść bloku buduje
+         _pokazNastepnyKrok(), zapis prośby — wyslijProsbeIST(). -->
+    <div id="next-step-wrap" style="display:none;margin-top:32px;border-top:1px solid #d8d3c8;padding-top:32px;">
       <div style="background:#0e0d0b;color:#f5f2ec;padding:32px;">
-        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Następny krok</div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1.15;letter-spacing:0.01em;margin-bottom:14px;">
-          Wiesz już, gdzie jest wąskie gardło.<br>
-          <em style="color:#E8432D;font-style:normal;">Aplikacja pokaże Ci, co z tym robić w tym tygodniu.</em>
-        </div>
-        <p style="font-size:14px;color:#d8d3c8;font-weight:300;line-height:1.8;margin:0 0 18px;">
-          Ta diagnoza jest już zapisana. W aplikacji Gamechange zamienia się w jeden konkretny cel
-          i tygodniowy plan pracy — bez wypełniania czegokolwiek drugi raz.
-        </p>
+        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Twój wynik i następny krok</div>
+        <div id="next-step-headline" style="font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1.15;letter-spacing:0.01em;margin-bottom:12px;"></div>
+        <p id="next-step-sentence" style="font-size:15px;color:#d8d3c8;font-weight:300;line-height:1.8;margin:0 0 22px;"></p>
 
-        <!-- Uczciwe oczekiwanie — zawodnik dowiaduje się o tym TU, a nie dopiero
-             wewnątrz appki (ekran diagnoza.tsx), czyli za późno. Podstawa liczby:
-             cron `cron-onboard-diagnosis` chodzi raz na dobę (vercel.json, 0 4 * * *). -->
-        <div style="border-left:2px solid #9a9488;padding:10px 0 10px 16px;margin-bottom:22px;">
-          <p style="font-size:13px;color:#9a9488;font-weight:300;line-height:1.7;margin:0;">
-            Uczciwie: pierwsza rekomendacja nie pojawia się w tej samej sekundzie. System dopasowuje
-            ją do Twoich wyników i <strong style="color:#d8d3c8;font-weight:500;">może to potrwać do 24 godzin</strong>
-            od założenia konta. Diagnozę i raport PDF masz od razu.
+        <div id="next-step-choice">
+          <p style="font-size:13px;color:#9a9488;font-weight:300;line-height:1.7;margin:0 0 14px;">
+            Ankieta mówi, gdzie szukać. Co z tym zrobić, ustalam z Tobą osobiście — wybierz, od czego chcesz zacząć:
           </p>
-        </div>
-
-        <!-- Wariant A — e-mail znany (normalny przepływ po submitEmail()) -->
-        <div id="app-bridge-action">
-          <p id="app-bridge-email-note" style="font-size:13px;color:#d8d3c8;font-weight:300;line-height:1.7;margin:0 0 16px;"></p>
-          <a id="app-bridge-link" href="#" target="_blank" rel="noopener"
-            style="display:none;background:#E8432D;color:#f5f2ec;text-decoration:none;padding:16px 32px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;align-items:center;gap:10px;">
-            Załóż konto — ten sam e-mail →
-          </a>
-          <button id="app-bridge-btn" onclick="requestAppAccess()"
-            style="background:#E8432D;color:#f5f2ec;border:none;padding:16px 32px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;cursor:pointer;">
-            Chcę dostęp do aplikacji →
-          </button>
-        </div>
-
-        <!-- Wariant B — e-mail nieznany (wejście z zapisanego linku do wyników) -->
-        <div id="app-bridge-email-gate" style="display:none;">
-          <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#d8d3c8;margin-bottom:8px;font-weight:500;">Podaj e-mail, którym chcesz się logować</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <input id="app-bridge-email-input" type="email" placeholder="twoj@email.com"
-              style="flex:1;min-width:200px;padding:14px 16px;border:1px solid #3a3830;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;"
-              onkeydown="if(event.key==='Enter') requestAppAccess()">
-            <button onclick="requestAppAccess()"
-              style="background:#E8432D;color:#f5f2ec;border:none;padding:14px 28px;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:0.1em;cursor:pointer;">
-              Dalej →
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <button id="next-step-btn-spotkanie" onclick="wybierzKrokIST('spotkanie')"
+              style="text-align:left;background:#E8432D;color:#f5f2ec;border:none;padding:16px 20px;cursor:pointer;font-family:'DM Sans',sans-serif;">
+              <span style="display:block;font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:0.08em;">Spotkanie diagnostyczne →</span>
+              <span style="display:block;font-size:13px;font-weight:300;line-height:1.6;margin-top:4px;">Sprawdzam to wąskie gardło na żywo, testami ruchowymi, i mówię, od czego zacząć.</span>
+            </button>
+            <button id="next-step-btn-plan" onclick="wybierzKrokIST('plan')"
+              style="text-align:left;background:transparent;color:#f5f2ec;border:1px solid #9a9488;padding:16px 20px;cursor:pointer;font-family:'DM Sans',sans-serif;">
+              <span style="display:block;font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:0.08em;">Plan treningowy pod to wąskie gardło →</span>
+              <span style="display:block;font-size:13px;font-weight:300;line-height:1.6;margin-top:4px;">Rozpisany dla Ciebie na miesiąc, z ćwiczeniami na wideo i kontrolą postępów.</span>
             </button>
           </div>
-          <div id="app-bridge-email-error" style="display:none;color:#E8432D;font-size:12px;margin-top:8px;">Podaj poprawny adres email.</div>
         </div>
 
-        <!-- Potwierdzenie po kliknięciu -->
-        <div id="app-bridge-done" style="display:none;">
-          <div style="font-size:20px;margin-bottom:6px;">✓</div>
-          <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.02em;margin-bottom:8px;">Zapisane</div>
-          <p id="app-bridge-done-text" style="font-size:13px;color:#d8d3c8;font-weight:300;line-height:1.75;margin:0;"></p>
+        <div id="next-step-form" style="display:none;">
+          <div id="next-step-form-title" style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.04em;margin-bottom:10px;"></div>
+          <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#d8d3c8;margin-bottom:6px;font-weight:500;">E-mail do kontaktu</div>
+          <input id="next-step-email" type="email" placeholder="twoj@email.com"
+            style="width:100%;box-sizing:border-box;padding:14px 16px;border:1px solid #3a3830;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;margin-bottom:12px;">
+          <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#d8d3c8;margin-bottom:6px;font-weight:500;">Telefon — Twój albo rodzica (opcjonalnie)</div>
+          <input id="next-step-phone" type="tel" placeholder="np. 600 100 200"
+            style="width:100%;box-sizing:border-box;padding:14px 16px;border:1px solid #3a3830;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;margin-bottom:14px;">
+          <div id="next-step-error" style="display:none;color:#E8432D;font-size:12px;margin:-6px 0 12px;">Podaj poprawny adres e-mail.</div>
+          <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;">
+            <button onclick="wyslijProsbeIST()"
+              style="background:#E8432D;color:#f5f2ec;border:none;padding:14px 28px;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:0.1em;cursor:pointer;">
+              Wyślij →
+            </button>
+            <button onclick="wybierzKrokIST(null)"
+              style="background:transparent;border:none;font-size:13px;color:#9a9488;cursor:pointer;text-decoration:underline;text-underline-offset:3px;">
+              Wróć
+            </button>
+          </div>
+        </div>
+
+        <div id="next-step-done" style="display:none;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.02em;margin-bottom:8px;">✓ Zapisane</div>
+          <p id="next-step-done-text" style="font-size:13px;color:#d8d3c8;font-weight:300;line-height:1.75;margin:0;"></p>
         </div>
       </div>
     </div>
@@ -3713,7 +3702,7 @@ const INSIGHT_MAX_AGE_DAYS = 90;
  *      i adres e-mail dziecka, odczytywał wszystko, co trener i rodzic o nim
  *      napisali. Adres e-mail nie jest sekretem; to rzecz do ZGADNIĘCIA.
  *   2. ZŁAMANIE Z0 NA WEJŚCIU — `playerEmail` w tym pliku pochodzi WYŁĄCZNIE
- *      z pola formularza (`submitEmail`, `requestAppAccess`,
+ *      z pola formularza (`submitEmail`, `wyslijProsbeIST`,
  *      `downloadPDFWithEmail` — sprawdzone grepem 13.08.2026, trzy miejsca
  *      i ani jednego innego). Nikt w tej sesji nie potwierdził, że ten adres
  *      należy do osoby siedzącej przed ekranem. Obserwacja o niepewnym
@@ -4430,28 +4419,19 @@ const SUPABASE_URL = 'https://kqrbztsvepjtggjmmcdx.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_EoYRIZpDhUSdNSJDXWl4Ew_SG8aJABP';
 
 // ======================================
-//  MOST DIAGNOZA 07.08.2026 — KONFIGURACJA MOSTU DO APPKI
+//  LEJEK IST 23.09.2026 — KONFIGURACJA „NASTĘPNEGO KROKU"
 // ======================================
-// Appka mobilna nie jest dziś w żadnym sklepie — dystrybucja idzie przez linki EAS
-// (.apk dla Androida, ad-hoc dla iPhone'a), a te zmieniają się przy każdym buildzie
-// (patrz claude/KROK_5_3_WYSYLKA_DO_TESTEROW_04_08_2026.md). Nie ma więc stałego URL-a,
-// który dałoby się tu wpisać na sztywno. Stąd dwa tryby, przełączane JEDNĄ stałą:
+// Diagnoza prowadzi do planów IST (spotkanie diagnostyczne albo plan), nie do
+// aplikacji. Aplikacja zostaje zapleczem — ten ekran jej nie reklamuje.
+// Prośba zawodnika idzie do Kuby tym samym kanałem co inne powiadomienia
+// (EmailJS → skrzynka Kuby) i jako zdarzenie w `diagnostics`.
 //
-//   GC_APP_ACCESS_URL === ''   → tryb ZGŁOSZENIA (domyślny, działa dziś):
-//                                przycisk zapisuje zdarzenie do `diagnostics` i wysyła
-//                                powiadomienie mailem do Kuby; zawodnik dostaje jasną
-//                                instrukcję "zaloguj się dokładnie tym samym adresem".
-//   GC_APP_ACCESS_URL === URL  → tryb LINKU: przycisk staje się bezpośrednim linkiem,
-//                                z e-mailem doklejonym jako ?email= (strona docelowa może
-//                                go użyć albo zignorować — nic od niego nie zależy).
-//
-// Gdy pojawi się stały adres (sklep / landing / strona pobrania) — wystarczy wkleić go
-// niżej, nic więcej nie trzeba zmieniać.
-const GC_APP_ACCESS_URL = '';
+// Obietnica czasu odpowiedzi — Kuba musi ją dotrzymać. Zmiana = ta jedna stała.
+const GC_IST_CZAS_ODPOWIEDZI = '48 godzin';
 
-// Awaryjny wyłącznik. `false` = most w ogóle się nie pokazuje, reszta ekranu wyniku
-// (diagnoza, PDF) działa dokładnie tak jak przed 07.08.2026.
-const GC_APP_BRIDGE_ENABLED = true;
+// Awaryjny wyłącznik. `false` = blok się nie pokazuje, reszta ekranu wyniku
+// (diagnoza, PDF) działa bez zmian.
+const GC_NASTEPNY_KROK_ENABLED = true;
 
 // ======================================
 //  LEJEK A 08.08.2026 — AUTO-ODSŁONIĘCIE SEKCJI PDF (znalezisko A1 z rundy 1)
@@ -4913,6 +4893,8 @@ function submitEmail() {
     if (window._parentEmail) {
       scheduleParentObservationRequest(window._parentEmail, cachedScores, ctx.pos, email);
     }
+    // LEJEK IST 23.09.2026 — gotowy mail do rodzica trafia do Kuby (patrz zbudujMailDoRodzica).
+    _powiadomOMailuDoRodzica();
   }
 
   // Junior — generuj od razu. Diagnoza (dotąd display:none) pojawia się teraz
@@ -5146,7 +5128,7 @@ async function _buildDiagData(scores, playerEmail, weryfikacja) {
 async function generateAIDiagnosis(scores, situation = '') {
 
   // PLAN-D-K 08.2026 — WARIANT B. Ta ścieżka to ankieta wypełniana „na świeżo".
-  // Adres pochodzi z pola formularza (`submitEmail` / `requestAppAccess` /
+  // Adres pochodzi z pola formularza (`submitEmail` / `wyslijProsbeIST` /
   // `downloadPDFWithEmail` — trzy miejsca, zmierzone grepem 13.08.2026) i nikt
   // w tej sesji nie potwierdził, że należy do osoby przed ekranem. Dlatego
   // stan weryfikacji jest tu JAWNIE ustawiony na „brak", a nie pominięty:
@@ -5493,7 +5475,7 @@ function renderDiagnosisV2(raw, scores, deficitsData, usedInsights) {
   // nie widział ani PDF-a, ani żadnego kroku dalej. Blok jest w DOM pod pytaniem
   // zakotwiczającym, więc niczego nie zasłania i go nie kanibalizuje.
   // (Sekcja PDF zostaje za starą bramką — decyzja Kuby, 07.08.2026.)
-  _showAppBridge();
+  _pokazNastepnyKrok();
 }
 
 // ======================================
@@ -5645,7 +5627,7 @@ function _showProductSection(scores, wolnoPokazacMost) {
   // PLAN-D-Y1 08.2026 — drugi argument: `false` WYŁĄCZA most. Domyślnie (brak
   // argumentu) zachowanie jest dokładnie takie jak przed tym pasem. Most mówi
   // „ta diagnoza jest już w środku" — po padniętym odczycie nie ma czego tam być.
-  if (wolnoPokazacMost !== false) _showAppBridge();
+  if (wolnoPokazacMost !== false) _pokazNastepnyKrok();
   setTimeout(() => {
     // Sekcja PDF
     const pdfSection = document.getElementById('pdf-section-wrap');
@@ -5662,119 +5644,231 @@ function _showProductSection(scores, wolnoPokazacMost) {
 }
 
 // ======================================
-//  MOST DIAGNOZA 07.08.2026 — MOST DO APPKI MOBILNEJ
+//  LEJEK IST 23.09.2026 — NASTĘPNY KROK
 // ======================================
-// ZASADA (przeniesiona 1:1 z mostu appka → Marketplace, `INTEGRACJA_MOST_SESJI_MARKETPLACE.md`):
-// most ma wyłącznie USUWAĆ tarcie, nigdy nie może go dodać ani zablokować. Dlatego całość
-// jest w try/catch, a żaden błąd tutaj nie może dotknąć diagnozy ani pobrania PDF-a.
-//
-// Odsłania blok NIEZALEŻNIE od pytania zakotwiczającego (decyzja Kuby, 07.08.2026).
-// Powód: `_showProductSection()` odpala się dopiero po kliknięciu "Wyślij"/"Pomiń" pod
-// pytaniem zakotwiczającym — zawodnik, który zignoruje to pytanie, nie widział dotąd
-// NICZEGO po diagnozie. Sekcja PDF zostaje za tą bramką bez zmian; most nie.
-function _showAppBridge() {
+// Zasada przejęta z mostu 07.08.2026: blok ma wyłącznie USUWAĆ tarcie. Całość
+// w try/catch — żaden błąd tutaj nie może dotknąć diagnozy ani pobrania PDF-a.
+// Pokazywany niezależnie od pytania zakotwiczającego i NIE pokazywany po
+// padniętym odczycie diagnozy (drugi argument _showProductSection === false).
+
+/**
+ * Jedno zdanie o wąskim gardle — deterministyczne, z wyników, bez modelu.
+ * Zwraca { naglowek, zdanie, segId }. Te same reguły co tytuł ekranu wyniku
+ * (detectDiagnosisScenario): 1 = względny deficyt, 2 = profil wyrównany
+ * z kartą pozycji, 3 = profil wyrównany bez pozycji.
+ */
+const GC_WASKIE_GARDLO_JEZYK = {
+  moc:          'szybkość startowa i eksplozywność ruchu',
+  wytrzymalosc: 'utrzymanie intensywności przez cały mecz',
+  fizycznosc:   'siła w kontakcie i walka o pozycję',
+  techFund:     'stabilność techniczna pod presją',
+  techSpec:     'tworzenie przewagi zagraniem',
+  tolerancja:   'znoszenie obciążeń treningowych bez przeciążeń',
+  regeneracja:  'regeneracja między treningami i meczami',
+  odpornosc:    'ciągłość treningu w sezonie — bez przerw na choroby i urazy',
+  odzywianie:   'energia w trakcie gry i treningu',
+  koncentracja: 'skupienie i powrót do gry po trudnym momencie',
+  mental:       'odwaga decyzyjna i stabilność pod presją',
+  percepcja:    'czytanie gry przed odbiorem piłki',
+  decyzja:      'szybkość decyzji pod presją czasu',
+};
+
+function opiszWaskieGardlo(scores, ctxPos) {
+  const nazwa = (id) => (SEG_NAMES[id] || id);
+  const jezyk = (id) => (GC_WASKIE_GARDLO_JEZYK[id] || nazwa(id).toLowerCase());
+  if (!scores || !Object.keys(scores).length) {
+    return { naglowek: 'Twój wynik', zdanie: 'Wynik obszar po obszarze masz powyżej.',
+      zdanieRodzic: 'Wynik obszar po obszarze jest pod linkiem niżej.', segId: null };
+  }
+  const deficyty = getRelativeDeficits(scores, 4);
+  if (deficyty.length) {
+    const id = deficyty[0][0];
+    return {
+      naglowek: 'Wąskie gardło: ' + nazwa(id).toLowerCase(),
+      zdanie: 'Z Twoich odpowiedzi najbardziej odstaje ' + jezyk(id) +
+        ' — tu jedna zmiana da na boisku więcej niż praca nad wszystkim naraz.',
+      zdanieRodzic: 'Z odpowiedzi w ankiecie najbardziej odstaje ' + jezyk(id) +
+        ' — tu jedna zmiana da na boisku więcej niż praca nad wszystkim naraz.',
+      segId: id,
+    };
+  }
+  const profil = getPositionProfile(ctxPos);
+  if (profil && profil.tiers) {
+    const kluczowe = Object.entries(profil.tiers)
+      .filter(([id, tier]) => tier === 'key' && scores[id] !== undefined)
+      .sort((a, b) => scores[a[0]] - scores[b[0]]);
+    if (kluczowe.length) {
+      const id = kluczowe[0][0];
+      return {
+        naglowek: 'Profil wyrównany',
+        zdanie: 'Nic wyraźnie nie odstaje. Dla Twojej pozycji największą różnicę zrobi ' + jezyk(id) + '.',
+        zdanieRodzic: 'Nic wyraźnie nie odstaje. Dla pozycji, na której gra, największą różnicę zrobi ' + jezyk(id) + '.',
+        segId: id,
+      };
+    }
+  }
+  return {
+    naglowek: 'Profil wyrównany',
+    zdanie: 'Nic wyraźnie nie odstaje — kierunek najlepiej ustalić na żywo, testami ruchowymi.',
+    zdanieRodzic: 'Nic wyraźnie nie odstaje — kierunek najlepiej ustalić na żywo, testami ruchowymi.',
+    segId: null,
+  };
+}
+
+function _pokazNastepnyKrok() {
   try {
-    if (!GC_APP_BRIDGE_ENABLED) return;
-    const wrap = document.getElementById('app-bridge-wrap');
+    if (!GC_NASTEPNY_KROK_ENABLED) return;
+    const wrap = document.getElementById('next-step-wrap');
     if (!wrap) return;
-    // Idempotencja — wywołań jest kilka (renderDiagnosisV2, _showProductSection,
-    // renderFallback przez _showProductSection); po pierwszym nic już nie przestawiamy,
-    // żeby nie cofnąć stanu "Zapisane".
+    // Idempotencja — wywołań jest kilka; po pierwszym nie cofamy stanu „Zapisane".
     if (wrap.dataset.gcShown === '1') return;
     wrap.dataset.gcShown = '1';
+    const opis = opiszWaskieGardlo(cachedScores, ctx.pos);
+    _diagState.nastepnyKrok = opis;
+    const h = document.getElementById('next-step-headline');
+    const z = document.getElementById('next-step-sentence');
+    if (h) h.textContent = opis.naglowek;
+    if (z) z.textContent = opis.zdanie;
     wrap.style.display = 'block';
-
-    const hasEmail = !!playerEmail;
-    const note   = document.getElementById('app-bridge-email-note');
-    const action = document.getElementById('app-bridge-action');
-    const gate   = document.getElementById('app-bridge-email-gate');
-    const link   = document.getElementById('app-bridge-link');
-    const btn    = document.getElementById('app-bridge-btn');
-
-    if (!hasEmail) {
-      // Wejście z zapisanego linku do wyników — e-maila nie znamy, więc pytamy o niego
-      // tutaj. Bez tego przycisk nie miałby czego powiązać z diagnozą.
-      if (action) action.style.display = 'none';
-      if (gate) gate.style.display = 'block';
-      return;
-    }
-
-    if (note) {
-      note.innerHTML = `Loguj się w aplikacji <strong style="color:#f5f2ec;font-weight:500;">dokładnie tym samym adresem: ${_escapeHtmlLite(playerEmail)}</strong> — wtedy ta diagnoza jest już w środku i nie pytamy Cię o nic drugi raz.`;
-    }
-
-    if (GC_APP_ACCESS_URL) {
-      // Tryb LINKU — przycisk prowadzi wprost na stronę pobrania/rejestracji.
-      if (link) {
-        link.href = GC_APP_ACCESS_URL + (GC_APP_ACCESS_URL.indexOf('?') === -1 ? '?' : '&')
-          + 'email=' + encodeURIComponent(playerEmail);
-        link.style.display = 'inline-flex';
-      }
-      if (btn) btn.style.display = 'none';
-    } else {
-      // Tryb ZGŁOSZENIA — domyślny, patrz komentarz przy GC_APP_ACCESS_URL.
-      if (link) link.style.display = 'none';
-      if (btn) btn.style.display = 'inline-block';
-    }
   } catch (e) {
-    // Cichy fallback — awaria mostu nie może zabrać zawodnikowi wyniku ani PDF-a.
-    console.warn('MOST DIAGNOZA: nie udało się pokazać mostu do appki', e);
+    console.warn('NASTĘPNY KROK: nie udało się pokazać bloku', e);
   }
 }
 
-// MOST DIAGNOZA 07.08.2026 — minimalny escape, żeby adres e-mail wstawiany przez
+// null = powrót do wyboru.
+function wybierzKrokIST(rodzaj) {
+  try {
+    const wybor = document.getElementById('next-step-choice');
+    const form = document.getElementById('next-step-form');
+    if (!rodzaj) {
+      _diagState.krokIST = null;
+      if (form) form.style.display = 'none';
+      if (wybor) wybor.style.display = 'block';
+      return;
+    }
+    _diagState.krokIST = rodzaj;
+    const tytul = document.getElementById('next-step-form-title');
+    if (tytul) tytul.textContent = rodzaj === 'spotkanie'
+      ? 'Spotkanie diagnostyczne — gdzie mam się odezwać?'
+      : 'Plan treningowy — gdzie mam się odezwać?';
+    const email = document.getElementById('next-step-email');
+    if (email && playerEmail && !email.value) email.value = playerEmail;
+    if (wybor) wybor.style.display = 'none';
+    if (form) form.style.display = 'block';
+  } catch (e) {
+    console.warn('NASTĘPNY KROK: wybierzKrokIST', e);
+  }
+}
+
+// Zapis „fire and forget": saveToSupabase()/sendEmailNotification() same łykają
+// błędy, a potwierdzenie pokazujemy niezależnie od nich.
+// ⛔ Telefon NIE trafia do bazy — idzie wyłącznie w powiadomieniu do Kuby.
+function wyslijProsbeIST() {
+  try {
+    const rodzaj = _diagState.krokIST === 'plan' ? 'plan' : 'spotkanie';
+    const input = document.getElementById('next-step-email');
+    const err = document.getElementById('next-step-error');
+    const email = input ? input.value.trim() : '';
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      if (err) err.style.display = 'block';
+      return;
+    }
+    if (err) err.style.display = 'none';
+    playerEmail = email;
+    const telEl = document.getElementById('next-step-phone');
+    const telefon = telEl ? telEl.value.trim().slice(0, 40) : '';
+    const opis = _diagState.nastepnyKrok || opiszWaskieGardlo(cachedScores, ctx.pos);
+
+    saveToSupabase('diagnostics', buildDiagnosticsRecord({
+      event: rodzaj === 'plan' ? 'ist_plan_requested' : 'ist_meeting_requested',
+      email,
+    }));
+    sendEmailNotification(rodzaj === 'plan'
+      ? 'IST — prośba o plan treningowy'
+      : 'IST — prośba o spotkanie diagnostyczne', {
+      email,
+      name: playerName || '—',
+      contact: telefon || '—',
+      product: rodzaj === 'plan' ? 'Plan IST' : 'Spotkanie diagnostyczne',
+      note: opis.naglowek + ' — ' + opis.zdanie +
+        (window._parentEmail ? ' | E-mail rodzica: ' + window._parentEmail : '') +
+        ' | Odpowiedz w ciągu ' + GC_IST_CZAS_ODPOWIEDZI + ' (obietnica z ekranu).',
+    });
+
+    const form = document.getElementById('next-step-form');
+    const done = document.getElementById('next-step-done');
+    const doneText = document.getElementById('next-step-done-text');
+    if (form) form.style.display = 'none';
+    if (doneText) {
+      doneText.innerHTML = 'Odezwę się na <strong style="color:#f5f2ec;font-weight:500;">' +
+        _escapeHtmlLite(email) + '</strong> w ciągu ' + GC_IST_CZAS_ODPOWIEDZI +
+        ' — ustalimy termin i szczegóły. Jeśli masz mniej niż 18 lat, rozmawiam też z Twoim rodzicem.';
+    }
+    if (done) done.style.display = 'block';
+  } catch (e) {
+    console.warn('NASTĘPNY KROK: wyslijProsbeIST', e);
+  }
+}
+
+/**
+ * LEJEK IST 23.09.2026 — MAIL DO RODZICA.
+ * EmailJS na darmowym planie ma jeden szablon i wysyła go na skrzynkę Kuby,
+ * nie do dowolnego adresu. Dlatego rodzic NIE dostaje maila automatycznie:
+ * Kuba dostaje gotowy tekst i adres, i wysyła go ze swojej skrzynki — w swoim
+ * imieniu, z możliwością poprawki. Przy obecnym ruchu to kilka maili w miesiącu.
+ */
+function zbudujMailDoRodzica(opis, imie) {
+  const link = (typeof window !== 'undefined' && window.location && window.location.hash)
+    ? window.location.href : '';
+  return [
+    'Temat: Diagnoza Gamechange' + (imie ? ' (' + imie + ')' : '') + ' — co z niej wynika i co dalej',
+    '',
+    'Dzień dobry,',
+    '',
+    'nazywam się Kuba Seweryn, zajmuję się przygotowaniem motorycznym piłkarzy. ' +
+      'Przy diagnozie Gamechange' + (imie ? ' (' + imie + ')' : '') +
+      ' ten adres został podany jako kontakt do rodzica.',
+    '',
+    'Najważniejsze w jednym zdaniu: ' + (opis.zdanieRodzic || opis.zdanie),
+    '',
+    'To wynik ankiety — pokazuje, gdzie szukać, ale nie zastępuje sprawdzenia na żywo.',
+    'Mogę zaproponować jeden z dwóch kroków:',
+    '— spotkanie diagnostyczne: sprawdzam to testami ruchowymi i mówię, od czego zacząć,',
+    '— plan treningowy na miesiąc, rozpisany pod to wąskie gardło, z ćwiczeniami na wideo i kontrolą postępów.',
+    '',
+    'Wystarczy odpisać na tego maila jednym słowem: „spotkanie" albo „plan".',
+    link ? '' : null,
+    link ? 'Wyniki diagnozy: ' + link : null,
+    '',
+    'Pozdrawiam,',
+    'Kuba Seweryn',
+    'Gamechange — przygotowanie motoryczne',
+  ].filter(l => l !== null).join('\n');
+}
+
+function _powiadomOMailuDoRodzica() {
+  try {
+    if (!window._parentEmail || !cachedScores) return;
+    const opis = opiszWaskieGardlo(cachedScores, ctx.pos);
+    sendEmailNotification('Mail do rodzica — do wysłania', {
+      email: playerEmail || '—',
+      name: playerName || '—',
+      contact: window._parentEmail,
+      product: 'Mail do rodzica (wyślij ze swojej skrzynki)',
+      note: zbudujMailDoRodzica(opis, playerName),
+    });
+  } catch (e) {
+    console.warn('MAIL DO RODZICA: nie udało się przygotować', e);
+  }
+}
+
+// MOST DIAGNOZA 07.08.2026 (zostaje po LEJEK IST 23.09.2026) — minimalny escape, żeby adres e-mail wstawiany przez
 // innerHTML nie mógł nic wykonać. (Reszta pliku wstawia dane AI bez escapowania —
 // to osobny, wcześniejszy temat, nie ruszam go w tej sesji.)
 function _escapeHtmlLite(s) {
   return String(s == null ? '' : s)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
-
-// MOST DIAGNOZA 07.08.2026 — kliknięcie CTA w trybie ZGŁOSZENIA.
-// Zapis jest "fire and forget": saveToSupabase()/sendEmailNotification() same łykają
-// swoje błędy, a potwierdzenie dla zawodnika pokazujemy niezależnie od nich — zgodnie
-// z zasadą mostu nie wolno mu pokazać ściany, jeśli backend akurat nie odpowie.
-function requestAppAccess() {
-  try {
-    let email = playerEmail;
-    if (!email) {
-      const input = document.getElementById('app-bridge-email-input');
-      const err = document.getElementById('app-bridge-email-error');
-      email = input ? input.value.trim() : '';
-      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        if (err) err.style.display = 'block';
-        return;
-      }
-      if (err) err.style.display = 'none';
-      playerEmail = email;
-    }
-
-    // Zdarzenie w `diagnostics` — ten sam wzorzec co 'pdf_email_submitted'.
-    // UWAGA: nowa wartość kolumny `event` ('app_access_requested'). Jeśli na tej
-    // kolumnie istnieje CHECK ograniczający listę wartości, zapis zostanie odrzucony
-    // po stronie bazy — dla zawodnika NIC się przez to nie zmienia (błąd jest łykany
-    // w saveToSupabase), ale zgłoszenie trafi wtedy tylko mailem. SQL do ewentualnego
-    // rozluźnienia CHECK-a jest w raporcie zwrotnym.
-    saveToSupabase('diagnostics', buildDiagnosticsRecord({ event: 'app_access_requested', email }));
-    sendEmailNotification('Prośba o dostęp do aplikacji', {
-      email,
-      note: 'Zawodnik kliknął CTA "Chcę dostęp do aplikacji" na ekranie wyniku diagnozy. Wyślij mu link instalacyjny i przypomnij, żeby zalogował się DOKŁADNIE tym adresem.',
-    });
-
-    const action = document.getElementById('app-bridge-action');
-    const gate = document.getElementById('app-bridge-email-gate');
-    const done = document.getElementById('app-bridge-done');
-    const doneText = document.getElementById('app-bridge-done-text');
-    if (action) action.style.display = 'none';
-    if (gate) gate.style.display = 'none';
-    if (doneText) {
-      doneText.innerHTML = `Wyślemy link do aplikacji na <strong style="color:#f5f2ec;font-weight:500;">${_escapeHtmlLite(email)}</strong>. W aplikacji zaloguj się <strong style="color:#f5f2ec;font-weight:500;">dokładnie tym samym adresem</strong> — Twoja diagnoza już tam na Ciebie czeka. Pierwsza rekomendacja może pojawić się do 24 godzin po założeniu konta.`;
-    }
-    if (done) done.style.display = 'block';
-  } catch (e) {
-    console.warn('MOST DIAGNOZA: requestAppAccess', e);
-  }
 }
 
 function downloadPDFWithEmail() {
@@ -5850,6 +5944,11 @@ function renderNieudanyOdczytDiagnozy(scores, powod) {
   // ale BEZ mostu do aplikacji: jego zdanie „ta diagnoza jest już w środku"
   // po padniętym odczycie byłoby nieprawdą.
   _showProductSection(scores, false);
+  // LEJEK 09.11.2026 (Helicopter View) — następny krok (spotkanie / plan) pokazujemy
+  // TAKŻE po padniętym odczycie. Jego zdania nie twierdzą, że diagnoza powstała
+  // („Ankieta mówi, gdzie szukać"), a wynik obszar po obszarze jest prawdziwy.
+  // Bez tego awaria AI (np. brak środków na koncie API) zamyka jedyne wyjście do oferty.
+  if (typeof _pokazNastepnyKrok === 'function') _pokazNastepnyKrok();
 }
 
 /** PLAN-D-Y1 08.2026 — rzecz do zrobienia po awarii (D5): druga próba. */
@@ -6565,11 +6664,18 @@ function restart() {
   // wyniku NASTĘPNEJ diagnozy jeszcze zanim ta diagnoza w ogóle powstała — z danymi
   // poprzedniego przebiegu. Błąd jest starszy niż ta sesja (dotyczył też ścieżki
   // "Wyślij"/"Pomiń"), ale auto-odsłanianie sprawia, że trafia teraz każdego, kto
-  // wypełnia ankietę drugi raz. `app-bridge-wrap` świadomie NIE jest tu resetowany —
-  // patrz raport, sekcja 6 (znalezisko A6): to CTA z rundy 1, którego zakres tej sesji
-  // zabrania dotykać, a naprawa wymaga też wyzerowania `dataset.gcShown`.
+  // wypełnia ankietę drugi raz.
   const pdfw = document.getElementById('pdf-section-wrap');
   if (pdfw) pdfw.style.display = 'none';
+
+  // LEJEK IST 23.09.2026 — „Następny krok" wraca do stanu wyjściowego (znalezisko A6
+  // domknięte dla nowego bloku): bez zerowania `dataset.gcShown` kolejna diagnoza
+  // pokazałaby wąskie gardło z POPRZEDNIEGO przebiegu.
+  const nsw = document.getElementById('next-step-wrap');
+  if (nsw) { nsw.style.display = 'none'; nsw.dataset.gcShown = ''; }
+  [['next-step-choice', 'block'], ['next-step-form', 'none'], ['next-step-done', 'none'], ['next-step-error', 'none']]
+    .forEach(([id, d]) => { const el = document.getElementById(id); if (el) el.style.display = d; });
+  ['next-step-email', 'next-step-phone'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
 
   // Reset formularza pytania zakotwiczającego (patrz submitAnchorAnswer/skipAnchorAnswer)
   const aqf = document.getElementById('anchor-question-form');
