@@ -1277,24 +1277,24 @@ body {
          _pokazNastepnyKrok(), zapis prośby — wyslijProsbeIST(). -->
     <div id="next-step-wrap" style="display:none;margin-top:32px;border-top:1px solid #d8d3c8;padding-top:32px;">
       <div style="background:#0e0d0b;color:#f5f2ec;padding:32px;">
-        <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Twój wynik i następny krok</div>
+        <div id="next-step-label" style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Twój wynik i następny krok</div>
         <div id="next-step-headline" style="font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1.15;letter-spacing:0.01em;margin-bottom:12px;"></div>
         <p id="next-step-sentence" style="font-size:15px;color:#d8d3c8;font-weight:300;line-height:1.8;margin:0 0 22px;"></p>
 
         <div id="next-step-choice">
-          <p style="font-size:13px;color:#9a9488;font-weight:300;line-height:1.7;margin:0 0 14px;">
+          <p id="next-step-intro" style="font-size:13px;color:#9a9488;font-weight:300;line-height:1.7;margin:0 0 14px;">
             Ankieta mówi, gdzie szukać. Chcesz zrobić to sam czy ze mną?
           </p>
           <div style="display:flex;flex-direction:column;gap:10px;">
             <button id="next-step-btn-plan" onclick="wybierzKrokIST('plan')"
               style="text-align:left;background:#E8432D;color:#f5f2ec;border:none;padding:16px 20px;cursor:pointer;font-family:'DM Sans',sans-serif;">
               <span id="next-step-plan-tytul" style="display:block;font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:0.08em;">Zrób to sam: Plan 6 tygodni →</span>
-              <span style="display:block;font-size:13px;font-weight:300;line-height:1.6;margin-top:4px;">Gotowy plan pod Twoje wąskie gardło: test na start, plan tydzień po tygodniu, pomiar na koniec.</span>
+              <span id="next-step-plan-opis" style="display:block;font-size:13px;font-weight:300;line-height:1.6;margin-top:4px;">Gotowy plan pod Twoje wąskie gardło: test na start, plan tydzień po tygodniu, pomiar na koniec.</span>
             </button>
             <button id="next-step-btn-spotkanie" onclick="wybierzKrokIST('spotkanie')"
               style="text-align:left;background:transparent;color:#f5f2ec;border:1px solid #9a9488;padding:16px 20px;cursor:pointer;font-family:'DM Sans',sans-serif;">
-              <span style="display:block;font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:0.08em;">Zrób to ze mną: Indywidualny System Treningowy →</span>
-              <span style="display:block;font-size:13px;font-weight:300;line-height:1.6;margin-top:4px;">Zaczynamy od spotkania z testami (we Wrocławiu albo zdalnie), potem plan ułożony w Twój tydzień: szkoła, treningi drużyny, mecze.</span>
+              <span id="next-step-ist-tytul" style="display:block;font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:0.08em;">Zrób to ze mną: Indywidualny System Treningowy →</span>
+              <span id="next-step-ist-opis" style="display:block;font-size:13px;font-weight:300;line-height:1.6;margin-top:4px;">Zaczynamy od spotkania z testami (we Wrocławiu albo zdalnie), potem plan ułożony w Twój tydzień: szkoła, treningi drużyny, mecze.</span>
               <span id="next-step-ist-cena" style="display:block;font-size:12px;color:#9a9488;margin-top:4px;"></span>
             </button>
             <button id="next-step-btn-rodzic" onclick="pokazRodzicowi()"
@@ -1310,7 +1310,7 @@ body {
           <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#d8d3c8;margin-bottom:6px;font-weight:500;">E-mail do kontaktu</div>
           <input id="next-step-email" type="email" placeholder="twoj@email.com"
             style="width:100%;box-sizing:border-box;padding:14px 16px;border:1px solid #3a3830;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;margin-bottom:12px;">
-          <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#d8d3c8;margin-bottom:6px;font-weight:500;">Telefon — Twój albo rodzica (opcjonalnie)</div>
+          <div id="next-step-phone-label" style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#d8d3c8;margin-bottom:6px;font-weight:500;">Telefon — Twój albo rodzica (opcjonalnie)</div>
           <input id="next-step-phone" type="tel" placeholder="np. 600 100 200"
             style="width:100%;box-sizing:border-box;padding:14px 16px;border:1px solid #3a3830;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;margin-bottom:14px;">
           <div id="next-step-error" style="display:none;color:#E8432D;font-size:12px;margin:-6px 0 12px;">Podaj poprawny adres e-mail.</div>
@@ -4218,6 +4218,12 @@ function loadResultsFromURL() {
     setTimeout(() => {
       document.querySelectorAll('.bar-fill, .seg-group-bar-fill').forEach(b => { b.style.width = b.dataset.w + '%'; });
     }, 100);
+    // LEJEK 09.11.2026 — rodzic z linku widzi blok następnego kroku od razu, także bez zapisanej diagnozy AI.
+    if (typeof czyWidokRodzica === 'function' && czyWidokRodzica()) {
+      const bramka = document.getElementById('email-gate-box');
+      if (bramka) bramka.style.display = 'none';
+      _pokazNastepnyKrok();
+    }
 
     // Jeśli link zawiera pełną diagnozę (wygenerowaną wcześniej) — odtwórz ją
     // od razu, w trybie tylko-do-odczytu, bez ponownego wywołania AI.
@@ -5743,6 +5749,27 @@ function opiszWaskieGardlo(scores, ctxPos) {
   };
 }
 
+/**
+ * LEJEK 09.11.2026 — WIDOK RODZICA. Link wysłany przez „Pokaż wynik rodzicowi” ma `?dla=rodzic`
+ * (i kod źródła `ref`). Ten sam wynik, ale blok następnego kroku mówi do rodzica, a prośba
+ * o kontakt trafia do Kuby z dopiskiem RODZIC. Danych rodzica nie zapisujemy w bazie poza
+ * adresem e-mail podanym w formularzu (jak u zawodnika).
+ */
+function czyWidokRodzica() {
+  try {
+    if (typeof window === 'undefined' || !window.location) return false;
+    return /[?&]dla=rodzic(&|$)/.test(String(window.location.search || ''));
+  } catch (e) { return false; }
+}
+const GC_TEKSTY_RODZIC = {
+  etykieta: 'Wynik diagnozy zawodnika i następny krok',
+  wstep: 'To wynik ankiety, którą wypełnił zawodnik. Pokazuje, gdzie szukać, ale nie zastępuje sprawdzenia na żywo. Są dwie drogi:',
+  planOpis: 'Gotowy plan pod to wąskie gardło: test na start, plan tydzień po tygodniu, pomiar na koniec. Zawodnik pracuje sam.',
+  istTytul: 'Indywidualny System Treningowy →',
+  istOpis: 'Zaczynam od spotkania z testami (we Wrocławiu albo zdalnie), potem układam plan w cały tydzień zawodnika: szkoła, treningi drużyny, mecze. Zostaw kontakt, odezwę się.',
+  telefon: 'Telefon (opcjonalnie)',
+};
+
 function _pokazNastepnyKrok() {
   try {
     if (!GC_NASTEPNY_KROK_ENABLED) return;
@@ -5755,8 +5782,9 @@ function _pokazNastepnyKrok() {
     _diagState.nastepnyKrok = opis;
     const h = document.getElementById('next-step-headline');
     const z = document.getElementById('next-step-sentence');
-    if (h) h.textContent = opis.naglowek;
-    if (z) z.textContent = opis.zdanie;
+    const rodzic = czyWidokRodzica();
+    if (h) h.textContent = opis.naglowek.replace(/^Twój wynik$/, 'Wynik');
+    if (z) z.textContent = rodzic ? (opis.zdanieRodzic || opis.zdanie) : opis.zdanie;
     // LEJEK 09.11.2026 — „Zrób to sam” tylko, gdy dla obszaru jest gotowy plan.
     const plan6 = opis.segId ? GC_PLANY_6TYG[opis.segId] : null;
     _diagState.plan6 = plan6 || null;
@@ -5767,7 +5795,18 @@ function _pokazNastepnyKrok() {
     const cenaIst = document.getElementById('next-step-ist-cena');
     if (cenaIst) cenaIst.textContent = GC_CENY_IST;
     const btnRodzic = document.getElementById('next-step-btn-rodzic');
-    if (btnRodzic) btnRodzic.style.display = (ctx && ctx.age !== null && ctx.age !== undefined && ctx.age < 18) ? 'block' : 'none';
+    if (btnRodzic) btnRodzic.style.display = (!rodzic && ctx && ctx.age !== null && ctx.age !== undefined && ctx.age < 18) ? 'block' : 'none';
+    if (rodzic) {
+      const ustaw = (id, t) => { const el = document.getElementById(id); if (el) el.textContent = t; };
+      ustaw('next-step-label', GC_TEKSTY_RODZIC.etykieta);
+      ustaw('next-step-intro', GC_TEKSTY_RODZIC.wstep);
+      ustaw('next-step-plan-opis', GC_TEKSTY_RODZIC.planOpis);
+      ustaw('next-step-ist-tytul', GC_TEKSTY_RODZIC.istTytul);
+      ustaw('next-step-ist-opis', GC_TEKSTY_RODZIC.istOpis);
+      ustaw('next-step-phone-label', GC_TEKSTY_RODZIC.telefon);
+      if (tytulPlanu && plan6) tytulPlanu.textContent = 'Plan 6 tygodni: ' + plan6.nazwa + ' · ' + GC_CENA_PLANU_6TYG + ' →';
+      saveToSupabase('diagnostics', buildDiagnosticsRecord({ event: 'parent_view_opened' }));
+    }
     wrap.style.display = 'block';
   } catch (e) {
     console.warn('NASTĘPNY KROK: nie udało się pokazać bloku', e);
@@ -5802,7 +5841,7 @@ function wybierzKrokIST(rodzaj) {
     }
     const tytul = document.getElementById('next-step-form-title');
     if (tytul) tytul.textContent = rodzaj === 'spotkanie'
-      ? 'Indywidualny System Treningowy — gdzie mam się odezwać, żeby ustalić spotkanie?'
+      ? (czyWidokRodzica() ? 'Indywidualny System Treningowy — gdzie mam się odezwać?' : 'Indywidualny System Treningowy — gdzie mam się odezwać, żeby ustalić spotkanie?')
       : 'Plan 6 tygodni' + (plan6 ? ': ' + plan6.nazwa : '') + ' — gdzie wysłać plan i link do płatności?';
     const email = document.getElementById('next-step-email');
     if (email && playerEmail && !email.value) email.value = playerEmail;
@@ -5834,13 +5873,14 @@ function wyslijProsbeIST() {
 
     const plan6 = _diagState.plan6 || null;
     const nazwaPlanu = 'Plan 6 tygodni' + (plan6 ? ': ' + plan6.nazwa : '');
+    const rodzic = czyWidokRodzica();
     saveToSupabase('diagnostics', buildDiagnosticsRecord({
-      event: rodzaj === 'plan' ? 'plan6_requested' : 'ist_meeting_requested',
+      event: rodzaj === 'plan' ? 'plan6_requested' : (rodzic ? 'parent_meeting_requested' : 'ist_meeting_requested'),
       email,
     }));
-    sendEmailNotification(rodzaj === 'plan'
+    sendEmailNotification((rodzic ? 'RODZIC — ' : '') + (rodzaj === 'plan'
       ? 'Plan 6 tygodni — prośba o plan i link do płatności'
-      : 'IST — prośba o spotkanie z testami', {
+      : 'IST — prośba o spotkanie z testami'), {
       email,
       name: playerName || '—',
       contact: telefon || '—',
@@ -5861,7 +5901,7 @@ function wyslijProsbeIST() {
         : 'Odezwę się na <strong style="color:#f5f2ec;font-weight:500;">' +
           _escapeHtmlLite(email) + '</strong> w ciągu ' + GC_IST_CZAS_ODPOWIEDZI +
           ' — ustalimy termin spotkania i szczegóły.') +
-        ' Jeśli masz mniej niż 18 lat, rozmawiam też z Twoim rodzicem.';
+        (rodzic ? '' : ' Jeśli masz mniej niż 18 lat, rozmawiam też z Twoim rodzicem.');
     }
     if (done) done.style.display = 'block';
   } catch (e) {
@@ -5877,7 +5917,14 @@ function wyslijProsbeIST() {
 function pokazRodzicowi() {
   try {
     const opis = _diagState.nastepnyKrok || opiszWaskieGardlo(cachedScores, ctx.pos);
-    const link = (typeof window !== 'undefined' && window.location) ? window.location.href : '';
+    let link = '';
+    if (typeof window !== 'undefined' && window.location) {
+      const loc = window.location;
+      const kod = (typeof affiliateCode === 'string' ? affiliateCode : '').replace(/[^A-Za-z0-9_-]/g, '');
+      link = (loc.origin && loc.pathname !== undefined)
+        ? loc.origin + loc.pathname + '?dla=rodzic' + (kod ? '&ref=' + kod : '') + (loc.hash || '')
+        : (loc.href || '');
+    }
     const tekst = 'Zrobiłem diagnozę Gamechange. ' + (opis.zdanieRodzic || opis.zdanie) +
       ' Zobacz wynik i co dalej: ' + link;
     saveToSupabase('diagnostics', buildDiagnosticsRecord({ event: 'parent_share_clicked' }));
