@@ -3033,7 +3033,7 @@ async function registerCoach() {
     await emailjs.send('service_7dxlxuq', 'template_ybc0bsq', {
       email: email,
       subject: `Twój kod drużyny Gamechange: ${code}`,
-      message: `Cześć ${name},\n\nTwój kod drużyny jest gotowy.\n\nKOD: ${code}\n\nPodaj ten kod swoim zawodnikom. Gdy wypełnią diagnozę na gamechange-diagnoza.vercel.app, wpisują ten kod i trafiają do Twojego raportu.\n\nTwój panel trenera:\n${panelLink}\n\nGamechange System`,
+      message: `Cześć ${name},\n\nTwój kod drużyny jest gotowy.\n\nKOD: ${code}\n\nPodaj ten kod swoim zawodnikom. Gdy wypełnią diagnozę na diagnoza.gamechange.pl, wpisują ten kod i trafiają do Twojego raportu.\n\nTwój panel trenera:\n${panelLink}\n\nGamechange System`,
     });
 
     // Pokaż sukces
@@ -4074,7 +4074,7 @@ function downloadTeamPDF() {
   // Stopka
   doc.setFontSize(7);
   doc.setTextColor(180,175,165);
-  doc.text(stripPolishChars('Gamechange System · gamechange-diagnoza.vercel.app'), margin, H-6);
+  doc.text(stripPolishChars('Gamechange System · diagnoza.gamechange.pl'), margin, H-6);
 
   doc.save(`gamechange-druzyna-${teamData[0]?.team_code || 'raport'}-${new Date().toLocaleDateString('pl-PL').replace(/\./g,'-')}.pdf`);
 }
@@ -6673,7 +6673,7 @@ function downloadPDF() {
     doc.setFontSize(7);
     doc.setTextColor(180, 175, 165);
     doc.setFont('helvetica', 'normal');
-    doc.text(stripPolishChars('Gamechange System  ·  gamechange-diagnoza.vercel.app'), margin, 290);
+    doc.text(stripPolishChars('Gamechange System  ·  diagnoza.gamechange.pl'), margin, 290);
     doc.text(stripPolishChars(`${p} / ${pageCount}`), W - margin, 290, { align: 'right' });
   }
 
