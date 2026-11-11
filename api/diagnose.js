@@ -30,8 +30,9 @@
 //    nie skrypty — przed skryptem chronią limit długości, limit tokenów i licznik IP.
 // ──────────────────────────────────────────────────────────────────────────────
 export const DOZWOLONE_ZRODLA = ['https://diagnoza.gamechange.pl'];
-// Najwięcej, ile wysyła dziś frontend (index.html: 400 i 2400). Wyżej nie wolno.
-export const MAX_TOKENS = 2400;
+// Najwięcej, ile wysyła dziś frontend (index.html: 400 i 8000). Wyżej nie wolno.
+// 11.11.2026: 2400 → 8000 razem z frontendem — przy 2400 diagnozy urywały się (stop_reason = max_tokens).
+export const MAX_TOKENS = 8000;
 // Próg długości promptu w znakach. Zmierzone 11.11.2026 na prawdziwej diagnozie na produkcji
 // (ścieżka z pytaniem otwartym, krótka odpowiedź): 12 968 znaków. Próg ~2,3× z zapasem na długi
 // opis sytuacji i historię powracającego zawodnika.

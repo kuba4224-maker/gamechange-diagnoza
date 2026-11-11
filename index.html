@@ -5390,7 +5390,10 @@ FORMAT ODPOWIEDZI (zachowaj dokładnie te znaczniki). TREŚĆ KAŻDEJ SEKCJI ZAL
     const response = await fetch('/api/diagnose', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, maxTokens: 2400 })
+      // LEJEK 11.11.2026 — 2400 → 8000. Zmierzone na produkcji: przy 2400 model z myśleniem adaptacyjnym
+      // potrafi zużyć 1 700 tokenów na myślenie i diagnoza urywa się w pół zdania przed [KIERUNEK]/[PYTANIE]
+      // (stop_reason = max_tokens). Płaci się za tokeny zużyte, nie za limit.
+      body: JSON.stringify({ prompt, maxTokens: 8000 })
     });
     let data = null;
     try { data = await response.json(); }

@@ -148,7 +148,7 @@ function zadanie(o) {
     wyslane.length = 0;
     const z2 = zadanie({}); z2.body.model = 'claude-opus-4-1-drozszy'; r = odp(); await M.default(z2, r);
     assert(wyslane[0] && wyslane[0].body.model === M.MODEL_DOMYSLNY, 'model spoza listy: wysłany domyślny, nie podany');
-    const wywolania = [...HTML.matchAll(/fetch\(\s*['"`]\/api\/diagnose['"`][\s\S]{0,300}?\}\s*\)/g)].map(m => m[0]);
+    const wywolania = [...HTML.matchAll(/fetch\(\s*['"`]\/api\/diagnose['"`][\s\S]{0,900}?\}\s*\)/g)].map(m => m[0]);
     assert(wywolania.length >= 3, 'znaleziono wywołania /api/diagnose we froncie (' + wywolania.length + ', wycinek NIE jest pusty)');
     assert(wywolania.every(w => !/\bmodel\s*:/.test(w)), 'frontend nie wysyła pola model w żadnym wywołaniu (zawodnik dostaje domyślny)');
   }
