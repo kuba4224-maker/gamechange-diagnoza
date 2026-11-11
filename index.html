@@ -1309,6 +1309,23 @@ body {
           </div>
         </div>
 
+        <!-- LEJEK 11.11.2026 (A1) — ADRES RODZICA. Widoczne TYLKO na ?dla=rodzic (odsłania _pokazNastepnyKrok).
+             Zgoda domyślnie NIEzaznaczona; bez niej nic nie wychodzi z przeglądarki (zapiszAdresRodzica). -->
+        <div id="rodzic-lista-wrap" style="display:none;margin-top:22px;border-top:1px solid #3a3830;padding-top:20px;">
+          <p id="rodzic-lista-tekst" style="font-size:14px;color:#d8d3c8;font-weight:300;line-height:1.7;margin:0 0 12px;"></p>
+          <input id="rodzic-lista-email" type="email" placeholder="adres@email.com"
+            style="width:100%;box-sizing:border-box;padding:14px 16px;border:1px solid #3a3830;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;margin-bottom:12px;">
+          <label style="display:flex;align-items:flex-start;gap:10px;margin:0 0 14px;cursor:pointer;">
+            <input id="rodzic-lista-zgoda" type="checkbox" style="margin-top:3px;flex-shrink:0;">
+            <span id="rodzic-lista-zgoda-tekst" style="font-size:12px;color:#d8d3c8;font-weight:300;line-height:1.6;"></span>
+          </label>
+          <button id="rodzic-lista-btn" onclick="zapiszAdresRodzica()"
+            style="background:#E8432D;color:#f5f2ec;border:none;padding:14px 28px;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:0.1em;cursor:pointer;">
+            Zapisz adres →
+          </button>
+          <div id="rodzic-lista-stan" style="display:none;font-size:13px;line-height:1.6;margin-top:12px;"></div>
+        </div>
+
         <div id="next-step-form" style="display:none;">
           <div id="next-step-form-title" style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.04em;margin-bottom:10px;"></div>
           <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#d8d3c8;margin-bottom:6px;font-weight:500;">E-mail do kontaktu</div>
@@ -5806,6 +5823,9 @@ const GC_TEKSTY_RODZIC = {
   istTytul: 'Indywidualny System Treningowy →',
   istOpis: 'Zaczynam od spotkania z testami (we Wrocławiu albo zdalnie), potem układam plan w cały tydzień zawodnika: szkoła, treningi drużyny, mecze. Zostaw kontakt, odezwę się.',
   telefon: 'Telefon (opcjonalnie)',
+  // LEJEK 11.11.2026 (A1) — ⛔ DO ZATWIERDZENIA PRZEZ KUBĘ przed wgraniem (propozycja Helicopter View).
+  listaTekst: 'Zostaw adres, a wyślę krótką serię wiadomości: co ten wynik znaczy na boisku i co da się z nim zrobić w najbliższych tygodniach.',
+  listaZgoda: 'Chcę dostawać od Kuby Seweryna wiadomości o tym wyniku i informacje o jego usługach (mogę zrezygnować w każdej chwili).',
 };
 
 function _pokazNastepnyKrok() {
@@ -5843,6 +5863,11 @@ function _pokazNastepnyKrok() {
       ustaw('next-step-ist-opis', GC_TEKSTY_RODZIC.istOpis);
       ustaw('next-step-phone-label', GC_TEKSTY_RODZIC.telefon);
       if (tytulPlanu && plan6) tytulPlanu.textContent = 'Plan 6 tygodni: ' + plan6.nazwa + ' · ' + GC_CENA_PLANU_6TYG + ' →';
+      // LEJEK 11.11.2026 (A1) — pole adresu rodzica i zgoda na wiadomości, tylko w tym widoku.
+      ustaw('rodzic-lista-tekst', GC_TEKSTY_RODZIC.listaTekst);
+      ustaw('rodzic-lista-zgoda-tekst', GC_TEKSTY_RODZIC.listaZgoda);
+      const listaRodzica = document.getElementById('rodzic-lista-wrap');
+      if (listaRodzica) listaRodzica.style.display = 'block';
       saveToSupabase('diagnostics', buildDiagnosticsRecord({ event: 'parent_view_opened' }));
     }
     wrap.style.display = 'block';
@@ -5976,6 +6001,71 @@ function pokazRodzicowi() {
     return tekst;
   } catch (e) {
     console.warn('NASTĘPNY KROK: pokazRodzicowi', e);
+  }
+}
+
+/**
+ * LEJEK 11.11.2026 (A1) — ADRES RODZICA NA WIDOKU RODZICA.
+ * W U15–U17 zgoda zawodnika jest niedostępna (próg 16 lat), więc adres na listę zostawia rodzic.
+ * Zapis: MailerLite przez /api/mailerlite (grupa zgody + grupa serii z wyniku zawodnika,
+ * `zrodlo` = kod ref + `_RODZIC`) i zdarzenie `parent_email_submitted` w `diagnostics`.
+ * ⛔ Bez zaznaczonej zgody nic nie wychodzi z przeglądarki.
+ * Stany (R5), każdy z własną nazwą i własnym zdaniem na ekranie:
+ *   'nie_rodzic' · 'zly_adres' · 'brak_zgody' · 'zapisane' · 'blad_listy' (serwer odmówił) · 'blad_sieci'.
+ * Wiersz w bazie powstaje także przy błędzie listy, z notą `lista: <stan>` — adres nie ginie,
+ * a „zgoda jest, subskrybenta nie ma" da się odróżnić od „zapisane".
+ */
+async function zapiszAdresRodzica() {
+  const pokaz = (tekst, blad) => {
+    const el = document.getElementById('rodzic-lista-stan');
+    if (!el) return;
+    el.textContent = tekst;
+    el.style.color = blad ? '#E8432D' : '#d8d3c8';
+    el.style.display = 'block';
+  };
+  try {
+    if (!czyWidokRodzica()) return 'nie_rodzic';
+    const input = document.getElementById('rodzic-lista-email');
+    const zgodaEl = document.getElementById('rodzic-lista-zgoda');
+    const email = input ? String(input.value || '').trim().slice(0, 254) : '';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { pokaz('Podaj poprawny adres e-mail.', true); return 'zly_adres'; }
+    if (!(zgodaEl && zgodaEl.checked === true)) { pokaz('Zaznacz zgodę na wiadomości. Bez niej nie mogę nic wysłać.', true); return 'brak_zgody'; }
+    const btn = document.getElementById('rodzic-lista-btn');
+    if (btn) btn.disabled = true;
+    const opis = _diagState.nastepnyKrok || opiszWaskieGardlo(cachedScores, ctx.pos);
+    const kod = (typeof affiliateCode === 'string' ? affiliateCode : '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 53);
+    let stan = 'blad_sieci', powod = '';
+    try {
+      const r = await fetch('/api/mailerlite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, obszar: opis.segId || 'ogolna', ref: kod + '_RODZIC' }),
+      });
+      stan = (r && r.ok) ? 'zapisane' : 'blad_listy';
+      powod = r ? 'HTTP ' + r.status : '';
+    } catch (e) {
+      stan = 'blad_sieci';
+      powod = String(e && e.message ? e.message : e);
+    }
+    saveToSupabase('diagnostics', buildDiagnosticsRecord({
+      event: 'parent_email_submitted',
+      parent_email: email,
+      marketing_consent: true,
+      note: 'lista: ' + stan + (powod && stan !== 'zapisane' ? ' (' + powod + ')' : ''),
+    }));
+    if (stan === 'zapisane') {
+      pokaz('Zapisane. Wiadomości będą przychodzić na ' + email + '.', false);
+      if (input) input.disabled = true;
+    } else {
+      console.error('LEJEK A1: zapis adresu rodzica nie przeszedł — ' + stan + (powod ? ' · ' + powod : ''));
+      pokaz('Nie udało się zapisać adresu. Spróbuj jeszcze raz za chwilę.', true);
+      if (btn) btn.disabled = false;
+    }
+    return stan;
+  } catch (e) {
+    console.error('LEJEK A1: zapiszAdresRodzica', e);
+    pokaz('Nie udało się zapisać adresu. Spróbuj jeszcze raz za chwilę.', true);
+    return 'blad_sieci';
   }
 }
 

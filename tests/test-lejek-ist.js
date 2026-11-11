@@ -261,10 +261,110 @@ probuj('pokaż rodzicowi', () => {
 });
 
 
-console.log('\n════════════════════════════════════════');
-console.log('  ok:   ' + ok);
-console.log('  FAIL: ' + fail);
-if (fail) { console.log('\nCZERWONE:'); bledy.forEach(b => console.log('  · ' + b)); }
+/* ══════════════════════════════════════════════════════════════════════════
+   LEJEK 11.11.2026 (A1) — ADRES RODZICA NA ?dla=rodzic
+   Funkcja jest asynchroniczna (czeka na odpowiedź /api/mailerlite, żeby pokazać
+   prawdziwy wynik), więc ten blok jest awaitowany przed podsumowaniem.
+   ══════════════════════════════════════════════════════════════════════════ */
+function kontekstRodzica(opcje) {
+  const o = opcje || {};
+  const wyslane = [];
+  const k = kontekst({
+    cachedScores: DEFICYT, ctx: { pos: null, age: 15 },
+    affiliateCode: o.kod === undefined ? 'PARASOL_U15' : o.kod,
+    window: { location: { search: o.search === undefined ? '?dla=rodzic&ref=PARASOL_U15' : o.search, hash: '#r=abc', href: 'https://diagnoza.gamechange.pl/?dla=rodzic#r=abc' } },
+    fetch: async (url, init) => {
+      wyslane.push({ url, body: init && init.body ? JSON.parse(init.body) : null });
+      if (o.fetchRzuca) throw new Error('offline');
+      return { ok: o.status === undefined ? true : (o.status >= 200 && o.status < 300), status: o.status === undefined ? 200 : o.status };
+    },
+  });
+  vm.runInContext(wytnij('zapiszAdresRodzica'), k.c);
+  k.c._pokazNastepnyKrok();
+  return Object.assign(k, { wyslane });
+}
 
-console.log('════════════════════════════════════════');
-process.exit(fail ? 1 : 0);
+async function scenariuszeRodzica() {
+  scenario('10. A1 — adres rodzica: pole tylko w widoku rodzica, zgoda domyślnie niezaznaczona');
+  {
+    const start = HTML.indexOf('id="rodzic-lista-wrap"');
+    const blok = start === -1 ? '' : HTML.slice(start, HTML.indexOf('id="next-step-form"'));
+    assert(blok.length > 0, 'blok `rodzic-lista-wrap` istnieje w HTML (wycinek NIE jest pusty)');
+    assert(/^id="rodzic-lista-wrap" style="display:none;/.test(blok), 'blok domyślnie schowany');
+    assert(/id="rodzic-lista-zgoda" type="checkbox"/.test(blok) && !/id="rodzic-lista-zgoda"[^>]*checked/.test(blok), '⛔ zgoda rodzica domyślnie NIEzaznaczona');
+    assert(/id="rodzic-lista-email"/.test(blok), 'jest pole e-mail rodzica');
+    const r = kontekstRodzica();
+    assert(r.el['rodzic-lista-wrap'].style.display === 'block', 'na ?dla=rodzic blok się odsłania');
+    assert(/Zostaw adres/.test(r.el['rodzic-lista-tekst'].textContent), 'tekst przy polu ustawiony');
+    const z = kontekst({ cachedScores: DEFICYT, ctx: { pos: null, age: 15 } });
+    z.c._pokazNastepnyKrok();
+    assert(z.el['rodzic-lista-wrap'].style.display !== 'block', 'w widoku zawodnika blok zostaje schowany');
+  }
+
+  scenario('11. A1 — zapis: MailerLite + zdarzenie w bazie, tylko po zgodzie');
+  try {
+    const r = kontekstRodzica();
+    r.el['rodzic-lista-email'].value = ' mama@x.pl ';
+    r.el['rodzic-lista-zgoda'].checked = false;
+    const s0 = await r.c.zapiszAdresRodzica();
+    assert(s0 === 'brak_zgody', 'bez zgody: stan `brak_zgody`');
+    assert(r.wyslane.length === 0 && r.zapisy.filter(z => z.r.event === 'parent_email_submitted').length === 0, '⛔ bez zgody nic nie wychodzi (ani MailerLite, ani baza)');
+    assert(r.el['rodzic-lista-stan'].style.display === 'block' && /zgod/i.test(r.el['rodzic-lista-stan'].textContent), 'bez zgody: zdanie na ekranie');
+
+    r.el['rodzic-lista-zgoda'].checked = true;
+    r.el['rodzic-lista-email'].value = 'zly-adres';
+    assert((await r.c.zapiszAdresRodzica()) === 'zly_adres' && r.wyslane.length === 0, 'zły adres: stan `zly_adres`, nic nie wychodzi');
+
+    r.el['rodzic-lista-email'].value = ' mama@x.pl ';
+    const s1 = await r.c.zapiszAdresRodzica();
+    assert(s1 === 'zapisane', 'z poprawnym adresem i zgodą: stan `zapisane`');
+    assert(r.wyslane.length === 1 && r.wyslane[0].url === '/api/mailerlite', 'jedno wywołanie /api/mailerlite');
+    const b = r.wyslane[0].body || {};
+    assert(b.email === 'mama@x.pl', 'adres przycięty');
+    assert(b.ref === 'PARASOL_U15_RODZIC', 'zrodlo = kod ref + `_RODZIC`');
+    assert(b.obszar === 'moc', 'obszar = wąskie gardło zawodnika (wyznacza grupę serii)');
+    const w = r.zapisy.filter(z => z.r.event === 'parent_email_submitted');
+    assert(w.length === 1, 'jedno zdarzenie `parent_email_submitted`');
+    assert(w[0] && w[0].t === 'diagnostics' && w[0].r.parent_email === 'mama@x.pl', 'zdarzenie niesie `parent_email`');
+    assert(w[0] && w[0].r.marketing_consent === true, 'zdarzenie niesie `marketing_consent = true`');
+    assert(w[0] && !w[0].r.email, '⛔ adres rodzica NIE trafia do kolumny `email` (to kolumna zawodnika)');
+    assert(w[0] && w[0].r.note === 'lista: zapisane', 'nota: `lista: zapisane`');
+    assert(/^Zapisane\./.test(r.el['rodzic-lista-stan'].textContent) && r.el['rodzic-lista-stan'].style.color !== '#E8432D', 'potwierdzenie na ekranie');
+
+    const bez = kontekstRodzica({ kod: null, search: '?dla=rodzic' });
+    bez.el['rodzic-lista-email'].value = 'tata@x.pl'; bez.el['rodzic-lista-zgoda'].checked = true;
+    await bez.c.zapiszAdresRodzica();
+    assert(bez.wyslane[0] && bez.wyslane[0].body.ref === '_RODZIC', 'bez kodu ref: zrodlo `_RODZIC` (rodzic nadal rozpoznawalny)');
+  } catch (e) { assert(false, 'scenariusz 11 — WYJĄTEK: ' + e.message); }
+
+  scenario('12. A1 — trzy różne porażki, trzy różne nazwy (R5)');
+  try {
+    const odm = kontekstRodzica({ status: 502 });
+    odm.el['rodzic-lista-email'].value = 'mama@x.pl'; odm.el['rodzic-lista-zgoda'].checked = true;
+    const s = await odm.c.zapiszAdresRodzica();
+    assert(s === 'blad_listy', 'serwer odmówił: `blad_listy`, nie `zapisane`');
+    assert(/Nie udało się/.test(odm.el['rodzic-lista-stan'].textContent) && odm.el['rodzic-lista-stan'].style.color === '#E8432D', 'czytelny komunikat błędu');
+    const w = odm.zapisy.filter(z => z.r.event === 'parent_email_submitted');
+    assert(w.length === 1 && /^lista: blad_listy \(HTTP 502\)$/.test(w[0].r.note), 'adres nie ginie: wiersz z notą `lista: blad_listy (HTTP 502)`');
+
+    const off = kontekstRodzica({ fetchRzuca: true });
+    off.el['rodzic-lista-email'].value = 'mama@x.pl'; off.el['rodzic-lista-zgoda'].checked = true;
+    const s2 = await off.c.zapiszAdresRodzica();
+    assert(s2 === 'blad_sieci', 'brak sieci: `blad_sieci`, inna nazwa niż odmowa serwera');
+    assert(/Nie udało się/.test(off.el['rodzic-lista-stan'].textContent), 'brak sieci: komunikat błędu');
+
+    const zaw = kontekstRodzica({ search: '' });
+    zaw.el['rodzic-lista-email'].value = 'mama@x.pl'; zaw.el['rodzic-lista-zgoda'].checked = true;
+    assert((await zaw.c.zapiszAdresRodzica()) === 'nie_rodzic' && zaw.wyslane.length === 0, 'poza widokiem rodzica funkcja nic nie robi (`nie_rodzic`)');
+  } catch (e) { assert(false, 'scenariusz 12 — WYJĄTEK: ' + e.message); }
+}
+
+scenariuszeRodzica().then(() => {
+  console.log('\n════════════════════════════════════════');
+  console.log('  ok:   ' + ok);
+  console.log('  FAIL: ' + fail);
+  if (fail) { console.log('\nCZERWONE:'); bledy.forEach(b => console.log('  · ' + b)); }
+
+  console.log('════════════════════════════════════════');
+  process.exit(fail ? 1 : 0);
+});

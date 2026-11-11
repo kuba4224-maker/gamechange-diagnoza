@@ -283,9 +283,12 @@ const ODCZYTY = SIECIOWE.filter(w => w.rodzaj === 'gcRpc'
 /* ⚠️ PRZESTAWIONE 09.11.2026 (lejek, Helicopter View): 20→21, zapisy 10→11. Nowa, NAZWANA ścieżka
    zapisu: `_zapiszDoListy` → POST /api/mailerlite (zapis do listy mailowej po zaznaczonej zgodzie,
    za flagą GC_ZGODA_MARKETING_ENABLED, fire-and-forget: błąd nie zmienia ekranu). Odczytów bez zmian. */
-assertEq(SIECIOWE.length, 21, 'zapadka na RÓWNOŚĆ (O73): wywołań sieciowych poza pośrednikiem');
+/* ⚠️ PRZESTAWIONE 11.11.2026 (A1, polecenie LEJEK-APLIKACJA-DOMKNIECIE-11-11): 21→22, zapisy 11→12. Nowa, NAZWANA
+   ścieżka zapisu: `zapiszAdresRodzica` → POST /api/mailerlite (adres rodzica na ?dla=rodzic, tylko po zaznaczonej
+   zgodzie; wynik pokazany na ekranie, stan zapisany w nocie zdarzenia). Odczytów bez zmian. */
+assertEq(SIECIOWE.length, 22, 'zapadka na RÓWNOŚĆ (O73): wywołań sieciowych poza pośrednikiem');
 assertEq(ODCZYTY.length, 10, 'zapadka na RÓWNOŚĆ (O73): ŚCIEŻEK ODCZYTU w lejku');
-assertEq(SIECIOWE.length - ODCZYTY.length, 11, 'zapadka na RÓWNOŚĆ (O73): ścieżek zapisu');
+assertEq(SIECIOWE.length - ODCZYTY.length, 12, 'zapadka na RÓWNOŚĆ (O73): ścieżek zapisu');
 
 /* ══════════════════════════════════════════════════════════════════════════
    2. KANON TRZECH WARTOŚCI — URUCHOMIONY, nie przeczytany

@@ -19,10 +19,73 @@
 // Vercel → Project Settings → Environment Variables → dodać ANTHROPIC_API_KEY
 // z wartością prawdziwego klucza API z console.anthropic.com.
 
+// ──────────────────────────────────────────────────────────────────────────────
+// LEJEK 11.11.2026 (A2, polecenie LEJEK-APLIKACJA-DOMKNIECIE-11-11) — ZABEZPIECZENIE.
+// Do tego dnia funkcja przyjmowała dowolne zapytanie od każdego, bez limitu: przy ruchu
+// z reklamy obcy skrypt mógł wypalić saldo konta API i opis wyniku gasł wszystkim.
+// Cztery bramki, w tej kolejności, każda z własnym kodem odpowiedzi:
+//   403 obce źródło · 413 za długie zapytanie · 429 za dużo wywołań z jednego adresu IP.
+//   maxTokens nie jest odrzucane, tylko przycinane do górnego limitu.
+// ⚠️ Nagłówek Origin da się podrobić poza przeglądarką. Bramka 403 zatrzymuje cudze STRONY,
+//    nie skrypty — przed skryptem chronią limit długości, limit tokenów i licznik IP.
+// ──────────────────────────────────────────────────────────────────────────────
+export const DOZWOLONE_ZRODLA = ['https://diagnoza.gamechange.pl'];
+// Najwięcej, ile wysyła dziś frontend (index.html: 400 i 2400). Wyżej nie wolno.
+export const MAX_TOKENS = 2400;
+// Próg długości promptu w znakach. Zmierzone 11.11.2026 na prawdziwej diagnozie na produkcji
+// (ścieżka z pytaniem otwartym, krótka odpowiedź): 12 968 znaków. Próg ~2,3× z zapasem na długi
+// opis sytuacji i historię powracającego zawodnika.
+export const ZMIERZONY_PROMPT_ZNAKOW = 12968;
+export const MAX_PROMPT_ZNAKOW = 30000;
+// Licznik w pamięci funkcji: najwyżej LIMIT_IP wywołań z jednego adresu w oknie OKNO_MS.
+// 30 / 10 min: drużyna na jednym klubowym Wi-Fi mieści się (jedna diagnoza = jedno wywołanie).
+export const LIMIT_IP = 30;
+export const OKNO_MS = 10 * 60 * 1000;
+const _licznik = new Map();
+
+export function zrodloDozwolone(headers) {
+  const h = headers || {};
+  const origin = typeof h.origin === 'string' ? h.origin : '';
+  if (origin) return DOZWOLONE_ZRODLA.includes(origin);
+  const referer = typeof h.referer === 'string' ? h.referer : '';
+  if (!referer) return false;
+  try { return DOZWOLONE_ZRODLA.includes(new URL(referer).origin); } catch (e) { return false; }
+}
+
+export function adresIP(req) {
+  const h = (req && req.headers) || {};
+  const xff = typeof h['x-forwarded-for'] === 'string' ? h['x-forwarded-for'].split(',')[0].trim() : '';
+  return xff || (typeof h['x-real-ip'] === 'string' ? h['x-real-ip'] : '') ||
+    (req && req.socket && req.socket.remoteAddress) || 'nieznany';
+}
+
+// true = wolno; false = przekroczony limit. `teraz` podawane w testach.
+export function wpuscIP(ip, teraz) {
+  const t = typeof teraz === 'number' ? teraz : Date.now();
+  const wpisy = (_licznik.get(ip) || []).filter(x => t - x < OKNO_MS);
+  if (wpisy.length >= LIMIT_IP) { _licznik.set(ip, wpisy); return false; }
+  wpisy.push(t);
+  _licznik.set(ip, wpisy);
+  if (_licznik.size > 5000) { for (const k of _licznik.keys()) { _licznik.delete(k); if (_licznik.size <= 4000) break; } }
+  return true;
+}
+export function _wyczyscLicznik() { _licznik.clear(); }
+
+export function przytnijMaxTokens(wartosc) {
+  const n = Math.floor(Number(wartosc));
+  if (!Number.isFinite(n) || n < 1) return MAX_TOKENS;
+  return Math.min(n, MAX_TOKENS);
+}
+
 export default async function handler(req, res) {
   // Tylko POST — to jest jedyna metoda jakiej używa frontend.
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed. Use POST.' });
+    return;
+  }
+
+  if (!zrodloDozwolone(req.headers)) {
+    res.status(403).json({ error: 'Niedozwolone źródło wywołania.' });
     return;
   }
 
@@ -41,6 +104,14 @@ export default async function handler(req, res) {
     res.status(400).json({ error: 'Brak pola "prompt" w treści żądania.' });
     return;
   }
+  if (prompt.length > MAX_PROMPT_ZNAKOW) {
+    res.status(413).json({ error: 'Zapytanie za długie.' });
+    return;
+  }
+  if (!wpuscIP(adresIP(req))) {
+    res.status(429).json({ error: 'Za dużo wywołań. Spróbuj za kilka minut.' });
+    return;
+  }
 
   try {
     const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
@@ -52,7 +123,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-opus-4-8',
-        max_tokens: maxTokens || 5000,
+        max_tokens: przytnijMaxTokens(maxTokens),
         // thinking: adaptive — jedyny obsługiwany tryb dla Opus 4.8.
         // Model sam decyduje kiedy i ile myśleć w zależności od złożoności zadania.
         // Przy diagnozie piłkarskiej z wieloma zależnościami przyczynowymi,
