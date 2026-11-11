@@ -40,6 +40,14 @@ export const MAX_PROMPT_ZNAKOW = 30000;
 // Licznik w pamięci funkcji: najwyżej LIMIT_IP wywołań z jednego adresu w oknie OKNO_MS.
 // 30 / 10 min: drużyna na jednym klubowym Wi-Fi mieści się (jedna diagnoza = jedno wywołanie).
 export const LIMIT_IP = 30;
+// LEJEK 11.11.2026 — PORÓWNANIE MODELI. Wołający może wskazać model, ale TYLKO z tej listy;
+// cokolwiek innego (albo brak pola) = model domyślny. Na liście nie ma nic droższego od domyślnego,
+// więc ta furtka nie podnosi kosztu wywołania. Frontend dziś pola `model` nie wysyła.
+export const MODEL_DOMYSLNY = 'claude-opus-4-8';
+export const DOZWOLONE_MODELE = ['claude-opus-4-8', 'claude-sonnet-5-5'];
+export function wybierzModel(model) {
+  return DOZWOLONE_MODELE.includes(model) ? model : MODEL_DOMYSLNY;
+}
 export const OKNO_MS = 10 * 60 * 1000;
 const _licznik = new Map();
 
@@ -99,7 +107,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { prompt, maxTokens } = req.body || {};
+  const { prompt, maxTokens, model } = req.body || {};
   if (!prompt || typeof prompt !== 'string') {
     res.status(400).json({ error: 'Brak pola "prompt" w treści żądania.' });
     return;
@@ -122,7 +130,7 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-opus-4-8',
+        model: wybierzModel(model),
         max_tokens: przytnijMaxTokens(maxTokens),
         // thinking: adaptive — jedyny obsługiwany tryb dla Opus 4.8.
         // Model sam decyduje kiedy i ile myśleć w zależności od złożoności zadania.

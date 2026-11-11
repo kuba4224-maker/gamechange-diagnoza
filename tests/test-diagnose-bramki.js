@@ -132,6 +132,27 @@ function zadanie(o) {
     assert(r.kod === 200, 'po serii 413 zwykła diagnoza z tego IP nadal przechodzi');
   }
 
+  scenario('6. wybór modelu tylko z listy, domyślnie bez zmian');
+  {
+    assert(M.DOZWOLONE_MODELE.includes(M.MODEL_DOMYSLNY), 'model domyślny jest na liście dozwolonych');
+    assert(M.DOZWOLONE_MODELE.every(m => /^claude-(opus-4-8|sonnet-5-5)$/.test(m)), '⛔ na liście nie ma modelu droższego niż Opus 4.8 (tylko opus-4-8 i sonnet-5-5)');
+    for (const [we, wy] of [[undefined, M.MODEL_DOMYSLNY], ['claude-sonnet-5-5', 'claude-sonnet-5-5'], ['claude-opus-5', M.MODEL_DOMYSLNY], ['gpt-x', M.MODEL_DOMYSLNY], [null, M.MODEL_DOMYSLNY]]) {
+      assert(M.wybierzModel(we) === wy, 'model ' + JSON.stringify(we) + ' → ' + wy);
+    }
+    wyslane.length = 0;
+    M._wyczyscLicznik(); let r = odp(); await M.default(zadanie({}), r);
+    assert(wyslane[0] && wyslane[0].body.model === M.MODEL_DOMYSLNY, 'bez pola model: wysłany model domyślny');
+    wyslane.length = 0;
+    const z = zadanie({}); z.body.model = 'claude-sonnet-5-5'; r = odp(); await M.default(z, r);
+    assert(wyslane[0] && wyslane[0].body.model === 'claude-sonnet-5-5', 'model z listy: wysłany ten model');
+    wyslane.length = 0;
+    const z2 = zadanie({}); z2.body.model = 'claude-opus-4-1-drozszy'; r = odp(); await M.default(z2, r);
+    assert(wyslane[0] && wyslane[0].body.model === M.MODEL_DOMYSLNY, 'model spoza listy: wysłany domyślny, nie podany');
+    const wywolania = [...HTML.matchAll(/fetch\(\s*['"`]\/api\/diagnose['"`][\s\S]{0,300}?\}\s*\)/g)].map(m => m[0]);
+    assert(wywolania.length >= 3, 'znaleziono wywołania /api/diagnose we froncie (' + wywolania.length + ', wycinek NIE jest pusty)');
+    assert(wywolania.every(w => !/\bmodel\s*:/.test(w)), 'frontend nie wysyła pola model w żadnym wywołaniu (zawodnik dostaje domyślny)');
+  }
+
   koniec();
 })();
 
