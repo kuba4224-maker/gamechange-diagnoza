@@ -59,7 +59,9 @@ function kontekst(extra) {
     window: { location: { hash: '#r=abc', href: 'https://gamechange-diagnoza.vercel.app/#r=abc' } },
     SEG_NAMES: { moc: 'MOC', regeneracja: 'REGENERACJA', percepcja: 'PERCEPCJA', decyzja: 'SZYBKOŚĆ DECYZJI' },
     getPositionProfile: () => null,
-    cachedScores: null, ctx: { pos: null, age: 15 }, playerEmail: null, playerName: null,
+    // ⚠️ PRZESTAWIONE 12.11.2026 (zgoda rodzica, runda 2): domyślny wiek 15 → 17. Poniżej 16 oferty nie ma
+    // (decyzja Kuby), a te scenariusze sprawdzają właśnie ofertę. Wiek 15 ma własne asercje niżej.
+    cachedScores: null, ctx: { pos: null, age: 17 }, playerEmail: null, playerName: null,
     _diagState: {},
     saveToSupabase: (t, r) => zapisy.push({ t, r }),
     buildDiagnosticsRecord: (x) => Object.assign({ scores: '{}' }, x),
@@ -72,6 +74,8 @@ function kontekst(extra) {
     // DIAGNOZA PAKIET 0 (12.11.2026), Z3b — nagłówek bloku bierze pełną nazwę obszaru.
     wytnijConst('SEG_PELNE_NAZWY'), wytnij('pelnaNazwaObszaru'),
     wytnijConst('GC_WASKIE_GARDLO_JEZYK'), wytnij('getRelativeDeficits'), wytnij('opiszWaskieGardlo'),
+    // ZGODA RODZICA 12.11.2026 (runda 2): `_pokazNastepnyKrok` chowa ofertę poniżej 16 lat — potrzebuje progu i zdania.
+    'const GC_ZGODA_MARKETING_ENABLED = true;', ((/^const GC_ZGODA_MIN_WIEK = \d+;$/m.exec(HTML)) || [''])[0], wytnijConst('GC_TEKST_DZIECKO_BEZ_OFERTY'), wytnij('_czyWymaganaZgodaRodzica'),
     wytnij('czyWidokRodzica'), wytnijConst('GC_TEKSTY_RODZIC'), wytnij('_pokazNastepnyKrok'), wytnij('wybierzKrokIST'), wytnij('wyslijProsbeIST'),
     wytnij('_escapeHtmlLite'), wytnij('zbudujMailDoRodzica'), wytnij('_powiadomOMailuDoRodzica'), wytnij('pokazRodzicowi'),
   ].join('\n');
@@ -194,6 +198,14 @@ probuj('przycisk planu zależy od obszaru', () => {
 probuj('przycisk rodzica tylko poniżej 18 lat', () => {
   const a = kontekst({ cachedScores: DEFICYT, ctx: { pos: null, age: 15 } }); a.c._pokazNastepnyKrok();
   assert(a.el['next-step-btn-rodzic'].style.display === 'block', '15 lat: „Pokaż wynik rodzicowi” widoczny');
+  // ZGODA RODZICA 12.11.2026 (runda 2, decyzja Kuby): poniżej 16 lat bez oferty z cenami.
+  assert(a.el['next-step-btn-plan'].style.display === 'none', '⭐ 15 lat: „Zrób to sam” (cena planu) SCHOWANY');
+  assert(a.el['next-step-btn-spotkanie'].style.display === 'none', '⭐ 15 lat: „Zrób to ze mną” (ceny IST) SCHOWANY');
+  assert(a.el['next-step-intro'].textContent === 'Jeśli chcesz pójść z tym dalej, pokaż ten wynik rodzicowi. Dostał ode mnie osobną wiadomość.', '15 lat: zdanie „pokaż wynik rodzicowi”');
+  const c16 = kontekst({ cachedScores: DEFICYT, ctx: { pos: null, age: 16 } }); c16.c._pokazNastepnyKrok();
+  assert(c16.el['next-step-btn-plan'].style.display === 'block' && c16.el['next-step-btn-spotkanie'].style.display !== 'none', '16 lat: oferta widoczna jak dotąd');
+  const r15 = kontekst({ cachedScores: DEFICYT, ctx: { pos: null, age: 15 }, window: { location: { search: '?dla=rodzic', hash: '#r=abc', href: 'https://diagnoza.gamechange.pl/?dla=rodzic#r=abc' } } }); r15.c._pokazNastepnyKrok();
+  assert(r15.el['next-step-btn-plan'].style.display === 'block', 'widok rodzica (?dla=rodzic) przy wieku 15: oferta widoczna');
   const b = kontekst({ cachedScores: DEFICYT, ctx: { pos: null, age: 22 } }); b.c._pokazNastepnyKrok();
   assert(b.el['next-step-btn-rodzic'].style.display === 'none', '22 lata: przycisk rodzica schowany');
 });

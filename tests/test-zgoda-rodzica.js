@@ -347,6 +347,9 @@ function sprawdzTeksty(html) {
   ok(/id="parent-gate-email"/.test(wyc), 'C1 pole e-mail rodzica w bramce');
   ok(html.indexOf("const ZGODA_RODZICA_T3 = '" + T3 + "';") !== -1, 'C2 T3 bajt w bajt');
   ok(html.indexOf("const ZGODA_RODZICA_T4 = '" + T4 + "';") !== -1, 'C3 T4 bajt w bajt');
+  const mBox = /<div id="zgoda-rodzica-box"[^>]*style="([^"]*)"/.exec(html);
+  ok(!!mBox, 'C4 strażnik strażnika: pasek T3/T4 istnieje');
+  ok(!!mBox && !/position:\s*fixed/.test(mBox[1]), 'C4 pasek T3/T4 w przepływie strony, nie przypięty (przypięty zasłaniał logo)');
   return W;
 }
 
@@ -399,6 +402,7 @@ async function zapalenia(z) {
     ['M14 T1 przepisane', Z('html', '>' + T1 + '<', '>Podaj e-mail rodzica.<')],
     ['M15 T4 przepisane', Z('html', "const ZGODA_RODZICA_T4 = '" + T4, "const ZGODA_RODZICA_T4 = 'Błąd linku.")],
     ['M16 następna osoba: próg 16 → 13 (polska granica RODO)', Z('html', 'const GC_ZGODA_MIN_WIEK = 16;', 'const GC_ZGODA_MIN_WIEK = 13;')],
+    ['M18 pasek T3/T4 znów przypięty (zasłania logo)', Z('html', 'style="display:none;position:relative;z-index:10;', 'style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;')],
     ['M17 marketing_consent: true przed kliknięciem rodzica', Z('html', '    marketing_consent: false,\n    note: stan', '    marketing_consent: true,\n    note: stan')],
   ];
   for (const [nazwa, psuj] of MUTACJE) {

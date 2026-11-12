@@ -737,8 +737,9 @@ body {
 <body>
 
 <!-- ZGODA RODZICA 12.11.2026 (K2) — komunikat po kliknięciu linku z maila do rodzica.
+     Pasek stoi w normalnym przepływie strony (nie position:fixed): przypięty zasłaniał logo na ekranie startowym.
      /api/zgoda-rodzica przekierowuje na ?zgoda=ok (T3) albo ?zgoda=blad (T4). Treść: pokazZgodeRodzica(). -->
-<div id="zgoda-rodzica-box" role="status" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#0e0d0b;color:#f5f2ec;padding:16px 48px 16px 20px;font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.6;text-align:center;">
+<div id="zgoda-rodzica-box" role="status" style="display:none;position:relative;z-index:10;background:#0e0d0b;color:#f5f2ec;padding:16px 48px 16px 20px;font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.6;text-align:center;">
   <span id="zgoda-rodzica-tekst"></span>
   <button onclick="document.getElementById('zgoda-rodzica-box').style.display='none'" aria-label="Zamknij" style="position:absolute;top:10px;right:12px;background:none;border:none;color:#f5f2ec;font-size:20px;cursor:pointer;">×</button>
 </div>
@@ -5155,6 +5156,9 @@ async function _wyslijProsbeRodzica(email, parentEmail) {
   return stan;
 }
 // Komunikat po powrocie z linku rodzica (?zgoda=ok · ?zgoda=blad). Teksty T3/T4 zatwierdził Kuba 12.11.2026.
+// Zdanie z maila dziecka (zatwierdzone przez Kubę 12.11), skrócone o „o tym, co można zrobić”: rodzic przed zgodą
+// dostał tylko prośbę o potwierdzenie, nie opis usług.
+const GC_TEKST_DZIECKO_BEZ_OFERTY = 'Jeśli chcesz pójść z tym dalej, pokaż ten wynik rodzicowi. Dostał ode mnie osobną wiadomość.';
 const ZGODA_RODZICA_T3 = 'Dziękuję, zgoda zapisana. Wiadomości będą przychodzić na oba adresy. Z każdej można zrezygnować jednym kliknięciem.';
 const ZGODA_RODZICA_T4 = 'Ten link wygasł albo jest niepełny. Wystarczy, że zawodnik wyśle wynik jeszcze raz.';
 function pokazZgodeRodzica(param) {
@@ -6143,6 +6147,16 @@ function _pokazNastepnyKrok() {
     if (cenaIst) cenaIst.textContent = GC_CENY_IST;
     const btnRodzic = document.getElementById('next-step-btn-rodzic');
     if (btnRodzic) btnRodzic.style.display = (!rodzic && ctx && ctx.age !== null && ctx.age !== undefined && ctx.age < 18) ? 'block' : 'none';
+    // ZGODA RODZICA 12.11.2026 (decyzja Kuby 12.11, runda 2): poniżej 16 lat zawodnik NIE widzi oferty
+    // z cenami (Plan 6 tygodni, spotkanie/IST) — tylko „Pokaż wynik rodzicowi” i zdanie z maila dziecka.
+    // Spójne z mailami: na adres dziecka nie idzie żadna oferta. Widok rodzica (?dla=rodzic) bez zmian.
+    if (!rodzic && _czyWymaganaZgodaRodzica()) {
+      if (btnPlan) btnPlan.style.display = 'none';
+      const btnIst = document.getElementById('next-step-btn-spotkanie');
+      if (btnIst) btnIst.style.display = 'none';
+      const intro = document.getElementById('next-step-intro');
+      if (intro) intro.textContent = GC_TEKST_DZIECKO_BEZ_OFERTY;
+    }
     if (rodzic) {
       const ustaw = (id, t) => { const el = document.getElementById(id); if (el) el.textContent = t; };
       ustaw('next-step-label', GC_TEKSTY_RODZIC.etykieta);
