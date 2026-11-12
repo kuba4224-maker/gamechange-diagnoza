@@ -289,6 +289,13 @@ const ODCZYTY = SIECIOWE.filter(w => w.rodzaj === 'gcRpc'
 assertEq(SIECIOWE.length, 22, 'zapadka na RÓWNOŚĆ (O73): wywołań sieciowych poza pośrednikiem');
 assertEq(ODCZYTY.length, 10, 'zapadka na RÓWNOŚĆ (O73): ŚCIEŻEK ODCZYTU w lejku');
 assertEq(SIECIOWE.length - ODCZYTY.length, 12, 'zapadka na RÓWNOŚĆ (O73): ścieżek zapisu');
+/* ⭐ DODANE 12.11.2026 (DIAGNOZA PAKIET 0, Z5). Trzy nowe zdarzenia początku lejka (`survey_opened`,
+   `survey_started`, `survey_half`) idą przez JEDNO nowe wywołanie `saveToSupabase` w
+   `zapiszZdarzenieLejkaRazNaPrzejscie` — a `saveToSupabase` jest pośrednikiem z jednym `fetch`,
+   więc zapadki wyżej (liczą `fetch`) tego NIE WIDZĄ. Stąd osobna zapadka na RÓWNOŚĆ na liczbę
+   wywołań zapisu: 10 → 11. Kto dołoży kolejny zapis zdarzenia, zobaczy czerwień i musi go nazwać. */
+assertEq(ileWywolan('saveToSupabase'), 11, 'zapadka na RÓWNOŚĆ (O73): wywołań `saveToSupabase` w lejku (12.11.2026: 10 → 11, Z5)');
+assertEq(ileWywolan('zapiszZdarzenieLejkaRazNaPrzejscie'), 3, 'zapadka na RÓWNOŚĆ (O73): zdarzeń początku lejka — dokładnie trzy miejsca wywołania (Z5)');
 
 /* ══════════════════════════════════════════════════════════════════════════
    2. KANON TRZECH WARTOŚCI — URUCHOMIONY, nie przeczytany
@@ -935,7 +942,9 @@ function zrodloLinkuZ(t) {
   const tnij = (n) => { const f = P.znajdz(n); return f ? t.slice(f.od, f.b) : ''; };
   return [
     (/const\s+GC_WERSJA_WYNIKU_W_LINKU\s*=\s*\d+\s*;/.exec(t) || [''])[0],
-    ...['ZDANIE_LINK_NIE_DO_ODCZYTANIA', 'ZDANIE_LINK_NIEPELNY_WYNIK', 'ZDANIE_LINK_SPRZED_POPRAWKI', 'ETYKIETA_SPRAWDZ_WASKIE_GARDLO']
+    /* DIAGNOZA PAKIET 0 (12.11.2026), Z1 — dołożone: wersja sprzed poprawki kierunku i jej zdanie. */
+    (/const\s+GC_WERSJA_WYNIKU_PRZED_POPRAWKA_KIERUNKU\s*=\s*\d+\s*;/.exec(t) || [''])[0],
+    ...['ZDANIE_LINK_NIE_DO_ODCZYTANIA', 'ZDANIE_LINK_NIEPELNY_WYNIK', 'ZDANIE_LINK_SPRZED_POPRAWKI', 'ZDANIE_LINK_SPRZED_POPRAWKI_LICZENIA', 'ZDANIE_LINK_BEZ_WERSJI_DOPISEK', 'ETYKIETA_SPRAWDZ_WASKIE_GARDLO']
         .map(n => (new RegExp('const\\s+' + n + "\\s*=\\s*'[^']*';").exec(t) || [''])[0]),
     tnij('esc'), tnij('showScreen'),
     tnij('ocenWynikZLinku'), tnij('renderLinkOdrzucony'), tnij('oznaczLinkSprzedPoprawki'),
@@ -1110,6 +1119,20 @@ probuj('`loadResultsFromURL` daje się odpalić z atrapą DOM-u na czterech hash
   assert(d.ostrzezenieD4.indexOf(ZD_STARY) !== -1, '(d) to jest DOKŁADNIE zdanie ze stałej, nie kopia w teście');
   assert(!/oszuk|na pewno|z pewnością|pewnie nie oceniłeś/i.test(d.ostrzezenieD4),
     'Z0 + N1 — zdanie mówi „nie mamy jak sprawdzić", a nie „ten wynik jest fałszywy"');
+
+  /* (f) DIAGNOZA PAKIET 0 (12.11.2026), Z1 — link z WERSJI 2 (przed poprawką kierunku dwóch pytań)
+     renderuje się i niesie WŁASNE zdanie, nie zdanie o braku znacznika. */
+  assertEq(WERSJA_Z_PLIKU, 3, 'Z1 — znacznik wersji wyniku podniesiony do 3 (poprawka kierunku 12.11.2026)');
+  const f2 = odpalLink(doHasha({ s: pelny, j: 0, v: 2 }));
+  const ZD_V2 = (/const\s+ZDANIE_LINK_SPRZED_POPRAWKI_LICZENIA\s*=\s*'([^']*)'/.exec(HTML) || [])[1];
+  assert(typeof ZD_V2 === 'string' && ZD_V2.length > 20, 'Z1 — stała ze zdaniem dla linku z wersji 2 istnieje');
+  assertEq(f2.ekran, 'screen-results', 'Z1 (f) link z wersji 2 RENDERUJE SIĘ — nie unieważniamy cudzego linku');
+  assert(f2.ostrzezenieD4.indexOf(ZD_V2) !== -1, '⭐ Z1 (f) link z wersji 2 niesie zdanie „przed poprawką liczenia"');
+  assert(f2.ostrzezenieD4.indexOf(ZD_STARY) === -1, 'Z1 (f) i NIE niesie zdania o wartości zastępczej (to inna wada)');
+  assert(d.ostrzezenieD4.indexOf(ZD_V2) === -1, 'Z1 (d) link BEZ znacznika nie dostaje zdania dla wersji 2 („jest policzony błędnie" — tu nie wiemy)');
+  const ZD_DOP = (/const\s+ZDANIE_LINK_BEZ_WERSJI_DOPISEK\s*=\s*'([^']*)'/.exec(HTML) || [])[1];
+  assert(typeof ZD_DOP === 'string' && d.ostrzezenieD4.indexOf(ZD_DOP) !== -1, 'Z1 (d) link BEZ znacznika mówi też o MOŻLIWYM błędzie kierunku (błąd istniał od 20.07, link sprzed 16.08)');
+  assert(f2.ostrzezenieD4.indexOf(ZD_DOP) === -1, 'Z1 (f) link z wersji 2 nie dostaje dopisku „mógł" — tam błąd jest pewny');
 
   /* (e) hash POPRAWNY, PEŁNY i ZE znacznikiem → ⭐ ASERCJA ODWROTNA D5 */
   const e = odpalLink(doHasha({ s: pelny, j: 0, v: WERSJA_Z_PLIKU }));

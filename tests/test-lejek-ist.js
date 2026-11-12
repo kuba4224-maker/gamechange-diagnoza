@@ -69,6 +69,8 @@ function kontekst(extra) {
   const kod = [
     wytnijConst('GC_IST_CZAS_ODPOWIEDZI'), 'const GC_NASTEPNY_KROK_ENABLED = true;',
     (extra && extra.__plany) || wytnijConst('GC_PLANY_6TYG'), wytnijConst('GC_CENA_PLANU_6TYG'), wytnijConst('GC_CENY_IST'),
+    // DIAGNOZA PAKIET 0 (12.11.2026), Z3b — nagłówek bloku bierze pełną nazwę obszaru.
+    wytnijConst('SEG_PELNE_NAZWY'), wytnij('pelnaNazwaObszaru'),
     wytnijConst('GC_WASKIE_GARDLO_JEZYK'), wytnij('getRelativeDeficits'), wytnij('opiszWaskieGardlo'),
     wytnij('czyWidokRodzica'), wytnijConst('GC_TEKSTY_RODZIC'), wytnij('_pokazNastepnyKrok'), wytnij('wybierzKrokIST'), wytnij('wyslijProsbeIST'),
     wytnij('_escapeHtmlLite'), wytnij('zbudujMailDoRodzica'), wytnij('_powiadomOMailuDoRodzica'), wytnij('pokazRodzicowi'),
