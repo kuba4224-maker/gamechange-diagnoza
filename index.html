@@ -3,7 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gamechange System</title>
+<title>Darmowa diagnoza piłkarza — Gamechange</title>
+<!-- DIAGNOZA PAKIET 0 (12.11.2026), Z7 — opis i podgląd linku. `og:image` celowo BRAK:
+     w repozytorium nie ma obrazu w proporcji podglądu (1200×630); logo 45 kB nie nadaje się. -->
+<meta name="description" content="27 pytań, 4 minuty. Sprawdź, co naprawdę ogranicza Twoją grę i od czego zacząć pracę.">
+<meta property="og:title" content="Darmowa diagnoza piłkarza — Gamechange">
+<meta property="og:description" content="27 pytań, 4 minuty. Sprawdź, co naprawdę ogranicza Twoją grę i od czego zacząć pracę.">
+<meta property="og:url" content="https://diagnoza.gamechange.pl/">
+<meta property="og:type" content="website">
 <!-- PLAN-D-X 08.2026 — JEDNO ŹRÓDŁO ZASAD PRODUKTU DLA PIĘCIU PROMPTÓW AI TEGO LEJKA.
      Skrypt jest SYNCHRONICZNY i stoi tu, przed całą resztą, celowo: wszystkie pięć
      promptów AI budowanych w tym pliku odwołuje się do `ZASADY_PROMPTU` i bez niego
@@ -253,6 +260,25 @@ body {
   line-height: 1;
   color: inherit;
   display: block !important;
+}
+/* DIAGNOZA PAKIET 0 (12.11.2026), Z2 — skala na telefonie. Do tego dnia przy 360 px szósty
+   przycisk („Prawie zawsze") kończył się za krawędzią ekranu i strona przesuwała się w bok:
+   przyciski miały `flex: 1`, ale bez `min-width: 0` nie chciały zejść poniżej szerokości
+   etykiety, a kolumna pytania miała 2 × 24 px + 2 × 24 px marginesu. Poniżej 480 px:
+   węższe marginesy (16 px od krawędzi), przyciski mogą się zwęzić, etykieta łamie się
+   na dwa wiersze, wysokość co najmniej 52 px (cel dotyku ≥ 44 px). Mierzone w Chromium
+   przy 320 / 360 / 390 / 414 px — nota DIAGNOZA-PAKIET-0-NOTA.md. */
+@media (max-width: 480px) {
+  .survey-body { padding-left: 12px; padding-right: 12px; }
+  .segment-scroll-block { padding-left: 4px !important; padding-right: 4px !important; }
+  .scale-btns { gap: 3px; }
+  .scale-btn { min-width: 0; height: auto; min-height: 56px; padding: 6px 1px; }
+  .scale-label-text { font-size: 9px; letter-spacing: 0; line-height: 1.2; text-align: center; overflow-wrap: anywhere; }
+  /* Z2 — rząd liczb na ekranie startowym (5 · 13 · 81 · 27): do 12.11.2026 przy 320 i 360 px
+     skrajne komórki wychodziły poza rząd (pierwsza zaczynała się 32 px przed lewą krawędzią
+     ekranu i była ucięta). Komórki mogą się zwęzić, etykieta jest mniejsza. */
+  .gc-liczby > div { flex: 1 1 0; min-width: 0; padding: 16px 4px !important; }
+  .gc-liczby > div > div:last-child { font-size: 9px !important; letter-spacing: 0.04em !important; }
 }
 @media (max-width: 360px) {
   .scale-btn { height: 52px; }
@@ -753,7 +779,7 @@ body {
       <div id="gc-powrot-do-ankiety" style="margin-top:32px;"></div>
 
       <!-- SOCIAL PROOF — liczby systemu -->
-      <div style="margin-top:56px;display:flex;justify-content:center;gap:0;border:1px solid rgba(255,255,255,0.07);max-width:480px;margin-left:auto;margin-right:auto;">
+      <div class="gc-liczby" style="margin-top:56px;display:flex;justify-content:center;gap:0;border:1px solid rgba(255,255,255,0.07);max-width:480px;margin-left:auto;margin-right:auto;">
         <div style="flex:1;padding:20px 16px;border-right:1px solid rgba(255,255,255,0.07);text-align:center;">
           <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;color:#E8432D;letter-spacing:0.05em;line-height:1;">5</div>
           <div style="font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:0.1em;text-transform:uppercase;margin-top:4px;">Filarów</div>
@@ -816,7 +842,7 @@ body {
 
       <div class="ctx-section locked" id="ctx-s-level">
         <div class="ctx-section-label"><span class="active-dot" id="dot-level" style="display:none"></span>Poziom rozgrywek</div>
-        <div class="ctx-hint">Pytania w ankiecie są dopasowane do poziomu — wybierz ten który najlepiej opisuje Twoje obecne rozgrywki.</div>
+        <div class="ctx-hint">Wybierz poziom, który najlepiej opisuje Twoje obecne rozgrywki — pozwoli nam to dopasować opis wyniku do Twojej aktualnej sytuacji.</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
           <button class="ctx-btn" onclick="ctxPick('level',0,this)">Amator / rekreacyjnie</button>
           <button class="ctx-btn" onclick="ctxPick('level',1,this)">Juniorski klub</button>
@@ -851,6 +877,9 @@ body {
           onfocus="this.style.borderColor='#0e0d0b'"
           onblur="this.style.borderColor='#d8d3c8'">
 <option value="">— wybierz rok —</option>
+          <option value="2018">2018</option>
+          <option value="2017">2017</option>
+          <option value="2016">2016</option>
           <option value="2015">2015</option>
           <option value="2014">2014</option>
           <option value="2013">2013</option>
@@ -924,7 +953,7 @@ body {
         </div>
       </div>
 
-      <!-- Email rodzica — pojawia się automatycznie gdy zawodnik ma < 16 lat -->
+      <!-- Email rodzica — pojawia się automatycznie, gdy zawodnik ma < 18 lat (DIAGNOZA PAKIET 0, Z7) -->
       <div id="parent-email-wrap" style="display:none;margin-bottom:32px;padding:20px;background:#fff8f0;border:1px solid #e8c87a;">
         <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:6px;font-weight:500;">Email rodzica lub opiekuna (opcjonalnie)</div>
         <p style="font-size:12px;color:#9a9488;font-weight:300;margin-bottom:12px;line-height:1.6;">Jeśli podasz email rodzica lub opiekuna, napiszę do niego krótko, co wynika z diagnozy i jaki może być następny krok. Możesz to pominąć.</p>
@@ -1114,7 +1143,7 @@ body {
       <div style="background:#fff;border:1px solid #d8d3c8;padding:40px;max-width:480px;width:100%;margin:0 auto;text-align:center;box-shadow:0 8px 48px rgba(0,0,0,0.08);">
         <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Odbierz pełną diagnozę</div>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1.1;letter-spacing:0.01em;margin-bottom:16px;">Widzisz swoje wyniki.<br>Teraz dowiedz się <em style="color:#C0392B;font-style:normal;">co z nimi zrobić.</em></div>
-        <p style="font-size:14px;color:#3a3830;font-weight:300;line-height:1.8;margin-bottom:28px;">Podaj email — wyślemy Ci diagnozę na podstawie Twoich wyników i zaproponujemy konkretne rozwiązania które poprawią Twoją grę.</p>
+        <p style="font-size:14px;color:#3a3830;font-weight:300;line-height:1.8;margin-bottom:28px;">Podaj email, żeby odblokować opis: co te wyniki znaczą na boisku i od czego zacząć.</p>
         <input id="email-input" type="email" placeholder="twoj@email.com"
           style="width:100%;padding:14px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:15px;color:#0e0d0b;outline:none;margin-bottom:12px;display:block;"
           onfocus="this.style.borderColor='#0e0d0b'"
@@ -1362,7 +1391,7 @@ body {
       </p>
       <!-- Bramka emailowa jeśli email nie jest jeszcze podany -->
       <div id="pdf-email-gate" style="display:none;margin-bottom:16px;">
-        <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#3a3830;margin-bottom:8px;font-weight:500;">Podaj email — wyślemy też kopię na Twoją skrzynkę</div>
+        <div style="font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:#3a3830;margin-bottom:8px;font-weight:500;">Podaj email, żeby pobrać raport</div>
         <div style="display:flex;gap:8px;">
           <input id="pdf-email-input" type="email" placeholder="twoj@email.com"
             style="flex:1;padding:12px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:14px;color:#0e0d0b;outline:none;"
@@ -1453,7 +1482,7 @@ const SEGS = [
       },
       {
         t: 'Jak często pod koniec meczu jakość Twojej gry spada, ponieważ fizycznie brakuje Ci sił?',
-        ctx: 'Pomyśl o końcówkach meczów. Czy zmęczenie sprawia, że gorzej wykonujesz swoje działania z piłką i bez piłki, mimo że wiesz, co powinieneś zrobić?', dir: 1,
+        ctx: 'Pomyśl o końcówkach meczów. Czy zmęczenie sprawia, że gorzej wykonujesz swoje działania z piłką i bez piłki, mimo że wiesz, co powinieneś zrobić?', dir: -1,
         pos: {
           0: { t: 'Jak często pod koniec meczu jakość Twoich interwencji i kierowania obroną spada, ponieważ fizycznie brakuje Ci sił?', ctx: 'Czy zmęczenie sprawia, że Twoje interwencje, decyzje i komunikacja z obroną są mniej skuteczne niż na początku meczu?' },
           1: { t: 'Jak często pod koniec meczu jakość Twoich podań, wybić oraz działań w obronie spada, ponieważ fizycznie brakuje Ci sił?', ctx: 'Czy zmęczenie sprawia, że gorzej zagrywasz piłkę oraz mniej skutecznie wracasz, domykasz przestrzeń i asekurujesz partnerów?' },
@@ -1552,7 +1581,7 @@ const SEGS = [
       },
       {
         t: 'Jak często rezygnujesz z zagrania, które mogłoby stworzyć przewagę dla drużyny, wybierając bezpieczniejszą opcję?',
-        ctx: 'Pomyśl o sytuacjach, w których widzisz szansę na zagranie dające przewagę, ale wybierasz prostsze rozwiązanie. Jak często tak się dzieje?', dir: 1,
+        ctx: 'Pomyśl o sytuacjach, w których widzisz szansę na zagranie dające przewagę, ale wybierasz prostsze rozwiązanie. Jak często tak się dzieje?', dir: -1,
         pos: {
           0: { t: 'Jak często zamiast rozpocząć akcję rozegraniem dającym drużynie przewagę wybierasz prostsze wybicie piłki?', ctx: 'Chodzi o sytuacje, w których rozegranie mogłoby przynieść korzyść drużynie, ale decydujesz się na bezpieczniejsze rozwiązanie.' },
           1: { t: 'Jak często zamiast zagrać podanie przełamujące pressing wybierasz prostsze podanie do najbliższego partnera?', ctx: 'Pomyśl o wyprowadzaniu piłki. Jak często wybierasz bezpieczniejsze rozwiązanie mimo możliwości stworzenia przewagi?' },
@@ -2005,7 +2034,8 @@ function relativeBarWidth(score, median, stdDev) {
  * (2) jak ważny jest ten segment dla JEGO roli na boisku (POSITION_PROFILES).
  *
  * Z kartą pozycyjną (4 grupy):
- *   g1 "Tu jest Twoja szansa"   — ważny/kluczowy dla pozycji + realny deficyt
+ *   g1 "Tu jest Twoja szansa"   — KAŻDY realny deficyt, bez względu na ważność dla pozycji
+ *                                 (DIAGNOZA PAKIET 0, 12.11.2026 — ważność zostaje etykietą przy pasku)
  *   g2 "Twoja przewaga"         — ważny/kluczowy dla pozycji + realna mocna strona
  *   g3 "Warto wzmocnić"         — ważny dla pozycji, ale w normie (lub kluczowy w normie)
  *   g4 "Solidne, drugorzędne"   — drugorzędny dla pozycji, niezależnie od poziomu
@@ -2050,7 +2080,17 @@ function groupSegmentsForDisplay(scores, positionProfile, segNames) {
       return;
     }
 
-    if ((tier === 'key' || tier === 'important') && cls === 'deficit') groups.g1.push(entry);
+    // ══════════════════════════════════════════════════════════════════════
+    // DIAGNOZA PAKIET 0 (12.11.2026), Z3a. DO TEGO DNIA STAŁO TU:
+    //     if ((tier === 'key' || tier === 'important') && cls === 'deficit') groups.g1.push(entry);
+    // Deficyt w obszarze „drugorzędnym" dla pozycji spadał do g4 „Solidne, drugorzędne",
+    // a nagłówek wyniku i przycisk Planu (oba z `getRelativeDeficits(...)[0]`) wskazywały
+    // ten sam obszar jako wąskie gardło. Zawodnik czytał na jednym ekranie „to Cię
+    // ogranicza najbardziej" i „to jest solidne". Teraz każdy deficyt idzie do g1,
+    // a ważność dla pozycji zostaje tylko etykietą przy pasku (`seg-group-tier-tag`).
+    // ⛔ Żaden deficyt nie ma prawa stać w g4 — pilnuje `tests/test-ekran-wyniku-spojny.js`.
+    // ══════════════════════════════════════════════════════════════════════
+    if (cls === 'deficit') groups.g1.push(entry);
     else if ((tier === 'key' || tier === 'important') && cls === 'strength') groups.g2.push(entry);
     else if (tier === 'important' || (tier === 'key' && cls === 'neutral')) groups.g3.push(entry);
     else groups.g4.push(entry);
@@ -2061,6 +2101,21 @@ function groupSegmentsForDisplay(scores, positionProfile, segNames) {
   groups.g2.sort((a, b) => b.score - a.score);
 
   return { groups, hasTiers: !!tiers, median, stdDev };
+}
+
+/**
+ * DIAGNOZA PAKIET 0 (12.11.2026), Z3a. Od kiedy w g1 stoi KAŻDY deficyt, stare zdanie
+ * „Bardzo ważne na Twojej pozycji, a jednocześnie Cię dziś ogranicza." byłoby nieprawdą
+ * przy deficycie drugorzędnym. Stare zdanie zostaje, gdy jest prawdziwe dla CAŁEJ grupy.
+ * ⚠️ DO PRZEJRZENIA PRZEZ KUBĘ — drugie zdanie jest nowe.
+ */
+const OPIS_PRIORYTETU_WAZNE = 'Bardzo ważne na Twojej pozycji, a jednocześnie Cię dziś ogranicza.';
+// Zasady maksymalizacji rozwoju, test 4 (mówi, nie każe czytać): zdanie mówi, od czego zacząć,
+// zamiast odsyłać do etykiety przy pasku. Uzasadnienie = logika wąskiego gardła całego produktu.
+const OPIS_PRIORYTETU_MIESZANE = 'Te obszary wyraźnie odstają od reszty Twojej gry — od nich zacznij, także gdy przy pasku stoi „drugorzędne”. Najsłabszy obszar daje dziś najwięcej do zyskania.';
+function opisGrupyPriorytetu(g1) {
+  const wszystkieWazne = (g1 || []).every(e => e.tier === 'key' || e.tier === 'important');
+  return wszystkieWazne ? OPIS_PRIORYTETU_WAZNE : OPIS_PRIORYTETU_MIESZANE;
 }
 
 /**
@@ -2316,6 +2371,27 @@ function getPositionProfile(ctxPos) {
 
 const SEG_NAMES = {};
 SEGS.forEach(s => SEG_NAMES[s.id] = s.name);
+// DIAGNOZA PAKIET 0 (12.11.2026), Z3b — pełne nazwy obszarów do zdań widocznych dla zawodnika,
+// bez skrótów. ⛔ NIE zastępuje `SEG_NAMES` — tamte nazwy idą do bazy (`top_deficits`,
+// `segment_name`) i zmiana rozjechałaby historię.
+const SEG_PELNE_NAZWY = {
+  moc: 'Moc',
+  wytrzymalosc: 'Wytrzymałość',
+  fizycznosc: 'Fizyczność',
+  techFund: 'Technika fundamentalna',
+  techSpec: 'Technika specjalistyczna',
+  tolerancja: 'Tolerancja obciążeń',
+  regeneracja: 'Regeneracja',
+  odpornosc: 'Odporność',
+  odzywianie: 'Odżywienie',
+  koncentracja: 'Koncentracja',
+  mental: 'Odwaga w grze',
+  percepcja: 'Percepcja',
+  decyzja: 'Szybkość decyzji',
+};
+function pelnaNazwaObszaru(id) {
+  return SEG_PELNE_NAZWY[id] || SEG_NAMES[id] || id;
+}
 
 
 // ======================================
@@ -2410,7 +2486,14 @@ const ZDANIE_ODPOWIEDZI_ZOSTAJA = 'Twoje odpowiedzi i wyniki zostają na tej str
  *  więc mógł nieść liczby za obszary, których zawodnik nie ocenił. Kształt ma
  *  poprawny (13 liczb w 0–100), więc ŻADNA kontrola go nie odróżni — i dlatego
  *  nie zgadujemy po liczbach (Z0), tylko mówimy wprost, czego nie wiemy. */
-const GC_WERSJA_WYNIKU_W_LINKU = 2;
+const GC_WERSJA_WYNIKU_W_LINKU = 3;
+/* ⭐ DIAGNOZA PAKIET 0 (12.11.2026), Z1 — 2 → 3. Od 20.07.2026 (commit `7e01b00`) do 12.11.2026
+   dwa pytania sformułowane odwrotnie liczyły się jak proste (`dir: 1`): wytrzymalosc[1]
+   („…mimo że wiesz, co powinieneś zrobić?") i techSpec[1] („…wybierasz prostsze rozwiązanie").
+   Zawodnik, któremu siły odpadają pod koniec meczu, dostawał za to WYŻSZĄ wytrzymałość.
+   Link z `v: 2` ma poprawny kształt, ale te dwa obszary mogą w nim stać odwrotnie —
+   więc niesie WŁASNE zdanie (`ZDANIE_LINK_SPRZED_POPRAWKI_LICZENIA`), nie zdanie o braku `v`. */
+const GC_WERSJA_WYNIKU_PRZED_POPRAWKA_KIERUNKU = 2;
 
 // ⚠️ DO PRZEJRZENIA — Y3. Trzy zdania niżej mówią o LINKU, nie o zawodniku (N1):
 // żadne nie zawiera słowa „nie odpowiedziałeś", „musisz" ani „błąd użytkownika".
@@ -2419,6 +2502,15 @@ const GC_WERSJA_WYNIKU_W_LINKU = 2;
 const ZDANIE_LINK_NIE_DO_ODCZYTANIA = 'Ten link jest uszkodzony — zapisanego w nim wyniku nie da się odczytać.';
 const ZDANIE_LINK_NIEPELNY_WYNIK = 'Ten link nie niesie pełnego wyniku — brakuje w nim ocen części obszarów, więc nie pokażemy go jako Twojego profilu.';
 const ZDANIE_LINK_SPRZED_POPRAWKI = 'Ten wynik powstał, zanim poprawiliśmy sposób liczenia. Mógł obejmować obszary, których nikt nie ocenił — wtedy dostawały wartość zastępczą. Nie mamy jak tego sprawdzić po fakcie.';
+// ⚠️ DO PRZEJRZENIA PRZEZ KUBĘ — DIAGNOZA PAKIET 0, Z1. Link z wersji 2 (16.08–12.11.2026).
+// FAKT, nie przypuszczenie: przy odpowiedzi 1–6 wartość `v` i `7 - v` nigdy nie są równe,
+// więc oba obszary w takim linku SĄ policzone błędnie. Zdanie mówi, co zrobić (zasady
+// maksymalizacji rozwoju, test 3 i 4: koszt milczenia = praca nad złym obszarem).
+const ZDANIE_LINK_SPRZED_POPRAWKI_LICZENIA = 'Ten wynik jest policzony błędnie w dwóch obszarach: wytrzymałości i technice specjalistycznej. W każdym z nich jedno pytanie liczyło się odwrotnie (poprawione 12.11.2026), więc wąskie gardło mogło wyjść inne niż naprawdę. Wypełnij ankietę jeszcze raz (4 minuty) i pracuj według nowego wyniku.';
+// ⚠️ DO PRZEJRZENIA PRZEZ KUBĘ — DIAGNOZA PAKIET 0, Z1. Link BEZ znacznika powstał przed 16.08.2026,
+// a błąd kierunku istniał od 20.07.2026 — więc część takich linków ma OBA defekty. Daty z linku
+// nie da się odczytać, dlatego „mógł", nie „jest" (Z0: nie podajemy prawdopodobnego jako pewnego).
+const ZDANIE_LINK_BEZ_WERSJI_DOPISEK = 'Mógł też powstać przed poprawką z 12.11.2026 — wtedy wytrzymałość i technika specjalistyczna są w nim policzone błędnie. Wypełnij ankietę jeszcze raz (4 minuty) i pracuj według nowego wyniku.';
 // ⚠️ DO PRZEJRZENIA — Y3. Zdanie D6 (ekran trenera): awaria odczytu ma prawo
 // powiedzieć, że NIE WIE, i nie ma prawa wydać drugiego kodu tej samej drużynie.
 const ZDANIE_NIE_UDALO_SIE_SPRAWDZIC_KODU = 'Nie udało się sprawdzić, czy masz już kod drużyny. Nie wydajemy nowego, żeby nie powstał drugi.';
@@ -2519,6 +2611,7 @@ function wrocDoAnkiety() {
     if (etykieta) etykieta.textContent = isJunior ? 'Diagnoza Junior' : 'Diagnoza';
     renderAllQuestions();
     showScreen('screen-survey');
+    wejscieNaEkranPytan(); // DIAGNOZA PAKIET 0, Z4 + Z5
   } catch (e) { zglosBladOdczytu('wrocDoAnkiety', e); }
 }
 
@@ -2538,7 +2631,7 @@ let ctx = { level: null, pos: null, age: null, clubTrainings: null, ownTrainings
 
 function updateAgeFromYear(yearStr) {
   const year = parseInt(yearStr);
-  if (!year || year < 1970 || year > 2015) {
+  if (!year || year < 1970 || year > 2018) { // DIAGNOZA PAKIET 0, Z7: górna granica 2015 → 2018 (roczniki 2016–2018 w Parasolu)
     ctx.age = null;
     document.getElementById('age-label').textContent = '';
     document.getElementById('parent-email-wrap').style.display = 'none';
@@ -2553,13 +2646,15 @@ function updateAgeFromYear(yearStr) {
   document.getElementById('age-label').textContent = label;
   document.getElementById('ctx-error').style.display = 'none';
 
-  // Pokaż pole email rodzica dla wszystkich wieków — to jest opcjonalne pole
-  // (można pominąć), a raport dla rodzica zawiera też CTA do zakupu programu,
-  // więc ograniczanie go tylko do młodszych zawodników niepotrzebnie zawężało
-  // główny kanał, przez który rodzic w ogóle dowiaduje się o ofercie.
+  // DIAGNOZA PAKIET 0 (12.11.2026), Z7. Do tego dnia pole „Email rodzica lub opiekuna"
+  // pokazywało się przy KAŻDYM roczniku, także dorosłemu zawodnikowi. Teraz tylko poniżej
+  // 18 lat. Przy ukryciu czyścimy wpisaną wartość — inaczej adres wpisany przy młodszym
+  // roczniku szedłby dalej (`startSurveyFromContext`) mimo ukrytego pola.
   const parentWrap = document.getElementById('parent-email-wrap');
   if (parentWrap) {
-    parentWrap.style.display = 'block';
+    const pokaz = age < 18;
+    parentWrap.style.display = pokaz ? 'block' : 'none';
+    if (!pokaz) { const pi = document.getElementById('parent-email-input'); if (pi) pi.value = ''; }
   }
 
   // Odblokuj kolejną sekcję (treningi z drużyną) — bez tego progresja
@@ -2723,6 +2818,7 @@ function startSurveyFromPresurvey(skip = false) {
 
   renderAllQuestions();
   showScreen('screen-survey');
+  wejscieNaEkranPytan(); // DIAGNOZA PAKIET 0, Z4 + Z5
   zapiszPostepAnkiety(); // PLAN-D-Y1 08.2026 — D2: kontekst i wybory zapisane już na starcie
 }
 
@@ -2754,6 +2850,7 @@ const FREE_ACCESS_CODES = ['GAMECHANGE', 'TRENER', 'PILOT', 'GAMECHANGE2025', 'P
 //  SURVEY RENDER
 // ======================================
 function startSurvey() {
+  zapiszZdarzenieLejkaRazNaPrzejscie('survey_opened'); // DIAGNOZA PAKIET 0, Z5
   showScreen('screen-context');
 }
 
@@ -2817,10 +2914,17 @@ function renderAllQuestions() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+/** DIAGNOZA PAKIET 0, Z4 + Z5 — wejście na ekran pytań: zegar ankiety i `survey_started`, raz na przejście. */
+function wejscieNaEkranPytan() {
+  if (_gcCzasWejsciaDoAnkiety === null) _gcCzasWejsciaDoAnkiety = Date.now();
+  zapiszZdarzenieLejkaRazNaPrzejscie('survey_started');
+}
+
 function pickScroll(segId, qi, val, btn) {
   ans[segId][qi] = val;
   btn.closest('.scale-btns').querySelectorAll('.scale-btn').forEach(b => b.classList.remove('sel'));
   btn.classList.add('sel');
+  if (liczbaOdpowiedzi() >= GC_PROG_POLOWY_ANKIETY) zapiszZdarzenieLejkaRazNaPrzejscie('survey_half'); // Z5
   updateProgressScroll();
   zapiszPostepAnkiety(); // PLAN-D-Y1 08.2026 — D2: odpowiedź ma przeżyć odświeżenie
 }
@@ -4181,13 +4285,19 @@ function renderLinkOdrzucony(zdanie) {
  * ale niesie nad wynikiem jedno zdanie o tym, czego o nim NIE WIEMY.
  * ⛔ Nie zgadujemy po liczbach (Z0) i nie kasujemy cudzego linku.
  */
-function oznaczLinkSprzedPoprawki(stary) {
+function oznaczLinkSprzedPoprawki(stary, wersja) {
   try {
     const gniazdo = document.getElementById('gc-link-sprzed-poprawki');
     if (!gniazdo) return;
+    // DIAGNOZA PAKIET 0 (12.11.2026), Z1 — link z wersji 2 mówi o poprawce KIERUNKU dwóch pytań,
+    // link bez wersji (sprzed 16.08.2026) — o wartości zastępczej i O MOŻLIWYM błędzie kierunku
+    // (błąd istniał od 20.07.2026, a daty linku nie znamy).
+    const zdanie = (wersja === GC_WERSJA_WYNIKU_PRZED_POPRAWKA_KIERUNKU)
+      ? ZDANIE_LINK_SPRZED_POPRAWKI_LICZENIA
+      : ZDANIE_LINK_SPRZED_POPRAWKI + ' ' + ZDANIE_LINK_BEZ_WERSJI_DOPISEK;
     gniazdo.innerHTML = stary
       ? '<div style="background:#fff;border:1px solid #d8d3c8;border-left:3px solid var(--amber);padding:16px 20px;max-width:640px;margin:0 auto 28px;">' +
-        '<div style="font-size:13px;color:#3a3830;font-weight:300;line-height:1.7;">' + esc(ZDANIE_LINK_SPRZED_POPRAWKI) + '</div>' +
+        '<div style="font-size:13px;color:#3a3830;font-weight:300;line-height:1.7;">' + esc(zdanie) + '</div>' +
         '</div>'
       : '';
   } catch (e) { zglosBladOdczytu('oznaczLinkSprzedPoprawki', e); }
@@ -4234,7 +4344,7 @@ function loadResultsFromURL() {
     if (data.c) ctx = data.c;
     renderResults(cachedScores);
     // ⭐ D4 — znacznik wersji rozstrzyga, czy nad wynikiem stoi zdanie ostrzegawcze.
-    oznaczLinkSprzedPoprawki(data.v !== GC_WERSJA_WYNIKU_W_LINKU);
+    oznaczLinkSprzedPoprawki(data.v !== GC_WERSJA_WYNIKU_W_LINKU, data.v);
     showScreen('screen-results');
     setTimeout(() => {
       document.querySelectorAll('.bar-fill, .seg-group-bar-fill').forEach(b => { b.style.width = b.dataset.w + '%'; });
@@ -4598,6 +4708,78 @@ async function saveToSupabase(table, data) {
   }
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   DIAGNOZA PAKIET 0 (12.11.2026), Z4 — SUROWE ODPOWIEDZI DO BAZY.
+   Do tego dnia `diagnostics` dostawało tylko 13 liczb (`scores`). Z liczby nie da się
+   odtworzyć odpowiedzi, więc błąd taki jak odwrócony kierunek dwóch pytań (Z1) był
+   nie do naprawienia wstecz. Od teraz `results_generated` niesie też:
+     answers        — { obszar: [odpowiedzi 1–6] }, dokładnie to, co kliknął zawodnik,
+     survey_version — data wersji ankiety (zmieniaj przy każdej zmianie treści/kierunku pytań),
+     duration_s     — sekundy od wejścia na ekran pytań do „Wygeneruj diagnozę".
+
+   ⛔ FLAGA. Zmierzone 12.11.2026 na lokalnym PostgreSQL 16: INSERT z kolumną, której
+   nie ma w tabeli, odrzuca CAŁY wiersz (`column "answers" … does not exist`, 0 wierszy).
+   PostgREST robi to samo (PGRST204). Bez kolumn w bazie te pola zabrałyby więc także
+   samo zdarzenie `results_generated`.
+   Stan bazy produkcyjnej zmierzony 12.11.2026: kolumny `answers jsonb`, `survey_version text`,
+   `duration_s integer` JUŻ ISTNIEJĄ, `anon` ma na nie INSERT, a próbne wstawienie jako `anon`
+   (transakcja wycofana, 0 wierszy po próbie) przeszło. Dlatego flaga stoi na `true`.
+   ⚠️ WYŁĄCZ (`false`), gdyby kiedykolwiek ten plik miał pisać do bazy BEZ tych trzech
+   kolumn (nowy projekt Supabase, odtworzenie z kopii) — inaczej zniknie każdy wynik. */
+const GC_ZAPIS_ODPOWIEDZI_ENABLED = true;
+const GC_WERSJA_ANKIETY = '2026-11-12';
+let _gcCzasWejsciaDoAnkiety = null;   // ms; ustawiane przy pierwszym wejściu na ekran pytań w przejściu
+
+/** Kopia odpowiedzi: { obszar: [1–6 albo null] } — tylko obszary z `SEGS`, tylko liczby 1–6. */
+function surowaKopiaOdpowiedzi() {
+  const wynik = {};
+  SEGS.forEach(seg => {
+    const a = (ans && ans[seg.id]) || [];
+    wynik[seg.id] = seg.qs.map((_, i) => {
+      const v = a[i];
+      return (typeof v === 'number' && v >= 1 && v <= 6) ? v : null;
+    });
+  });
+  return wynik;
+}
+
+/** Sekundy od wejścia na ekran pytań. `null` = nie wiemy (np. wynik z linku) — nie zero. */
+function czasAnkietySekundy() {
+  if (typeof _gcCzasWejsciaDoAnkiety !== 'number') return null;
+  const s = Math.round((Date.now() - _gcCzasWejsciaDoAnkiety) / 1000);
+  return s >= 0 ? s : null;
+}
+
+/** Pola Z4 dołączane WYŁĄCZNIE do `results_generated` i wyłącznie przy włączonej fladze. */
+function polaSurowychOdpowiedzi() {
+  if (!GC_ZAPIS_ODPOWIEDZI_ENABLED) return {};
+  return { answers: surowaKopiaOdpowiedzi(), survey_version: GC_WERSJA_ANKIETY, duration_s: czasAnkietySekundy() };
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   DIAGNOZA PAKIET 0 (12.11.2026), Z5 — POCZĄTEK LEJKA.
+   Do tego dnia pierwszym zdarzeniem w `diagnostics` było `results_generated`. Nie dało się
+   policzyć, ilu zawodników kliknęło start, ilu doszło do pytań i ilu odpadło w połowie.
+     survey_opened  — kliknięcie przycisku na ekranie startowym (`startSurvey`),
+     survey_started — wejście na ekran pytań (`startSurveyFromPresurvey`, `wrocDoAnkiety`),
+     survey_half    — pierwszy raz, gdy odpowiedzi jest co najmniej 14 (z 27).
+   Każde NAJWYŻEJ RAZ na przejście; `restart()` zaczyna nowe przejście. */
+const GC_PROG_POLOWY_ANKIETY = 14;
+let _gcZdarzeniaPrzejscia = new Set();
+function zapiszZdarzenieLejkaRazNaPrzejscie(nazwa) {
+  try {
+    if (_gcZdarzeniaPrzejscia.has(nazwa)) return false;
+    _gcZdarzeniaPrzejscia.add(nazwa);
+    saveToSupabase('diagnostics', buildDiagnosticsRecord({ event: nazwa }));
+    return true;
+  } catch (e) { console.warn('Z5 — zdarzenie lejka nie zapisane: ' + nazwa, e); return false; }
+}
+function liczbaOdpowiedzi() {
+  let n = 0;
+  Object.keys(ans || {}).forEach(k => (ans[k] || []).forEach(v => { if (v != null) n++; }));
+  return n;
+}
+
 function buildDiagnosticsRecord(extras = {}) {
   const deficits = (cachedScores ? getRelativeDeficits(cachedScores, 3) : []).map(([id, score]) => {
     const seg = SEGS.find(s=>s.id===id);
@@ -4725,7 +4907,7 @@ async function generateResults() {
   saveResultsToURL(cachedScores);
 
   // Zapisz anonimowe wyniki do Supabase
-  saveToSupabase('diagnostics', buildDiagnosticsRecord({ event: 'results_generated' }));
+  saveToSupabase('diagnostics', buildDiagnosticsRecord(Object.assign({ event: 'results_generated' }, polaSurowychOdpowiedzi())));
 
   showScreen('screen-results');
 
@@ -4944,7 +5126,7 @@ function submitEmail() {
   document.getElementById('email-gate-box').style.display = 'none';
 
   // Pokaż potwierdzenie
-  document.getElementById('email-confirm-text').textContent = `Wyślemy diagnozę na ${email}. Możesz też skopiować link i podzielić się wynikami z trenerem.`;
+  document.getElementById('email-confirm-text').textContent = 'Adres zapisany. Skopiuj link do wyniku — możesz do niego wrócić albo pokazać go trenerowi.'; // DIAGNOZA PAKIET 0, Z6 — nikt nie wysyłał diagnozy mailem
   document.getElementById('email-confirm-box').style.display = 'block';
 
   // Załaduj historię i pokaż porównanie jeśli jest
@@ -4959,7 +5141,7 @@ function submitEmail() {
       const prevDate = new Date(history[1].created_at).toLocaleDateString('pl-PL');
       const confirmText = document.getElementById('email-confirm-text');
       if (confirmText) {
-        confirmText.innerHTML = `Wyślemy diagnozę na ${email}. <span style="color:#2a7a3a;font-weight:500;">Witaj z powrotem — Twoja poprzednia diagnoza pochodzi z ${prevDate}.</span>`;
+        confirmText.innerHTML = `Adres zapisany. Skopiuj link do wyniku — możesz do niego wrócić albo pokazać go trenerowi. <span style="color:#2a7a3a;font-weight:500;">Witaj z powrotem — Twoja poprzednia diagnoza pochodzi z ${prevDate}.</span>`;
       }
       // 13.08.2026 — WYWOŁANIE USUNIĘTE (ustalenie A2, decyzja Kuby z 10.08.2026).
       // Tu wstawiał się radar „Twój postęp" z dwóch samoocen. Powód zakazu i to,
@@ -5403,6 +5585,13 @@ FORMAT ODPOWIEDZI (zachowaj dokładnie te znaczniki). TREŚĆ KAŻDEJ SEKCJI ZAL
       _diagState.odczytDiagnozy = false;
       powodNieudanejDiagnozy = 'HTTP ' + response.status + ((data && data.error) ? ' — ' + data.error : '');
       zglosBladOdczytu('generateAIDiagnosis :: /api/diagnose', powodNieudanejDiagnozy);
+    } else if (data && data.stop_reason === 'max_tokens') {
+      // DIAGNOZA PAKIET 0 (12.11.2026), Z7. Opis ucięty limitem tokenów NIE jest pokazywany —
+      // do tego dnia zawodnik dostawał tekst urwany w pół zdania (ze znacznikiem [SYTUACJA],
+      // więc przechodził bramkę niżej). Teraz to nieudany odczyt z przyciskiem ponowienia.
+      _diagState.odczytDiagnozy = false;
+      powodNieudanejDiagnozy = 'opis ucięty limitem długości (stop_reason = max_tokens)';
+      zglosBladOdczytu('generateAIDiagnosis :: /api/diagnose', powodNieudanejDiagnozy);
     } else if (raw && raw.includes('[SYTUACJA]')) {
       _diagState.odczytDiagnozy = true;
       _diagState.diagnosisText = raw;
@@ -5776,7 +5965,8 @@ function opiszWaskieGardlo(scores, ctxPos) {
   if (deficyty.length) {
     const id = deficyty[0][0];
     return {
-      naglowek: 'Wąskie gardło: ' + nazwa(id).toLowerCase(),
+      // DIAGNOZA PAKIET 0 (12.11.2026), Z3b — pełna nazwa, ta sama co w nagłówku wyniku (było: skrót z SEG_NAMES).
+      naglowek: 'Wąskie gardło: ' + pelnaNazwaObszaru(id).toLowerCase(),
       zdanie: 'Z Twoich odpowiedzi najbardziej odstaje ' + jezyk(id) +
         ' — tu jedna zmiana da na boisku więcej niż praca nad wszystkim naraz.',
       zdanieRodzic: 'Z odpowiedzi w ankiecie najbardziej odstaje ' + jezyk(id) +
@@ -6436,8 +6626,11 @@ function renderResults(scores) {
   // Title — zależny od scenariusza, nie zawsze zakłada istnienie deficytu
   const titleEl = document.getElementById('results-title');
   if (scenario === 1) {
-    const worstSeg = SEGS.find(s => s.id === deficitsForScenario[0][0]);
-    titleEl.innerHTML = `Twoja gra ma<br><em>${worstSeg ? worstSeg.name.toLowerCase() : 'wąskie gardło'}</em> jako wąskie gardło`;
+    // DIAGNOZA PAKIET 0 (12.11.2026), Z3b. Było: `Twoja gra ma<br><em>[nazwa]</em> jako wąskie gardło`
+    // z `SEG_NAMES` małymi literami („tol. obciążeń", „technika fund."). Teraz pełna nazwa z
+    // `SEG_PELNE_NAZWY`; `SEG_NAMES` zostaje bez zmian, bo idzie do bazy.
+    const idWaskiegoGardla = deficitsForScenario[0][0];
+    titleEl.innerHTML = `Twoje wąskie gardło:<br><em>${esc(pelnaNazwaObszaru(idWaskiegoGardla))}</em>`;
   } else {
     titleEl.innerHTML = `Twój profil jest<br><em>wyrównany</em>`;
   }
@@ -6450,7 +6643,7 @@ function renderResults(scores) {
     if (groups.g1.length) groupsHTML += `
       <div class="seg-group-section seg-group-1">
         <div class="seg-group-head"><h4>Tu jest Twoja szansa</h4><span class="seg-group-badge">PRIORYTET</span></div>
-        <div class="seg-group-desc">Bardzo ważne na Twojej pozycji, a jednocześnie Cię dziś ogranicza.</div>
+        <div class="seg-group-desc">${opisGrupyPriorytetu(groups.g1)}</div>
         ${renderSegmentGroupHTML(groups.g1, 'critical', true)}
       </div>`;
     if (groups.g2.length) groupsHTML += `
@@ -6888,6 +7081,8 @@ function restart() {
   _cancelPdfAutoReveal();
   zapomnijPostepAnkiety(); // PLAN-D-Y1 08.2026 — D2: świadomy start od nowa kasuje zapis
   ans = {}; cachedScores = null;
+  // DIAGNOZA PAKIET 0, Z4 + Z5 — nowe przejście: zdarzenia początku lejka i zegar ankiety od zera.
+  _gcZdarzeniaPrzejscia = new Set(); _gcCzasWejsciaDoAnkiety = null;
   isJunior = false; activeSegs = [];
   // PLAN-D-Y2 08.2026 — D2. Po świadomym starcie od nowa nie ma ANI JEDNEJ
   // odpowiedzi, więc przycisk „Wygeneruj diagnozę" nie ma prawa zostać klikalny
