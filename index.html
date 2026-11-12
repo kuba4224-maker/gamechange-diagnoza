@@ -736,6 +736,13 @@ body {
 </head>
 <body>
 
+<!-- ZGODA RODZICA 12.11.2026 (K2) — komunikat po kliknięciu linku z maila do rodzica.
+     /api/zgoda-rodzica przekierowuje na ?zgoda=ok (T3) albo ?zgoda=blad (T4). Treść: pokazZgodeRodzica(). -->
+<div id="zgoda-rodzica-box" role="status" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#0e0d0b;color:#f5f2ec;padding:16px 48px 16px 20px;font-family:'DM Sans',sans-serif;font-size:14px;line-height:1.6;text-align:center;">
+  <span id="zgoda-rodzica-tekst"></span>
+  <button onclick="document.getElementById('zgoda-rodzica-box').style.display='none'" aria-label="Zamknij" style="position:absolute;top:10px;right:12px;background:none;border:none;color:#f5f2ec;font-size:20px;cursor:pointer;">×</button>
+</div>
+
 <!-- ════ INTRO ════ -->
 <div id="screen-intro" class="screen">
   <div style="min-height:100vh;background:#0e0d0b;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 24px;position:relative;overflow:hidden;">
@@ -956,7 +963,7 @@ body {
         </div>
       </div>
 
-      <!-- Email rodzica — pojawia się automatycznie, gdy zawodnik ma < 18 lat (DIAGNOZA PAKIET 0, Z7) -->
+      <!-- Email rodzica — pojawia się automatycznie, gdy zawodnik ma 16–17 lat (DIAGNOZA PAKIET 0, Z7; poniżej 16 adres zbiera bramka e-mail, ZGODA RODZICA 12.11.2026 K1) -->
       <div id="parent-email-wrap" style="display:none;margin-bottom:32px;padding:20px;background:#fff8f0;border:1px solid #e8c87a;">
         <div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#3a3830;margin-bottom:6px;font-weight:500;">Email rodzica lub opiekuna (opcjonalnie)</div>
         <p style="font-size:12px;color:#9a9488;font-weight:300;margin-bottom:12px;line-height:1.6;">Jeśli podasz email rodzica lub opiekuna, napiszę do niego krótko, co wynika z diagnozy i jaki może być następny krok. Możesz to pominąć.</p>
@@ -1147,11 +1154,21 @@ body {
         <div style="font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#9a9488;margin-bottom:12px;">Odbierz pełną diagnozę</div>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1.1;letter-spacing:0.01em;margin-bottom:16px;">Widzisz swoje wyniki.<br>Teraz dowiedz się <em style="color:#C0392B;font-style:normal;">co z nimi zrobić.</em></div>
         <p style="font-size:14px;color:#3a3830;font-weight:300;line-height:1.8;margin-bottom:28px;">Podaj email, żeby odblokować opis: co te wyniki znaczą na boisku i od czego zacząć.</p>
-        <input id="email-input" type="email" placeholder="twoj@email.com"
+        <input id="email-input" type="email" placeholder="twoj@email.com" aria-label="Twój e-mail"
           style="width:100%;padding:14px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:15px;color:#0e0d0b;outline:none;margin-bottom:12px;display:block;"
           onfocus="this.style.borderColor='#0e0d0b'"
           onblur="this.style.borderColor='#d8d3c8'"
           onkeydown="if(event.key==='Enter') submitEmail()">
+        <!-- ZGODA RODZICA 12.11.2026 (K1): poniżej 16 lat drugi obowiązkowy adres. Widoczność: _pokazPoleZgody(). -->
+        <div id="parent-gate-wrap" style="display:none;text-align:left;margin-bottom:12px;">
+          <input id="parent-gate-email" type="email" placeholder="E-mail rodzica lub opiekuna" aria-label="E-mail rodzica lub opiekuna"
+            style="width:100%;padding:14px 16px;border:1px solid #d8d3c8;background:#f5f2ec;font-family:'DM Sans',sans-serif;font-size:15px;color:#0e0d0b;outline:none;margin-bottom:8px;display:block;"
+            onfocus="this.style.borderColor='#0e0d0b'"
+            onblur="this.style.borderColor='#d8d3c8'"
+            onkeydown="if(event.key==='Enter') submitEmail()">
+          <p id="parent-gate-t1" style="font-size:12px;color:#3a3830;font-weight:300;line-height:1.6;margin:0;">Masz mniej niż 16 lat, więc o wiadomościach ode mnie decyduje rodzic. Wyślę mu jeden mail z prośbą o potwierdzenie.</p>
+          <div id="parent-gate-error" style="color:#C0392B;font-size:13px;display:none;margin-top:8px;"></div>
+        </div>
         <button onclick="submitEmail()"
           style="width:100%;background:#0e0d0b;color:#f5f2ec;border:none;padding:16px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.1em;cursor:pointer;margin-bottom:10px;">
           Odblokuj diagnozę →
@@ -2655,7 +2672,7 @@ function updateAgeFromYear(yearStr) {
   // roczniku szedłby dalej (`startSurveyFromContext`) mimo ukrytego pola.
   const parentWrap = document.getElementById('parent-email-wrap');
   if (parentWrap) {
-    const pokaz = age < 18;
+    const pokaz = age >= GC_ZGODA_MIN_WIEK && age < 18; // ZGODA RODZICA 12.11.2026 (K1): poniżej 16 adres zbiera bramka
     parentWrap.style.display = pokaz ? 'block' : 'none';
     if (!pokaz) { const pi = document.getElementById('parent-email-input'); if (pi) pi.value = ''; }
   }
@@ -4447,6 +4464,7 @@ function renderDiagnosisV2Readonly(raw, scores, usedInsights) {
 
 window.addEventListener('load', () => {
   const urlParams = new URLSearchParams(window.location.search);
+  try { pokazZgodeRodzica(urlParams.get('zgoda')); } catch (e) {} // ZGODA RODZICA 12.11.2026 (K2)
 
   // Kod partnera polecającego — zapisywany raz przy wejściu z linku, trzyma się
   // w localStorage przez cały proces (także po przekierowaniu do Stripe i z powrotem),
@@ -5094,6 +5112,60 @@ function _zgodaMarketingowa() {
 function _pokazPoleZgody() {
   const wrap = document.getElementById('email-consent-wrap');
   if (wrap) wrap.style.display = _czyPokazacZgode() ? 'flex' : 'none';
+  const rodzic = document.getElementById('parent-gate-wrap');
+  if (rodzic) rodzic.style.display = _czyWymaganaZgodaRodzica() ? 'block' : 'none';
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ZGODA RODZICA 12.11.2026 (K1, polecenie DIAGNOZA-ZGODA-RODZICA-KOD-12-11).
+   Decyzja Kuby: e-mail podaje każdy zawodnik; poniżej 16 lat na listę wiadomości nie trafia
+   NIKT, dopóki rodzic nie kliknie linku z maila (api/zgoda-rodzica.js).
+   ⛔ W tym kroku żadnego /api/mailerlite dla adresu zawodnika poniżej 16 lat.
+   Stany (R5), każdy z własną nazwą w `note`:
+     'wyslano_prosbe' · 'blad_listy' (serwer odmówił) · 'blad_sieci'.
+   ══════════════════════════════════════════════════════════════════════════ */
+function _czyWymaganaZgodaRodzica() {
+  return GC_ZGODA_MARKETING_ENABLED === true &&
+    !!ctx && ctx.age !== null && ctx.age !== undefined && ctx.age < GC_ZGODA_MIN_WIEK;
+}
+async function _wyslijProsbeRodzica(email, parentEmail) {
+  let stan = 'blad_sieci', powod = '';
+  try {
+    const opis = opiszWaskieGardlo(cachedScores, ctx.pos);
+    const kod = (typeof affiliateCode === 'string' ? affiliateCode : '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 53);
+    const r = await fetch('/api/zgoda-rodzica', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, parent_email: parentEmail, obszar: opis.segId || 'ogolna', ref: kod, imie: playerName || '' }),
+    });
+    stan = (r && r.ok) ? 'wyslano_prosbe' : 'blad_listy';
+    powod = r ? 'HTTP ' + r.status : '';
+  } catch (e) {
+    stan = 'blad_sieci';
+    powod = String(e && e.message ? e.message : e);
+  }
+  if (stan !== 'wyslano_prosbe') console.error('ZGODA RODZICA: prośba do rodzica nie wyszła — ' + stan + (powod ? ' · ' + powod : ''));
+  saveToSupabase('diagnostics', buildDiagnosticsRecord({
+    event: 'email_submitted',
+    email,
+    parent_email: parentEmail,
+    marketing_consent: false,
+    note: stan === 'wyslano_prosbe' ? 'zgoda rodzica: wyslano prosbe' : 'zgoda rodzica: ' + stan + (powod ? ' (' + powod + ')' : ''),
+  }));
+  return stan;
+}
+// Komunikat po powrocie z linku rodzica (?zgoda=ok · ?zgoda=blad). Teksty T3/T4 zatwierdził Kuba 12.11.2026.
+const ZGODA_RODZICA_T3 = 'Dziękuję, zgoda zapisana. Wiadomości będą przychodzić na oba adresy. Z każdej można zrezygnować jednym kliknięciem.';
+const ZGODA_RODZICA_T4 = 'Ten link wygasł albo jest niepełny. Wystarczy, że zawodnik wyśle wynik jeszcze raz.';
+function pokazZgodeRodzica(param) {
+  const tekst = param === 'ok' ? ZGODA_RODZICA_T3 : (param === 'blad' ? ZGODA_RODZICA_T4 : null);
+  if (!tekst) return false;
+  const box = document.getElementById('zgoda-rodzica-box');
+  const el = document.getElementById('zgoda-rodzica-tekst');
+  if (!box || !el) return false;
+  el.textContent = tekst;
+  box.style.display = 'block';
+  return true;
 }
 // Zapis do MailerLite przez /api/mailerlite (klucz tylko na serwerze). Fire-and-forget: błąd nie blokuje ekranu.
 function _zapiszDoListy(email) {
@@ -5115,13 +5187,34 @@ function submitEmail() {
     return;
   }
   err.style.display = 'none';
+
+  // ZGODA RODZICA 12.11.2026 (K1): poniżej 16 lat oba adresy obowiązkowe i różne.
+  const wymagaRodzica = _czyWymaganaZgodaRodzica();
+  let parentEmail = null;
+  if (wymagaRodzica) {
+    const pIn = document.getElementById('parent-gate-email');
+    const pErr = document.getElementById('parent-gate-error');
+    parentEmail = pIn ? String(pIn.value || '').trim().slice(0, 254) : '';
+    let blad = '';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(parentEmail)) blad = 'Podaj poprawny e-mail rodzica lub opiekuna.';
+    else if (parentEmail.toLowerCase() === email.toLowerCase()) blad = 'E-mail rodzica musi być inny niż Twój.';
+    if (blad) {
+      if (pErr) { pErr.textContent = blad; pErr.style.display = 'block'; }
+      return;
+    }
+    if (pErr) pErr.style.display = 'none';
+  }
   playerEmail = email;
 
   // Zapisz email do Supabase
-  const zgoda = _zgodaMarketingowa();
-  saveToSupabase('diagnostics', buildDiagnosticsRecord(Object.assign({ event: 'email_submitted', email },
-    zgoda === null ? {} : { marketing_consent: zgoda })));
-  if (zgoda === true) _zapiszDoListy(email);
+  if (wymagaRodzica) {
+    _wyslijProsbeRodzica(email, parentEmail); // zapis zdarzenia po odpowiedzi serwera; ⛔ bez /api/mailerlite
+  } else {
+    const zgoda = _zgodaMarketingowa();
+    saveToSupabase('diagnostics', buildDiagnosticsRecord(Object.assign({ event: 'email_submitted', email },
+      zgoda === null ? {} : { marketing_consent: zgoda })));
+    if (zgoda === true) _zapiszDoListy(email);
+  }
   // Powiadomienie email
   sendEmailNotification('Nowy email z ankiety', { email });
 

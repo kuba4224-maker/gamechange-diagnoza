@@ -286,15 +286,20 @@ const ODCZYTY = SIECIOWE.filter(w => w.rodzaj === 'gcRpc'
 /* ⚠️ PRZESTAWIONE 11.11.2026 (A1, polecenie LEJEK-APLIKACJA-DOMKNIECIE-11-11): 21→22, zapisy 11→12. Nowa, NAZWANA
    ścieżka zapisu: `zapiszAdresRodzica` → POST /api/mailerlite (adres rodzica na ?dla=rodzic, tylko po zaznaczonej
    zgodzie; wynik pokazany na ekranie, stan zapisany w nocie zdarzenia). Odczytów bez zmian. */
-assertEq(SIECIOWE.length, 22, 'zapadka na RÓWNOŚĆ (O73): wywołań sieciowych poza pośrednikiem');
+/* ⚠️ PRZESTAWIONE 12.11.2026 (ZGODA RODZICA, K1, polecenie DIAGNOZA-ZGODA-RODZICA-KOD-12-11): 22→23, zapisy 12→13.
+   Nowa, NAZWANA ścieżka zapisu: `_wyslijProsbeRodzica` → POST /api/zgoda-rodzica (poniżej 16 lat: prośba
+   o zgodę do rodzica; stan zapisany w nocie zdarzenia `email_submitted`). Odczytów bez zmian. */
+assertEq(SIECIOWE.length, 23, 'zapadka na RÓWNOŚĆ (O73): wywołań sieciowych poza pośrednikiem');
 assertEq(ODCZYTY.length, 10, 'zapadka na RÓWNOŚĆ (O73): ŚCIEŻEK ODCZYTU w lejku');
-assertEq(SIECIOWE.length - ODCZYTY.length, 12, 'zapadka na RÓWNOŚĆ (O73): ścieżek zapisu');
+assertEq(SIECIOWE.length - ODCZYTY.length, 13, 'zapadka na RÓWNOŚĆ (O73): ścieżek zapisu');
 /* ⭐ DODANE 12.11.2026 (DIAGNOZA PAKIET 0, Z5). Trzy nowe zdarzenia początku lejka (`survey_opened`,
    `survey_started`, `survey_half`) idą przez JEDNO nowe wywołanie `saveToSupabase` w
    `zapiszZdarzenieLejkaRazNaPrzejscie` — a `saveToSupabase` jest pośrednikiem z jednym `fetch`,
    więc zapadki wyżej (liczą `fetch`) tego NIE WIDZĄ. Stąd osobna zapadka na RÓWNOŚĆ na liczbę
    wywołań zapisu: 10 → 11. Kto dołoży kolejny zapis zdarzenia, zobaczy czerwień i musi go nazwać. */
-assertEq(ileWywolan('saveToSupabase'), 11, 'zapadka na RÓWNOŚĆ (O73): wywołań `saveToSupabase` w lejku (12.11.2026: 10 → 11, Z5)');
+/* ⚠️ PRZESTAWIONE 12.11.2026 (ZGODA RODZICA, K1): 11 → 12. Nowe wywołanie w `_wyslijProsbeRodzica`
+   (zdarzenie `email_submitted` poniżej 16 lat, zapisywane PO odpowiedzi /api/zgoda-rodzica, z nazwanym stanem). */
+assertEq(ileWywolan('saveToSupabase'), 12, 'zapadka na RÓWNOŚĆ (O73): wywołań `saveToSupabase` w lejku (12.11.2026: 10 → 11, Z5; 11 → 12, zgoda rodzica K1)');
 assertEq(ileWywolan('zapiszZdarzenieLejkaRazNaPrzejscie'), 3, 'zapadka na RÓWNOŚĆ (O73): zdarzeń początku lejka — dokładnie trzy miejsca wywołania (Z5)');
 
 /* ══════════════════════════════════════════════════════════════════════════

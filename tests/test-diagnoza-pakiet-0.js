@@ -250,10 +250,22 @@ function sprawdzTekst(t) {
     const el = {};
     const get = (id) => el[id] || (el[id] = { style: {}, textContent: '', value: '' });
     const rok = new Date().getFullYear();
-    const c = { document: { getElementById: get }, ctx: {}, setTimeout() {}, ctxProgress() {}, parseInt, Date };
+    // ⚠️ PRZECELOWANE 12.11.2026 (ZGODA RODZICA, K1, decyzja Kuby 12.11): poniżej 16 lat adres rodzica zbiera
+    // bramka e-mail (obowiązkowo), więc pole na ekranie „Kim jesteś?" stoi tylko dla 16–17 lat. Próg czytany
+    // z pliku (GC_ZGODA_MIN_WIEK), nie wpisany tu na sztywno. Każdy stan, który zapalał starą asercję
+    // (pole dla 18+), zapala i tę.
+    const mPr = /const GC_ZGODA_MIN_WIEK = (\d+);/.exec(t);
+    ok(!!mPr && Number(mPr[1]) === 16, 'Z7 próg zgody w pliku = 16', mPr ? mPr[1] : 'brak stałej');
+    const c = { document: { getElementById: get }, ctx: {}, setTimeout() {}, ctxProgress() {}, parseInt, Date, GC_ZGODA_MIN_WIEK: mPr ? Number(mPr[1]) : 16 };
     vm.createContext(c); vm.runInContext(fn, c);
+    get('parent-email-input').value = 'rodzic@x.pl';
     c.updateAgeFromYear(String(rok - 10));
-    ok(get('parent-email-wrap').style.display === 'block', 'Z7 10 lat → pole rodzica widoczne');
+    ok(get('parent-email-wrap').style.display === 'none', '⭐ Z7 10 lat → pole rodzica SCHOWANE (adres zbiera bramka, K1)');
+    ok(get('parent-email-input').value === '', 'Z7 poniżej 16 schowane pole nie niesie wpisanego adresu');
+    c.updateAgeFromYear(String(rok - 15));
+    ok(get('parent-email-wrap').style.display === 'none', 'Z7 15 lat → schowane');
+    c.updateAgeFromYear(String(rok - 16));
+    ok(get('parent-email-wrap').style.display === 'block', 'Z7 16 lat → widoczne');
     c.updateAgeFromYear('2018');
     ok(c.ctx.age === rok - 2018, 'Z7 rocznik 2018 przyjęty (wiek ' + (rok - 2018) + ')', String(c.ctx.age));
     c.updateAgeFromYear(String(rok - 17));
@@ -316,7 +328,8 @@ const MUTACJE = [
   ['M10 zdarzenie lejka bez „raz na przejście"', t => r1(t, 'if (_gcZdarzeniaPrzejscia.has(nazwa)) return false;', '')],
   ['M11 `restart` nie zeruje przejścia', t => r1(t, '_gcZdarzeniaPrzejscia = new Set(); _gcCzasWejsciaDoAnkiety = null;', '')],
   ['M12 `survey_half` przy 13 odpowiedziach', t => r1(t, 'const GC_PROG_POLOWY_ANKIETY = 14;', 'const GC_PROG_POLOWY_ANKIETY = 13;')],
-  ['M13 pole rodzica znów dla każdego wieku', t => r1(t, 'const pokaz = age < 18;', 'const pokaz = true;')],
+  ['M13 pole rodzica znów dla każdego wieku', t => r1(t, 'const pokaz = age >= GC_ZGODA_MIN_WIEK && age < 18;', 'const pokaz = true;')],
+  ['M13b pole rodzica znów poniżej 16 lat (dwa adresy rodzica naraz)', t => r1(t, 'const pokaz = age >= GC_ZGODA_MIN_WIEK && age < 18;', 'const pokaz = age < 18;')],
   ['M14 granica rocznika wraca do 2015', t => r1(t, 'year > 2018) {', 'year > 2015) {')],
   ['M15 ucięty opis znów pokazywany (gałąź max_tokens usunięta)', t => r1(t, "} else if (data && data.stop_reason === 'max_tokens') {", "} else if (false) {")],
   ['M16 nieprawdziwe zdanie wraca', t => r1(t, 'Podaj email, żeby pobrać raport', 'Podaj email — wyślemy też kopię na Twoją skrzynkę')],
