@@ -747,8 +747,11 @@ body {
     <div style="position:relative;z-index:1;max-width:640px;width:100%;">
       <!-- Logo Gamechange -->
       <div style="margin-bottom:40px;">
+        <!-- DIAGNOZA PAKIET 0 (12.11.2026), Z7 — filtr `brightness(0) invert(1)` zdjęty: plik dotąd się nie
+             ładował (zła nazwa), a po naprawie filtr malował czerwony prostokąt logo na biało i napis znikał.
+             Logo jest czerwone z białym napisem — na ciemnym tle stoi bez filtra. -->
         <img src="Logo_Gamechange.png" alt="Gamechange"
-          style="height:36px;filter:brightness(0) invert(1);opacity:0.9;"
+          style="height:36px;"
           onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
         <div style="display:none;font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:0.25em;color:rgba(255,255,255,0.3);text-transform:uppercase;">Gamechange System</div>
       </div>
