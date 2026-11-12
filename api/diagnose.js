@@ -4,6 +4,8 @@
 // a Anthropic API. Klucz API (ANTHROPIC_API_KEY) jest przechowywany jako zmienna
 // środowiskowa na Vercelu i NIGDY nie trafia do kodu widocznego w przeglądarce.
 //
+// ⚠️ 12.11.2026: model domyślny to dziś claude-sonnet-5-5 (MODEL_DOMYSLNY niżej, decyzja Kuby po ślepym teście).
+// Poniższy opis Opusa jest historyczny (czerwiec 2026).
 // Model: claude-opus-4-8 — najwyższa jakość dostępna publicznie (czerwiec 2026).
 // Opus 4.8 ma znacząco lepsze rozumowanie i precyzję niż Sonnet przy koszcie
 // ~$0.04 za diagnozę (0.2% ceny za diagnozę 19 zł) — różnica kosztów pomijalnie mała,
@@ -44,8 +46,11 @@ export const LIMIT_IP = 30;
 // LEJEK 11.11.2026 — PORÓWNANIE MODELI. Wołający może wskazać model, ale TYLKO z tej listy;
 // cokolwiek innego (albo brak pola) = model domyślny. Na liście nie ma nic droższego od domyślnego,
 // więc ta furtka nie podnosi kosztu wywołania. Frontend dziś pola `model` nie wysyła.
-export const MODEL_DOMYSLNY = 'claude-opus-4-8';
-export const DOZWOLONE_MODELE = ['claude-opus-4-8', 'claude-sonnet-5-5'];
+// 12.11.2026 — DECYZJA KUBY po ślepym teście (Opus 2 · Sonnet 2 · remis 1, 5 profili):
+// domyślnie Sonnet 5.5 (~0,04 $ za diagnozę zamiast ~0,10 $). Opus zdjęty z listy, bo jest droższy
+// od domyślnego. Powrót do Opusa = zmiana obu stałych naraz.
+export const MODEL_DOMYSLNY = 'claude-sonnet-5-5';
+export const DOZWOLONE_MODELE = ['claude-sonnet-5-5'];
 export function wybierzModel(model) {
   return DOZWOLONE_MODELE.includes(model) ? model : MODEL_DOMYSLNY;
 }
